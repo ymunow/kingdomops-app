@@ -383,7 +383,7 @@ export default function Results() {
   return (
     <div className="min-h-screen bg-soft-cream">
       {/* Header */}
-      <header className="bg-gradient-to-br from-spiritual-blue to-blue-800 text-white py-16">
+      <header className="bg-gradient-to-br from-spiritual-blue to-purple-900 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="mb-6">
             <Trophy className="text-warm-gold h-16 w-16 mb-4 mx-auto" />
@@ -533,7 +533,7 @@ export default function Results() {
           </section>
 
           {/* Next Steps Section */}
-          <section className="py-16 bg-gradient-to-br from-spiritual-blue to-blue-800 text-white rounded-2xl">
+          <section className="py-16 bg-gradient-to-br from-spiritual-blue to-purple-900 text-white rounded-2xl">
             <div className="max-w-4xl mx-auto px-8 text-center">
               <h2 className="font-display font-bold text-3xl mb-6">Ready to Step Into Your Calling?</h2>
               <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">

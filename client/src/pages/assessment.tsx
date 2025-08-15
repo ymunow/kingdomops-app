@@ -432,7 +432,7 @@ export default function Assessment() {
                     <Button
                       onClick={handleSubmit}
                       disabled={submitAssessmentMutation.isPending}
-                      className="bg-spiritual-blue hover:bg-spiritual-blue-700 px-8 py-3"
+                      className="bg-spiritual-blue hover:bg-purple-800 px-8 py-3"
                       data-testid="button-submit-assessment"
                     >
                       {submitAssessmentMutation.isPending ? (
@@ -476,7 +476,7 @@ export default function Assessment() {
                 <Button
                   onClick={currentStep === 0 ? nextQuestion : nextStep}
                   disabled={false} // Allow progression for testing
-                  className="bg-spiritual-blue hover:bg-spiritual-blue-700"
+                  className="bg-spiritual-blue hover:bg-purple-800"
                   data-testid="button-next"
                 >
                   Next

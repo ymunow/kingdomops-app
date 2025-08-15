@@ -81,10 +81,10 @@ export default function MyResults() {
 
   if (isLoading || resultsLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-spiritual-blue-50 to-warm-gold-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-yellow-50 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spiritual-blue-600 mx-auto"></div>
-          <p className="text-spiritual-blue-700">Loading your results...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="text-purple-700">Loading your results...</p>
         </div>
       </div>
     );
@@ -113,20 +113,20 @@ export default function MyResults() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-spiritual-blue-50 to-warm-gold-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-yellow-50">
       {/* Header */}
       <div className="bg-white border-b shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-spiritual-blue-900 flex items-center gap-2">
+              <h1 className="text-3xl font-bold text-purple-900 flex items-center gap-2">
                 <Crown className="h-8 w-8 text-warm-gold-500" />
                 My Results
               </h1>
-              <p className="text-spiritual-blue-600 mt-1">View and share your spiritual gifts assessment results</p>
+              <p className="text-purple-600 mt-1">View and share your spiritual gifts assessment results</p>
             </div>
             <Link href="/">
-              <Button variant="outline" className="border-spiritual-blue-200 text-spiritual-blue-700 hover:bg-spiritual-blue-50">
+              <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">
                 Back to Home
               </Button>
             </Link>
@@ -142,7 +142,7 @@ export default function MyResults() {
               <h3 className="text-xl font-semibold text-gray-700">No Results Yet</h3>
               <p className="text-gray-500 mb-6">You haven't completed any assessments yet.</p>
               <Link href="/assessment">
-                <Button className="bg-spiritual-blue-600 hover:bg-spiritual-blue-700 text-white">
+                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                   Take Assessment
                 </Button>
               </Link>
@@ -155,7 +155,7 @@ export default function MyResults() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-xl text-spiritual-blue-900 flex items-center gap-2">
+                      <CardTitle className="text-xl text-purple-900 flex items-center gap-2">
                         <Crown className="h-5 w-5 text-warm-gold-500" />
                         Assessment Results
                       </CardTitle>
@@ -187,17 +187,17 @@ export default function MyResults() {
 
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-spiritual-blue-800 mb-3">Your Top 3 Spiritual Gifts:</h4>
+                    <h4 className="font-semibold text-purple-800 mb-3">Your Top 3 Spiritual Gifts:</h4>
                     <div className="space-y-2">
                       {[result.gifts.top1, result.gifts.top2, result.gifts.top3].map((gift, index) => (
-                        <div key={gift.key} className="flex items-center justify-between p-3 bg-spiritual-blue-50 rounded-lg">
+                        <div key={gift.key} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-spiritual-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                               {index + 1}
                             </div>
                             <div>
-                              <div className="font-medium text-spiritual-blue-900">{gift.name}</div>
-                              <div className="text-sm text-spiritual-blue-600">Score: {gift.score}/25</div>
+                              <div className="font-medium text-purple-900">{gift.name}</div>
+                              <div className="text-sm text-purple-600">Score: {gift.score}/25</div>
                             </div>
                           </div>
                         </div>
@@ -211,7 +211,7 @@ export default function MyResults() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         {result.ageGroups.length > 0 && (
                           <div>
-                            <h5 className="font-medium text-spiritual-blue-800 mb-2">Age Groups:</h5>
+                            <h5 className="font-medium text-purple-800 mb-2">Age Groups:</h5>
                             <div className="flex flex-wrap gap-1">
                               {result.ageGroups.map((group) => (
                                 <Badge key={group} variant="outline" className="text-xs">
@@ -223,7 +223,7 @@ export default function MyResults() {
                         )}
                         {result.ministryInterests.length > 0 && (
                           <div>
-                            <h5 className="font-medium text-spiritual-blue-800 mb-2">Ministry Interests:</h5>
+                            <h5 className="font-medium text-purple-800 mb-2">Ministry Interests:</h5>
                             <div className="flex flex-wrap gap-1">
                               {result.ministryInterests.map((interest) => (
                                 <Badge key={interest} variant="outline" className="text-xs">
@@ -243,7 +243,7 @@ export default function MyResults() {
                     <Link href={`/results/${result.responseId}`} className="flex-1">
                       <Button 
                         variant="outline" 
-                        className="w-full border-spiritual-blue-200 text-spiritual-blue-700 hover:bg-spiritual-blue-50"
+                        className="w-full border-purple-200 text-purple-700 hover:bg-purple-50"
                         disabled={result.isExpired}
                         data-testid={`button-view-${result.id}`}
                       >
@@ -255,7 +255,7 @@ export default function MyResults() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="border-spiritual-blue-200 text-spiritual-blue-700 hover:bg-spiritual-blue-50"
+                        className="border-purple-200 text-purple-700 hover:bg-purple-50"
                         onClick={() => copyShareLink(result.responseId)}
                         data-testid={`button-share-${result.id}`}
                       >
@@ -272,7 +272,7 @@ export default function MyResults() {
         {(results as UserResult[]).length > 0 && (
           <div className="mt-8 text-center">
             <Link href="/assessment">
-              <Button className="bg-spiritual-blue-600 hover:bg-spiritual-blue-700 text-white" data-testid="button-retake-assessment">
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white" data-testid="button-retake-assessment">
                 Take Assessment Again
               </Button>
             </Link>

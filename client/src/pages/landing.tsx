@@ -56,7 +56,7 @@ export default function Landing() {
                 </div>
               ) : (
                 <Button 
-                  className="bg-spiritual-blue text-white hover:bg-spiritual-blue-700" 
+                  className="bg-spiritual-blue text-white hover:bg-purple-800" 
                   onClick={handleLogin}
                   data-testid="button-signin"
                 >
@@ -70,7 +70,7 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section className="relative pt-16 pb-32 overflow-hidden" style={{
-        backgroundImage: `linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.9) 100%), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3')`
+        backgroundImage: `linear-gradient(135deg, rgba(37, 10, 52, 0.9) 0%, rgba(29, 8, 41, 0.9) 100%), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3')`
       }}>
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="mb-8">
