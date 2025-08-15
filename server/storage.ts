@@ -83,10 +83,10 @@ export class MemStorage implements IStorage {
       const updatedUser: User = {
         ...existingUser,
         ...userData,
-        email: userData.email ?? existingUser.email,
-        firstName: userData.firstName ?? existingUser.firstName,
-        lastName: userData.lastName ?? existingUser.lastName,
-        profileImageUrl: userData.profileImageUrl ?? existingUser.profileImageUrl,
+        email: userData.email ?? existingUser.email ?? null,
+        firstName: userData.firstName ?? existingUser.firstName ?? null,
+        lastName: userData.lastName ?? existingUser.lastName ?? null,
+        profileImageUrl: userData.profileImageUrl ?? existingUser.profileImageUrl ?? null,
         updatedAt: new Date(),
       };
       this.users.set(userData.id!, updatedUser);
@@ -254,6 +254,7 @@ export class MemStorage implements IStorage {
       id,
       ageGroups: (insertResult.ageGroups as string[]) || [],
       ministryInterests: (insertResult.ministryInterests as string[]) || [],
+      createdAt: new Date(),
     };
     this.results.set(id, result);
     return result;
