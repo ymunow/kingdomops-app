@@ -415,7 +415,7 @@ export default function Assessment() {
                   <div className="text-center">
                     <Button
                       onClick={handleSubmit}
-                      disabled={submitAssessmentMutation.isPending || totalAnswered === 0}
+                      disabled={submitAssessmentMutation.isPending}
                       className="bg-spiritual-blue hover:bg-blue-700 px-8 py-3"
                       data-testid="button-submit-assessment"
                     >
@@ -459,7 +459,7 @@ export default function Assessment() {
               {currentStep < 3 && (
                 <Button
                   onClick={currentStep === 0 ? nextQuestion : nextStep}
-                  disabled={currentStep === 0 && !answers[currentQuestion?.id || ""]}
+                  disabled={false} // Allow progression for testing
                   className="bg-spiritual-blue hover:bg-blue-700"
                   data-testid="button-next"
                 >

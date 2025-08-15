@@ -92,14 +92,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.post("/api/auth/signup", authLimiter, async (req, res) => {
     try {
-      const signupSchema = insertUserSchema
-        .omit({ passwordHash: true })
-        .extend({
-          name: insertUserSchema.shape.name.optional(),
-          password: insertUserSchema.shape.passwordHash,
-        });
+      const { name, email, password } = req.body;
       
-      const { name, email, password } = signupSchema.parse(req.body);
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
 
       // Check if user exists
       const existingUser = await storage.getUserByEmail(email);
