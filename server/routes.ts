@@ -305,12 +305,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? Math.ceil((result.expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
         : null;
 
-      // Enhance results with gift content and expiration info
+      // Get user information for the results
+      const response = await storage.getResponse(result.responseId);
+      const user = response ? await storage.getUser(response.userId) : null;
+
+      // Enhance results with gift content, expiration info, and user data
       const enhancedResult = {
         ...result,
         daysUntilExpiration,
         isNearExpiration: daysUntilExpiration !== null && daysUntilExpiration <= 30,
         isVeryNearExpiration: daysUntilExpiration !== null && daysUntilExpiration <= 7,
+        user: user ? {
+          name: user.firstName || user.email || "User",
+          email: user.email
+        } : null,
         gifts: {
           top1: {
             key: result.top1GiftKey,

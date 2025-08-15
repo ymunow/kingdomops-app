@@ -30,6 +30,10 @@ interface ResultData {
   isNearExpiration: boolean;
   isVeryNearExpiration: boolean;
   expiresAt: string;
+  user?: {
+    name: string;
+    email?: string;
+  } | null;
   gifts: {
     top1: ResultGift;
     top2: ResultGift;
@@ -79,39 +83,245 @@ export default function Results() {
   };
 
   const handleDownloadReport = () => {
-    // Generate a simple text-based report
     if (results) {
-      const reportContent = `
-SPIRITUAL GIFTS ASSESSMENT RESULTS
+      const userName = results.user?.name || "User";
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
 
-Your Top 3 Spiritual Gifts:
+      // Create styled HTML content that matches the results page
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spiritual Gifts Assessment Results - ${userName}</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 40px;
+      background: linear-gradient(135deg, #eff6ff 0%, #fefce8 100%);
+      color: #1e3a8a;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 8px 25px rgba(30, 64, 175, 0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #eff6ff;
+      padding-bottom: 20px;
+    }
+    .crown {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      color: #1e3a8a;
+      font-size: 32px;
+      margin: 0;
+      font-weight: 700;
+    }
+    .subtitle {
+      color: #2563eb;
+      font-size: 18px;
+      margin: 8px 0 16px;
+    }
+    .user-name {
+      font-size: 20px;
+      color: #f59e0b;
+      font-weight: 600;
+    }
+    .date {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    .gifts-section {
+      margin: 40px 0;
+    }
+    .gift-card {
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+    .gift-rank {
+      background: #f59e0b;
+      color: #1e3a8a;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 16px;
+    }
+    .gift-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .gift-name {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+    .gift-score {
+      background: rgba(255,255,255,0.2);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      margin-left: auto;
+    }
+    .gift-definition {
+      margin: 16px 0;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .gift-scripture {
+      background: rgba(255,255,255,0.1);
+      padding: 16px;
+      border-radius: 8px;
+      font-style: italic;
+      border-left: 4px solid #f59e0b;
+    }
+    .additional-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin: 40px 0;
+    }
+    .info-card {
+      background: #eff6ff;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    .info-title {
+      font-weight: 600;
+      color: #1e3a8a;
+      margin-bottom: 12px;
+    }
+    .info-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .info-tag {
+      background: white;
+      color: #2563eb;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      border: 1px solid #bfdbfe;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #eff6ff;
+      color: #6b7280;
+    }
+    @media print {
+      body { background: white; }
+      .container { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="crown">👑</div>
+      <h1>Spiritual Gifts Assessment</h1>
+      <div class="subtitle">Personal Results Report</div>
+      <div class="user-name">${userName}</div>
+      <div class="date">Generated on ${currentDate}</div>
+    </div>
 
-1. ${results.gifts.top1.name} (Score: ${results.gifts.top1.score}/25)
-   ${results.gifts.top1.definition}
-   
-   Scripture: "${results.gifts.top1.scripture}" - ${results.gifts.top1.scriptureRef}
+    <div class="gifts-section">
+      <h2 style="color: #1e3a8a; margin-bottom: 24px;">Your Top 3 Spiritual Gifts</h2>
+      
+      <div class="gift-card">
+        <div class="gift-header">
+          <span class="gift-rank">1</span>
+          <h3 class="gift-name">${results.gifts.top1.name}</h3>
+          <div class="gift-score">${results.gifts.top1.score}/25</div>
+        </div>
+        <div class="gift-definition">${results.gifts.top1.definition}</div>
+        <div class="gift-scripture">
+          "${results.gifts.top1.scripture}"<br>
+          <strong>${results.gifts.top1.scriptureRef}</strong>
+        </div>
+      </div>
 
-2. ${results.gifts.top2.name} (Score: ${results.gifts.top2.score}/25)
-   ${results.gifts.top2.definition}
-   
-   Scripture: "${results.gifts.top2.scripture}" - ${results.gifts.top2.scriptureRef}
+      <div class="gift-card">
+        <div class="gift-header">
+          <span class="gift-rank">2</span>
+          <h3 class="gift-name">${results.gifts.top2.name}</h3>
+          <div class="gift-score">${results.gifts.top2.score}/25</div>
+        </div>
+        <div class="gift-definition">${results.gifts.top2.definition}</div>
+        <div class="gift-scripture">
+          "${results.gifts.top2.scripture}"<br>
+          <strong>${results.gifts.top2.scriptureRef}</strong>
+        </div>
+      </div>
 
-3. ${results.gifts.top3.name} (Score: ${results.gifts.top3.score}/25)
-   ${results.gifts.top3.definition}
-   
-   Scripture: "${results.gifts.top3.scripture}" - ${results.gifts.top3.scriptureRef}
+      <div class="gift-card">
+        <div class="gift-header">
+          <span class="gift-rank">3</span>
+          <h3 class="gift-name">${results.gifts.top3.name}</h3>
+          <div class="gift-score">${results.gifts.top3.score}/25</div>
+        </div>
+        <div class="gift-definition">${results.gifts.top3.definition}</div>
+        <div class="gift-scripture">
+          "${results.gifts.top3.scripture}"<br>
+          <strong>${results.gifts.top3.scriptureRef}</strong>
+        </div>
+      </div>
+    </div>
 
-Age Group Preferences: ${results.ageGroups.join(", ")}
-Ministry Interests: ${results.ministryInterests.join(", ")}
+    <div class="additional-info">
+      <div class="info-card">
+        <div class="info-title">Age Group Preferences</div>
+        <div class="info-items">
+          ${results.ageGroups.map(group => `<span class="info-tag">${group}</span>`).join('')}
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-title">Ministry Interests</div>
+        <div class="info-items">
+          ${results.ministryInterests.map(interest => `<span class="info-tag">${interest}</span>`).join('')}
+        </div>
+      </div>
+    </div>
 
-Generated by Kingdom Impact Training - Spiritual Gifts Assessment
+    <div class="footer">
+      <p><strong>Kingdom Impact Training</strong><br>
+      Spiritual Gifts Assessment Platform</p>
+      <p>Discover your unique calling and serve God's Kingdom with purpose.</p>
+    </div>
+  </div>
+</body>
+</html>
       `.trim();
 
-      const blob = new Blob([reportContent], { type: "text/plain" });
+      const blob = new Blob([htmlContent], { type: "text/html" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "spiritual-gifts-results.txt";
+      a.download = `spiritual-gifts-results-${userName.replace(/\s+/g, '-').toLowerCase()}.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -178,6 +388,11 @@ Generated by Kingdom Impact Training - Spiritual Gifts Assessment
             <Trophy className="text-warm-gold h-16 w-16 mb-4 mx-auto" />
           </div>
           <h1 className="font-display font-bold text-4xl md:text-5xl mb-4">Your Spiritual Gift Results</h1>
+          {results.user && (
+            <div className="text-warm-gold text-2xl font-semibold mb-4">
+              {results.user.name}
+            </div>
+          )}
           <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
             Congratulations! Here are your top 3 spiritual gifts and how God has uniquely equipped you to serve His Kingdom.
           </p>
