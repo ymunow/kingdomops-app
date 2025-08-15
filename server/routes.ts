@@ -281,6 +281,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const scores = scoreGifts(scoreInput);
 
         // Save results
+        console.log('Creating result for responseId:', responseId);
         const result = await storage.createResult({
           responseId,
           scoresJson: scores.totals,
@@ -291,6 +292,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ministryInterests: ministryInterests || [],
           renderedHtml: null,
         });
+        console.log('Result created with ID:', result.id, 'for responseId:', result.responseId);
 
         // Update response as submitted
         await storage.updateResponseSubmission(responseId);
@@ -331,10 +333,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/results/:responseId", authenticateToken, async (req: any, res) => {
     try {
       const { responseId } = req.params;
+      console.log('Fetching results for responseId:', responseId);
 
       // Validate response belongs to user or user is admin
       const response = await storage.getResponse(responseId);
       if (!response) {
+        console.log('Response not found for responseId:', responseId);
         return res.status(404).json({ message: "Response not found" });
       }
 
@@ -343,6 +347,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const result = await storage.getResultByResponse(responseId);
+      console.log('Result lookup result:', result ? `Found result with ID ${result.id}` : 'No result found');
       if (!result) {
         return res.status(404).json({ message: "Results not found" });
       }
