@@ -42,6 +42,9 @@ export default function Landing() {
                   <span className="text-charcoal" data-testid="text-username">
                     {(user as any)?.email || "User"}
                   </span>
+                  <Button variant="outline" onClick={() => setLocation("/my-results")} data-testid="button-my-results">
+                    My Results
+                  </Button>
                   {(user as any)?.role === "ADMIN" && (
                     <Button variant="outline" onClick={() => setLocation("/admin")} data-testid="button-admin">
                       Admin

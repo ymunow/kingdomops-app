@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import Landing from "@/pages/landing";
 import Assessment from "@/pages/assessment";
 import Results from "@/pages/results";
+import MyResults from "@/pages/my-results";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
@@ -21,6 +22,7 @@ function Router() {
       {isAuthenticated && (
         <>
           <Route path="/assessment" component={Assessment} />
+          <Route path="/my-results" component={MyResults} />
           <Route path="/admin" component={Admin} />
         </>
       )}

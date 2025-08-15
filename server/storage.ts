@@ -51,6 +51,7 @@ export interface IStorage {
   createResult(result: InsertResult): Promise<Result>;
   getResultByResponse(responseId: string): Promise<Result | undefined>;
   getAllResults(): Promise<Result[]>;
+  getUserResults(userId: string): Promise<Result[]>;
 
   // Admin operations
   getAssessmentStats(): Promise<{
@@ -82,6 +83,10 @@ export class MemStorage implements IStorage {
       const updatedUser: User = {
         ...existingUser,
         ...userData,
+        email: userData.email ?? existingUser.email,
+        firstName: userData.firstName ?? existingUser.firstName,
+        lastName: userData.lastName ?? existingUser.lastName,
+        profileImageUrl: userData.profileImageUrl ?? existingUser.profileImageUrl,
         updatedAt: new Date(),
       };
       this.users.set(userData.id!, updatedUser);
@@ -109,6 +114,10 @@ export class MemStorage implements IStorage {
     const user: User = {
       ...insertUser,
       id,
+      email: insertUser.email ?? null,
+      firstName: insertUser.firstName ?? null,
+      lastName: insertUser.lastName ?? null,
+      profileImageUrl: insertUser.profileImageUrl ?? null,
       role: insertUser.role || "PARTICIPANT",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -243,8 +252,8 @@ export class MemStorage implements IStorage {
     const result: Result = {
       ...insertResult,
       id,
-      ageGroups: insertResult.ageGroups || [],
-      ministryInterests: insertResult.ministryInterests || [],
+      ageGroups: (insertResult.ageGroups as string[]) || [],
+      ministryInterests: (insertResult.ministryInterests as string[]) || [],
     };
     this.results.set(id, result);
     return result;
@@ -258,6 +267,21 @@ export class MemStorage implements IStorage {
 
   async getAllResults(): Promise<Result[]> {
     return Array.from(this.results.values());
+  }
+
+  async getUserResults(userId: string): Promise<Result[]> {
+    // Get user's responses first
+    const userResponses = await this.getResponsesByUser(userId);
+    const responseIds = userResponses.map(r => r.id);
+    
+    // Filter results by user's response IDs and sort by creation date (newest first)
+    return Array.from(this.results.values())
+      .filter(result => responseIds.includes(result.responseId))
+      .sort((a, b) => {
+        const aDate = a.createdAt || new Date(0);
+        const bDate = b.createdAt || new Date(0);
+        return bDate.getTime() - aDate.getTime();
+      });
   }
 
   async getAssessmentStats(): Promise<{

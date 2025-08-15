@@ -223,6 +223,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // My Results - authenticated user's own results
+  app.get("/api/my-results", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Get all user's responses and their results
+      const userResults = await storage.getUserResults(userId);
+      
+      const now = new Date();
+      
+      // Process each result to add gift content and expiration info
+      const enhancedResults = userResults.map(result => {
+        const isExpired = result.expiresAt && now > result.expiresAt;
+        const daysUntilExpiration = result.expiresAt 
+          ? Math.ceil((result.expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+          : null;
+
+        return {
+          id: result.id,
+          responseId: result.responseId,
+          createdAt: result.createdAt,
+          expiresAt: result.expiresAt,
+          isExpired,
+          daysUntilExpiration,
+          isNearExpiration: daysUntilExpiration !== null && daysUntilExpiration <= 30,
+          isVeryNearExpiration: daysUntilExpiration !== null && daysUntilExpiration <= 7,
+          ageGroups: result.ageGroups,
+          ministryInterests: result.ministryInterests,
+          gifts: {
+            top1: {
+              key: result.top1GiftKey,
+              score: (result.scoresJson as any)[result.top1GiftKey],
+              ...giftContent[result.top1GiftKey],
+            },
+            top2: {
+              key: result.top2GiftKey,
+              score: (result.scoresJson as any)[result.top2GiftKey],
+              ...giftContent[result.top2GiftKey],
+            },
+            top3: {
+              key: result.top3GiftKey,
+              score: (result.scoresJson as any)[result.top3GiftKey],
+              ...giftContent[result.top3GiftKey],
+            },
+          },
+        };
+      });
+
+      res.json(enhancedResults);
+    } catch (error) {
+      console.error("Get user results error:", error);
+      res.status(500).json({ message: "Failed to get your results" });
+    }
+  });
+
   app.get("/api/results/:responseId", async (req: any, res) => {
     try {
       const { responseId } = req.params;
