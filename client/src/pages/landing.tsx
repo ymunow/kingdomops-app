@@ -270,6 +270,25 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-charcoal-700 text-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-gray-300 text-sm">
+              Powered by{" "}
+              <a 
+                href="https://www.graymusicmedia.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-warm-gold hover:text-yellow-400 transition-colors"
+              >
+                Gray Music Media Group
+              </a>
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
