@@ -55,6 +55,10 @@ export default function Results() {
   const { data: results, isLoading, error } = useQuery<ResultData>({
     queryKey: ["/api/results", responseId],
     enabled: !!user && !!responseId,
+    queryFn: async () => {
+      const response = await authApiRequest("GET", `/api/results/${responseId}`);
+      return await response.json();
+    },
   });
 
   const handleEmailResults = async () => {

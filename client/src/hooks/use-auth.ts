@@ -35,6 +35,10 @@ export function useAuth() {
     enabled: !!authToken,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+    queryFn: async () => {
+      const response = await authApiRequest("GET", "/api/auth/me");
+      return await response.json();
+    },
   });
   
   // If there's no auth token, we're not loading
