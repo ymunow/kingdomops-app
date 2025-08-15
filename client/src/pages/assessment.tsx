@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { authApiRequest } from "@/hooks/use-auth";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -106,7 +105,15 @@ export default function Assessment() {
   // Start assessment mutation
   const startAssessmentMutation = useMutation({
     mutationFn: async () => {
-      const response = await authApiRequest("POST", "/api/assessment/start");
+      const response = await fetch("/api/assessment/start", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
       return await response.json();
     },
     onSuccess: (data: StartAssessmentResponse) => {
@@ -127,11 +134,20 @@ export default function Assessment() {
       if (!responseId) {
         throw new Error("No response ID available");
       }
-      const response = await authApiRequest("POST", `/api/assessment/${responseId}/submit`, {
-        answers,
-        ageGroups,
-        ministryInterests,
+      const response = await fetch(`/api/assessment/${responseId}/submit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answers,
+          ageGroups,
+          ministryInterests,
+        }),
       });
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
       return await response.json();
     },
     onSuccess: () => {

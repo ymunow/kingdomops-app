@@ -12,26 +12,20 @@ import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { user, isLoading, isAuthenticated } = useAuth();
-
-  // For now, bypass loading to get the app working
-  // if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center bg-soft-cream">
-  //       <div className="text-center">
-  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-spiritual-blue mb-4 mx-auto"></div>
-  //         <p className="text-charcoal">Loading...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <Switch>
-      <Route path="/" component={Landing} />
-      <Route path="/assessment" component={Assessment} />
-      <Route path="/results/:responseId" component={Results} />
-      {user && user.role === "ADMIN" && <Route path="/admin" component={Admin} />}
+      {isLoading || !isAuthenticated ? (
+        <Route path="/" component={Landing} />
+      ) : (
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="/assessment" component={Assessment} />
+          <Route path="/results/:responseId" component={Results} />
+          <Route path="/admin" component={Admin} />
+        </>
+      )}
       <Route component={NotFound} />
     </Switch>
   );

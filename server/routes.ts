@@ -4,11 +4,9 @@ import { storage } from "./storage";
 import { scoreGifts } from "../client/src/lib/scoring";
 import { giftContent } from "./content/gifts";
 import { emailService } from "./services/email";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import rateLimit from "express-rate-limit";
 import {
-  insertUserSchema,
   insertResponseSchema,
   insertAnswerSchema,
   insertResultSchema,
@@ -17,47 +15,34 @@ import {
 } from "@shared/schema";
 
 // Rate limiting
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts per window
-  message: "Too many authentication attempts, please try again later.",
-});
-
 const assessmentLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
   max: 10, // 10 assessments per hour
   message: "Too many assessment attempts, please try again later.",
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key";
-
-// Middleware to verify JWT token
-function authenticateToken(req: any, res: any, next: any) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
-
-  if (!token) {
-    return res.status(401).json({ message: "Access token required" });
+// Middleware to check admin role
+function requireAdmin(req: any, res: any, next: any) {
+  const userId = req.user?.claims?.sub;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
   }
-
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid or expired token" });
+  
+  // Get user from storage to check role
+  storage.getUser(userId).then(user => {
+    if (user?.role !== "ADMIN") {
+      return res.status(403).json({ message: "Admin access required" });
     }
-    req.user = user;
     next();
+  }).catch(() => {
+    return res.status(500).json({ message: "Server error" });
   });
 }
 
-// Middleware to check admin role
-function requireAdmin(req: any, res: any, next: any) {
-  if (req.user?.role !== "ADMIN") {
-    return res.status(403).json({ message: "Admin access required" });
-  }
-  next();
-}
-
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
   // Initialize seed data if needed
   let activeVersion = await storage.getActiveAssessmentVersion();
   if (!activeVersion) {
@@ -90,107 +75,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Auth routes
-  app.post("/api/auth/signup", authLimiter, async (req, res) => {
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const { name, email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
-      }
-
-      // Check if user exists
-      const existingUser = await storage.getUserByEmail(email);
-      if (existingUser) {
-        return res.status(400).json({ message: "User already exists" });
-      }
-
-      // Hash password
-      const passwordHash = await bcrypt.hash(password, 10);
-
-      // Create user
-      const user = await storage.createUser({
-        name,
-        email,
-        passwordHash,
-        role: "PARTICIPANT",
-      });
-
-      // Generate JWT token
-      const token = jwt.sign(
-        { userId: user.id, email: user.email, role: user.role },
-        JWT_SECRET,
-        { expiresIn: "7d" }
-      );
-
-      res.json({
-        token,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-      });
-    } catch (error: any) {
-      console.error("Signup error:", error);
-      res.status(400).json({ message: error.message || "Signup failed" });
-    }
-  });
-
-  app.post("/api/auth/signin", authLimiter, async (req, res) => {
-    try {
-      const { email, password } = req.body;
-
-      // Find user
-      const user = await storage.getUserByEmail(email);
-      if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      // Check password
-      const isValid = await bcrypt.compare(password, user.passwordHash);
-      if (!isValid) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      // Generate JWT token
-      const token = jwt.sign(
-        { userId: user.id, email: user.email, role: user.role },
-        JWT_SECRET,
-        { expiresIn: "7d" }
-      );
-
-      res.json({
-        token,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-      });
-    } catch (error: any) {
-      console.error("Signin error:", error);
-      res.status(500).json({ message: "Sign in failed" });
-    }
-  });
-
-  app.get("/api/auth/me", authenticateToken, async (req: any, res) => {
-    try {
-      const user = await storage.getUser(req.user.userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      res.json({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      });
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
     } catch (error) {
-      console.error("Get user error:", error);
-      res.status(500).json({ message: "Failed to get user data" });
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
     }
   });
 
@@ -213,7 +105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post(
     "/api/assessment/start",
     assessmentLimiter,
-    authenticateToken,
+    isAuthenticated,
     async (req: any, res) => {
       try {
         const activeVersion = await storage.getActiveAssessmentVersion();
@@ -236,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post(
     "/api/assessment/:responseId/submit",
-    authenticateToken,
+    isAuthenticated,
     async (req: any, res) => {
       try {
         const { responseId } = req.params;
@@ -327,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  app.get("/api/results/:responseId", authenticateToken, async (req: any, res) => {
+  app.get("/api/results/:responseId", isAuthenticated, async (req: any, res) => {
     try {
       const { responseId } = req.params;
       console.log('Fetching results for responseId:', responseId);
@@ -381,7 +273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin routes
   app.get(
     "/api/admin/stats",
-    authenticateToken,
+    isAuthenticated,
     requireAdmin,
     async (req, res) => {
       try {
@@ -401,7 +293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(
     "/api/admin/responses",
-    authenticateToken,
+    isAuthenticated,
     requireAdmin,
     async (req, res) => {
       try {
@@ -445,7 +337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get(
     "/api/admin/export",
-    authenticateToken,
+    isAuthenticated,
     requireAdmin,
     async (req, res) => {
       try {

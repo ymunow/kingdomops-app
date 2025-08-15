@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { GiftCard } from "@/components/results/gift-card";
 import { Crown, Trophy, Mail, Download, MessageCircle, Search, Calendar, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { authApiRequest } from "@/hooks/use-auth";
 
 interface ResultGift {
   key: string;
@@ -56,7 +55,10 @@ export default function Results() {
     queryKey: ["/api/results", responseId],
     enabled: !!user && !!responseId,
     queryFn: async () => {
-      const response = await authApiRequest("GET", `/api/results/${responseId}`);
+      const response = await fetch(`/api/results/${responseId}`);
+      if (!response.ok) {
+        throw new Error(`${response.status}: ${response.statusText}`);
+      }
       return await response.json();
     },
   });

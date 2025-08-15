@@ -1,6 +1,7 @@
 import {
   type User,
   type InsertUser,
+  type UpsertUser,
   type AssessmentVersion,
   type InsertAssessmentVersion,
   type Question,
@@ -17,7 +18,9 @@ import { randomUUID } from "crypto";
 
 export interface IStorage {
   // User operations
+  // (IMPORTANT) these user operations are mandatory for Replit Auth.
   getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
 
@@ -71,6 +74,32 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const existingUser = this.users.get(userData.id!);
+    
+    if (existingUser) {
+      // Update existing user
+      const updatedUser: User = {
+        ...existingUser,
+        ...userData,
+        updatedAt: new Date(),
+      };
+      this.users.set(userData.id!, updatedUser);
+      return updatedUser;
+    } else {
+      // Create new user
+      const user: User = {
+        ...userData,
+        id: userData.id || randomUUID(),
+        role: userData.role || "PARTICIPANT",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.users.set(user.id, user);
+      return user;
+    }
+  }
+
   async getUserByEmail(email: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find((user) => user.email === email);
   }
@@ -82,6 +111,7 @@ export class MemStorage implements IStorage {
       id,
       role: insertUser.role || "PARTICIPANT",
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     this.users.set(id, user);
     return user;
