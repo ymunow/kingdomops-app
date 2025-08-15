@@ -56,7 +56,7 @@ export default function Landing() {
                 </div>
               ) : (
                 <Button 
-                  className="bg-spiritual-blue text-white hover:bg-blue-700" 
+                  className="bg-spiritual-blue text-white hover:bg-spiritual-blue-700" 
                   onClick={handleLogin}
                   data-testid="button-signin"
                 >

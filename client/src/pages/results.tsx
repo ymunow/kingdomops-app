@@ -450,12 +450,12 @@ export default function Results() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Additional expiration info */}
           {results.daysUntilExpiration !== null && !results.isNearExpiration && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8 max-w-4xl mx-auto">
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-8 max-w-4xl mx-auto">
               <div className="flex items-center justify-center mb-2">
-                <Clock className="h-5 w-5 text-blue-600 mr-2" />
-                <span className="font-semibold text-blue-700">Results Available for {results.daysUntilExpiration} More Days</span>
+                <Clock className="h-5 w-5 text-purple-600 mr-2" />
+                <span className="font-semibold text-purple-700">Results Available for {results.daysUntilExpiration} More Days</span>
               </div>
-              <p className="text-blue-600 text-sm text-center">
+              <p className="text-purple-600 text-sm text-center">
                 Your results will be accessible until {new Date(results.expiresAt).toLocaleDateString()}. Save them for your records!
               </p>
             </div>

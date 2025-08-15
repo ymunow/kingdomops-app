@@ -37,7 +37,7 @@
   --sidebar-ring: hsl(202.8169, 89.1213%, 53.1373%);
   
   /* Custom spiritual theme colors */
-  --spiritual-blue: hsl(213, 73%, 42%);
+  --spiritual-blue: hsl(279, 68%, 12%);
   --warm-gold: hsl(42, 92%, 49%);
   --sage-green: hsl(159, 65%, 40%);
   --soft-cream: hsl(56, 96%, 96%);
@@ -97,7 +97,7 @@
   --sidebar-ring: hsl(202.8169, 89.1213%, 53.1373%);
   
   /* Dark mode spiritual colors - slightly adjusted for better contrast */
-  --spiritual-blue: hsl(213, 73%, 55%);
+  --spiritual-blue: hsl(279, 68%, 25%);
   --warm-gold: hsl(42, 92%, 60%);
   --sage-green: hsl(159, 65%, 50%);
   --soft-cream: hsl(220, 13%, 10%);
@@ -198,7 +198,7 @@
 
 /* Hover states for spiritual theme colors */
 .hover\:bg-spiritual-blue:hover {
-  background-color: hsl(213, 73%, 38%);
+  background-color: hsl(279, 68%, 8%);
 }
 
 .hover\:bg-warm-gold:hover {
@@ -236,7 +236,7 @@
 
 /* Gradient utilities for spiritual theme */
 .bg-gradient-spiritual {
-  background: linear-gradient(135deg, var(--spiritual-blue) 0%, hsl(213, 73%, 32%) 100%);
+  background: linear-gradient(135deg, var(--spiritual-blue) 0%, hsl(279, 68%, 8%) 100%);
 }
 
 .bg-gradient-warm {
@@ -255,7 +255,7 @@
 
 /* Enhanced shadow utilities for depth */
 .shadow-spiritual {
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
+  box-shadow: 0 4px 12px rgba(37, 10, 52, 0.15);
 }
 
 .shadow-warm {
