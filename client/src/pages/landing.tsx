@@ -96,7 +96,7 @@ export default function Landing() {
               </Button>
               <Button
                 variant="outline"
-                className="border-2 border-white text-white px-8 py-4 text-lg hover:bg-white hover:text-spiritual-blue transition-colors"
+                className="border-2 border-white text-white px-8 py-4 text-lg bg-transparent hover:bg-white hover:text-spiritual-blue transition-colors"
                 onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
                 data-testid="button-learn-more"
               >
