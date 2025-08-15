@@ -1,0 +1,284 @@
+Here’s the **full build prompt from start to finish** for an AI coding agent to create the **Kingdom Impact Training – Spiritual Gifts & Ministry Fit Assessment** as a full-featured web app, including the scoring logic, admin dashboard, ministry mapping, and creative options we’ve designed.
+
+---
+
+# **AI Agent Build Prompt — Kingdom Impact Training: Spiritual Gifts & Ministry Fit Web App**
+
+**Role:** You are a senior full-stack engineer tasked with building a production-ready application that delivers a 60-question spiritual gifts assessment, calculates the top 3 gifts, and provides actionable ministry fit recommendations with age-group preferences and creative ministry options.
+
+---
+
+## **0) Tech Stack**
+
+* **Frontend:** React + TypeScript + Vite, TailwindCSS for styling.
+* **Backend:** Node.js + Express, PostgreSQL with Prisma ORM.
+* **Auth:** JWT-based authentication (email/password for now), stored in httpOnly cookies.
+* **Other:** Dockerfile + docker-compose for local development, environment variables for config, Nodemailer for transactional emails, Playwright for E2E tests.
+
+---
+
+## **1) Core Features**
+
+### **Public User Flow**
+
+1. **Landing Page**
+
+   * Overview of the assessment
+   * Start button, Sign In/Up options
+2. **Sign Up / Sign In**
+
+   * Email/password auth
+3. **Assessment**
+
+   * 60 mixed Likert-scale questions (1–5: Never, Rarely, Sometimes, Often, Always)
+   * Age Group Preferences (multi-select)
+   * Ministry Interests (multi-select, optional)
+4. **Results Page**
+
+   * Displays top 3 gifts with:
+
+     * Scripture
+     * Definition
+     * “How You Might Serve” (with creative ministry integration)
+     * “Why It Matters”
+   * Age group preferences listed
+   * Call-to-action buttons (Email report, Talk to ministry leader, Explore roles)
+5. **Email Report**
+
+   * Sends full results to participant
+
+---
+
+### **Admin Dashboard**
+
+* View total assessments, completion rate, distribution of top gifts
+* Filter responses by gift, age group, date
+* Search by name/email
+* View detailed results for each participant
+* Export CSV of responses with:
+
+  * Name, email, timestamp
+  * Top 1–3 gifts
+  * All gift scores
+  * Age group preferences
+  * Ministry interests
+* Manage assessment versions and questions (CRUD for admin)
+
+---
+
+## **2) Data Model (Prisma Schema Summary)**
+
+```prisma
+model User {
+  id             String   @id @default(cuid())
+  name           String?
+  email          String   @unique
+  passwordHash   String
+  role           Role     @default(PARTICIPANT)
+  createdAt      DateTime @default(now())
+  responses      Response[]
+}
+
+enum Role {
+  ADMIN
+  PARTICIPANT
+}
+
+model AssessmentVersion {
+  id        String     @id @default(cuid())
+  title     String
+  isActive  Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  questions Question[]
+}
+
+model Question {
+  id         String   @id @default(cuid())
+  versionId  String
+  version    AssessmentVersion @relation(fields: [versionId], references: [id])
+  text       String
+  giftKey    GiftKey
+  orderIndex Int
+  isActive   Boolean @default(true)
+}
+
+enum GiftKey {
+  LEADERSHIP_ORG
+  TEACHING
+  WISDOM_INSIGHT
+  PROPHETIC_DISCERNMENT
+  EXHORTATION
+  SHEPHERDING
+  FAITH
+  EVANGELISM
+  APOSTLESHIP
+  SERVICE_HOSPITALITY
+  MERCY
+  GIVING
+}
+
+model Response {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  versionId   String
+  version     AssessmentVersion @relation(fields: [versionId], references: [id])
+  startedAt   DateTime  @default(now())
+  submittedAt DateTime?
+  answers     Answer[]
+  result      Result?
+}
+
+model Answer {
+  id          String   @id @default(cuid())
+  responseId  String
+  response    Response @relation(fields: [responseId], references: [id])
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id])
+  value       Int
+}
+
+model Result {
+  id                String   @id @default(cuid())
+  responseId        String
+  response          Response @relation(fields: [responseId], references: [id])
+  scoresJson        Json
+  top1GiftKey       GiftKey
+  top2GiftKey       GiftKey
+  top3GiftKey       GiftKey
+  ageGroups         String[]
+  ministryInterests String[]
+  renderedHtml      String?
+}
+```
+
+---
+
+## **3) Seeding the Data**
+
+* Create a `seed.ts` that:
+
+  * Adds an active `AssessmentVersion`
+  * Inserts all **60 questions** with their `giftKey` mapping (5 per gift)
+  * Uses our finalized mixed question list
+* Store a JSON file (`questions.v1.json`) with the seed data for re-import
+
+---
+
+## **4) Scoring Logic**
+
+```ts
+type ScoreInput = { questionId: string; giftKey: string; value: number }[];
+type ScoreOutput = { totals: Record<string, number>; top3: string[] };
+
+export function scoreGifts(input: ScoreInput): ScoreOutput {
+  const totals: Record<string, number> = {
+    LEADERSHIP_ORG: 0,
+    TEACHING: 0,
+    WISDOM_INSIGHT: 0,
+    PROPHETIC_DISCERNMENT: 0,
+    EXHORTATION: 0,
+    SHEPHERDING: 0,
+    FAITH: 0,
+    EVANGELISM: 0,
+    APOSTLESHIP: 0,
+    SERVICE_HOSPITALITY: 0,
+    MERCY: 0,
+    GIVING: 0
+  };
+  for (const a of input) {
+    totals[a.giftKey] += a.value;
+  }
+  const top3 = Object.entries(totals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([gift]) => gift);
+  return { totals, top3 };
+}
+```
+
+---
+
+## **5) Gift Content Mapping**
+
+Implement `content/gifts.ts` using the **detailed definitions, scripture, ministry fit, and why-it-matters statements** we created earlier, including creative ministry options.
+
+---
+
+## **6) Frontend Flow**
+
+* Multi-step form:
+
+  1. Questions (paginated, 15 per page)
+  2. Age Group Preferences
+  3. Ministry Interests
+  4. Review & Submit
+* Save progress to localStorage until submission
+
+---
+
+## **7) Results Page**
+
+* Display **Top 3 gifts** with:
+
+  * Scripture
+  * Definition
+  * How You Might Serve
+  * Why It Matters
+* Display Age Group Preferences
+* Next Step CTA
+* Share/email/download report
+
+---
+
+## **8) Admin Features**
+
+* Stats dashboard with charts (gift distribution, completions over time)
+* Filter/search responses
+* View individual response details
+* Export CSV
+
+---
+
+## **9) APIs**
+
+```
+POST /auth/signup
+POST /auth/signin
+GET /me
+
+POST /responses/start
+POST /responses/:id/answers
+POST /responses/:id/submit
+GET /results/:responseId
+
+GET /admin/responses
+GET /admin/export.csv
+POST /admin/seed/questions
+```
+
+---
+
+## **10) Security**
+
+* Rate-limit public routes
+* Validate all incoming data
+* Use env-based CORS and HTTPS
+
+---
+
+## **11) Testing**
+
+* Unit tests for scoring logic
+* E2E tests for full assessment flow
+* Accessibility checks
+
+---
+
+**Deliverable:**
+A deployable web app that matches this specification, ready to accept participants, calculate results, and allow admins to manage and export data.
+
+---
+
+If you want, I can now append **the exact 60-question JSON seed file** so your AI agent can load it immediately without guesswork.
+Do you want me to add that to this prompt?

@@ -1,0 +1,80 @@
+Perfect — here’s the **ready-to-import seed JSON** for your app.
+It includes the exact **60 mixed statements** and the matching **giftKey** values (5 per gift) aligned to the enum we defined.
+
+```json
+{
+  "versionTitle": "K.I.T. Gifts & Ministry Fit v1",
+  "questions": [
+    { "text": "I can clearly see the steps needed to move a group toward a goal.", "giftKey": "LEADERSHIP_ORG" },
+    { "text": "I enjoy spending time with people who are hurting so I can encourage and comfort them.", "giftKey": "MERCY" },
+    { "text": "I often find effective ways to explain complex truths in a simple manner.", "giftKey": "TEACHING" },
+    { "text": "I feel strongly compelled to start new projects or ministries to meet needs.", "giftKey": "APOSTLESHIP" },
+    { "text": "I am willing to trust God for what seems impossible and encourage others to do the same.", "giftKey": "FAITH" },
+    { "text": "I naturally notice the needs of visitors and make them feel welcome.", "giftKey": "SERVICE_HOSPITALITY" },
+    { "text": "I sometimes sense when a spiritual message or action is not from God.", "giftKey": "PROPHETIC_DISCERNMENT" },
+    { "text": "I feel excited when I can encourage others to keep moving forward in their faith.", "giftKey": "EXHORTATION" },
+    { "text": "I enjoy finding practical ways to organize people and resources for a task.", "giftKey": "LEADERSHIP_ORG" },
+    { "text": "I am quick to share the Gospel with others, even strangers.", "giftKey": "EVANGELISM" },
+    { "text": "I enjoy caring for the spiritual growth of others over time.", "giftKey": "SHEPHERDING" },
+    { "text": "I often provide resources to meet needs before being asked.", "giftKey": "GIVING" },
+    { "text": "I look for ways to communicate biblical truth in everyday conversations.", "giftKey": "TEACHING" },
+    { "text": "I can sense when someone’s motives may be harmful to the church.", "giftKey": "PROPHETIC_DISCERNMENT" },
+    { "text": "I get energy from helping organize events or ministry activities.", "giftKey": "LEADERSHIP_ORG" },
+    { "text": "I enjoy supporting others by taking care of practical details.", "giftKey": "SERVICE_HOSPITALITY" },
+    { "text": "I am eager to travel or go where needed to share God’s message.", "giftKey": "APOSTLESHIP" },
+    { "text": "I believe God can work through me to bring healing or breakthrough in tough situations.", "giftKey": "FAITH" },
+    { "text": "I love encouraging people when they are discouraged or losing hope.", "giftKey": "EXHORTATION" },
+    { "text": "I am drawn to share my faith with people from different backgrounds.", "giftKey": "EVANGELISM" },
+    { "text": "I feel fulfilled when guiding someone through a challenging life decision.", "giftKey": "WISDOM_INSIGHT" },
+    { "text": "I feel a responsibility to pray regularly for others’ needs.", "giftKey": "FAITH" },
+    { "text": "I enjoy organizing systems that make ministry run more smoothly.", "giftKey": "LEADERSHIP_ORG" },
+    { "text": "I have a strong desire to nurture and guide new believers.", "giftKey": "SHEPHERDING" },
+    { "text": "I am often the first to volunteer to help behind the scenes.", "giftKey": "SERVICE_HOSPITALITY" },
+    { "text": "I sense God prompting me to speak truth, even if it’s unpopular.", "giftKey": "PROPHETIC_DISCERNMENT" },
+    { "text": "I like creating or leading programs that help people grow spiritually.", "giftKey": "TEACHING" },
+    { "text": "I get excited about finding new ways to reach people for Christ.", "giftKey": "EVANGELISM" },
+    { "text": "I look for opportunities to invest financially in Kingdom work.", "giftKey": "GIVING" },
+    { "text": "I enjoy seeing people experience emotional or spiritual healing through care.", "giftKey": "MERCY" },
+    { "text": "I find joy in connecting people to serve together toward a goal.", "giftKey": "LEADERSHIP_ORG" },
+    { "text": "I have an ability to see how biblical truths apply to today’s challenges.", "giftKey": "WISDOM_INSIGHT" },
+    { "text": "I like to equip and send others into ministry or missions.", "giftKey": "APOSTLESHIP" },
+    { "text": "I often recognize when spiritual danger is present before others do.", "giftKey": "PROPHETIC_DISCERNMENT" },
+    { "text": "I enjoy providing ongoing encouragement to help others mature in faith.", "giftKey": "EXHORTATION" },
+    { "text": "I can patiently walk with someone as they grow in their walk with God.", "giftKey": "SHEPHERDING" },
+    { "text": "I love helping newcomers feel at home in the church.", "giftKey": "SERVICE_HOSPITALITY" },
+    { "text": "I trust God will provide even when resources seem impossible to find.", "giftKey": "FAITH" },
+    { "text": "I naturally look for ways to share biblical truth in different formats (teaching, writing, mentoring).", "giftKey": "TEACHING" },
+    { "text": "I am drawn to be part of efforts that plant or grow new ministries.", "giftKey": "APOSTLESHIP" },
+    { "text": "I notice when people’s practical needs are not being met.", "giftKey": "MERCY" },
+    { "text": "I can organize teams effectively to accomplish ministry goals.", "giftKey": "LEADERSHIP_ORG" },
+    { "text": "I feel joy when I see someone grow because of the time I invested in them.", "giftKey": "SHEPHERDING" },
+    { "text": "I use my resources to help ministries succeed without needing recognition.", "giftKey": "GIVING" },
+    { "text": "I feel burdened to pray for situations until I see God move.", "giftKey": "FAITH" },
+    { "text": "I enjoy creating lesson plans or outlines that help others understand God’s Word.", "giftKey": "TEACHING" },
+    { "text": "I sense when someone is speaking from God’s Spirit versus their own opinion.", "giftKey": "PROPHETIC_DISCERNMENT" },
+    { "text": "I get energized by meeting new people and starting conversations about faith.", "giftKey": "EVANGELISM" },
+    { "text": "I love speaking or writing words that lift people up.", "giftKey": "EXHORTATION" },
+    { "text": "I am motivated to help in practical ways when I see a need.", "giftKey": "SERVICE_HOSPITALITY" },
+    { "text": "I can help people see the bigger picture in difficult situations.", "giftKey": "WISDOM_INSIGHT" },
+    { "text": "I’m willing to go into challenging or unfamiliar environments for ministry.", "giftKey": "APOSTLESHIP" },
+    { "text": "I regularly think about how to make ministry more effective and organized.", "giftKey": "LEADERSHIP_ORG" },
+    { "text": "I often respond to the needs of others with compassion and empathy.", "giftKey": "MERCY" },
+    { "text": "I have an ability to teach others in a way that leads to life change.", "giftKey": "TEACHING" },
+    { "text": "I can identify spiritual issues that need to be addressed for health in the church.", "giftKey": "PROPHETIC_DISCERNMENT" },
+    { "text": "I enjoy making visitors and guests feel personally cared for.", "giftKey": "SERVICE_HOSPITALITY" },
+    { "text": "I get joy from supporting missions and outreach financially.", "giftKey": "GIVING" },
+    { "text": "I see patterns or truths in Scripture that others often overlook.", "giftKey": "WISDOM_INSIGHT" },
+    { "text": "I find ways to bring people together to accomplish something meaningful.", "giftKey": "EXHORTATION" }
+  ]
+}
+```
+
+**How to use it**
+
+* Save as `seeds/questions.v1.json`.
+* In your seed script, read this file and insert:
+
+  * a new `AssessmentVersion` (set `isActive: true`)
+  * each item as a `Question` with its `giftKey` and `orderIndex` = array index.
+
+If you want, I can also provide a **TypeScript seeder snippet** that loads this JSON and writes it to Prisma.
