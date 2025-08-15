@@ -110,6 +110,8 @@ export const results = pgTable("results", {
   ageGroups: json("age_groups").$type<string[]>().default([]),
   ministryInterests: json("ministry_interests").$type<string[]>().default([]),
   renderedHtml: text("rendered_html"),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
 });
 
 // Insert schemas
@@ -141,6 +143,7 @@ export const insertAnswerSchema = createInsertSchema(answers).omit({
 
 export const insertResultSchema = createInsertSchema(results).omit({
   id: true,
+  createdAt: true,
 });
 
 // Types

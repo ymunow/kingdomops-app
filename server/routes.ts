@@ -169,7 +169,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const scores = scoreGifts(scoreInput);
 
-        // Save results
+        // Save results with 90-day expiration
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + 90);
+        
         console.log('Creating result for responseId:', responseId);
         const result = await storage.createResult({
           responseId,
@@ -180,6 +183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ageGroups: ageGroups || [],
           ministryInterests: ministryInterests || [],
           renderedHtml: null,
+          expiresAt: expirationDate,
         });
         console.log('Result created with ID:', result.id, 'for responseId:', result.responseId);
 
@@ -192,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (user?.email) {
             await emailService.sendAssessmentResults(
               user.email,
-              user.name || "Friend",
+              user.firstName || user.email || "Friend",
               {
                 top1Gift: giftContent[scores.top3[0]].name,
                 top2Gift: giftContent[scores.top3[1]].name,
@@ -219,21 +223,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  app.get("/api/results/:responseId", isAuthenticated, async (req: any, res) => {
+  app.get("/api/results/:responseId", async (req: any, res) => {
     try {
       const { responseId } = req.params;
       console.log('Fetching results for responseId:', responseId);
-
-      // Validate response belongs to user or user is admin
-      const response = await storage.getResponse(responseId);
-      if (!response) {
-        console.log('Response not found for responseId:', responseId);
-        return res.status(404).json({ message: "Response not found" });
-      }
-
-      if (response.userId !== req.user.userId && req.user.role !== "ADMIN") {
-        return res.status(403).json({ message: "Access denied" });
-      }
 
       const result = await storage.getResultByResponse(responseId);
       console.log('Result lookup result:', result ? `Found result with ID ${result.id}` : 'No result found');
@@ -241,9 +234,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Results not found" });
       }
 
-      // Enhance results with gift content
+      // Check if results have expired
+      const now = new Date();
+      const isExpired = result.expiresAt && now > result.expiresAt;
+      
+      if (isExpired) {
+        return res.status(410).json({ 
+          message: "Results have expired",
+          expiredAt: result.expiresAt
+        });
+      }
+
+      // Calculate days until expiration for warnings
+      const daysUntilExpiration = result.expiresAt 
+        ? Math.ceil((result.expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        : null;
+
+      // Enhance results with gift content and expiration info
       const enhancedResult = {
         ...result,
+        daysUntilExpiration,
+        isNearExpiration: daysUntilExpiration !== null && daysUntilExpiration <= 30,
+        isVeryNearExpiration: daysUntilExpiration !== null && daysUntilExpiration <= 7,
         gifts: {
           top1: {
             key: result.top1GiftKey,
@@ -312,7 +324,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               id: result.id,
               user: {
                 id: user?.id,
-                name: user?.name,
+                name: user?.firstName || user?.email,
                 email: user?.email,
               },
               response: {
@@ -357,14 +369,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
               .join(";");
 
             csvRows.push([
-              `"${user?.name || ""}"`,
+              `"${user?.firstName || user?.email || ""}"`,
               `"${user?.email || ""}"`,
               `"${response.submittedAt.toISOString()}"`,
               `"${giftContent[result.top1GiftKey].shortName}"`,
               `"${giftContent[result.top2GiftKey].shortName}"`,
               `"${giftContent[result.top3GiftKey].shortName}"`,
-              `"${result.ageGroups.join(", ")}"`,
-              `"${result.ministryInterests.join(", ")}"`,
+              `"${(result.ageGroups || []).join(", ")}"`,
+              `"${(result.ministryInterests || []).join(", ")}"`,
               `"${allScoresStr}"`,
             ].join(","));
           }
