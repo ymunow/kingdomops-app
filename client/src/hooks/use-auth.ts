@@ -27,11 +27,18 @@ interface SignupData {
 export function useAuth() {
   const queryClient = useQueryClient();
 
-  const { data: user, isLoading } = useQuery({
+  const authToken = localStorage.getItem("auth_token");
+  
+  const { data: user, isLoading, error } = useQuery({
     queryKey: ["/api/auth/me"],
     retry: false,
-    enabled: !!localStorage.getItem("auth_token"),
+    enabled: !!authToken,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
+  
+  // If there's no auth token, we're not loading
+  const actuallyLoading = !!authToken && isLoading;
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
@@ -63,7 +70,7 @@ export function useAuth() {
 
   return {
     user,
-    isLoading,
+    isLoading: actuallyLoading,
     isAuthenticated: !!user,
     login: loginMutation.mutateAsync,
     signup: signupMutation.mutateAsync,
