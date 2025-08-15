@@ -92,12 +92,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.post("/api/auth/signup", authLimiter, async (req, res) => {
     try {
-      const { name, email, password } = insertUserSchema
+      const signupSchema = insertUserSchema
+        .omit({ passwordHash: true })
         .extend({
           name: insertUserSchema.shape.name.optional(),
-          password: insertUserSchema.shape.passwordHash.optional(),
-        })
-        .parse(req.body);
+          password: insertUserSchema.shape.passwordHash,
+        });
+      
+      const { name, email, password } = signupSchema.parse(req.body);
 
       // Check if user exists
       const existingUser = await storage.getUserByEmail(email);
@@ -106,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Hash password
-      const passwordHash = await bcrypt.hash(password || "defaultpass", 10);
+      const passwordHash = await bcrypt.hash(password, 10);
 
       // Create user
       const user = await storage.createUser({
