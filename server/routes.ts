@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { scoreGifts } from "../client/src/lib/scoring";
+import { scoreGifts } from "../client/src/lib/hardened-scoring";
 import { giftContent } from "./content/gifts";
 import { emailService } from "./services/email";
 import { setupAuth, isAuthenticated } from "./replitAuth";

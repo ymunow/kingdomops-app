@@ -1,12 +1,53 @@
 import express, { type Request, Response, NextFunction } from "express";
+import compression from "compression";
+import helmet from "helmet";
 import { registerRoutes } from "./routes";
-import { setupVite, log } from "./vite";
+import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      scriptSrc: ["'self'", "https://replit.com"],
+      connectSrc: ["'self'", "wss:", "ws:"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+// Compression middleware
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  level: 6,
+  threshold: 1024
+}));
+
+// Body parsing with security limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// Cache control for API routes
+app.use('/api', (req, res, next) => {
+  res.set({
+    'Cache-Control': 'no-store, no-cache, must-revalidate, private',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+  next();
+});
 
 // --- request/response logger for API routes ---
 app.use((req, res, next) => {
