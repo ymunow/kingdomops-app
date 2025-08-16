@@ -43,6 +43,7 @@ export default function ChurchSignup() {
 
   const form = useForm<ChurchSignupData>({
     resolver: zodResolver(churchSignupSchema),
+    mode: "onChange", // Enable real-time validation
     defaultValues: {
       churchName: "",
       contactEmail: "",
