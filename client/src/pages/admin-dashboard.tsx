@@ -15,6 +15,7 @@ import { useOrganization } from "@/hooks/use-organization";
 import { BarChart, DonutChart } from "@/components/ui/charts";
 import ResultDetailModal from "@/components/admin/result-detail-modal";
 import MinistryOpportunities from "@/components/admin/ministry-opportunities";
+import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
 import { 
   Users, 
   TrendingUp, 
@@ -442,6 +443,10 @@ export default function AdminDashboard() {
               )}
             </div>
             <div className="flex items-center gap-3">
+              {/* View As Switcher for Super Admin */}
+              {(user as any)?.role === "SUPER_ADMIN" && (
+                <ViewAsSwitcher user={user} className="" />
+              )}
               {/* Back to Churches button - only show when managing a specific church */}
               {(user as any)?.viewContext?.isViewingAs && (user as any)?.viewContext?.targetOrganization && (
                 <Button 
