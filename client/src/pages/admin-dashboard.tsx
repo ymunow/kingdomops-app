@@ -60,8 +60,8 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterGift, setFilterGift] = useState<string>("");
-  const [filterAgeRange, setFilterAgeRange] = useState<string>("");
+  const [filterGift, setFilterGift] = useState<string>("all-gifts");
+  const [filterAgeRange, setFilterAgeRange] = useState<string>("all-ages");
   const [selectedResultId, setSelectedResultId] = useState<string>("");
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
 
@@ -76,8 +76,8 @@ export default function AdminDashboard() {
     queryKey: ["/api/admin/dashboard/users", filterGift, filterAgeRange],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (filterGift) params.append("giftKey", filterGift);
-      if (filterAgeRange) params.append("ageRange", filterAgeRange);
+      if (filterGift && filterGift !== "all-gifts") params.append("giftKey", filterGift);
+      if (filterAgeRange && filterAgeRange !== "all-ages") params.append("ageRange", filterAgeRange);
       
       const response = await fetch(`/api/admin/dashboard/users?${params}`);
       if (!response.ok) throw new Error("Failed to fetch users");
@@ -91,7 +91,7 @@ export default function AdminDashboard() {
     queryKey: ["/api/admin/dashboard/results", filterGift],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (filterGift) params.append("giftKey", filterGift);
+      if (filterGift && filterGift !== "all-gifts") params.append("giftKey", filterGift);
       
       const response = await fetch(`/api/admin/dashboard/results?${params}`);
       if (!response.ok) throw new Error("Failed to fetch results");
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
                   <SelectValue placeholder="Age Range" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Ages</SelectItem>
+                  <SelectItem value="all-ages">All Ages</SelectItem>
                   <SelectItem value="18-25">18-25</SelectItem>
                   <SelectItem value="26-35">26-35</SelectItem>
                   <SelectItem value="36-45">36-45</SelectItem>
@@ -321,7 +321,7 @@ export default function AdminDashboard() {
                   <SelectValue placeholder="Top Gift" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Gifts</SelectItem>
+                  <SelectItem value="all-gifts">All Gifts</SelectItem>
                   <SelectItem value="LEADERSHIP_ORG">Leadership</SelectItem>
                   <SelectItem value="TEACHING">Teaching</SelectItem>
                   <SelectItem value="WISDOM_INSIGHT">Wisdom</SelectItem>
