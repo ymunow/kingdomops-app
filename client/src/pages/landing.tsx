@@ -48,10 +48,16 @@ export default function Landing() {
                   <Button variant="outline" onClick={() => setLocation("/my-results")} data-testid="button-my-results">
                     My Results
                   </Button>
-                  {(user as any)?.role === "ADMIN" && (
-                    <Button variant="outline" onClick={() => setLocation("/admin")} data-testid="button-admin">
-                      Admin
-                    </Button>
+                  {/* Admin access for all admin-level roles */}
+                  {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
+                    <>
+                      <Button variant="outline" onClick={() => setLocation("/admin-dashboard")} data-testid="button-admin-dashboard">
+                        Dashboard
+                      </Button>
+                      <Button variant="outline" onClick={() => setLocation("/admin")} data-testid="button-admin">
+                        Admin
+                      </Button>
+                    </>
                   )}
                   <Button variant="outline" onClick={handleLogout} data-testid="button-logout">
                     Sign Out

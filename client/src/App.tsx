@@ -48,9 +48,15 @@ function Router() {
           <>
             <Route path="/assessment" component={Assessment} />
             <Route path="/my-results" component={MyResults} />
-            <Route path="/admin" component={Admin} />
-            <Route path="/admin-dashboard" component={AdminDashboard} />
             <Route path="/profile" component={Profile} />
+            
+            {/* Admin routes - only for admin-level roles */}
+            {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
+              <>
+                <Route path="/admin" component={Admin} />
+                <Route path="/admin-dashboard" component={AdminDashboard} />
+              </>
+            )}
           </>
         )}
         
