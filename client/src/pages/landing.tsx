@@ -2,7 +2,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Crown, Clock, BarChart3, Users, Eye, HandHeart, Shield, Mountain, BellRing, Rocket, Home, Heart, Gift, BookOpen, Play } from "lucide-react";
+import { Crown, Clock, BarChart3, Users, Eye, HandHeart, Shield, Mountain, BellRing, Rocket, Home, Heart, Gift, BookOpen, Play, Church } from "lucide-react";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
@@ -64,13 +64,24 @@ export default function Landing() {
                   </Button>
                 </div>
               ) : (
-                <Button 
-                  className="bg-spiritual-blue text-white hover:bg-purple-800" 
-                  onClick={handleLogin}
-                  data-testid="button-signin"
-                >
-                  Sign In
-                </Button>
+                <div className="flex items-center space-x-3">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setLocation("/church-signup")}
+                    data-testid="button-church-signup"
+                    className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
+                  >
+                    <Church className="mr-2 h-4 w-4" />
+                    For Churches
+                  </Button>
+                  <Button 
+                    className="bg-spiritual-blue text-white hover:bg-purple-800" 
+                    onClick={handleLogin}
+                    data-testid="button-signin"
+                  >
+                    Sign In
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -94,7 +105,7 @@ export default function Landing() {
               Uncover how God has uniquely equipped you to serve His Kingdom through our comprehensive 60-question assessment designed to reveal your top spiritual gifts and ministry fit.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button
                 onClick={startAssessment}
                 className="bg-warm-gold text-spiritual-blue px-8 py-4 text-lg font-semibold hover:bg-yellow-400 transition-colors"
@@ -111,6 +122,22 @@ export default function Landing() {
               >
                 Learn More
               </Button>
+            </div>
+            
+            {/* Church Registration CTA */}
+            <div className="border-t border-white/20 pt-8 mb-8">
+              <p className="text-white/80 text-sm mb-4">Church Leaders & Pastors</p>
+              <Button
+                onClick={() => setLocation("/church-signup")}
+                className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white px-6 py-3 font-semibold hover:bg-white hover:text-spiritual-blue transition-colors"
+                data-testid="button-hero-church-signup"
+              >
+                <Church className="mr-2 h-5 w-5" />
+                Register Your Church
+              </Button>
+              <p className="text-white/60 text-xs mt-2 max-w-md mx-auto">
+                Set up your church's spiritual gifts assessment platform for your entire congregation
+              </p>
             </div>
           </div>
 
