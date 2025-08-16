@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useOrganization } from "@/hooks/use-organization";
@@ -26,7 +29,13 @@ import {
   Target,
   Eye,
   Mail,
-  FileText
+  FileText,
+  UserPlus,
+  MoreHorizontal,
+  Edit,
+  Copy,
+  Shield,
+  Crown
 } from "lucide-react";
 
 interface DashboardMetrics {
@@ -45,6 +54,8 @@ interface UserResult {
   lastName?: string;
   email: string;
   ageRange?: string;
+  role: string;
+  organizationId: string;
   latestResult?: {
     id: string;
     top1GiftKey: string;
@@ -60,12 +71,18 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const { organization, isLoading: orgLoading } = useOrganization();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGift, setFilterGift] = useState<string>("all-gifts");
   const [filterAgeRange, setFilterAgeRange] = useState<string>("all-ages");
   const [selectedResultId, setSelectedResultId] = useState<string>("");
   const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserResult | null>(null);
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserRole, setNewUserRole] = useState("PARTICIPANT");
 
   // Fetch dashboard metrics
   const { data: metrics, isLoading: metricsLoading } = useQuery({
@@ -144,6 +161,133 @@ export default function AdminDashboard() {
   const handleCloseResultModal = () => {
     setIsResultModalOpen(false);
     setSelectedResultId("");
+  };
+
+  // Role management mutation
+  const updateUserRoleMutation = useMutation({
+    mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role })
+      });
+      if (!response.ok) throw new Error("Failed to update user role");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/dashboard/users"] });
+      toast({
+        title: "Role updated",
+        description: "User role has been updated successfully."
+      });
+      setIsRoleModalOpen(false);
+      setSelectedUser(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to update role",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Invite user mutation (using existing congregation signup endpoint)
+  const inviteUserMutation = useMutation({
+    mutationFn: async ({ email, role }: { email: string; role: string }) => {
+      // For now, we'll just copy the invite code and show instructions
+      // In a real implementation, you might want a dedicated invite endpoint
+      if (!organization?.inviteCode) throw new Error("Organization invite code not found");
+      
+      // Copy invite code to clipboard
+      await navigator.clipboard.writeText(organization.inviteCode);
+      
+      return { inviteCode: organization.inviteCode, email, role };
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Invite instructions copied!",
+        description: `Church invite code copied to clipboard. Share with ${data.email} to join as ${data.role}.`,
+      });
+      setIsInviteModalOpen(false);
+      setNewUserEmail("");
+      setNewUserRole("PARTICIPANT");
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to prepare invite",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleRoleChange = (user: UserResult, newRole: string) => {
+    setSelectedUser(user);
+    setNewUserRole(newRole);
+    setIsRoleModalOpen(true);
+  };
+
+  const confirmRoleChange = () => {
+    if (selectedUser) {
+      updateUserRoleMutation.mutate({
+        userId: selectedUser.id,
+        role: newUserRole
+      });
+    }
+  };
+
+  const handleInviteUser = () => {
+    if (newUserEmail && newUserRole) {
+      inviteUserMutation.mutate({
+        email: newUserEmail,
+        role: newUserRole
+      });
+    }
+  };
+
+  const getRoleDisplayName = (role: string) => {
+    const roleNames: Record<string, string> = {
+      'SUPER_ADMIN': 'Super Admin',
+      'ORG_OWNER': 'Church Owner',
+      'ORG_ADMIN': 'Church Admin',
+      'ORG_LEADER': 'Church Leader',
+      'ORG_VIEWER': 'Church Viewer',
+      'PARTICIPANT': 'Member'
+    };
+    return roleNames[role] || role;
+  };
+
+  const getRoleBadgeColor = (role: string) => {
+    const roleColors: Record<string, string> = {
+      'SUPER_ADMIN': 'bg-red-100 text-red-800',
+      'ORG_OWNER': 'bg-purple-100 text-purple-800',
+      'ORG_ADMIN': 'bg-blue-100 text-blue-800',
+      'ORG_LEADER': 'bg-green-100 text-green-800',
+      'ORG_VIEWER': 'bg-yellow-100 text-yellow-800',
+      'PARTICIPANT': 'bg-gray-100 text-gray-800'
+    };
+    return roleColors[role] || 'bg-gray-100 text-gray-800';
+  };
+
+  const canManageUser = (targetUser: UserResult) => {
+    if (!user) return false;
+    const currentUserRole = (user as any)?.role;
+    
+    // Super admin can manage anyone
+    if (currentUserRole === 'SUPER_ADMIN') return true;
+    
+    // Org owners can manage anyone in their org except super admins
+    if (currentUserRole === 'ORG_OWNER') {
+      return targetUser.role !== 'SUPER_ADMIN';
+    }
+    
+    // Org admins can manage leaders, viewers, and participants
+    if (currentUserRole === 'ORG_ADMIN') {
+      return ['ORG_LEADER', 'ORG_VIEWER', 'PARTICIPANT'].includes(targetUser.role);
+    }
+    
+    return false;
   };
 
   const filteredUsers = users?.filter((user: UserResult) => {
@@ -425,10 +569,77 @@ export default function AdminDashboard() {
             {/* People Table */}
             <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-gray-200">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="h-5 w-5 mr-2 text-spiritual-blue" />
-                  People ({filteredUsers.length})
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center">
+                    <Users className="h-5 w-5 mr-2 text-spiritual-blue" />
+                    People ({filteredUsers.length})
+                  </CardTitle>
+                  <Dialog open={isInviteModalOpen} onOpenChange={setIsInviteModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-spiritual-blue text-white hover:bg-purple-800" data-testid="button-invite-user">
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Invite Member
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Invite New Member</DialogTitle>
+                        <DialogDescription>
+                          Share your church invite code with the new member to join with the selected role.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="invite-email">Email Address</Label>
+                          <Input
+                            id="invite-email"
+                            placeholder="john.doe@email.com"
+                            value={newUserEmail}
+                            onChange={(e) => setNewUserEmail(e.target.value)}
+                            data-testid="input-invite-email"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="invite-role">Role</Label>
+                          <Select value={newUserRole} onValueChange={setNewUserRole}>
+                            <SelectTrigger data-testid="select-invite-role">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="PARTICIPANT">Member</SelectItem>
+                              <SelectItem value="ORG_VIEWER">Church Viewer</SelectItem>
+                              <SelectItem value="ORG_LEADER">Church Leader</SelectItem>
+                              {((user as any)?.role === 'SUPER_ADMIN' || (user as any)?.role === 'ORG_OWNER') && (
+                                <>
+                                  <SelectItem value="ORG_ADMIN">Church Admin</SelectItem>
+                                  {(user as any)?.role === 'SUPER_ADMIN' && (
+                                    <SelectItem value="ORG_OWNER">Church Owner</SelectItem>
+                                  )}
+                                </>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="bg-blue-50 p-3 rounded-lg">
+                          <p className="text-sm text-blue-800">
+                            <strong>Instructions:</strong> The church invite code will be copied to your clipboard. 
+                            Share it with {newUserEmail || 'the new member'} along with instructions to visit the signup page.
+                          </p>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsInviteModalOpen(false)}>Cancel</Button>
+                        <Button 
+                          onClick={handleInviteUser}
+                          disabled={!newUserEmail || inviteUserMutation.isPending}
+                          data-testid="button-send-invite"
+                        >
+                          {inviteUserMutation.isPending ? 'Processing...' : 'Copy Invite Code'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </CardHeader>
               <CardContent>
                 {usersLoading ? (
@@ -443,6 +654,7 @@ export default function AdminDashboard() {
                         <tr className="border-b">
                           <th className="text-left p-2 font-medium">Name</th>
                           <th className="text-left p-2 font-medium">Email</th>
+                          <th className="text-left p-2 font-medium">Role</th>
                           <th className="text-left p-2 font-medium">Age Range</th>
                           <th className="text-left p-2 font-medium">Top Gifts</th>
                           <th className="text-left p-2 font-medium">Last Assessment</th>
@@ -459,6 +671,13 @@ export default function AdminDashboard() {
                               }
                             </td>
                             <td className="p-2 text-sm text-gray-600">{user.email}</td>
+                            <td className="p-2">
+                              <Badge className={`text-xs ${getRoleBadgeColor(user.role)}`}>
+                                {user.role === 'SUPER_ADMIN' && <Crown className="h-3 w-3 mr-1" />}
+                                {user.role === 'ORG_OWNER' && <Shield className="h-3 w-3 mr-1" />}
+                                {getRoleDisplayName(user.role)}
+                              </Badge>
+                            </td>
                             <td className="p-2">
                               {user.ageRange && (
                                 <Badge variant="outline">{user.ageRange}</Badge>
@@ -510,6 +729,41 @@ export default function AdminDashboard() {
                                   <Mail className="h-3 w-3 mr-1" />
                                   Email
                                 </Button>
+                                {canManageUser(user) && (
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button size="sm" variant="outline" data-testid={`button-manage-${user.id}`}>
+                                        <MoreHorizontal className="h-3 w-3" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                      <DropdownMenuItem onClick={() => handleRoleChange(user, 'PARTICIPANT')}>
+                                        <Edit className="h-3 w-3 mr-2" />
+                                        Change to Member
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => handleRoleChange(user, 'ORG_VIEWER')}>
+                                        <Edit className="h-3 w-3 mr-2" />
+                                        Change to Viewer
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => handleRoleChange(user, 'ORG_LEADER')}>
+                                        <Edit className="h-3 w-3 mr-2" />
+                                        Change to Leader
+                                      </DropdownMenuItem>
+                                      {((user as any)?.role === 'SUPER_ADMIN' || (user as any)?.role === 'ORG_OWNER') && (
+                                        <DropdownMenuItem onClick={() => handleRoleChange(user, 'ORG_ADMIN')}>
+                                          <Edit className="h-3 w-3 mr-2" />
+                                          Change to Admin
+                                        </DropdownMenuItem>
+                                      )}
+                                      {(user as any)?.role === 'SUPER_ADMIN' && (
+                                        <DropdownMenuItem onClick={() => handleRoleChange(user, 'ORG_OWNER')}>
+                                          <Edit className="h-3 w-3 mr-2" />
+                                          Change to Owner
+                                        </DropdownMenuItem>
+                                      )}
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -691,6 +945,52 @@ export default function AdminDashboard() {
         onClose={handleCloseResultModal}
         resultId={selectedResultId}
       />
+
+      {/* Role Change Confirmation Modal */}
+      <Dialog open={isRoleModalOpen} onOpenChange={setIsRoleModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change User Role</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to change {selectedUser?.firstName || selectedUser?.email}'s role to {getRoleDisplayName(newUserRole)}?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-yellow-50 p-3 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> Changing a user's role will immediately affect their permissions and access to features within the church management system.
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div>
+                <p className="text-sm font-medium">Current Role:</p>
+                <Badge className={`${getRoleBadgeColor(selectedUser?.role || '')}`}>
+                  {getRoleDisplayName(selectedUser?.role || '')}
+                </Badge>
+              </div>
+              <div>→</div>
+              <div>
+                <p className="text-sm font-medium">New Role:</p>
+                <Badge className={`${getRoleBadgeColor(newUserRole)}`}>
+                  {getRoleDisplayName(newUserRole)}
+                </Badge>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRoleModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={confirmRoleChange}
+              disabled={updateUserRoleMutation.isPending}
+              data-testid="button-confirm-role-change"
+            >
+              {updateUserRoleMutation.isPending ? 'Updating...' : 'Change Role'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
