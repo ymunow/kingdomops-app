@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 const app = express();
 
 // Security middleware with development-friendly CSP
-const isDevelopment = app.get("env") === "development";
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 app.use(helmet({
   contentSecurityPolicy: isDevelopment ? false : {
@@ -86,8 +86,11 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Check environment more explicitly
+  const isProduction = process.env.NODE_ENV === "production";
+  
   // Static file + SPA fallback for production
-  if (app.get("env") !== "development") {
+  if (isProduction) {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     const distPath = path.join(__dirname, "..", "client", "dist");
 
