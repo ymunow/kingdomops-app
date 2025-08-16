@@ -14,6 +14,8 @@ import MyResults from "@/pages/my-results";
 import Admin from "@/pages/admin";
 import AdminDashboard from "@/pages/admin-dashboard";
 import Profile from "@/pages/profile";
+import ChurchSignup from "@/pages/church-signup";
+import CongregationSignup from "@/pages/congregation-signup";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -42,6 +44,10 @@ function Router() {
       <Switch>
         <Route path="/" component={Landing} />
         <Route path="/results/:responseId" component={Results} />
+        
+        {/* Public routes for church and congregation signup */}
+        <Route path="/church-signup" component={ChurchSignup} />
+        <Route path="/join/:orgId" component={CongregationSignup} />
         
         {/* Protected routes - only render if authenticated and profile completed */}
         {isAuthenticated && !needsProfileCompletion && (

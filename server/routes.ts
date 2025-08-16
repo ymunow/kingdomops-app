@@ -114,6 +114,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Organization/Church registration routes
+  app.post('/api/organizations/register', async (req, res) => {
+    try {
+      const orgData = {
+        name: req.body.churchName,
+        subdomain: req.body.subdomain,
+        contactEmail: req.body.contactEmail,
+        website: req.body.website,
+        address: req.body.address,
+        description: req.body.description,
+        status: "ACTIVE" as const
+      };
+
+      // Validate the data
+      const validatedOrgData = insertOrganizationSchema.parse(orgData);
+      
+      // Create organization
+      const organization = await storage.createOrganization(validatedOrgData);
+      
+      // Create the contact person as ORG_OWNER
+      const ownerData = {
+        organizationId: organization.id,
+        email: req.body.contactEmail,
+        firstName: req.body.contactPersonName.split(' ')[0] || '',
+        lastName: req.body.contactPersonName.split(' ').slice(1).join(' ') || '',
+        role: "ORG_OWNER" as const,
+        profileCompleted: true
+      };
+
+      const owner = await storage.createUser(ownerData);
+
+      res.json({
+        organization,
+        owner,
+        message: "Church registered successfully"
+      });
+    } catch (error) {
+      console.error("Organization registration error:", error);
+      res.status(400).json({ 
+        message: error instanceof Error ? error.message : "Failed to register church" 
+      });
+    }
+  });
+
+  app.get('/api/organizations/:orgId/join-info', async (req, res) => {
+    try {
+      const orgId = req.params.orgId;
+      const organization = await storage.getOrganization(orgId);
+      
+      if (!organization) {
+        return res.status(404).json({ message: "Church not found" });
+      }
+
+      // Return public info for congregation signup
+      res.json({
+        id: organization.id,
+        name: organization.name,
+        description: organization.description,
+        website: organization.website
+      });
+    } catch (error) {
+      console.error("Get organization info error:", error);
+      res.status(500).json({ message: "Failed to get church information" });
+    }
+  });
+
+  app.get('/api/organizations/lookup/:subdomain', async (req, res) => {
+    try {
+      const subdomain = req.params.subdomain;
+      const organization = await storage.getOrganizationBySubdomain(subdomain);
+      
+      if (!organization) {
+        return res.status(404).json({ message: "Church not found" });
+      }
+
+      res.json({
+        id: organization.id,
+        name: organization.name,
+        description: organization.description
+      });
+    } catch (error) {
+      console.error("Organization lookup error:", error);
+      res.status(500).json({ message: "Failed to lookup church" });
+    }
+  });
+
+  app.post('/api/congregation/signup', async (req, res) => {
+    try {
+      const userData = {
+        organizationId: req.body.organizationId,
+        email: req.body.email,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        ageRange: req.body.ageRange,
+        role: "PARTICIPANT" as const,
+        profileCompleted: true
+      };
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(req.body.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "A user with this email already exists" });
+      }
+
+      // Create the user
+      const user = await storage.createUser(userData);
+
+      res.json({
+        user,
+        message: "Successfully joined the congregation"
+      });
+    } catch (error) {
+      console.error("Congregation signup error:", error);
+      res.status(400).json({ 
+        message: error instanceof Error ? error.message : "Failed to join congregation" 
+      });
+    }
+  });
+
   // Assessment routes
   app.get("/api/assessment/questions", async (req, res) => {
     try {

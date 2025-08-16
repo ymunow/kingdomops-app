@@ -45,6 +45,7 @@ import { eq, and, gte, lte, desc, count, sql, inArray, isNull } from "drizzle-or
 export interface IStorage {
   // Organization operations
   getOrganization(id: string): Promise<Organization | undefined>;
+  getOrganizationBySubdomain(subdomain: string): Promise<Organization | undefined>;
   getOrganizations(): Promise<Organization[]>;
   createOrganization(organization: InsertOrganization): Promise<Organization>;
   updateOrganization(id: string, updates: Partial<InsertOrganization>): Promise<Organization>;
@@ -125,6 +126,11 @@ export class DatabaseStorage implements IStorage {
 
   async getOrganizations(): Promise<Organization[]> {
     return await db.select().from(organizations).orderBy(organizations.name);
+  }
+
+  async getOrganizationBySubdomain(subdomain: string): Promise<Organization | undefined> {
+    const [org] = await db.select().from(organizations).where(eq(organizations.subdomain, subdomain));
+    return org;
   }
 
   async createOrganization(orgData: InsertOrganization): Promise<Organization> {
