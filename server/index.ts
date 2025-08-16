@@ -92,7 +92,7 @@ app.use((req, res, next) => {
   // Static file + SPA fallback for production
   if (isProduction) {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const distPath = path.join(__dirname, "..", "client", "dist");
+    const distPath = path.join(__dirname, "public");
 
     app.use(express.static(distPath, { index: false }));
 
