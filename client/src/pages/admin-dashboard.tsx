@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { BarChart, MetricCard } from "@/components/ui/charts";
+import { BarChart, DonutChart } from "@/components/ui/charts";
 import ResultDetailModal from "@/components/admin/result-detail-modal";
 import MinistryOpportunities from "@/components/admin/ministry-opportunities";
 import { 
@@ -159,17 +159,17 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-soft-cream">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+          <div className="flex justify-between items-center py-8">
             <div>
-              <h1 className="text-2xl font-display font-bold text-charcoal">
-                Church Admin Dashboard
+              <h1 className="text-3xl font-bold text-gray-900">
+                Admin Dashboard
               </h1>
-              <p className="text-gray-600 mt-1">
-                Manage your church's spiritual gifts assessments
+              <p className="text-gray-600 mt-2">
+                Overview of spiritual gifts assessment activity and results.
               </p>
             </div>
             <Button 
@@ -187,102 +187,164 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
-            <TabsTrigger value="people" data-testid="tab-people">People</TabsTrigger>
-            <TabsTrigger value="results" data-testid="tab-results">Results</TabsTrigger>
-            <TabsTrigger value="ministry" data-testid="tab-ministry">Ministry</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 p-1 rounded-lg shadow-sm">
+            <TabsTrigger 
+              value="overview" 
+              data-testid="tab-overview"
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+            >
+              Overview
+            </TabsTrigger>
+            <TabsTrigger 
+              value="people" 
+              data-testid="tab-people"
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+            >
+              People
+            </TabsTrigger>
+            <TabsTrigger 
+              value="results" 
+              data-testid="tab-results"
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+            >
+              Results
+            </TabsTrigger>
+            <TabsTrigger 
+              value="ministry" 
+              data-testid="tab-ministry"
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+            >
+              Ministry
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            {/* Enhanced Metrics Cards */}
+          <TabsContent value="overview" className="space-y-8">
+            {/* Modern Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <MetricCard
-                title="Total Completions"
-                value={(metrics as any)?.totalCompletions || 0}
-                subtitle="All-time assessments"
-                icon={<UserCheck className="h-5 w-5" />}
-                trend={{
-                  value: (metrics as any)?.completionsLast30Days || 0,
-                  label: "this month",
-                  isPositive: true
-                }}
-              />
-              <MetricCard
-                title="Average Time"
-                value={`${(metrics as any)?.averageTimeMinutes || 0}m`}
-                subtitle="Completion time"
-                icon={<Clock className="h-5 w-5" />}
-              />
-              <MetricCard
-                title="Completion Rate"
-                value={`${Math.round((1 - ((metrics as any)?.dropOffRate || 0)) * 100)}%`}
-                subtitle="People who finish"
-                icon={<Target className="h-5 w-5" />}
-              />
-              <MetricCard
-                title="This Month"
-                value={(metrics as any)?.completionsLast30Days || 0}
-                subtitle="New assessments"
-                icon={<TrendingUp className="h-5 w-5" />}
-              />
+              {/* Total Assessments */}
+              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Total Assessments</p>
+                    <p className="text-3xl font-bold text-blue-600">{(metrics as any)?.totalCompletions || 0}</p>
+                  </div>
+                  <div className="p-3 bg-blue-100 rounded-full">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Completed */}
+              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Completed</p>
+                    <p className="text-3xl font-bold text-green-600">{(metrics as any)?.totalCompletions || 0}</p>
+                  </div>
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <UserCheck className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Completion Rate */}
+              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Completion Rate</p>
+                    <p className="text-3xl font-bold text-purple-600">{Math.round((1 - ((metrics as any)?.dropOffRate || 0)) * 100)}%</p>
+                  </div>
+                  <div className="p-3 bg-purple-100 rounded-full">
+                    <TrendingUp className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Total Questions */}
+              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Total Questions</p>
+                    <p className="text-3xl font-bold text-orange-600">60</p>
+                  </div>
+                  <div className="p-3 bg-orange-100 rounded-full">
+                    <FileText className="h-6 w-6 text-orange-600" />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Enhanced Gift Distribution Chart */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <BarChart3 className="h-5 w-5 mr-2 text-spiritual-blue" />
-                    Top Spiritual Gifts Distribution
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {(metrics as any)?.topGiftDistribution ? (
-                    <BarChart
-                      data={Object.entries((metrics as any).topGiftDistribution)
-                        .sort(([,a], [,b]) => (b as number) - (a as number))
-                        .slice(0, 8)
-                        .map(([gift, count]) => ({
-                          label: gift.replace(/_/g, " "),
-                          value: count as number,
-                          color: "bg-spiritual-blue"
-                        }))}
-                      height={300}
-                      showValues={true}
-                    />
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">No data available</div>
-                  )}
-                </CardContent>
-              </Card>
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Top Spiritual Gifts Distribution */}
+              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Top Spiritual Gifts Distribution</h3>
+                {(metrics as any)?.topGiftDistribution ? (
+                  <BarChart
+                    data={Object.entries((metrics as any).topGiftDistribution)
+                      .sort(([,a], [,b]) => (b as number) - (a as number))
+                      .slice(0, 6)
+                      .map(([gift, count]) => ({
+                        label: gift.replace(/_/g, " "),
+                        value: count as number,
+                        color: "bg-gradient-to-r from-blue-500 to-purple-600"
+                      }))}
+                    height={280}
+                    showValues={true}
+                  />
+                ) : (
+                  <div className="text-center py-12 text-gray-500">
+                    <Award className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                    <p>No gift data available</p>
+                    <p className="text-sm">Data will appear after assessments are completed</p>
+                  </div>
+                )}
+              </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-spiritual-blue" />
-                    Age Group Preferences
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {(metrics as any)?.ageGroupDistribution ? (
-                    <BarChart
+              {/* Age Group Preferences - Pie Chart */}
+              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Age Group Preferences</h3>
+                {(metrics as any)?.ageGroupDistribution ? (
+                  <div className="flex items-center justify-center">
+                    <DonutChart
                       data={Object.entries((metrics as any).ageGroupDistribution)
-                        .sort(([,a], [,b]) => (b as number) - (a as number))
-                        .map(([ageGroup, count]) => ({
+                        .map(([ageGroup, count], index) => ({
                           label: ageGroup,
                           value: count as number,
-                          color: "bg-warm-gold"
+                          color: [
+                            "#3B82F6", // blue
+                            "#8B5CF6", // purple
+                            "#06B6D4", // cyan
+                            "#10B981", // emerald
+                            "#F59E0B", // amber
+                            "#EF4444"  // red
+                          ][index % 6]
                         }))}
-                      height={300}
-                      showValues={true}
+                      size={200}
                     />
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">No data available</div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-gray-500">
+                    <Users className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                    <p>No age group data available</p>
+                    <p className="text-sm">Data will appear after assessments are completed</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Activity Section */}
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+              <div className="flex items-center mb-6">
+                <Calendar className="h-5 w-5 mr-2 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-900">Recent Completed Assessments</h3>
+              </div>
+              <div className="text-center py-8 text-gray-500">
+                <FileText className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                <p>No recent assessments</p>
+                <p className="text-sm">Recent activity will appear here as people complete assessments</p>
+              </div>
             </div>
           </TabsContent>
 
