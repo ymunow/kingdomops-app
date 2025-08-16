@@ -112,7 +112,35 @@ export async function setupAuth(app: Express) {
     passport.authenticate(`replitauth:${req.hostname}`, {
       successReturnToOrRedirect: "/",
       failureRedirect: "/api/login",
-    })(req, res, next);
+    })(req, res, (err: any) => {
+      if (err) {
+        console.error("Auth callback error:", err);
+        return res.redirect("/api/login");
+      }
+      
+      // Check for return_to parameter for newly registered church admins
+      const returnTo = req.query.return_to as string;
+      const isNewAdmin = req.query.new_admin === 'true';
+      
+      if (returnTo === 'admin-dashboard' && isNewAdmin) {
+        return res.redirect('/church-admin-welcome');
+      }
+      
+      // Default redirect based on user role
+      const userId = (req.user as any)?.claims?.sub as string;
+      if (userId) {
+        storage.getUser(userId).then(user => {
+          if (user && ['SUPER_ADMIN', 'ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER'].includes(user.role)) {
+            return res.redirect('/admin-dashboard');
+          }
+          return res.redirect('/');
+        }).catch(() => {
+          return res.redirect('/');
+        });
+      } else {
+        return res.redirect('/');
+      }
+    });
   });
 
   app.get("/api/logout", (req, res) => {

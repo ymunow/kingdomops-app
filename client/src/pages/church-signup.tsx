@@ -68,14 +68,22 @@ export default function ChurchSignup() {
       return response.json();
     },
     onSuccess: (data) => {
+      // Store registration data temporarily for post-login instructions
+      sessionStorage.setItem('church_registration_success', JSON.stringify({
+        churchName: data.organization.name,
+        inviteCode: data.inviteCode,
+        contactEmail: data.owner.email
+      }));
+      
       toast({
         title: "Church registered successfully!",
-        description: `Welcome ${data.organization.name}! Please sign in with your account to access the admin dashboard.`
+        description: `${data.organization.name} has been registered. Redirecting you to sign in...`
       });
-      // Redirect to login so they can authenticate with their account
+      
+      // Redirect to login immediately with a flag for new church admin
       setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 2000); // Wait 2 seconds to show the success message
+        window.location.href = "/api/login?return_to=admin-dashboard&new_admin=true";
+      }, 1500);
     },
     onError: (error) => {
       toast({
