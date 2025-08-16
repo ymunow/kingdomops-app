@@ -64,7 +64,7 @@ export default function ChurchAdminWelcome() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p className="text-purple-700">Loading your admin portal...</p>
@@ -81,9 +81,9 @@ export default function ChurchAdminWelcome() {
   const inviteCode = organization?.inviteCode || registrationData?.inviteCode;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       {/* Header */}
-      <div className="bg-white border-b shadow-sm">
+      <div className="bg-white/80 backdrop-blur-sm border-b shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-spiritual-blue rounded-full mb-4">
@@ -101,7 +101,7 @@ export default function ChurchAdminWelcome() {
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Success Message */}
-        <Card className="mb-8 border-green-200 bg-green-50">
+        <Card className="mb-8 border-green-200 bg-green-50/80 backdrop-blur-sm shadow-lg">
           <CardContent className="pt-6">
             <div className="flex items-center">
               <CheckCircle className="h-8 w-8 text-green-600 mr-3" />
@@ -116,7 +116,7 @@ export default function ChurchAdminWelcome() {
         </Card>
 
         {/* Next Steps */}
-        <Card className="mb-8">
+        <Card className="mb-8 bg-white/80 backdrop-blur-sm shadow-lg border-gray-200">
           <CardHeader>
             <CardTitle className="flex items-center">
               <Settings className="h-5 w-5 mr-2 text-spiritual-blue" />
@@ -198,7 +198,7 @@ export default function ChurchAdminWelcome() {
         </Card>
 
         {/* Admin Features Overview */}
-        <Card>
+        <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-gray-200">
           <CardHeader>
             <CardTitle className="flex items-center">
               <Users className="h-5 w-5 mr-2 text-spiritual-blue" />

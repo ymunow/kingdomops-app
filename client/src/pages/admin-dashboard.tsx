@@ -157,7 +157,7 @@ export default function AdminDashboard() {
 
   if (metricsLoading || orgLoading) {
     return (
-      <div className="min-h-screen bg-soft-cream flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spiritual-blue mx-auto mb-4"></div>
           <p className="text-gray-600">Loading dashboard...</p>
@@ -167,9 +167,9 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-100">
+      <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-8">
             <div>
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={`grid w-full ${(user as any)?.role === "SUPER_ADMIN" ? "grid-cols-5" : "grid-cols-4"} bg-white border border-gray-200 p-1 rounded-lg shadow-sm`}>
+          <TabsList className={`grid w-full ${(user as any)?.role === "SUPER_ADMIN" ? "grid-cols-5" : "grid-cols-4"} bg-white/90 backdrop-blur-sm border border-gray-200 p-1 rounded-xl shadow-lg`}>
             <TabsTrigger 
               value="overview" 
               data-testid="tab-overview"
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
             {/* Modern Metrics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Total Assessments */}
-              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 mb-1">Total Assessments</p>
@@ -258,7 +258,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Completed */}
-              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 mb-1">Completed</p>
@@ -271,7 +271,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Completion Rate */}
-              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 mb-1">Completion Rate</p>
@@ -284,7 +284,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Total Questions */}
-              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 mb-1">Total Questions</p>
@@ -300,7 +300,7 @@ export default function AdminDashboard() {
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Top Spiritual Gifts Distribution */}
-              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-gray-100 shadow-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Top Spiritual Gifts Distribution</h3>
                 {(metrics as any)?.topGiftDistribution ? (
                   <BarChart
@@ -325,7 +325,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Age Group Preferences - Pie Chart */}
-              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+              <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-gray-100 shadow-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Age Group Preferences</h3>
                 {(metrics as any)?.ageGroupDistribution ? (
                   <div className="flex items-center justify-center">
@@ -357,7 +357,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Recent Activity Section */}
-            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-gray-100 shadow-lg">
               <div className="flex items-center mb-6">
                 <Calendar className="h-5 w-5 mr-2 text-blue-600" />
                 <h3 className="text-lg font-semibold text-gray-900">Recent Completed Assessments</h3>
@@ -373,7 +373,7 @@ export default function AdminDashboard() {
           {/* People Tab */}
           <TabsContent value="people" className="space-y-6">
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-lg border">
+            <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 shadow-md">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -423,7 +423,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* People Table */}
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-gray-200">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Users className="h-5 w-5 mr-2 text-spiritual-blue" />
@@ -524,7 +524,7 @@ export default function AdminDashboard() {
 
           {/* Results Tab */}
           <TabsContent value="results" className="space-y-6">
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-gray-200">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Award className="h-5 w-5 mr-2 text-spiritual-blue" />
@@ -582,17 +582,19 @@ export default function AdminDashboard() {
 
           {/* Ministry Tab */}
           <TabsContent value="ministry" className="space-y-6">
-            <MinistryOpportunities />
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 p-6">
+              <MinistryOpportunities />
+            </div>
           </TabsContent>
 
           {/* Churches Tab (Super Admin Only) */}
           {(user as any)?.role === "SUPER_ADMIN" && (
             <TabsContent value="churches" className="space-y-6">
-              <Card>
+              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-gray-200">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Users className="h-5 w-5 mr-2 text-spiritual-blue" />
-                    Registered Churches ({organizations?.length || 0})
+                    Registered Churches ({Array.isArray(organizations) ? organizations.length : 0})
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -603,8 +605,8 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {organizations?.map((org: any) => (
-                        <Card key={org.id} className="hover:shadow-md transition-shadow">
+                      {Array.isArray(organizations) && organizations.map((org: any) => (
+                        <Card key={org.id} className="bg-white/90 backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-gray-200">
                           <CardHeader>
                             <CardTitle className="text-lg">{org.name}</CardTitle>
                             {org.subdomain && (
@@ -663,7 +665,7 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   )}
-                  {!organizationsLoading && (!organizations || organizations.length === 0) && (
+                  {!organizationsLoading && (!organizations || !Array.isArray(organizations) || organizations.length === 0) && (
                     <div className="text-center py-12">
                       <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                       <h3 className="text-lg font-medium text-gray-900 mb-2">No Churches Registered</h3>

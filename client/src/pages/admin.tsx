@@ -31,7 +31,7 @@ export default function Admin() {
 
   if (isLoading || orgLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-soft-cream">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-spiritual-blue mb-4 mx-auto"></div>
           <p className="text-charcoal">Loading admin dashboard...</p>
@@ -46,9 +46,9 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-soft-cream">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-gray-100">
+      <nav className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -75,7 +75,7 @@ export default function Admin() {
       </nav>
 
       {/* Header */}
-      <section className="bg-white border-b border-gray-200">
+      <section className="bg-white/80 backdrop-blur-sm border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
@@ -97,7 +97,7 @@ export default function Admin() {
           <StatsBoard />
 
           {/* Participants Table */}
-          <Card className="bg-white shadow-sm border border-gray-100">
+          <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
             <CardContent className="p-0">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h3 className="font-display font-semibold text-xl text-charcoal">Assessment Responses</h3>
@@ -119,7 +119,7 @@ function StatsBoard() {
         <StatsChboard />
       </div>
       <div>
-        <Card className="bg-white shadow-sm border border-gray-100 h-full">
+        <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 h-full">
           <CardContent className="p-6">
             <h3 className="font-display font-semibold text-xl text-charcoal mb-6">Quick Actions</h3>
             <div className="space-y-4">
