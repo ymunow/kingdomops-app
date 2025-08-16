@@ -8,9 +8,11 @@ import { fileURLToPath } from "url";
 
 const app = express();
 
-// Security middleware
+// Security middleware with development-friendly CSP
+const isDevelopment = app.get("env") === "development";
+
 app.use(helmet({
-  contentSecurityPolicy: {
+  contentSecurityPolicy: isDevelopment ? false : {
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
