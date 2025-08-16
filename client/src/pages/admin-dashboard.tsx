@@ -100,6 +100,12 @@ export default function AdminDashboard() {
     enabled: !!user
   });
 
+  // Fetch all organizations (Super Admin only)
+  const { data: organizations, isLoading: organizationsLoading } = useQuery({
+    queryKey: ["/api/super-admin/organizations/overview"],
+    enabled: !!user && (user as any)?.role === "SUPER_ADMIN"
+  });
+
   const handleExportData = async () => {
     try {
       const response = await fetch("/api/admin/export");
@@ -187,7 +193,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200 p-1 rounded-lg shadow-sm">
+          <TabsList className={`grid w-full ${(user as any)?.role === "SUPER_ADMIN" ? "grid-cols-5" : "grid-cols-4"} bg-white border border-gray-200 p-1 rounded-lg shadow-sm`}>
             <TabsTrigger 
               value="overview" 
               data-testid="tab-overview"
@@ -216,6 +222,15 @@ export default function AdminDashboard() {
             >
               Ministry
             </TabsTrigger>
+            {(user as any)?.role === "SUPER_ADMIN" && (
+              <TabsTrigger 
+                value="churches" 
+                data-testid="tab-churches"
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Churches
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Overview Tab */}
@@ -562,6 +577,84 @@ export default function AdminDashboard() {
           <TabsContent value="ministry" className="space-y-6">
             <MinistryOpportunities />
           </TabsContent>
+
+          {/* Churches Tab (Super Admin Only) */}
+          {(user as any)?.role === "SUPER_ADMIN" && (
+            <TabsContent value="churches" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Users className="h-5 w-5 mr-2 text-spiritual-blue" />
+                    Registered Churches ({organizations?.length || 0})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {organizationsLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-spiritual-blue mx-auto mb-2"></div>
+                      <p className="text-sm text-gray-600">Loading churches...</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {organizations?.map((org: any) => (
+                        <Card key={org.id} className="hover:shadow-md transition-shadow">
+                          <CardHeader>
+                            <CardTitle className="text-lg">{org.name}</CardTitle>
+                            {org.subdomain && (
+                              <Badge variant="outline" className="w-fit">
+                                {org.subdomain}.spiritualgifts.app
+                              </Badge>
+                            )}
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            <div className="text-sm text-gray-600">
+                              <p><strong>Contact:</strong> {org.contactEmail}</p>
+                              {org.website && (
+                                <p><strong>Website:</strong> <a href={org.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{org.website}</a></p>
+                              )}
+                              <p><strong>Address:</strong> {org.address}</p>
+                              <p><strong>Status:</strong> <Badge variant={org.status === "ACTIVE" ? "default" : "secondary"}>{org.status}</Badge></p>
+                            </div>
+                            {org.description && (
+                              <p className="text-sm text-gray-700 line-clamp-2">{org.description}</p>
+                            )}
+                            {org.metrics && (
+                              <div className="grid grid-cols-2 gap-2 pt-3 border-t">
+                                <div className="text-center">
+                                  <p className="text-2xl font-bold text-blue-600">{org.metrics.totalCompletions || 0}</p>
+                                  <p className="text-xs text-gray-500">Assessments</p>
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-2xl font-bold text-green-600">{org.metrics.totalUsers || 0}</p>
+                                  <p className="text-xs text-gray-500">Members</p>
+                                </div>
+                              </div>
+                            )}
+                            <div className="text-xs text-gray-500 pt-2 border-t">
+                              Registered: {new Date(org.createdAt).toLocaleDateString()}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                  {!organizationsLoading && (!organizations || organizations.length === 0) && (
+                    <div className="text-center py-12">
+                      <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No Churches Registered</h3>
+                      <p className="text-gray-600 mb-6">Churches will appear here after they register through the signup form.</p>
+                      <Button 
+                        onClick={() => window.open('/church-signup', '_blank')}
+                        className="bg-spiritual-blue hover:bg-purple-800"
+                      >
+                        View Signup Form
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
