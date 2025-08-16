@@ -6,6 +6,7 @@ interface Organization {
   name: string;
   description?: string;
   website?: string;
+  address?: string;
   inviteCode: string;
 }
 
@@ -22,7 +23,7 @@ export function useOrganization() {
       if (!response.ok) {
         throw new Error("Failed to fetch organization");
       }
-      return response.json() as Organization;
+      return response.json();
     },
     enabled: isAuthenticated,
     retry: false,

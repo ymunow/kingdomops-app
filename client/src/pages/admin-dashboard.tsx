@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +35,10 @@ import {
   Edit,
   Copy,
   Shield,
-  Crown
+  Crown,
+  Settings,
+  Church,
+  Save
 } from "lucide-react";
 
 interface DashboardMetrics {
@@ -70,6 +73,18 @@ interface UserResult {
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { organization, isLoading: orgLoading } = useOrganization();
+  
+  // Initialize profile form when organization data loads
+  React.useEffect(() => {
+    if (organization) {
+      setProfileForm({
+        name: organization.name || "",
+        description: organization.description || "",
+        website: organization.website || "",
+        address: organization.address || ""
+      });
+    }
+  }, [organization]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
@@ -83,6 +98,13 @@ export default function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<UserResult | null>(null);
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserRole, setNewUserRole] = useState("PARTICIPANT");
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    description: "",
+    website: "",
+    address: ""
+  });
 
   // Organization switching mutation for super admin
   const switchToOrganizationMutation = useMutation({
@@ -139,6 +161,36 @@ export default function AdminDashboard() {
       toast({
         title: "Error",
         description: "Failed to return to churches view.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update church profile mutation
+  const updateChurchProfileMutation = useMutation({
+    mutationFn: async (profileData: any) => {
+      const response = await fetch(`/api/organizations/${organization?.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update church profile");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
+      setIsEditingProfile(false);
+      toast({
+        title: "Profile Updated",
+        description: "Your church profile has been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Update Failed",
+        description: "Failed to update church profile. Please try again.",
         variant: "destructive",
       });
     },
@@ -419,7 +471,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className={`grid w-full ${(user as any)?.role === "SUPER_ADMIN" ? "grid-cols-5" : "grid-cols-4"} bg-white/90 backdrop-blur-sm border border-gray-200 p-1 rounded-xl shadow-lg`}>
+          <TabsList className={`grid w-full ${(user as any)?.role === "SUPER_ADMIN" ? "grid-cols-5" : (user as any)?.role !== "PARTICIPANT" ? "grid-cols-5" : "grid-cols-4"} bg-white/90 backdrop-blur-sm border border-gray-200 p-1 rounded-xl shadow-lg`}>
             <TabsTrigger 
               value="overview" 
               data-testid="tab-overview"
@@ -448,6 +500,17 @@ export default function AdminDashboard() {
             >
               Ministry
             </TabsTrigger>
+            {/* Settings Tab for Church Admins/Owners */}
+            {["ORG_OWNER", "ORG_ADMIN"].includes((user as any)?.role) && !(user as any)?.viewContext?.isViewingAs && (
+              <TabsTrigger 
+                value="settings" 
+                data-testid="tab-settings"
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Church Settings
+              </TabsTrigger>
+            )}
+            {/* Churches Tab for Super Admin */}
             {(user as any)?.role === "SUPER_ADMIN" && (
               <TabsTrigger 
                 value="churches" 
@@ -1017,6 +1080,190 @@ export default function AdminDashboard() {
                       </Button>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+          
+          {/* Church Settings Tab (for Church Admins/Owners only) */}
+          {["ORG_OWNER", "ORG_ADMIN"].includes((user as any)?.role) && !(user as any)?.viewContext?.isViewingAs && (
+            <TabsContent value="settings" className="space-y-6">
+              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-gray-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Church className="h-5 w-5 mr-2 text-spiritual-blue" />
+                    Church Profile & Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Church Information Section */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Church Information</h3>
+                    
+                    {!isEditingProfile ? (
+                      <div className="space-y-4">
+                        {/* Current Information Display */}
+                        <div className="bg-gray-50 p-6 rounded-lg space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700">Church Name</Label>
+                              <p className="text-gray-900 font-medium mt-1">{organization?.name}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm font-medium text-gray-700">Website</Label>
+                              <p className="text-gray-900 mt-1">{organization?.website || "Not specified"}</p>
+                            </div>
+                            <div className="md:col-span-2">
+                              <Label className="text-sm font-medium text-gray-700">Address</Label>
+                              <p className="text-gray-900 mt-1">{organization?.address || "Not specified"}</p>
+                            </div>
+                            <div className="md:col-span-2">
+                              <Label className="text-sm font-medium text-gray-700">Description</Label>
+                              <p className="text-gray-900 mt-1">{organization?.description || "No description provided"}</p>
+                            </div>
+                          </div>
+                          
+                          {/* Invite Code Section - Prominently displayed */}
+                          <div className="bg-spiritual-blue/10 border border-spiritual-blue/20 rounded-lg p-4 mt-6">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <Label className="text-sm font-medium text-spiritual-blue">Congregation Join Code</Label>
+                                <div className="flex items-center space-x-3 mt-2">
+                                  <div className="text-2xl font-mono font-bold text-spiritual-blue">
+                                    {organization?.inviteCode}
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(organization?.inviteCode || "");
+                                      toast({
+                                        title: "Code Copied!",
+                                        description: "Invite code copied to clipboard."
+                                      });
+                                    }}
+                                    className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
+                                    data-testid="button-copy-invite-code"
+                                  >
+                                    <Copy className="h-4 w-4 mr-1" />
+                                    Copy
+                                  </Button>
+                                </div>
+                                <p className="text-sm text-gray-600 mt-2">
+                                  Share this code with your congregation members so they can join and take assessments.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <Button 
+                          onClick={() => setIsEditingProfile(true)}
+                          className="bg-spiritual-blue text-white hover:bg-purple-800"
+                          data-testid="button-edit-profile"
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Church Profile
+                        </Button>
+                      </div>
+                    ) : (
+                      /* Edit Form */
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="churchName">Church Name</Label>
+                            <Input
+                              id="churchName"
+                              value={profileForm.name}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
+                              data-testid="input-church-name"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="website">Website</Label>
+                            <Input
+                              id="website"
+                              value={profileForm.website}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, website: e.target.value }))}
+                              placeholder="https://yourchurch.com"
+                              data-testid="input-website"
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label htmlFor="address">Address</Label>
+                            <Input
+                              id="address"
+                              value={profileForm.address}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, address: e.target.value }))}
+                              placeholder="123 Main St, City, State 12345"
+                              data-testid="input-address"
+                            />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label htmlFor="description">Description</Label>
+                            <textarea
+                              id="description"
+                              value={profileForm.description}
+                              onChange={(e) => setProfileForm(prev => ({ ...prev, description: e.target.value }))}
+                              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                              rows={3}
+                              placeholder="Brief description of your church..."
+                              data-testid="textarea-description"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-3">
+                          <Button 
+                            onClick={() => updateChurchProfileMutation.mutate(profileForm)}
+                            disabled={updateChurchProfileMutation.isPending}
+                            className="bg-spiritual-blue text-white hover:bg-purple-800"
+                            data-testid="button-save-profile"
+                          >
+                            <Save className="h-4 w-4 mr-2" />
+                            {updateChurchProfileMutation.isPending ? "Saving..." : "Save Changes"}
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            onClick={() => {
+                              setIsEditingProfile(false);
+                              // Reset form to original values
+                              if (organization) {
+                                setProfileForm({
+                                  name: organization.name || "",
+                                  description: organization.description || "",
+                                  website: organization.website || "",
+                                  address: organization.address || ""
+                                });
+                              }
+                            }}
+                            data-testid="button-cancel-edit"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Usage Stats */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Church Statistics</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center p-4 bg-blue-50 rounded-lg">
+                        <p className="text-2xl font-bold text-blue-600">{(metrics as any)?.totalCompletions || 0}</p>
+                        <p className="text-sm text-blue-700">Total Assessments</p>
+                      </div>
+                      <div className="text-center p-4 bg-green-50 rounded-lg">
+                        <p className="text-2xl font-bold text-green-600">{users?.length || 0}</p>
+                        <p className="text-sm text-green-700">Registered Members</p>
+                      </div>
+                      <div className="text-center p-4 bg-purple-50 rounded-lg">
+                        <p className="text-2xl font-bold text-purple-600">{Math.round((1 - ((metrics as any)?.dropOffRate || 0)) * 100)}%</p>
+                        <p className="text-sm text-purple-700">Completion Rate</p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

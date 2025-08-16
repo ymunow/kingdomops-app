@@ -743,14 +743,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/organizations/:id", isAuthenticated, requireSuperAdmin, async (req, res) => {
+  // Consolidated organization update route (for both super admin and church admin)
+  app.put("/api/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const updates = insertOrganizationSchema.partial().parse(req.body);
-      const organization = await storage.updateOrganization(req.params.id, updates);
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const user = await storage.getUser(userId as string);
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+      
+      // Check if user can update this organization
+      const organizationId = req.params.id;
+      const isSuperAdmin = user.role === 'SUPER_ADMIN';
+      const isOrgOwnerOrAdmin = ['ORG_OWNER', 'ORG_ADMIN'].includes(user.role) && user.organizationId === organizationId;
+      
+      if (!isSuperAdmin && !isOrgOwnerOrAdmin) {
+        return res.status(403).json({ message: "Insufficient permissions to update this organization" });
+      }
+      
+      // Parse and validate updates
+      const allowedFields = isSuperAdmin ? 
+        insertOrganizationSchema.partial().parse(req.body) :
+        insertOrganizationSchema.pick({ name: true, description: true, website: true, address: true }).partial().parse(req.body);
+      
+      const organization = await storage.updateOrganization(organizationId, allowedFields);
       res.json(organization);
     } catch (error) {
-      console.error("Update organization error:", error);
-      res.status(500).json({ message: "Failed to update organization" });
+      console.error("Update organization profile error:", error);
+      res.status(500).json({ message: "Failed to update organization profile" });
     }
   });
 
