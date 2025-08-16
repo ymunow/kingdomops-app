@@ -33,16 +33,14 @@ function Router() {
       <Route path="/" component={Landing} />
       <Route path="/results/:responseId" component={Results} />
       
-      {/* Protected routes */}
-      <Route path="/assessment">
-        {isAuthenticated ? <Assessment /> : <Landing />}
-      </Route>
-      <Route path="/my-results">
-        {isAuthenticated ? <MyResults /> : <Landing />}
-      </Route>
-      <Route path="/admin">
-        {isAuthenticated ? <Admin /> : <Landing />}
-      </Route>
+      {/* Protected routes - only render if authenticated */}
+      {isAuthenticated && (
+        <>
+          <Route path="/assessment" component={Assessment} />
+          <Route path="/my-results" component={MyResults} />
+          <Route path="/admin" component={Admin} />
+        </>
+      )}
       
       {/* Catch-all route */}
       <Route component={NotFound} />
