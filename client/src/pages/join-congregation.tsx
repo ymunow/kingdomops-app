@@ -98,6 +98,7 @@ export default function JoinCongregation() {
       return response.json();
     },
     onSuccess: (data) => {
+      setIsSubmitting(false);
       toast({
         title: "Welcome to the congregation!",
         description: `You've successfully joined ${organization?.name}. Please sign in to start your spiritual gifts assessment.`
@@ -108,6 +109,7 @@ export default function JoinCongregation() {
       }, 2000);
     },
     onError: (error) => {
+      setIsSubmitting(false);
       toast({
         title: "Signup failed",
         description: error.message,
