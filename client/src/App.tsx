@@ -12,6 +12,7 @@ import Assessment from "@/pages/assessment";
 import Results from "@/pages/results";
 import MyResults from "@/pages/my-results";
 import Admin from "@/pages/admin";
+import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -47,6 +48,7 @@ function Router() {
             <Route path="/assessment" component={Assessment} />
             <Route path="/my-results" component={MyResults} />
             <Route path="/admin" component={Admin} />
+            <Route path="/profile" component={Profile} />
           </>
         )}
         

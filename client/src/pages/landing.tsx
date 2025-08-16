@@ -40,8 +40,11 @@ export default function Landing() {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
                   <span className="text-charcoal" data-testid="text-username">
-                    {(user as any)?.email || "User"}
+                    {(user as any)?.displayName || (user as any)?.email || "User"}
                   </span>
+                  <Button variant="outline" onClick={() => setLocation("/profile")} data-testid="button-my-profile">
+                    My Profile
+                  </Button>
                   <Button variant="outline" onClick={() => setLocation("/my-results")} data-testid="button-my-results">
                     My Results
                   </Button>
