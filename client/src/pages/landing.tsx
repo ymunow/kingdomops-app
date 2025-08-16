@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
 import { Crown, Clock, BarChart3, Users, Eye, HandHeart, Shield, Mountain, BellRing, Rocket, Home, Heart, Gift, BookOpen, Play, Church } from "lucide-react";
 
 export default function Landing() {
@@ -69,6 +70,8 @@ export default function Landing() {
                       </Button>
                     </>
                   )}
+                  {/* View As switcher for super admins */}
+                  <ViewAsSwitcher user={user} />
                   <Button variant="outline" onClick={handleLogout} data-testid="button-logout">
                     Sign Out
                   </Button>

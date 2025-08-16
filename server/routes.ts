@@ -94,6 +94,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
+      
+      // Check for view-as context
+      const viewContext = req.session.viewAsContext;
+      if (viewContext && user?.role === 'SUPER_ADMIN') {
+        // Return a mock user object based on view context
+        const mockUserData = {
+          id: 'view-as-mock',
+          role: viewContext.viewAsType,
+          email: `viewing-as-${viewContext.viewAsType.toLowerCase()}@example.com`,
+          firstName: 'Viewing',
+          lastName: `As ${viewContext.viewAsType.replace('_', ' ')}`,
+          displayName: `View As ${viewContext.viewAsType.replace('_', ' ')}`,
+          profileCompleted: true,
+          organizationId: user.organizationId,
+          viewContext: {
+            isViewingAs: true,
+            originalUser: {
+              id: user.id,
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              role: user.role
+            },
+            viewAsType: viewContext.viewAsType
+          }
+        };
+        
+        res.json(mockUserData);
+        return;
+      }
+      
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -140,6 +171,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Profile completion error:", error);
       res.status(400).json({ message: "Failed to complete profile" });
+    }
+  });
+
+  // Super Admin "View As" functionality
+  app.post('/api/super-admin/view-as', isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { userType, userId } = req.body;
+      
+      // Store view context in session
+      req.session.viewAsContext = {
+        originalUserId: req.user.claims.sub,
+        viewAsType: userType, // 'PARTICIPANT', 'ORG_ADMIN', etc.
+        viewAsUserId: userId, // Optional: specific user to view as
+        timestamp: new Date()
+      };
+      
+      res.json({ 
+        success: true, 
+        viewContext: req.session.viewAsContext,
+        message: `Now viewing as ${userType}` 
+      });
+    } catch (error) {
+      console.error("View as error:", error);
+      res.status(500).json({ message: "Failed to set view context" });
+    }
+  });
+
+  app.delete('/api/super-admin/view-as', isAuthenticated, async (req: any, res) => {
+    try {
+      if (req.session.viewAsContext) {
+        delete req.session.viewAsContext;
+      }
+      
+      res.json({ 
+        success: true, 
+        message: "Returned to admin view" 
+      });
+    } catch (error) {
+      console.error("Clear view context error:", error);
+      res.status(500).json({ message: "Failed to clear view context" });
+    }
+  });
+
+  app.get('/api/super-admin/view-context', isAuthenticated, async (req: any, res) => {
+    try {
+      const viewContext = req.session.viewAsContext || null;
+      res.json({ viewContext });
+    } catch (error) {
+      console.error("Get view context error:", error);
+      res.status(500).json({ message: "Failed to get view context" });
     }
   });
 
