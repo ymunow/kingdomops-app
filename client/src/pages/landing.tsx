@@ -61,14 +61,9 @@ export default function Landing() {
                   </Button>
                   {/* Admin access for all admin-level roles */}
                   {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
-                    <>
-                      <Button variant="outline" onClick={() => setLocation("/admin-dashboard")} data-testid="button-admin-dashboard">
-                        Dashboard
-                      </Button>
-                      <Button variant="outline" onClick={() => setLocation("/admin")} data-testid="button-admin">
-                        Admin
-                      </Button>
-                    </>
+                    <Button variant="outline" onClick={() => setLocation("/admin-dashboard")} data-testid="button-admin">
+                      Admin
+                    </Button>
                   )}
                   {/* View As switcher for super admins */}
                   <ViewAsSwitcher user={user} />
