@@ -45,7 +45,7 @@ interface MinistryOpportunity {
   capacity: number;
   currentCount: number;
   leadContact: string;
-  isActive: boolean;
+  status: string;
   createdAt: string;
 }
 
@@ -114,7 +114,7 @@ function OpportunityForm({ opportunity, onClose, onSuccess }: OpportunityFormPro
     location: opportunity?.location || "",
     capacity: opportunity?.capacity || 1,
     leadContact: opportunity?.leadContact || "",
-    isActive: opportunity?.isActive ?? true
+    status: opportunity?.status || "OPEN"
   });
 
   const createMutation = useMutation({
@@ -294,12 +294,12 @@ function OpportunityForm({ opportunity, onClose, onSuccess }: OpportunityFormPro
       <div className="flex items-center space-x-2">
         <input
           type="checkbox"
-          id="isActive"
-          checked={formData.isActive}
-          onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+          id="status"
+          checked={formData.status === "OPEN"}
+          onChange={(e) => setFormData({ ...formData, status: e.target.checked ? "OPEN" : "CLOSED" })}
           className="rounded"
         />
-        <Label htmlFor="isActive">Active (accepting new volunteers)</Label>
+        <Label htmlFor="status">Active (accepting new volunteers)</Label>
       </div>
 
       <div className="flex justify-end space-x-2">
@@ -424,8 +424,8 @@ export default function MinistryOpportunities() {
               
               {/* Status and Capacity */}
               <div className="flex items-center justify-between">
-                <Badge variant={opportunity.isActive ? "default" : "secondary"}>
-                  {opportunity.isActive ? "Active" : "Inactive"}
+                <Badge variant={opportunity.status === "OPEN" ? "default" : "secondary"}>
+                  {opportunity.status === "OPEN" ? "Active" : "Inactive"}
                 </Badge>
                 <div className="flex items-center text-sm text-gray-600">
                   <Users className="h-3 w-3 mr-1" />
