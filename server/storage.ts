@@ -13,6 +13,7 @@ import {
   type Result,
   type InsertResult,
   type GiftKey,
+  type ProfileCompletionData,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -23,6 +24,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  completeUserProfile(userId: string, profileData: ProfileCompletionData): Promise<User>;
 
   // Assessment Version operations
   getActiveAssessmentVersion(): Promise<AssessmentVersion | undefined>;
@@ -86,7 +88,10 @@ export class MemStorage implements IStorage {
         email: userData.email ?? existingUser.email ?? null,
         firstName: userData.firstName ?? existingUser.firstName ?? null,
         lastName: userData.lastName ?? existingUser.lastName ?? null,
+        displayName: userData.displayName ?? existingUser.displayName ?? null,
+        ageRange: userData.ageRange ?? existingUser.ageRange ?? null,
         profileImageUrl: userData.profileImageUrl ?? existingUser.profileImageUrl ?? null,
+        profileCompleted: userData.profileCompleted ?? existingUser.profileCompleted ?? false,
         updatedAt: new Date(),
       };
       this.users.set(userData.id!, updatedUser);
@@ -96,6 +101,13 @@ export class MemStorage implements IStorage {
       const user: User = {
         ...userData,
         id: userData.id || randomUUID(),
+        email: userData.email ?? null,
+        firstName: userData.firstName ?? null,
+        lastName: userData.lastName ?? null,
+        displayName: userData.displayName ?? null,
+        ageRange: userData.ageRange ?? null,
+        profileImageUrl: userData.profileImageUrl ?? null,
+        profileCompleted: userData.profileCompleted ?? false,
         role: userData.role || "PARTICIPANT",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -117,13 +129,36 @@ export class MemStorage implements IStorage {
       email: insertUser.email ?? null,
       firstName: insertUser.firstName ?? null,
       lastName: insertUser.lastName ?? null,
+      displayName: insertUser.displayName ?? null,
+      ageRange: insertUser.ageRange ?? null,
       profileImageUrl: insertUser.profileImageUrl ?? null,
+      profileCompleted: insertUser.profileCompleted ?? false,
       role: insertUser.role || "PARTICIPANT",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
     this.users.set(id, user);
     return user;
+  }
+
+  async completeUserProfile(userId: string, profileData: ProfileCompletionData): Promise<User> {
+    const existingUser = this.users.get(userId);
+    if (!existingUser) {
+      throw new Error("User not found");
+    }
+
+    const updatedUser: User = {
+      ...existingUser,
+      firstName: profileData.firstName,
+      lastName: profileData.lastName,
+      displayName: profileData.displayName,
+      ageRange: profileData.ageRange,
+      profileCompleted: true,
+      updatedAt: new Date(),
+    };
+
+    this.users.set(userId, updatedUser);
+    return updatedUser;
   }
 
   async getActiveAssessmentVersion(): Promise<AssessmentVersion | undefined> {

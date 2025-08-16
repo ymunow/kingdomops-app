@@ -14,5 +14,6 @@ export function useAuth() {
     user,
     isLoading,
     isAuthenticated: !!user,
+    needsProfileCompletion: !!user && !(user as any).profileCompleted,
   };
 }

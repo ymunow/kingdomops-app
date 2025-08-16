@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/use-auth";
 import { initializeCacheManagement } from "./utils/cache-management";
+import ProfileCompletionModal from "@/components/profile/profile-completion-modal";
 import Landing from "@/pages/landing";
 import Assessment from "@/pages/assessment";
 import Results from "@/pages/results";
@@ -14,7 +15,7 @@ import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, needsProfileCompletion, user } = useAuth();
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -29,22 +30,30 @@ function Router() {
   }
 
   return (
-    <Switch>
-      <Route path="/" component={Landing} />
-      <Route path="/results/:responseId" component={Results} />
+    <>
+      {/* Profile Completion Modal - shown when user needs to complete profile */}
+      <ProfileCompletionModal 
+        isOpen={needsProfileCompletion} 
+        userEmail={(user as any)?.email} 
+      />
       
-      {/* Protected routes - only render if authenticated */}
-      {isAuthenticated && (
-        <>
-          <Route path="/assessment" component={Assessment} />
-          <Route path="/my-results" component={MyResults} />
-          <Route path="/admin" component={Admin} />
-        </>
-      )}
-      
-      {/* Catch-all route */}
-      <Route component={NotFound} />
-    </Switch>
+      <Switch>
+        <Route path="/" component={Landing} />
+        <Route path="/results/:responseId" component={Results} />
+        
+        {/* Protected routes - only render if authenticated and profile completed */}
+        {isAuthenticated && !needsProfileCompletion && (
+          <>
+            <Route path="/assessment" component={Assessment} />
+            <Route path="/my-results" component={MyResults} />
+            <Route path="/admin" component={Admin} />
+          </>
+        )}
+        
+        {/* Catch-all route */}
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 

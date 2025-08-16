@@ -10,6 +10,7 @@ import {
   insertResponseSchema,
   insertAnswerSchema,
   insertResultSchema,
+  profileCompletionSchema,
   type GiftKey,
   type User,
 } from "@shared/schema";
@@ -83,6 +84,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  app.post('/api/auth/complete-profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const validatedData = profileCompletionSchema.parse(req.body);
+      
+      const updatedUser = await storage.completeUserProfile(userId, validatedData);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Profile completion error:", error);
+      res.status(400).json({ message: "Failed to complete profile" });
     }
   });
 

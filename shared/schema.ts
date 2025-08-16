@@ -44,6 +44,16 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
+// Age range enum for profile
+export const ageRangeEnum = pgEnum("age_range", [
+  "18-25",
+  "26-35", 
+  "36-45",
+  "46-55",
+  "56-65",
+  "66+"
+]);
+
 // User storage table.
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const users = pgTable("users", {
@@ -51,7 +61,10 @@ export const users = pgTable("users", {
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
+  displayName: varchar("display_name"),
+  ageRange: ageRangeEnum("age_range"),
   profileImageUrl: varchar("profile_image_url"),
+  profileCompleted: boolean("profile_completed").default(false),
   role: roleEnum("role").default("PARTICIPANT"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -121,6 +134,20 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
+export const profileCompletionSchema = createInsertSchema(users).pick({
+  firstName: true,
+  lastName: true,
+  displayName: true,
+  ageRange: true,
+}).extend({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  displayName: z.string().min(1, "Display name is required"),
+  ageRange: z.enum(["18-25", "26-35", "36-45", "46-55", "56-65", "66+"], {
+    required_error: "Please select an age range"
+  })
+});
+
 export const insertAssessmentVersionSchema = createInsertSchema(
   assessmentVersions
 ).omit({
@@ -182,6 +209,15 @@ export type GiftKey =
   | "SERVICE_HOSPITALITY"
   | "MERCY"
   | "GIVING";
+
+export type AgeRange = "18-25" | "26-35" | "36-45" | "46-55" | "56-65" | "66+";
+
+export type ProfileCompletionData = {
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  ageRange: AgeRange;
+};
 
 export type AssessmentState = {
   currentStep: number;
