@@ -205,20 +205,18 @@ export default function ChurchSignup() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="flex items-center">
-                          Custom URL (Optional)
+                          Church Identifier (Optional)
                         </FormLabel>
                         <FormControl>
-                          <div className="flex items-center">
-                            <Input 
-                              placeholder="mychurch" 
-                              {...field} 
-                              data-testid="input-subdomain"
-                            />
-                            <span className="ml-2 text-sm text-gray-500">
-                              .spiritualgifts.app
-                            </span>
-                          </div>
+                          <Input 
+                            placeholder="fwc-columbia" 
+                            {...field} 
+                            data-testid="input-subdomain"
+                          />
                         </FormControl>
+                        <div className="text-xs text-gray-600 mt-1">
+                          A unique identifier for your church (for organization purposes only)
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}

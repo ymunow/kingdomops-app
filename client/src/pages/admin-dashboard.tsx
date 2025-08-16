@@ -602,9 +602,14 @@ export default function AdminDashboard() {
                             <CardTitle className="text-lg">{org.name}</CardTitle>
                             {org.subdomain && (
                               <Badge variant="outline" className="w-fit">
-                                {org.subdomain}.spiritualgifts.app
+                                ID: {org.subdomain}
                               </Badge>
                             )}
+                            <div className="mt-2">
+                              <Badge variant="secondary" className="w-fit">
+                                Signup URL: /join/{org.id.slice(0, 8)}...
+                              </Badge>
+                            </div>
                           </CardHeader>
                           <CardContent className="space-y-3">
                             <div className="text-sm text-gray-600">
@@ -630,8 +635,21 @@ export default function AdminDashboard() {
                                 </div>
                               </div>
                             )}
-                            <div className="text-xs text-gray-500 pt-2 border-t">
-                              Registered: {new Date(org.createdAt).toLocaleDateString()}
+                            <div className="pt-3 border-t space-y-2">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">Congregation Signup:</span>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => window.open(`/join/${org.id}`, '_blank')}
+                                  className="text-xs h-6"
+                                >
+                                  View Link
+                                </Button>
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                Registered: {new Date(org.createdAt).toLocaleDateString()}
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
