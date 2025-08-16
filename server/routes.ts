@@ -44,7 +44,8 @@ function requireAdmin(req: any, res: any, next: any) {
   }
   
   // Get user from storage to check role
-  storage.getUser(userId).then(user => {
+  
+  storage.getUser(userId as string).then(user => {
     if (!user || !["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN"].includes(user.role)) {
       return res.status(403).json({ message: "Admin access required" });
     }
@@ -756,7 +757,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Church Admin Dashboard Routes
   app.get("/api/admin/dashboard/metrics", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
     try {
-      const user = await storage.getUser(req.user!.claims!.sub);
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const user = await storage.getUser(userId);
       if (!user?.organizationId) {
         return res.status(400).json({ message: "User organization not found" });
       }
@@ -771,7 +776,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/dashboard/users", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
     try {
-      const user = await storage.getUser(req.user!.claims!.sub);
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const user = await storage.getUser(userId);
       if (!user?.organizationId) {
         return res.status(400).json({ message: "User organization not found" });
       }
@@ -795,7 +804,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/admin/dashboard/results", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
     try {
-      const user = await storage.getUser(req.user!.claims!.sub);
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const user = await storage.getUser(userId);
       if (!user?.organizationId) {
         return res.status(400).json({ message: "User organization not found" });
       }
@@ -861,7 +874,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Ministry Opportunities Management
   app.get("/api/admin/ministry-opportunities", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
     try {
-      const user = await storage.getUser(req.user!.claims!.sub);
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const user = await storage.getUser(userId);
       if (!user?.organizationId) {
         return res.status(400).json({ message: "User organization not found" });
       }
@@ -876,7 +893,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/ministry-opportunities", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
     try {
-      const user = await storage.getUser(req.user!.claims!.sub);
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const user = await storage.getUser(userId);
       if (!user?.organizationId) {
         return res.status(400).json({ message: "User organization not found" });
       }
