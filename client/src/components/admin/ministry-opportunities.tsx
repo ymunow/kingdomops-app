@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useOrganization } from "@/hooks/use-organization";
 import { apiRequest } from "@/lib/queryClient";
 import {
   Plus,
@@ -316,6 +317,7 @@ function OpportunityForm({ opportunity, onClose, onSuccess }: OpportunityFormPro
 
 export default function MinistryOpportunities() {
   const { toast } = useToast();
+  const { organization } = useOrganization();
   const queryClient = useQueryClient();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingOpportunity, setEditingOpportunity] = useState<MinistryOpportunity | null>(null);
@@ -373,8 +375,12 @@ export default function MinistryOpportunities() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold">Ministry Opportunities</h3>
-          <p className="text-sm text-gray-600">Manage volunteer opportunities and track placements</p>
+          <h3 className="text-lg font-semibold">
+            {organization?.name ? `${organization.name} Ministry Opportunities` : "Ministry Opportunities"}
+          </h3>
+          <p className="text-sm text-gray-600">
+            {organization?.name ? `Manage volunteer opportunities and track placements for ${organization.name}` : "Manage volunteer opportunities and track placements"}
+          </p>
         </div>
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>

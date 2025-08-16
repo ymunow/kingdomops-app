@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Crown, Clock, BarChart3, Users, Eye, HandHeart, Shield, Mountain, BellRing, Rocket, Home, Heart, Gift, BookOpen, Play, Church } from "lucide-react";
@@ -7,6 +8,7 @@ import { Crown, Clock, BarChart3, Users, Eye, HandHeart, Shield, Mountain, BellR
 export default function Landing() {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
+  const { organization } = useOrganization();
 
   const handleLogin = () => {
     window.location.href = "/api/login";
@@ -34,7 +36,14 @@ export default function Landing() {
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
                 <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
-                <h1 className="font-display font-bold text-xl text-charcoal">Kingdom Impact Training</h1>
+                <div>
+                  <h1 className="font-display font-bold text-xl text-charcoal">
+                    {isAuthenticated && organization?.name ? organization.name : "Kingdom Impact Training"}
+                  </h1>
+                  {isAuthenticated && organization?.name && (
+                    <p className="text-sm text-gray-600">Spiritual Gifts Assessment</p>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">

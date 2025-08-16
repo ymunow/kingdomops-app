@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useOrganization } from "@/hooks/use-organization";
 import { BarChart, DonutChart } from "@/components/ui/charts";
 import ResultDetailModal from "@/components/admin/result-detail-modal";
 import MinistryOpportunities from "@/components/admin/ministry-opportunities";
@@ -57,6 +58,7 @@ interface UserResult {
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const { organization, isLoading: orgLoading } = useOrganization();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
@@ -153,7 +155,7 @@ export default function AdminDashboard() {
     return searchMatch;
   }) || [];
 
-  if (metricsLoading) {
+  if (metricsLoading || orgLoading) {
     return (
       <div className="min-h-screen bg-soft-cream flex items-center justify-center">
         <div className="text-center">
@@ -172,11 +174,16 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center py-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Admin Dashboard
+                {organization?.name ? `${organization.name} - Dashboard` : "Admin Dashboard"}
               </h1>
               <p className="text-gray-600 mt-2">
-                Overview of spiritual gifts assessment activity and results.
+                {organization?.name ? `Spiritual gifts assessment insights for ${organization.name} congregation` : "Overview of spiritual gifts assessment activity and results."}
               </p>
+              {organization?.description && (
+                <p className="text-sm text-gray-500 mt-1 italic">
+                  {organization.description}
+                </p>
+              )}
             </div>
             <Button 
               onClick={handleExportData}

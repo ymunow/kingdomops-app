@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import { useOrganization } from "@/hooks/use-organization";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -45,6 +46,7 @@ const ministryInterestOptions = [
 export default function Assessment() {
   const [, setLocation] = useLocation();
   const { user, isLoading: authLoading } = useAuth();
+  const { organization } = useOrganization();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -257,7 +259,14 @@ export default function Assessment() {
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
               <Crown className="text-spiritual-blue h-6 w-6 mr-2" />
-              <h1 className="font-display font-bold text-2xl text-charcoal">Spiritual Gifts Assessment</h1>
+              <div>
+                <h1 className="font-display font-bold text-2xl text-charcoal">
+                  {organization?.name ? `${organization.name} - Spiritual Gifts Assessment` : "Spiritual Gifts Assessment"}
+                </h1>
+                {organization?.name && (
+                  <p className="text-sm text-gray-600">Discover your spiritual gifts within {organization.name}</p>
+                )}
+              </div>
             </div>
             <div className="text-sm text-gray-500">
               {currentStep === 0 ? (

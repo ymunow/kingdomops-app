@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useOrganization } from "@/hooks/use-organization";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { useEffect } from "react";
 export default function Admin() {
   const [, setLocation] = useLocation();
   const { user, isLoading } = useAuth();
+  const { organization, isLoading: orgLoading } = useOrganization();
   const { toast } = useToast();
 
   // Redirect if not authenticated or not admin
@@ -26,7 +28,7 @@ export default function Admin() {
     }
   }, [user, isLoading, setLocation, toast]);
 
-  if (isLoading) {
+  if (isLoading || orgLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-soft-cream">
         <div className="text-center">
@@ -50,7 +52,12 @@ export default function Admin() {
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
                 <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
-                <h1 className="font-display font-bold text-xl text-charcoal">Kingdom Impact Training</h1>
+                <div>
+                  <h1 className="font-display font-bold text-xl text-charcoal">
+                    {organization?.name || "Kingdom Impact Training"}
+                  </h1>
+                  <p className="text-sm text-gray-600">Church Administration Portal</p>
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -70,8 +77,12 @@ export default function Admin() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="font-display font-bold text-3xl text-charcoal">Admin Dashboard</h1>
-              <p className="text-gray-600 mt-2">Manage assessments and view participant insights</p>
+              <h1 className="font-display font-bold text-3xl text-charcoal">
+                {organization?.name ? `${organization.name} - Admin Dashboard` : "Admin Dashboard"}
+              </h1>
+              <p className="text-gray-600 mt-2">
+                {organization?.name ? `Manage assessments and participant insights for ${organization.name}` : "Manage assessments and view participant insights"}
+              </p>
             </div>
           </div>
         </div>

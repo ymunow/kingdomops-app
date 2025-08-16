@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ClockIcon, ShareIcon, CalendarIcon, Crown, AlertTriangle, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useOrganization } from "@/hooks/use-organization";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "../lib/authUtils";
@@ -41,6 +42,7 @@ interface UserResult {
 
 export default function MyResults() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { organization } = useOrganization();
   const { toast } = useToast();
 
   const { data: results = [], isLoading: resultsLoading, error } = useQuery<UserResult[]>({
@@ -123,7 +125,12 @@ export default function MyResults() {
                 <Crown className="h-8 w-8 text-warm-gold-500" />
                 My Results
               </h1>
-              <p className="text-purple-600 mt-1">View and share your spiritual gifts assessment results</p>
+              <p className="text-purple-600 mt-1">
+                {organization?.name ? `View and share your spiritual gifts assessment results from ${organization.name}` : "View and share your spiritual gifts assessment results"}
+              </p>
+              {organization?.name && (
+                <p className="text-sm text-purple-500 mt-1 font-medium">{organization.name}</p>
+              )}
             </div>
             <Link href="/">
               <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">

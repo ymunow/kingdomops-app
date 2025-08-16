@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,6 +17,7 @@ import { profileCompletionSchema, type ProfileCompletionData } from "@shared/sch
 export default function Profile() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { organization } = useOrganization();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
@@ -89,7 +91,12 @@ export default function Profile() {
               </Button>
               <div className="flex-shrink-0 flex items-center">
                 <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
-                <h1 className="font-display font-bold text-xl text-charcoal">My Profile</h1>
+                <div>
+                  <h1 className="font-display font-bold text-xl text-charcoal">My Profile</h1>
+                  {organization?.name && (
+                    <p className="text-sm text-gray-600">{organization.name}</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -115,11 +122,16 @@ export default function Profile() {
             </CardHeader>
 
             <CardContent className="space-y-6">
-              {/* Email Display */}
-              <div className="bg-soft-cream p-4 rounded-lg">
+              {/* User Info Display */}
+              <div className="bg-soft-cream p-4 rounded-lg space-y-2">
                 <p className="text-sm text-gray-600">
                   <strong>Email:</strong> {(user as any)?.email || "Not available"}
                 </p>
+                {organization?.name && (
+                  <p className="text-sm text-gray-600">
+                    <strong>Church:</strong> {organization.name}
+                  </p>
+                )}
               </div>
 
               <Form {...form}>

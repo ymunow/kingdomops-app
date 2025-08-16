@@ -101,6 +101,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user's organization info
+  app.get('/api/auth/organization', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user?.organizationId) {
+        return res.status(404).json({ message: "User organization not found" });
+      }
+      
+      const organization = await storage.getOrganization(user.organizationId);
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+      
+      // Return safe organization info (no sensitive data)
+      res.json({
+        id: organization.id,
+        name: organization.name,
+        description: organization.description,
+        website: organization.website,
+        inviteCode: organization.inviteCode
+      });
+    } catch (error) {
+      console.error("Error fetching user organization:", error);
+      res.status(500).json({ message: "Failed to fetch organization" });
+    }
+  });
+
   app.post('/api/auth/complete-profile', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
