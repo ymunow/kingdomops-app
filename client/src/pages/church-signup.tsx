@@ -70,9 +70,12 @@ export default function ChurchSignup() {
     onSuccess: (data) => {
       toast({
         title: "Church registered successfully!",
-        description: `Welcome ${data.organization.name}! You can now set up your congregation.`
+        description: `Welcome ${data.organization.name}! Please sign in with your account to access the admin dashboard.`
       });
-      setLocation("/admin-dashboard");
+      // Redirect to login so they can authenticate with their account
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 2000); // Wait 2 seconds to show the success message
     },
     onError: (error) => {
       toast({
