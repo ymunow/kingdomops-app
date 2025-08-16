@@ -200,30 +200,30 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <MetricCard
                 title="Total Completions"
-                value={metrics?.totalCompletions || 0}
+                value={(metrics as any)?.totalCompletions || 0}
                 subtitle="All-time assessments"
                 icon={<UserCheck className="h-5 w-5" />}
                 trend={{
-                  value: metrics?.completionsLast30Days || 0,
+                  value: (metrics as any)?.completionsLast30Days || 0,
                   label: "this month",
                   isPositive: true
                 }}
               />
               <MetricCard
                 title="Average Time"
-                value={`${metrics?.averageTimeMinutes || 0}m`}
+                value={`${(metrics as any)?.averageTimeMinutes || 0}m`}
                 subtitle="Completion time"
                 icon={<Clock className="h-5 w-5" />}
               />
               <MetricCard
                 title="Completion Rate"
-                value={`${Math.round((1 - (metrics?.dropOffRate || 0)) * 100)}%`}
+                value={`${Math.round((1 - ((metrics as any)?.dropOffRate || 0)) * 100)}%`}
                 subtitle="People who finish"
                 icon={<Target className="h-5 w-5" />}
               />
               <MetricCard
                 title="This Month"
-                value={metrics?.completionsLast30Days || 0}
+                value={(metrics as any)?.completionsLast30Days || 0}
                 subtitle="New assessments"
                 icon={<TrendingUp className="h-5 w-5" />}
               />
@@ -239,9 +239,9 @@ export default function AdminDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {metrics?.topGiftDistribution ? (
+                  {(metrics as any)?.topGiftDistribution ? (
                     <BarChart
-                      data={Object.entries(metrics.topGiftDistribution)
+                      data={Object.entries((metrics as any).topGiftDistribution)
                         .sort(([,a], [,b]) => (b as number) - (a as number))
                         .slice(0, 8)
                         .map(([gift, count]) => ({
@@ -266,9 +266,9 @@ export default function AdminDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {metrics?.ageGroupDistribution ? (
+                  {(metrics as any)?.ageGroupDistribution ? (
                     <BarChart
-                      data={Object.entries(metrics.ageGroupDistribution)
+                      data={Object.entries((metrics as any).ageGroupDistribution)
                         .sort(([,a], [,b]) => (b as number) - (a as number))
                         .map(([ageGroup, count]) => ({
                           label: ageGroup,
@@ -410,7 +410,7 @@ export default function AdminDashboard() {
                                   <Button 
                                     size="sm" 
                                     variant="outline"
-                                    onClick={() => handleViewResult(user.latestResult.id)}
+                                    onClick={() => handleViewResult(user.latestResult!.id)}
                                     data-testid={`button-view-result-${user.id}`}
                                   >
                                     <Eye className="h-3 w-3 mr-1" />
