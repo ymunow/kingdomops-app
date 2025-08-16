@@ -117,9 +117,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Organization/Church registration routes
   app.post('/api/organizations/register', async (req, res) => {
     try {
+      // Check if subdomain is provided and if it already exists
+      if (req.body.subdomain && req.body.subdomain.trim()) {
+        const existingOrg = await storage.getOrganizationBySubdomain(req.body.subdomain.trim());
+        if (existingOrg) {
+          return res.status(400).json({ 
+            message: `The subdomain "${req.body.subdomain}" is already taken. Please choose a different one or leave it blank.` 
+          });
+        }
+      }
+
+      // Check if user with this email already exists
+      const existingUser = await storage.getUserByEmail(req.body.contactEmail);
+      if (existingUser) {
+        return res.status(400).json({ 
+          message: `An account with email "${req.body.contactEmail}" already exists. Please use a different email or sign in with your existing account.` 
+        });
+      }
+
       const orgData = {
         name: req.body.churchName,
-        subdomain: req.body.subdomain,
+        subdomain: req.body.subdomain && req.body.subdomain.trim() ? req.body.subdomain.trim() : null,
         contactEmail: req.body.contactEmail,
         website: req.body.website,
         address: req.body.address,
@@ -152,6 +170,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Organization registration error:", error);
+      
+      // Handle specific database constraint errors
+      if (error instanceof Error && error.message.includes('duplicate key value')) {
+        if (error.message.includes('subdomain')) {
+          return res.status(400).json({ 
+            message: "This subdomain is already taken. Please choose a different one or leave it blank." 
+          });
+        }
+        if (error.message.includes('email')) {
+          return res.status(400).json({ 
+            message: "An account with this email already exists. Please use a different email or sign in with your existing account." 
+          });
+        }
+      }
+      
       res.status(400).json({ 
         message: error instanceof Error ? error.message : "Failed to register church" 
       });
