@@ -545,8 +545,8 @@ export default function Results() {
                 <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                   <CardContent className="p-6 text-center">
                     <MessageCircle className="text-warm-gold h-8 w-8 mb-4 mx-auto" />
-                    <h3 className="font-semibold text-lg mb-3">Talk to a Leader</h3>
-                    <p className="opacity-90 mb-4">Connect with a ministry leader to discuss your results and explore opportunities.</p>
+                    <h3 className="font-semibold text-lg mb-3 text-white">Talk to a Leader</h3>
+                    <p className="opacity-90 mb-4 text-white">Connect with a ministry leader to discuss your results and explore opportunities.</p>
                     <Button 
                       className="bg-warm-gold text-spiritual-blue hover:bg-yellow-400"
                       onClick={() => toast({ title: "Contact Info", description: "Please reach out to your church leadership team." })}
@@ -560,8 +560,8 @@ export default function Results() {
                 <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                   <CardContent className="p-6 text-center">
                     <Search className="text-warm-gold h-8 w-8 mb-4 mx-auto" />
-                    <h3 className="font-semibold text-lg mb-3">Explore Opportunities</h3>
-                    <p className="opacity-90 mb-4">Browse current ministry roles that match your gifts and interests.</p>
+                    <h3 className="font-semibold text-lg mb-3 text-white">Explore Opportunities</h3>
+                    <p className="opacity-90 mb-4 text-white">Browse current ministry roles that match your gifts and interests.</p>
                     <Button 
                       className="bg-warm-gold text-spiritual-blue hover:bg-yellow-400"
                       onClick={() => toast({ title: "Ministry Opportunities", description: "Check with your church for current openings." })}
@@ -575,8 +575,8 @@ export default function Results() {
                 <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                   <CardContent className="p-6 text-center">
                     <Calendar className="text-warm-gold h-8 w-8 mb-4 mx-auto" />
-                    <h3 className="font-semibold text-lg mb-3">Join a Team</h3>
-                    <p className="opacity-90 mb-4">Start serving on a trial basis to confirm your calling and build experience.</p>
+                    <h3 className="font-semibold text-lg mb-3 text-white">Join a Team</h3>
+                    <p className="opacity-90 mb-4 text-white">Start serving on a trial basis to confirm your calling and build experience.</p>
                     <Button 
                       className="bg-warm-gold text-spiritual-blue hover:bg-yellow-400"
                       onClick={() => toast({ title: "Get Started", description: "Contact ministry coordinators to get involved." })}
