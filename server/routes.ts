@@ -5,14 +5,28 @@ import { scoreGifts } from "../client/src/lib/hardened-scoring";
 import { giftContent } from "./content/gifts";
 import { emailService } from "./services/email";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import {
+  requirePermission,
+  requireRole,
+  requireOwnOrganization,
+  requireSuperAdmin,
+  requireOrgOwner,
+  requireOrgAdmin,
+  addUserContext,
+  PERMISSIONS
+} from "./rbac";
 import rateLimit from "express-rate-limit";
 import {
   insertResponseSchema,
   insertAnswerSchema,
   insertResultSchema,
   profileCompletionSchema,
+  insertOrganizationSchema,
+  insertMinistryOpportunitySchema,
   type GiftKey,
   type User,
+  type Organization,
+  type DashboardMetrics,
 } from "@shared/schema";
 
 // Rate limiting
@@ -22,7 +36,7 @@ const assessmentLimiter = rateLimit({
   message: "Too many assessment attempts, please try again later.",
 });
 
-// Middleware to check admin role
+// Legacy admin check middleware (updated to use new roles)
 function requireAdmin(req: any, res: any, next: any) {
   const userId = req.user?.claims?.sub;
   if (!userId) {
@@ -31,7 +45,7 @@ function requireAdmin(req: any, res: any, next: any) {
   
   // Get user from storage to check role
   storage.getUser(userId).then(user => {
-    if (user?.role !== "ADMIN") {
+    if (!user || !["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN"].includes(user.role)) {
       return res.status(403).json({ message: "Admin access required" });
     }
     next();
@@ -359,7 +373,208 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin routes
+  // Organization Management Routes
+  app.get("/api/organizations", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const organizations = await storage.getOrganizations();
+      res.json(organizations);
+    } catch (error) {
+      console.error("Get organizations error:", error);
+      res.status(500).json({ message: "Failed to get organizations" });
+    }
+  });
+
+  app.post("/api/organizations", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const orgData = insertOrganizationSchema.parse(req.body);
+      const organization = await storage.createOrganization(orgData);
+      res.status(201).json(organization);
+    } catch (error) {
+      console.error("Create organization error:", error);
+      res.status(500).json({ message: "Failed to create organization" });
+    }
+  });
+
+  app.put("/api/organizations/:id", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const updates = insertOrganizationSchema.partial().parse(req.body);
+      const organization = await storage.updateOrganization(req.params.id, updates);
+      res.json(organization);
+    } catch (error) {
+      console.error("Update organization error:", error);
+      res.status(500).json({ message: "Failed to update organization" });
+    }
+  });
+
+  // Church Admin Dashboard Routes
+  app.get("/api/admin/dashboard/metrics", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.user!.claims!.sub);
+      if (!user?.organizationId) {
+        return res.status(400).json({ message: "User organization not found" });
+      }
+      
+      const metrics = await storage.getDashboardMetrics(user.organizationId);
+      res.json(metrics);
+    } catch (error) {
+      console.error("Get dashboard metrics error:", error);
+      res.status(500).json({ message: "Failed to get dashboard metrics" });
+    }
+  });
+
+  app.get("/api/admin/dashboard/users", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.user!.claims!.sub);
+      if (!user?.organizationId) {
+        return res.status(400).json({ message: "User organization not found" });
+      }
+      
+      const filters = {
+        dateRange: req.query.startDate && req.query.endDate ? {
+          start: new Date(req.query.startDate as string),
+          end: new Date(req.query.endDate as string)
+        } : undefined,
+        ageRange: req.query.ageRange as any,
+        giftKey: req.query.giftKey as any
+      };
+      
+      const users = await storage.getUsersByOrganization(user.organizationId, filters);
+      res.json(users);
+    } catch (error) {
+      console.error("Get organization users error:", error);
+      res.status(500).json({ message: "Failed to get organization users" });
+    }
+  });
+
+  app.get("/api/admin/dashboard/results", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.user!.claims!.sub);
+      if (!user?.organizationId) {
+        return res.status(400).json({ message: "User organization not found" });
+      }
+      
+      const filters = {
+        dateRange: req.query.startDate && req.query.endDate ? {
+          start: new Date(req.query.startDate as string),
+          end: new Date(req.query.endDate as string)
+        } : undefined,
+        giftKey: req.query.giftKey as any
+      };
+      
+      const results = await storage.getResultsByOrganization(user.organizationId, filters);
+      res.json(results);
+    } catch (error) {
+      console.error("Get organization results error:", error);
+      res.status(500).json({ message: "Failed to get organization results" });
+    }
+  });
+
+  // Super Admin Global Dashboard Routes
+  app.get("/api/super-admin/global-metrics", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const metrics = await storage.getGlobalMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Get global metrics error:", error);
+      res.status(500).json({ message: "Failed to get global metrics" });
+    }
+  });
+
+  app.get("/api/super-admin/organizations/overview", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const organizations = await storage.getOrganizations();
+      const orgOverviews = await Promise.all(
+        organizations.map(async (org) => {
+          const metrics = await storage.getDashboardMetrics(org.id);
+          return {
+            ...org,
+            metrics
+          };
+        })
+      );
+      res.json(orgOverviews);
+    } catch (error) {
+      console.error("Get organization overviews error:", error);
+      res.status(500).json({ message: "Failed to get organization overviews" });
+    }
+  });
+
+  // User Role Management
+  app.put("/api/admin/users/:userId/role", isAuthenticated, requireOrgOwner, async (req, res) => {
+    try {
+      const { role } = req.body;
+      const user = await storage.updateUserRole(req.params.userId, role);
+      res.json(user);
+    } catch (error) {
+      console.error("Update user role error:", error);
+      res.status(500).json({ message: "Failed to update user role" });
+    }
+  });
+
+  // Ministry Opportunities Management
+  app.get("/api/admin/ministry-opportunities", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.user!.claims!.sub);
+      if (!user?.organizationId) {
+        return res.status(400).json({ message: "User organization not found" });
+      }
+      
+      const opportunities = await storage.getMinistryOpportunities(user.organizationId);
+      res.json(opportunities);
+    } catch (error) {
+      console.error("Get ministry opportunities error:", error);
+      res.status(500).json({ message: "Failed to get ministry opportunities" });
+    }
+  });
+
+  app.post("/api/admin/ministry-opportunities", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.user!.claims!.sub);
+      if (!user?.organizationId) {
+        return res.status(400).json({ message: "User organization not found" });
+      }
+      
+      const opportunityData = insertMinistryOpportunitySchema.parse({
+        ...req.body,
+        organizationId: user.organizationId
+      });
+      
+      const opportunity = await storage.createMinistryOpportunity(opportunityData);
+      res.status(201).json(opportunity);
+    } catch (error) {
+      console.error("Create ministry opportunity error:", error);
+      res.status(500).json({ message: "Failed to create ministry opportunity" });
+    }
+  });
+
+  app.put("/api/admin/ministry-opportunities/:id", isAuthenticated, requireOrgAdmin, async (req, res) => {
+    try {
+      const updates = insertMinistryOpportunitySchema.partial().parse(req.body);
+      const opportunity = await storage.updateMinistryOpportunity(req.params.id, updates);
+      res.json(opportunity);
+    } catch (error) {
+      console.error("Update ministry opportunity error:", error);
+      res.status(500).json({ message: "Failed to update ministry opportunity" });
+    }
+  });
+
+  // Individual Result Management
+  app.put("/api/admin/results/:id/notes", isAuthenticated, requireOrgAdmin, async (req, res) => {
+    try {
+      const { notes, followUpDate } = req.body;
+      const result = await storage.updateResultNotes(
+        req.params.id, 
+        notes, 
+        followUpDate ? new Date(followUpDate) : undefined
+      );
+      res.json(result);
+    } catch (error) {
+      console.error("Update result notes error:", error);
+      res.status(500).json({ message: "Failed to update result notes" });
+    }
+  });
+
+  // Legacy Admin routes (updated to use new roles)
   app.get(
     "/api/admin/stats",
     isAuthenticated,
