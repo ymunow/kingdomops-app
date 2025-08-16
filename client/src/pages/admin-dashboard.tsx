@@ -116,6 +116,34 @@ export default function AdminDashboard() {
     },
   });
 
+  const backToChurchesMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/super-admin/view-as", {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to return to churches view");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
+      setActiveTab("churches");
+      toast({
+        title: "Returned to Churches",
+        description: "You're now viewing the churches list.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to return to churches view.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Fetch dashboard metrics
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["/api/admin/dashboard/metrics"],
@@ -361,14 +389,29 @@ export default function AdminDashboard() {
                 </p>
               )}
             </div>
-            <Button 
-              onClick={handleExportData}
-              className="bg-spiritual-blue text-white hover:bg-purple-800"
-              data-testid="button-export-data"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export Data
-            </Button>
+            <div className="flex items-center gap-3">
+              {/* Back to Churches button - only show when managing a specific church */}
+              {(user as any)?.viewContext?.isViewingAs && (user as any)?.viewContext?.targetOrganization && (
+                <Button 
+                  onClick={() => backToChurchesMutation.mutate()}
+                  disabled={backToChurchesMutation.isPending}
+                  variant="outline"
+                  className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
+                  data-testid="button-back-to-churches"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Back to Churches
+                </Button>
+              )}
+              <Button 
+                onClick={handleExportData}
+                className="bg-spiritual-blue text-white hover:bg-purple-800"
+                data-testid="button-export-data"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Data
+              </Button>
+            </div>
           </div>
         </div>
       </div>
