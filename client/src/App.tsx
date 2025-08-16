@@ -16,17 +16,35 @@ import NotFound from "@/pages/not-found";
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spiritual-blue mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/results/:responseId" component={Results} />
-      {isAuthenticated && (
-        <>
-          <Route path="/assessment" component={Assessment} />
-          <Route path="/my-results" component={MyResults} />
-          <Route path="/admin" component={Admin} />
-        </>
-      )}
+      
+      {/* Protected routes */}
+      <Route path="/assessment">
+        {isAuthenticated ? <Assessment /> : <Landing />}
+      </Route>
+      <Route path="/my-results">
+        {isAuthenticated ? <MyResults /> : <Landing />}
+      </Route>
+      <Route path="/admin">
+        {isAuthenticated ? <Admin /> : <Landing />}
+      </Route>
+      
+      {/* Catch-all route */}
       <Route component={NotFound} />
     </Switch>
   );
