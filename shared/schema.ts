@@ -85,6 +85,7 @@ export const organizations = pgTable("organizations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
   subdomain: varchar("subdomain").unique(), // Optional custom subdomain
+  inviteCode: varchar("invite_code").unique().notNull(), // Required unique church invite code
   contactEmail: varchar("contact_email"),
   website: varchar("website"),
   address: text("address"),

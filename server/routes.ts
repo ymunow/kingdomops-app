@@ -114,6 +114,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Helper function to generate unique invite codes
+  function generateInviteCode(churchName: string): string {
+    // Take first letters of each word + random number
+    const words = churchName.toUpperCase().replace(/[^A-Z\s]/g, '').split(/\s+/).filter(w => w.length > 0);
+    const prefix = words.slice(0, 3).map(w => w[0]).join('');
+    const randomSuffix = Math.floor(Math.random() * 9000) + 1000; // 4-digit number
+    return `${prefix}${randomSuffix}`;
+  }
+
   // Organization/Church registration routes
   app.post('/api/organizations/register', async (req, res) => {
     try {
@@ -135,9 +144,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Generate unique invite code
+      let inviteCode: string;
+      let attempts = 0;
+      do {
+        inviteCode = generateInviteCode(req.body.churchName);
+        const existingCode = await storage.getOrganizationByInviteCode(inviteCode);
+        if (!existingCode) break;
+        attempts++;
+      } while (attempts < 10);
+
+      if (attempts >= 10) {
+        return res.status(500).json({ message: "Failed to generate unique invite code. Please try again." });
+      }
+
       const orgData = {
         name: req.body.churchName,
         subdomain: req.body.subdomain && req.body.subdomain.trim() ? req.body.subdomain.trim() : null,
+        inviteCode,
         contactEmail: req.body.contactEmail,
         website: req.body.website,
         address: req.body.address,
@@ -166,6 +190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         organization,
         owner,
+        inviteCode,
         message: "Church registered successfully"
       });
     } catch (error) {
@@ -181,6 +206,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (error.message.includes('email')) {
           return res.status(400).json({ 
             message: "An account with this email already exists. Please use a different email or sign in with your existing account." 
+          });
+        }
+        if (error.message.includes('invite_code')) {
+          return res.status(400).json({ 
+            message: "Failed to generate unique invite code. Please try again." 
           });
         }
       }
@@ -233,10 +263,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/organizations/invite/:inviteCode', async (req, res) => {
+    try {
+      const inviteCode = req.params.inviteCode.toUpperCase();
+      const organization = await storage.getOrganizationByInviteCode(inviteCode);
+      
+      if (!organization) {
+        return res.status(404).json({ message: "Church code not found. Please check the code and try again." });
+      }
+
+      res.json({
+        id: organization.id,
+        name: organization.name,
+        description: organization.description,
+        inviteCode: organization.inviteCode
+      });
+    } catch (error) {
+      console.error("Invite code lookup error:", error);
+      res.status(500).json({ message: "Failed to lookup church by invite code" });
+    }
+  });
+
   app.post('/api/congregation/signup', async (req, res) => {
     try {
+      // Congregation signup by invite code
+      let organizationId: string;
+      
+      if (req.body.inviteCode) {
+        // Join by invite code
+        const organization = await storage.getOrganizationByInviteCode(req.body.inviteCode.toUpperCase());
+        if (!organization) {
+          return res.status(400).json({ message: "Invalid church code. Please check the code and try again." });
+        }
+        organizationId = organization.id;
+      } else if (req.body.organizationId) {
+        // Legacy support for direct organization ID (e.g., from /join/[orgId] URLs)
+        organizationId = req.body.organizationId;
+      } else {
+        return res.status(400).json({ message: "Church code is required to join a congregation." });
+      }
+
       const userData = {
-        organizationId: req.body.organizationId,
+        organizationId,
         email: req.body.email,
         firstName: req.body.firstName,
         lastName: req.body.lastName,

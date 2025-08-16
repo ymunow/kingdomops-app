@@ -20,7 +20,8 @@ export default function Landing() {
     if (isAuthenticated) {
       setLocation("/assessment");
     } else {
-      handleLogin();
+      // Direct users to join through their church first
+      setLocation("/join");
     }
   };
 
@@ -101,9 +102,20 @@ export default function Landing() {
               Discover Your{" "}
               <span className="text-warm-gold">Spiritual Gifts</span>
             </h1>
-            <p className="text-lg md:text-xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
               Uncover how God has uniquely equipped you to serve His Kingdom through our comprehensive 60-question assessment designed to reveal your top spiritual gifts and ministry fit.
             </p>
+            
+            {!isAuthenticated && (
+              <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4 mb-8 max-w-2xl mx-auto">
+                <p className="text-white/90 text-sm mb-2">
+                  <strong>📍 Start Here:</strong> Get your church's invite code from your pastor or church leadership, then join your congregation to take the assessment.
+                </p>
+                <p className="text-white/70 text-xs">
+                  Don't have a church code? Contact your church leadership or ask about setting up assessments for your congregation.
+                </p>
+              </div>
+            )}
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button
@@ -112,7 +124,7 @@ export default function Landing() {
                 data-testid="button-start-assessment"
               >
                 <Play className="mr-2 h-5 w-5" />
-                Start Assessment
+                {isAuthenticated ? "Start Assessment" : "Join Your Church"}
               </Button>
               <Button
                 variant="outline"
@@ -136,7 +148,7 @@ export default function Landing() {
                 Register Your Church
               </Button>
               <p className="text-white/60 text-xs mt-2 max-w-md mx-auto">
-                Set up your church's spiritual gifts assessment platform for your entire congregation
+                Set up your church's assessment platform and get unique invite codes for your congregation
               </p>
             </div>
           </div>

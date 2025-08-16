@@ -16,6 +16,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import Profile from "@/pages/profile";
 import ChurchSignup from "@/pages/church-signup";
 import CongregationSignup from "@/pages/congregation-signup";
+import JoinCongregation from "@/pages/join-congregation";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -47,6 +48,8 @@ function Router() {
         
         {/* Public routes for church and congregation signup */}
         <Route path="/church-signup" component={ChurchSignup} />
+        <Route path="/join" component={JoinCongregation} />
+        {/* Legacy route - redirect to invite code flow */}
         <Route path="/join/:orgId" component={CongregationSignup} />
         
         {/* Protected routes - only render if authenticated and profile completed */}
