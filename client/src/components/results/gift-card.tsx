@@ -57,10 +57,26 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   "gift": Lightbulb,
 };
 
+// Maximum possible scores for each gift based on number of questions
+const GIFT_MAX_SCORES: Record<string, number> = {
+  "LEADERSHIP_ORG": 35,
+  "TEACHING": 30,
+  "WISDOM_INSIGHT": 20,
+  "PROPHETIC_DISCERNMENT": 30,
+  "EXHORTATION": 25,
+  "SHEPHERDING": 20,
+  "FAITH": 25,
+  "EVANGELISM": 20,
+  "APOSTLESHIP": 25,
+  "SERVICE_HOSPITALITY": 30,
+  "MERCY": 20,
+  "GIVING": 20,
+};
+
 export function GiftCard({ gift, rank, accentColor }: GiftCardProps) {
   const colors = accentColorClasses[accentColor];
   const IconComponent = iconMap[gift.icon] || Lightbulb;
-  const maxScore = 25;
+  const maxScore = GIFT_MAX_SCORES[gift.key] || 25; // Fallback to 25 if gift key not found
   const scorePercentage = Math.round((gift.score / maxScore) * 100);
 
   return (
