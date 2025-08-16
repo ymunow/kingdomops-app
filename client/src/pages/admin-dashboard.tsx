@@ -84,6 +84,38 @@ export default function AdminDashboard() {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserRole, setNewUserRole] = useState("PARTICIPANT");
 
+  // Organization switching mutation for super admin
+  const switchToOrganizationMutation = useMutation({
+    mutationFn: async (organizationId: string) => {
+      const response = await fetch("/api/super-admin/view-as", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ organizationId }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to switch to organization");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
+      toast({
+        title: "Switched to organization",
+        description: "You're now managing this church's data.",
+      });
+      // Switch to overview tab to show the church's dashboard
+      setActiveTab("overview");
+    },
+    onError: (error) => {
+      toast({
+        title: "Switch failed",
+        description: error.message || "Failed to switch to organization.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Fetch dashboard metrics
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["/api/admin/dashboard/metrics"],
@@ -899,18 +931,28 @@ export default function AdminDashboard() {
                               </div>
                             )}
                             <div className="pt-3 border-t space-y-2">
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="text-gray-500">Congregation Signup:</span>
+                              <div className="flex items-center justify-between gap-2">
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => switchToOrganizationMutation.mutate(org.id)}
+                                  disabled={switchToOrganizationMutation.isPending}
+                                  className="bg-spiritual-blue text-white hover:bg-purple-800 flex-1"
+                                  data-testid={`button-manage-church-${org.id}`}
+                                >
+                                  <Shield className="h-3 w-3 mr-1" />
+                                  Manage Church
+                                </Button>
                                 <Button 
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => window.open(`/join/${org.id}`, '_blank')}
-                                  className="text-xs h-6"
+                                  className="text-xs"
+                                  data-testid={`button-view-signup-${org.id}`}
                                 >
-                                  View Link
+                                  Signup Link
                                 </Button>
                               </div>
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-gray-500 text-center">
                                 Registered: {new Date(org.createdAt).toLocaleDateString()}
                               </div>
                             </div>

@@ -98,16 +98,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check for view-as context
       const viewContext = req.session.viewAsContext;
       if (viewContext && user?.role === 'SUPER_ADMIN') {
+        // If viewing a specific organization, get that org's details
+        let targetOrganization = null;
+        if (viewContext.viewAsOrganizationId) {
+          targetOrganization = await storage.getOrganization(viewContext.viewAsOrganizationId);
+        }
+        
         // Return a mock user object based on view context
         const mockUserData = {
           id: 'view-as-mock',
-          role: viewContext.viewAsType,
-          email: `viewing-as-${viewContext.viewAsType.toLowerCase()}@example.com`,
-          firstName: 'Viewing',
-          lastName: `As ${viewContext.viewAsType.replace('_', ' ')}`,
-          displayName: `View As ${viewContext.viewAsType.replace('_', ' ')}`,
+          role: viewContext.viewAsType || 'ORG_ADMIN',
+          email: targetOrganization ? `admin@${targetOrganization.name.toLowerCase().replace(/\s+/g, '')}.org` : `viewing-as-${(viewContext.viewAsType || 'admin').toLowerCase()}@example.com`,
+          firstName: 'Managing',
+          lastName: targetOrganization ? targetOrganization.name : `As ${(viewContext.viewAsType || 'Admin').replace('_', ' ')}`,
+          displayName: targetOrganization ? `Managing ${targetOrganization.name}` : `View As ${(viewContext.viewAsType || 'Admin').replace('_', ' ')}`,
           profileCompleted: true,
-          organizationId: user.organizationId,
+          organizationId: viewContext.viewAsOrganizationId || user.organizationId,
           viewContext: {
             isViewingAs: true,
             originalUser: {
@@ -115,9 +121,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               email: user.email,
               firstName: user.firstName,
               lastName: user.lastName,
-              role: user.role
+              role: user.role,
+              organizationId: user.organizationId
             },
-            viewAsType: viewContext.viewAsType
+            viewAsType: viewContext.viewAsType || 'ORG_ADMIN',
+            targetOrganization: targetOrganization
           }
         };
         
@@ -138,11 +146,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       
-      if (!user?.organizationId) {
+      // Check for view-as context for organization switching
+      const viewContext = req.session.viewAsContext;
+      let targetOrgId = user?.organizationId;
+      
+      if (viewContext && user?.role === 'SUPER_ADMIN' && viewContext.viewAsOrganizationId) {
+        targetOrgId = viewContext.viewAsOrganizationId;
+      }
+      
+      if (!targetOrgId) {
         return res.status(404).json({ message: "User organization not found" });
       }
       
-      const organization = await storage.getOrganization(user.organizationId);
+      const organization = await storage.getOrganization(targetOrgId);
       if (!organization) {
         return res.status(404).json({ message: "Organization not found" });
       }
@@ -177,20 +193,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Super Admin "View As" functionality
   app.post('/api/super-admin/view-as', isAuthenticated, requireSuperAdmin, async (req: any, res) => {
     try {
-      const { userType, userId } = req.body;
+      const { userType, userId, organizationId } = req.body;
       
       // Store view context in session
       req.session.viewAsContext = {
         originalUserId: req.user.claims.sub,
         viewAsType: userType, // 'PARTICIPANT', 'ORG_ADMIN', etc.
         viewAsUserId: userId, // Optional: specific user to view as
+        viewAsOrganizationId: organizationId, // Optional: specific organization to view as
         timestamp: new Date()
       };
       
       res.json({ 
         success: true, 
         viewContext: req.session.viewAsContext,
-        message: `Now viewing as ${userType}` 
+        message: organizationId ? `Now managing organization` : `Now viewing as ${userType}` 
       });
     } catch (error) {
       console.error("View as error:", error);

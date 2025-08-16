@@ -45,11 +45,11 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
 
   // Switch view mutation
   const switchViewMutation = useMutation({
-    mutationFn: async (userType: string) => {
+    mutationFn: async ({ userType, organizationId }: { userType?: string; organizationId?: string }) => {
       const response = await fetch("/api/super-admin/view-as", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userType }),
+        body: JSON.stringify({ userType, organizationId }),
       });
       if (!response.ok) {
         throw new Error("Failed to switch view");
@@ -109,7 +109,11 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
   }
 
   const handleSwitchView = (userType: string) => {
-    switchViewMutation.mutate(userType);
+    switchViewMutation.mutate({ userType });
+  };
+
+  const handleSwitchToOrganization = (organizationId: string) => {
+    switchViewMutation.mutate({ organizationId });
   };
 
   const handleReturnToAdmin = () => {
@@ -145,11 +149,13 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
   return (
     <div className={className}>
       {viewContext ? (
-        // Currently viewing as someone else
+        // Currently viewing as someone else or managing an organization
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="bg-orange-50 border-orange-200 text-orange-800">
             <Eye className="h-3 w-3 mr-1" />
-            Viewing as {getViewTypeLabel(viewContext.viewAsType)}
+            {viewContext.targetOrganization 
+              ? `Managing ${viewContext.targetOrganization.name}` 
+              : `Viewing as ${getViewTypeLabel(viewContext.viewAsType)}`}
           </Badge>
           <Button
             variant="outline"
@@ -159,7 +165,7 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
             data-testid="button-return-to-admin"
           >
             <Crown className="h-4 w-4 mr-2" />
-            Return to Admin
+            Return to Super Admin
           </Button>
         </div>
       ) : (
