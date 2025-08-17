@@ -501,6 +501,12 @@ export class DatabaseStorage implements IStorage {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+    // Get total started and completed responses
+    const [totalStarted] = await db
+      .select({ count: count() })
+      .from(responses)
+      .where(eq(responses.organizationId, organizationId));
+
     const [totalCompletions] = await db
       .select({ count: count() })
       .from(responses)
@@ -520,6 +526,12 @@ export class DatabaseStorage implements IStorage {
     
     const last30DaysCount = last30DaysCompletions[0]?.count || 0;
 
+    // Calculate completion rate
+    const totalStartedCount = totalStarted.count || 0;
+    const totalCompletedCount = totalCompletions.count || 0;
+    const dropOffRate = totalStartedCount > 0 ? 
+      (totalStartedCount - totalCompletedCount) / totalStartedCount : 0;
+
     // Get gift distribution
     const giftResults = await db
       .select({
@@ -535,13 +547,34 @@ export class DatabaseStorage implements IStorage {
       return acc;
     }, {} as Record<GiftKey, number>);
 
+    // Get age distribution for pie chart
+    const ageDistributionResults = await db
+      .select({
+        ageRange: sql`${results.ageGroups}->0`.as('age_range'),
+        count: count()
+      })
+      .from(results)
+      .where(and(
+        eq(results.organizationId, organizationId),
+        sql`${results.ageGroups} IS NOT NULL`
+      ))
+      .groupBy(sql`${results.ageGroups}->0`);
+
+    const ageGroupDistribution = ageDistributionResults.reduce((acc, item) => {
+      const ageRange = item.ageRange as string;
+      if (ageRange) {
+        acc[ageRange] = item.count;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
     return {
-      totalCompletions: totalCompletions.count,
+      totalCompletions: totalCompletedCount,
       completionsLast30Days: last30DaysCount,
       averageTimeMinutes: 15, // Simplified for now
-      dropOffRate: 0.15, // Simplified for now  
+      dropOffRate,
       topGiftDistribution,
-      ageGroupDistribution: {}, // Simplified for now
+      ageGroupDistribution,
       weeklyCompletions: [], // Simplified for now
     };
   }

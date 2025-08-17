@@ -16,6 +16,7 @@ import { BarChart, DonutChart } from "@/components/ui/charts";
 import ResultDetailModal from "@/components/admin/result-detail-modal";
 import MinistryOpportunities from "@/components/admin/ministry-opportunities";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { 
   Users, 
   TrendingUp, 
