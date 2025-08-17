@@ -1004,6 +1004,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Deactivate/reactivate organization
+  app.patch('/api/super-admin/organizations/:orgId/status', isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { orgId } = req.params;
+      const { status } = req.body;
+      
+      if (!['ACTIVE', 'INACTIVE'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status. Must be ACTIVE or INACTIVE" });
+      }
+
+      const updatedOrg = await storage.updateOrganizationStatus(orgId, status);
+      res.json({ 
+        success: true, 
+        organization: updatedOrg,
+        message: `Organization ${status.toLowerCase()} successfully` 
+      });
+    } catch (error) {
+      console.error("Update organization status error:", error);
+      res.status(500).json({ message: "Failed to update organization status" });
+    }
+  });
+
   // User Role Management
   app.put("/api/admin/users/:userId/role", isAuthenticated, requireOrgOwner, async (req, res) => {
     try {

@@ -50,6 +50,7 @@ export interface IStorage {
   getOrganizations(): Promise<Organization[]>;
   createOrganization(organization: InsertOrganization): Promise<Organization>;
   updateOrganization(id: string, updates: Partial<InsertOrganization>): Promise<Organization>;
+  updateOrganizationStatus(organizationId: string, status: 'ACTIVE' | 'INACTIVE'): Promise<Organization>;
 
   // User operations
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
@@ -250,6 +251,15 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return user;
+  }
+
+  async updateOrganizationStatus(organizationId: string, status: 'ACTIVE' | 'INACTIVE'): Promise<Organization> {
+    const [organization] = await db
+      .update(organizations)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(organizations.id, organizationId))
+      .returning();
+    return organization;
   }
 
   // Assessment Version operations

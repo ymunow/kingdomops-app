@@ -167,6 +167,36 @@ export default function AdminDashboard() {
     },
   });
 
+  const toggleOrganizationStatusMutation = useMutation({
+    mutationFn: async ({ orgId, newStatus }: { orgId: string; newStatus: 'ACTIVE' | 'INACTIVE' }) => {
+      const response = await fetch(`/api/super-admin/organizations/${orgId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update organization status');
+      }
+      return response.json();
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/super-admin/organizations/overview'] });
+      toast({
+        title: "Success",
+        description: `Church ${variables.newStatus.toLowerCase()} successfully`,
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      console.error('Toggle organization status error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update church status",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Update church profile mutation
   const updateChurchProfileMutation = useMutation({
     mutationFn: async (profileData: any) => {
@@ -1061,6 +1091,21 @@ export default function AdminDashboard() {
                                   data-testid={`button-view-signup-${org.id}`}
                                 >
                                   Signup Link
+                                </Button>
+                              </div>
+                              <div className="flex items-center gap-2 pt-2">
+                                <Button 
+                                  size="sm" 
+                                  variant={org.status === "ACTIVE" ? "destructive" : "default"}
+                                  onClick={() => toggleOrganizationStatusMutation.mutate({
+                                    orgId: org.id,
+                                    newStatus: org.status === "ACTIVE" ? "INACTIVE" : "ACTIVE"
+                                  })}
+                                  disabled={toggleOrganizationStatusMutation.isPending}
+                                  className="text-xs flex-1"
+                                  data-testid={`button-toggle-status-${org.id}`}
+                                >
+                                  {org.status === "ACTIVE" ? "Deactivate" : "Activate"}
                                 </Button>
                               </div>
                               <div className="text-xs text-gray-500 text-center">
