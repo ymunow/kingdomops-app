@@ -627,7 +627,7 @@ export default function Assessment() {
                 
                 <Button
                   onClick={currentStep === 0 ? nextQuestion : nextStep}
-                  disabled={currentStep === 0 && !answers[currentQuestion?.id]}
+                  disabled={currentStep === 0 && (!currentQuestion?.id || !answers[currentQuestion.id])}
                   className="bg-gradient-to-r from-spiritual-blue to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                   data-testid="button-next"
                 >
