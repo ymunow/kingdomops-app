@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import { scoreGifts } from "../client/src/lib/hardened-scoring";
 import { giftContent } from "./content/gifts";
 import { emailService } from "./services/email";
+import { sendEmail } from "./services/email-service";
+import { generateChurchWelcomeEmail } from "./services/email-templates";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import {
   requirePermission,
@@ -316,6 +318,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Store the intended owner info but don't create the user yet
       // They'll be created when they first sign in through Replit Auth
+
+      // Send welcome email to the pastor
+      try {
+        const emailContent = generateChurchWelcomeEmail({
+          churchName: organization.name,
+          pastorName: ownerData.firstName + ' ' + ownerData.lastName,
+          inviteCode,
+          organizationId: organization.id,
+          contactEmail: ownerData.email
+        });
+
+        await sendEmail({
+          to: ownerData.email,
+          subject: emailContent.subject,
+          html: emailContent.html,
+          text: emailContent.text
+        });
+
+        console.log(`Welcome email sent to ${ownerData.email} for church ${organization.name}`);
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't fail the registration if email fails
+      }
 
       res.json({
         organization,
