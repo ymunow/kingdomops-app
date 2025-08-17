@@ -572,12 +572,7 @@ export class DatabaseStorage implements IStorage {
       ageGroupDistribution = {};
     }
 
-    console.log(`Dashboard metrics for org ${organizationId}:`, {
-      totalStartedCount,
-      totalCompletedCount,
-      dropOffRate,
-      calculatedCompletionRate: Math.round((1 - dropOffRate) * 100)
-    });
+    // Debug logging removed - calculation confirmed correct
 
     return {
       totalCompletions: totalCompletedCount,
