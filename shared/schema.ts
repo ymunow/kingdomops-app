@@ -58,6 +58,65 @@ export const giftKeyEnum = pgEnum("gift_key", [
   "GIVING",
 ]);
 
+// Natural abilities and skills enums
+export const naturalAbilityEnum = pgEnum("natural_ability", [
+  // Arts
+  "ARTS_ARTIST",
+  "ARTS_BASS_GUITAR",
+  "ARTS_DANCE",
+  "ARTS_DIRECTOR",
+  "ARTS_DRAMA",
+  "ARTS_DRUMS",
+  "ARTS_GUITAR",
+  "ARTS_KEYBOARD_PIANO",
+  "ARTS_LEAD_WORSHIP",
+  "ARTS_LIGHTING",
+  "ARTS_MEDIA_GRAPHICS",
+  "ARTS_MUSIC_OTHER",
+  "ARTS_PHOTOGRAPHY",
+  "ARTS_PRODUCTION",
+  "ARTS_SLIDES",
+  "ARTS_SOUND_TECH",
+  "ARTS_VIDEO",
+  "ARTS_VOCALIST",
+  "ARTS_WRITER",
+  
+  // Skills
+  "SKILL_BUS_DRIVER",
+  "SKILL_BUSINESS_MANAGEMENT",
+  "SKILL_CARPENTRY",
+  "SKILL_CHILD_CARE",
+  "SKILL_CLEANING",
+  "SKILL_CONSTRUCTION",
+  "SKILL_COOKING",
+  "SKILL_COUNSELING",
+  "SKILL_CUSTOMER_SERVICE",
+  "SKILL_EDUCATION",
+  "SKILL_ELECTRICIAN",
+  "SKILL_EVENT_COORDINATION",
+  "SKILL_FINANCIAL",
+  "SKILL_HOSPITALITY_INDUSTRY",
+  "SKILL_MARKETING_COMM",
+  "SKILL_MECHANIC",
+  "SKILL_MECHANICAL",
+  "SKILL_MEDIA_GRAPHICS",
+  "SKILL_MEDICAL",
+  "SKILL_OFFICE",
+  "SKILL_PAINTER",
+  "SKILL_PEOPLE",
+  "SKILL_PROJECT_MANAGEMENT",
+  "SKILL_SECURITY",
+  "SKILL_SETUP_TEARDOWN",
+  "SKILL_SPA_SERVICES",
+  "SKILL_TECH_COMPUTERS",
+  "SKILL_TRANSLATOR",
+  
+  // Sports
+  "SPORTS_ATHLETE",
+  "SPORTS_COACH",
+  "SPORTS_OFFICIAL",
+]);
+
 // Session storage table.
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const sessions = pgTable(
@@ -172,6 +231,7 @@ export const results = pgTable("results", {
   top3GiftKey: giftKeyEnum("top3_gift_key").notNull(),
   ageGroups: json("age_groups").$type<string[]>().default([]),
   ministryInterests: json("ministry_interests").$type<string[]>().default([]),
+  naturalAbilities: json("natural_abilities").$type<string[]>().default([]),
   renderedHtml: text("rendered_html"),
   notes: text("notes"), // Admin notes
   followUpDate: timestamp("follow_up_date"), // Follow-up scheduling
@@ -190,6 +250,8 @@ export const ministryOpportunities = pgTable("ministry_opportunities", {
   description: text("description"),
   requiredGifts: json("required_gifts").$type<string[]>().default([]),
   preferredGifts: json("preferred_gifts").$type<string[]>().default([]),
+  requiredAbilities: json("required_abilities").$type<string[]>().default([]),
+  preferredAbilities: json("preferred_abilities").$type<string[]>().default([]),
   capacity: integer("capacity").default(1),
   currentCount: integer("current_count").default(0),
   ageGroupPreference: json("age_group_preference").$type<string[]>().default([]),
@@ -368,6 +430,7 @@ export type AssessmentState = {
   answers: Record<string, number>;
   ageGroups: string[];
   ministryInterests: string[];
+  naturalAbilities: string[];
 };
 
 export type ScoreResult = {

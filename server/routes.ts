@@ -592,7 +592,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res) => {
       try {
         const { responseId } = req.params;
-        const { answers, ageGroups, ministryInterests } = req.body;
+        const { answers, ageGroups, ministryInterests, naturalAbilities } = req.body;
 
         // Validate response belongs to user
         const response = await storage.getResponse(responseId);
@@ -649,6 +649,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           top3GiftKey: scores.top3[2],
           ageGroups: ageGroups || [],
           ministryInterests: ministryInterests || [],
+          naturalAbilities: naturalAbilities || [],
           renderedHtml: null,
           expiresAt: expirationDate,
         });

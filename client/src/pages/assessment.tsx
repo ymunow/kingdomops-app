@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Crown, ArrowLeft, ArrowRight, Save } from "lucide-react";
 import { QuestionCard } from "@/components/assessment/question-card";
+import NaturalAbilitiesStep from "@/components/assessment/natural-abilities-step";
 import type { Question, AssessmentState } from "@shared/schema";
 
 interface StartAssessmentResponse {
@@ -50,11 +51,12 @@ export default function Assessment() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [currentStep, setCurrentStep] = useState(0); // 0 = questions, 1 = age groups, 2 = ministry interests, 3 = review
+  const [currentStep, setCurrentStep] = useState(0); // 0 = questions, 1 = natural abilities, 2 = age groups, 3 = ministry interests, 4 = review
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [ageGroups, setAgeGroups] = useState<string[]>([]);
   const [ministryInterests, setMinistryInterests] = useState<string[]>([]);
+  const [naturalAbilities, setNaturalAbilities] = useState<string[]>([]);
   const [responseId, setResponseId] = useState<string>("");
 
   // Load saved progress
@@ -68,6 +70,7 @@ export default function Assessment() {
         setAnswers(state.answers);
         setAgeGroups(state.ageGroups);
         setMinistryInterests(state.ministryInterests);
+        setNaturalAbilities(state.naturalAbilities || []);
       } catch (error) {
         console.error("Failed to load saved progress:", error);
       }
@@ -81,6 +84,7 @@ export default function Assessment() {
       answers,
       ageGroups,
       ministryInterests,
+      naturalAbilities,
     };
     localStorage.setItem("assessment_progress", JSON.stringify(state));
     toast({ title: "Progress saved", description: "Your answers have been saved locally." });
@@ -145,6 +149,7 @@ export default function Assessment() {
           answers,
           ageGroups,
           ministryInterests,
+          naturalAbilities,
         }),
       });
       if (!response.ok) {
@@ -200,7 +205,7 @@ export default function Assessment() {
   };
 
   const nextStep = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -219,8 +224,8 @@ export default function Assessment() {
   const totalAnswered = Object.keys(answers).length;
   const questionsProgress = questions ? (totalAnswered / questions.length) * 100 : 0;
   const overallProgress = currentStep === 0 
-    ? questionsProgress * 0.7 
-    : 70 + (currentStep - 1) * 10 + (currentStep === 3 ? 20 : 0);
+    ? questionsProgress * 0.5 
+    : 50 + (currentStep * 10) + (currentStep === 4 ? 10 : 0);
 
   if (authLoading || questionsLoading || !user) {
     return (
@@ -275,7 +280,7 @@ export default function Assessment() {
                 </span>
               ) : (
                 <span data-testid="text-step-progress">
-                  Step {currentStep + 1} of 4
+                  Step {currentStep + 1} of 5
                 </span>
               )}
             </div>
@@ -285,15 +290,18 @@ export default function Assessment() {
           
           <div className="flex justify-between text-xs text-gray-500">
             <span className={currentStep === 0 ? "font-medium text-spiritual-blue" : ""}>
-              Assessment Questions
+              Questions
             </span>
             <span className={currentStep === 1 ? "font-medium text-spiritual-blue" : ""}>
-              Age Groups & Interests
+              Natural Abilities
             </span>
             <span className={currentStep === 2 ? "font-medium text-spiritual-blue" : ""}>
-              Ministry Interests
+              Age Groups
             </span>
             <span className={currentStep === 3 ? "font-medium text-spiritual-blue" : ""}>
+              Ministry Interests
+            </span>
+            <span className={currentStep === 4 ? "font-medium text-spiritual-blue" : ""}>
               Review & Submit
             </span>
           </div>
@@ -315,6 +323,19 @@ export default function Assessment() {
           )}
 
           {currentStep === 1 && (
+            <Card className="bg-white shadow-lg">
+              <CardContent className="p-8">
+                <NaturalAbilitiesStep
+                  selectedAbilities={naturalAbilities}
+                  onAbilitiesChange={setNaturalAbilities}
+                  onNext={nextStep}
+                  onBack={previousStep}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {currentStep === 2 && (
             <Card className="bg-white shadow-lg">
               <CardContent className="p-8">
                 <div className="mb-6">
@@ -354,7 +375,7 @@ export default function Assessment() {
             </Card>
           )}
 
-          {currentStep === 2 && (
+          {currentStep === 3 && (
             <Card className="bg-white shadow-lg">
               <CardContent className="p-8">
                 <div className="mb-6">
@@ -394,7 +415,7 @@ export default function Assessment() {
             </Card>
           )}
 
-          {currentStep === 3 && (
+          {currentStep === 4 && (
             <Card className="bg-white shadow-lg">
               <CardContent className="p-8">
                 <div className="text-center mb-8">
@@ -418,6 +439,13 @@ export default function Assessment() {
                     <h3 className="font-semibold text-lg text-charcoal mb-2">Age Group Preferences</h3>
                     <p className="text-gray-600">
                       {ageGroups.length > 0 ? ageGroups.join(", ") : "None selected"}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold text-lg text-charcoal mb-2">Natural Abilities</h3>
+                    <p className="text-gray-600">
+                      {naturalAbilities.length > 0 ? naturalAbilities.length + " abilities selected" : "None selected"}
                     </p>
                   </div>
                   
