@@ -876,12 +876,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const user = await storage.getUser(userId);
-      if (!user?.organizationId) {
-        return res.status(400).json({ message: "User organization not found" });
+      
+      let organizationId: string;
+      
+      // Check for view-as context first
+      const viewContext = req.session.viewAsContext;
+      if (viewContext && viewContext.viewAsOrganizationId) {
+        organizationId = viewContext.viewAsOrganizationId;
+      } else {
+        const user = await storage.getUser(userId);
+        if (!user?.organizationId) {
+          return res.status(400).json({ message: "User organization not found" });
+        }
+        organizationId = user.organizationId;
       }
       
-      const metrics = await storage.getDashboardMetrics(user.organizationId);
+      const metrics = await storage.getDashboardMetrics(organizationId);
       res.json(metrics);
     } catch (error) {
       console.error("Get dashboard metrics error:", error);
@@ -895,9 +905,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const user = await storage.getUser(userId);
-      if (!user?.organizationId) {
-        return res.status(400).json({ message: "User organization not found" });
+      
+      let organizationId: string;
+      
+      // Check for view-as context first
+      const viewContext = req.session.viewAsContext;
+      if (viewContext && viewContext.viewAsOrganizationId) {
+        organizationId = viewContext.viewAsOrganizationId;
+      } else {
+        const user = await storage.getUser(userId);
+        if (!user?.organizationId) {
+          return res.status(400).json({ message: "User organization not found" });
+        }
+        organizationId = user.organizationId;
       }
       
       const filters = {
@@ -909,7 +929,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         giftKey: req.query.giftKey as any
       };
       
-      const users = await storage.getUsersByOrganization(user.organizationId, filters);
+      const users = await storage.getUsersByOrganization(organizationId, filters);
       res.json(users);
     } catch (error) {
       console.error("Get organization users error:", error);
@@ -923,9 +943,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const user = await storage.getUser(userId);
-      if (!user?.organizationId) {
-        return res.status(400).json({ message: "User organization not found" });
+      
+      let organizationId: string;
+      
+      // Check for view-as context first
+      const viewContext = req.session.viewAsContext;
+      if (viewContext && viewContext.viewAsOrganizationId) {
+        organizationId = viewContext.viewAsOrganizationId;
+      } else {
+        const user = await storage.getUser(userId);
+        if (!user?.organizationId) {
+          return res.status(400).json({ message: "User organization not found" });
+        }
+        organizationId = user.organizationId;
       }
       
       const filters = {
@@ -936,7 +966,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         giftKey: req.query.giftKey as any
       };
       
-      const results = await storage.getResultsByOrganization(user.organizationId, filters);
+      const results = await storage.getResultsByOrganization(organizationId, filters);
       res.json(results);
     } catch (error) {
       console.error("Get organization results error:", error);
@@ -993,12 +1023,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const user = await storage.getUser(userId);
-      if (!user?.organizationId) {
-        return res.status(400).json({ message: "User organization not found" });
+      
+      let organizationId: string;
+      
+      // Check for view-as context first
+      const viewContext = req.session.viewAsContext;
+      if (viewContext && viewContext.viewAsOrganizationId) {
+        organizationId = viewContext.viewAsOrganizationId;
+      } else {
+        const user = await storage.getUser(userId);
+        if (!user?.organizationId) {
+          return res.status(400).json({ message: "User organization not found" });
+        }
+        organizationId = user.organizationId;
       }
       
-      const opportunities = await storage.getMinistryOpportunities(user.organizationId);
+      const opportunities = await storage.getMinistryOpportunities(organizationId);
       res.json(opportunities);
     } catch (error) {
       console.error("Get ministry opportunities error:", error);
@@ -1012,14 +1052,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
-      const user = await storage.getUser(userId);
-      if (!user?.organizationId) {
-        return res.status(400).json({ message: "User organization not found" });
+      
+      let organizationId: string;
+      
+      // Check for view-as context first
+      const viewContext = req.session.viewAsContext;
+      if (viewContext && viewContext.viewAsOrganizationId) {
+        organizationId = viewContext.viewAsOrganizationId;
+      } else {
+        const user = await storage.getUser(userId);
+        if (!user?.organizationId) {
+          return res.status(400).json({ message: "User organization not found" });
+        }
+        organizationId = user.organizationId;
       }
       
       const opportunityData = insertMinistryOpportunitySchema.parse({
         ...req.body,
-        organizationId: user.organizationId
+        organizationId
       });
       
       const opportunity = await storage.createMinistryOpportunity(opportunityData);
