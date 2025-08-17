@@ -9,6 +9,7 @@ import { initializeCacheManagement } from "./utils/cache-management";
 import ProfileCompletionModal from "@/components/profile/profile-completion-modal";
 import Landing from "@/pages/landing";
 import Assessment from "@/pages/assessment";
+import AnonymousAssessment from "@/pages/anonymous-assessment";
 import Results from "@/pages/results";
 import MyResults from "@/pages/my-results";
 import Admin from "@/pages/admin";
@@ -53,6 +54,9 @@ function Router() {
         <Route path="/join" component={JoinCongregation} />
         {/* Legacy route - redirect to invite code flow */}
         <Route path="/join/:orgId" component={CongregationSignup} />
+        
+        {/* Anonymous assessment - no authentication required */}
+        <Route path="/anonymous-assessment" component={AnonymousAssessment} />
         
         {/* Protected routes - only render if authenticated and profile completed */}
         {isAuthenticated && !needsProfileCompletion && (

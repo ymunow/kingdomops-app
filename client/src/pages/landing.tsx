@@ -20,12 +20,11 @@ export default function Landing() {
   };
 
   const startAssessment = () => {
-    if (isAuthenticated) {
-      setLocation("/assessment");
-    } else {
-      // Direct users to join through their church first
-      setLocation("/join");
-    }
+    setLocation("/assessment");
+  };
+
+  const startAnonymousAssessment = () => {
+    setLocation("/anonymous-assessment");
   };
 
   return (
@@ -125,14 +124,36 @@ export default function Landing() {
             )}
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button
-                onClick={startAssessment}
-                className="bg-warm-gold text-spiritual-blue px-8 py-4 text-lg font-semibold hover:bg-yellow-400 transition-colors"
-                data-testid="button-start-assessment"
-              >
-                <Play className="mr-2 h-5 w-5" />
-                {isAuthenticated ? "Start Assessment" : "Join Your Church"}
-              </Button>
+              {isAuthenticated ? (
+                <Button
+                  onClick={startAssessment}
+                  className="bg-warm-gold text-spiritual-blue px-8 py-4 text-lg font-semibold hover:bg-yellow-400 transition-colors"
+                  data-testid="button-start-assessment"
+                >
+                  <Play className="mr-2 h-5 w-5" />
+                  Start Assessment
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    onClick={startAnonymousAssessment}
+                    className="bg-warm-gold text-spiritual-blue px-8 py-4 text-lg font-semibold hover:bg-yellow-400 transition-colors"
+                    data-testid="button-start-anonymous-assessment"
+                  >
+                    <Play className="mr-2 h-5 w-5" />
+                    Take Assessment (No Account Required)
+                  </Button>
+                  <Button
+                    onClick={() => setLocation("/join")}
+                    variant="outline"
+                    className="border-2 border-white text-white px-8 py-4 text-lg bg-transparent hover:bg-white hover:text-spiritual-blue transition-colors"
+                    data-testid="button-join-church"
+                  >
+                    <Church className="mr-2 h-5 w-5" />
+                    Join Your Church
+                  </Button>
+                </>
+              )}
               <Button
                 variant="outline"
                 className="border-2 border-white text-white px-8 py-4 text-lg bg-transparent hover:bg-white hover:text-spiritual-blue transition-colors"

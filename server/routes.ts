@@ -463,6 +463,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Assessment routes
+  // Public route for assessment questions (no auth required)
   app.get("/api/assessment/questions", async (req, res) => {
     try {
       const activeVersion = await storage.getActiveAssessmentVersion();
@@ -478,6 +479,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+
+
+  // Authenticated assessment start (for logged-in users)
   app.post(
     "/api/assessment/start",
     assessmentLimiter,
@@ -502,6 +506,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+
+
+  // Authenticated assessment submission (for logged-in users)
   app.post(
     "/api/assessment/:responseId/submit",
     isAuthenticated,
