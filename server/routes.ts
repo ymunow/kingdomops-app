@@ -303,7 +303,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create organization
       const organization = await storage.createOrganization(validatedOrgData);
       
-      // Create the contact person as ORG_OWNER
+      // Don't create user account automatically - let them register through normal auth flow
+      // This prevents auto-login issues when testing the registration process
       const ownerData = {
         organizationId: organization.id,
         email: req.body.contactEmail,
@@ -313,11 +314,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         profileCompleted: true
       };
 
-      const owner = await storage.createUser(ownerData);
+      // Store the intended owner info but don't create the user yet
+      // They'll be created when they first sign in through Replit Auth
 
       res.json({
         organization,
-        owner,
+        ownerInfo: ownerData, // Send the intended owner info
         inviteCode,
         message: "Church registered successfully"
       });

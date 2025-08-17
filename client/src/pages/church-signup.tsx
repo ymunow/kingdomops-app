@@ -73,7 +73,8 @@ export default function ChurchSignup() {
       sessionStorage.setItem('church_registration_success', JSON.stringify({
         churchName: data.organization.name,
         inviteCode: data.inviteCode,
-        contactEmail: data.owner.email
+        contactEmail: data.ownerInfo.email,
+        organizationId: data.organization.id
       }));
       
       toast({
@@ -81,9 +82,9 @@ export default function ChurchSignup() {
         description: `${data.organization.name} has been registered. Redirecting you to sign in...`
       });
       
-      // Redirect to login immediately with a flag for new church admin
+      // Redirect to welcome page instead of auto-login for testing
       setTimeout(() => {
-        window.location.href = "/api/login?return_to=admin-dashboard&new_admin=true";
+        setLocation("/church-admin-welcome");
       }, 1500);
     },
     onError: (error) => {

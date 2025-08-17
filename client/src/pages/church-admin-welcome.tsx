@@ -37,12 +37,8 @@ export default function ChurchAdminWelcome() {
     }
   }, []);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      setLocation("/");
-    }
-  }, [isAuthenticated, isLoading, setLocation]);
+  // Don't redirect if not authenticated - show login option instead
+  // This allows testing the church registration flow
 
   const copyInviteCode = () => {
     if (registrationData?.inviteCode) {
@@ -69,6 +65,48 @@ export default function ChurchAdminWelcome() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p className="text-purple-700">Loading your admin portal...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Show login option if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-spiritual-blue rounded-full mb-4 mx-auto">
+              <Crown className="h-8 w-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl">Welcome Church Admin!</CardTitle>
+            <p className="text-gray-600">
+              {registrationData 
+                ? `Your church "${registrationData.churchName}" has been successfully registered.`
+                : "Your church has been registered successfully."
+              }
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-center text-gray-600">
+              Please sign in to access your admin dashboard and complete the setup.
+            </p>
+            <Button 
+              onClick={() => window.location.href = "/api/login"}
+              className="w-full bg-spiritual-blue hover:bg-purple-800"
+              data-testid="button-admin-login"
+            >
+              Sign In to Continue
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => setLocation("/")}
+              className="w-full"
+              data-testid="button-back-home"
+            >
+              Back to Home
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
