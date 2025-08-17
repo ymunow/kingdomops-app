@@ -311,8 +311,10 @@ export default function AnonymousAssessment() {
           <div className="space-y-6">
             <QuestionCard
               question={questions[currentQuestionIndex]}
-              value={answers[questions[currentQuestionIndex].id] || 1}
-              onChange={(value) => handleAnswerChange(questions[currentQuestionIndex].id, value)}
+              questionNumber={currentQuestionIndex + 1}
+              totalQuestions={questions.length}
+              selectedValue={answers[questions[currentQuestionIndex].id] || 1}
+              onAnswerChange={(value: number) => handleAnswerChange(questions[currentQuestionIndex].id, value)}
             />
             
             <div className="flex justify-between">
