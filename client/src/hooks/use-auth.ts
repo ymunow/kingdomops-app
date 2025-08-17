@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 
 export function useAuth() {
-  const { data: user, isLoading, error, isSuccess } = useQuery({
+  const { data: user, isLoading, error, isSuccess, isFetching } = useQuery({
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
       try {
-        const response = await fetch("/api/auth/user");
+        const response = await fetch("/api/auth/user", {
+          credentials: "include"
+        });
         if (response.status === 401) {
           return null; // Not authenticated
         }
@@ -21,11 +23,14 @@ export function useAuth() {
     },
     retry: false,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchInterval: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
   });
 
-  // Only loading if the query hasn't completed yet
-  const actuallyLoading = isLoading && !isSuccess;
+  // Only loading if the query is actively fetching and we don't have data yet
+  const actuallyLoading = (isLoading || isFetching) && user === undefined;
   
   // User is authenticated if we have user data (not null)
   const isAuthenticated = !!user;
