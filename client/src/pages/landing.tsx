@@ -135,6 +135,7 @@ export default function Landing() {
                 </Button>
               ) : (
                 <>
+                  {/* Anonymous assessment button temporarily hidden - focus on church-based assessments
                   <Button
                     onClick={startAnonymousAssessment}
                     className="bg-warm-gold text-spiritual-blue px-8 py-4 text-lg font-semibold hover:bg-yellow-400 transition-colors"
@@ -143,6 +144,7 @@ export default function Landing() {
                     <Play className="mr-2 h-5 w-5" />
                     Take Assessment (No Account Required)
                   </Button>
+                  */}
                   <Button
                     onClick={() => setLocation("/join")}
                     variant="outline"

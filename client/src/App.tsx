@@ -55,8 +55,9 @@ function Router() {
         {/* Legacy route - redirect to invite code flow */}
         <Route path="/join/:orgId" component={CongregationSignup} />
         
-        {/* Anonymous assessment - no authentication required */}
+        {/* Anonymous assessment temporarily disabled - focus on church-based assessments
         <Route path="/anonymous-assessment" component={AnonymousAssessment} />
+        */}
         
         {/* Protected routes - only render if authenticated and profile completed */}
         {isAuthenticated && !needsProfileCompletion && (
