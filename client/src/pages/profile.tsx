@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,6 +32,18 @@ export default function Profile() {
       ageRange: (user as any)?.ageRange || undefined,
     },
   });
+
+  // Reset form values when user data changes or when entering edit mode
+  React.useEffect(() => {
+    if (user) {
+      form.reset({
+        firstName: (user as any)?.firstName || "",
+        lastName: (user as any)?.lastName || "",
+        displayName: (user as any)?.displayName || "",
+        ageRange: (user as any)?.ageRange || undefined,
+      });
+    }
+  }, [user, form]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: ProfileCompletionData) => {
@@ -69,8 +82,25 @@ export default function Profile() {
   };
 
   const handleCancel = () => {
-    form.reset();
+    // Reset form to original values
+    form.reset({
+      firstName: (user as any)?.firstName || "",
+      lastName: (user as any)?.lastName || "",
+      displayName: (user as any)?.displayName || "",
+      ageRange: (user as any)?.ageRange || undefined,
+    });
     setIsEditing(false);
+  };
+
+  const handleEditClick = () => {
+    // Ensure form has current values when entering edit mode
+    form.reset({
+      firstName: (user as any)?.firstName || "",
+      lastName: (user as any)?.lastName || "",
+      displayName: (user as any)?.displayName || "",
+      ageRange: (user as any)?.ageRange || undefined,
+    });
+    setIsEditing(true);
   };
 
   return (
@@ -245,7 +275,7 @@ export default function Profile() {
                     {!isEditing ? (
                       <Button
                         type="button"
-                        onClick={() => setIsEditing(true)}
+                        onClick={handleEditClick}
                         className="bg-spiritual-blue text-white hover:bg-purple-800"
                         data-testid="button-edit-profile"
                       >
