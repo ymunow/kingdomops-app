@@ -197,6 +197,34 @@ export default function AdminDashboard() {
     }
   });
 
+  const deleteOrganizationMutation = useMutation({
+    mutationFn: async (orgId: string) => {
+      const response = await fetch(`/api/super-admin/organizations/${orgId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete organization');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/super-admin/organizations/overview'] });
+      toast({
+        title: "Success",
+        description: "Church deleted successfully",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      console.error('Delete organization error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete church",
+        variant: "destructive",
+      });
+    }
+  });
+
   // Update church profile mutation
   const updateChurchProfileMutation = useMutation({
     mutationFn: async (profileData: any) => {
@@ -1107,6 +1135,22 @@ export default function AdminDashboard() {
                                 >
                                   {org.status === "ACTIVE" ? "Deactivate" : "Activate"}
                                 </Button>
+                                {org.id !== 'default-org-001' && (
+                                  <Button 
+                                    size="sm" 
+                                    variant="destructive"
+                                    onClick={() => {
+                                      if (window.confirm(`Are you sure you want to permanently delete "${org.name}"? This action cannot be undone and will remove all associated users and data.`)) {
+                                        deleteOrganizationMutation.mutate(org.id);
+                                      }
+                                    }}
+                                    disabled={deleteOrganizationMutation.isPending}
+                                    className="text-xs"
+                                    data-testid={`button-delete-${org.id}`}
+                                  >
+                                    Delete
+                                  </Button>
+                                )}
                               </div>
                               <div className="text-xs text-gray-500 text-center">
                                 Registered: {new Date(org.createdAt).toLocaleDateString()}

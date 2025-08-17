@@ -1026,6 +1026,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete organization permanently
+  app.delete('/api/super-admin/organizations/:orgId', isAuthenticated, requireSuperAdmin, async (req: any, res) => {
+    try {
+      const { orgId } = req.params;
+      
+      // Prevent deletion of default organization
+      if (orgId === 'default-org-001') {
+        return res.status(400).json({ message: "Cannot delete the default organization" });
+      }
+
+      await storage.deleteOrganization(orgId);
+      res.json({ 
+        success: true, 
+        message: "Organization deleted successfully" 
+      });
+    } catch (error) {
+      console.error("Delete organization error:", error);
+      res.status(500).json({ message: "Failed to delete organization" });
+    }
+  });
+
   // User Role Management
   app.put("/api/admin/users/:userId/role", isAuthenticated, requireOrgOwner, async (req, res) => {
     try {

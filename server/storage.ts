@@ -51,6 +51,7 @@ export interface IStorage {
   createOrganization(organization: InsertOrganization): Promise<Organization>;
   updateOrganization(id: string, updates: Partial<InsertOrganization>): Promise<Organization>;
   updateOrganizationStatus(organizationId: string, status: 'ACTIVE' | 'INACTIVE'): Promise<Organization>;
+  deleteOrganization(organizationId: string): Promise<void>;
 
   // User operations
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
@@ -260,6 +261,21 @@ export class DatabaseStorage implements IStorage {
       .where(eq(organizations.id, organizationId))
       .returning();
     return organization;
+  }
+
+  async deleteOrganization(organizationId: string): Promise<void> {
+    // Delete all related data first
+    // Delete results
+    await db.delete(results).where(eq(results.organizationId, organizationId));
+    
+    // Delete responses  
+    await db.delete(responses).where(eq(responses.organizationId, organizationId));
+    
+    // Delete users
+    await db.delete(users).where(eq(users.organizationId, organizationId));
+    
+    // Delete organization
+    await db.delete(organizations).where(eq(organizations.id, organizationId));
   }
 
   // Assessment Version operations
