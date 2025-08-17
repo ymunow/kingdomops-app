@@ -912,12 +912,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const viewContext = req.session.viewAsContext;
       if (viewContext && viewContext.viewAsOrganizationId) {
         organizationId = viewContext.viewAsOrganizationId;
+        console.log(`Dashboard Users - Using View As context - orgId: ${organizationId}`);
       } else {
         const user = await storage.getUser(userId);
         if (!user?.organizationId) {
           return res.status(400).json({ message: "User organization not found" });
         }
         organizationId = user.organizationId;
+        console.log(`Dashboard Users - Using user orgId: ${organizationId} for user: ${userId}`);
       }
       
       const filters = {
@@ -930,6 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const users = await storage.getUsersByOrganization(organizationId, filters);
+      console.log(`Dashboard Users - Found ${users.length} users for org ${organizationId}`);
       res.json(users);
     } catch (error) {
       console.error("Get organization users error:", error);
