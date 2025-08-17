@@ -185,11 +185,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
+    if (!insertUser.organizationId) {
+      throw new Error("Organization ID is required when creating a user");
+    }
+    
     const [user] = await db
       .insert(users)
       .values({
         ...insertUser,
-        organizationId: insertUser.organizationId || 'default-org-001',
         lastActiveAt: new Date(),
       })
       .returning();
@@ -283,10 +286,11 @@ export class DatabaseStorage implements IStorage {
 
   // Response operations
   async createResponse(insertResponse: InsertResponse): Promise<Response> {
-    const [response] = await db.insert(responses).values({
-      ...insertResponse,
-      organizationId: insertResponse.organizationId || 'default-org-001',
-    }).returning();
+    if (!insertResponse.organizationId) {
+      throw new Error("Organization ID is required when creating a response");
+    }
+    
+    const [response] = await db.insert(responses).values(insertResponse).returning();
     return response;
   }
 

@@ -563,9 +563,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ message: "No active assessment" });
         }
 
+        // Get user to extract organization ID
+        const user = await storage.getUser(req.user.userId);
+        if (!user || !user.organizationId) {
+          return res.status(400).json({ message: "User organization not found" });
+        }
+
         const response = await storage.createResponse({
           userId: req.user.userId,
           versionId: activeVersion.id,
+          organizationId: user.organizationId,
         });
 
         res.json(response);
@@ -626,9 +633,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 90);
         
+        // Get user to extract organization ID for result
+        const user = await storage.getUser(req.user.userId);
+        if (!user || !user.organizationId) {
+          return res.status(400).json({ message: "User organization not found" });
+        }
+
         console.log('Creating result for responseId:', responseId);
         const result = await storage.createResult({
           responseId,
+          organizationId: user.organizationId,
           scoresJson: scores.totals,
           top1GiftKey: scores.top3[0],
           top2GiftKey: scores.top3[1],
