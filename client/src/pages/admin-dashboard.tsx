@@ -1013,15 +1013,61 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     
-                    <div className="text-center">
-                      <p className="text-gray-600 mb-4">Click "View Result" in the People tab to see detailed individual results</p>
-                      <Button 
-                        onClick={() => setActiveTab("people")}
-                        className="bg-spiritual-blue text-white hover:bg-purple-800"
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        View Individual Results
-                      </Button>
+                    {/* Individual Results List */}
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-lg text-gray-800 mb-4">Individual Assessment Results</h3>
+                      <div className="grid gap-4">
+                        {results.map((result: any, index: number) => (
+                          <div key={result.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 bg-spiritual-blue text-white rounded-full flex items-center justify-center text-sm font-semibold">
+                                    {index + 1}
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-gray-900">
+                                      {result.userEmail || `Participant ${index + 1}`}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                      Completed: {result.completedAt ? new Date(result.completedAt).toLocaleDateString() : 'In Progress'}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {result.top1GiftKey && (
+                                    <Badge variant="outline" className="text-xs bg-spiritual-blue/10 text-spiritual-blue border-spiritual-blue/30">
+                                      Top Gift: {result.top1GiftKey.replace('_', ' ')}
+                                    </Badge>
+                                  )}
+                                  {result.top2GiftKey && (
+                                    <Badge variant="outline" className="text-xs bg-warm-gold/10 text-warm-gold border-warm-gold/30">
+                                      2nd: {result.top2GiftKey.replace('_', ' ')}
+                                    </Badge>
+                                  )}
+                                  {result.top3GiftKey && (
+                                    <Badge variant="outline" className="text-xs bg-sage-green/10 text-sage-green border-sage-green/30">
+                                      3rd: {result.top3GiftKey.replace('_', ' ')}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Button 
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(`/results/${result.responseId}`, '_blank')}
+                                  className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
+                                  data-testid={`button-view-result-${result.id}`}
+                                >
+                                  <FileText className="h-4 w-4 mr-1" />
+                                  View Results
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ) : (
