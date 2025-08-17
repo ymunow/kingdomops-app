@@ -376,6 +376,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to send welcome email
+  app.post('/api/test-welcome-email', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email address is required" });
+      }
+
+      const emailContent = generateChurchWelcomeEmail({
+        churchName: "Sample Community Church",
+        pastorName: "Pastor John Smith",
+        inviteCode: "SAMPLE123",
+        organizationId: "test-org-id",
+        contactEmail: email
+      });
+
+      const success = await sendEmail({
+        to: email,
+        subject: emailContent.subject,
+        html: emailContent.html,
+        text: emailContent.text
+      });
+
+      if (success) {
+        res.json({ 
+          message: "Welcome email sent successfully",
+          sentTo: email
+        });
+      } else {
+        res.status(500).json({ 
+          message: "Failed to send email. Check server logs for details."
+        });
+      }
+    } catch (error) {
+      console.error('Test email error:', error);
+      res.status(500).json({ 
+        message: "Failed to send test email",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   app.get('/api/organizations/:orgId/join-info', async (req, res) => {
     try {
       const orgId = req.params.orgId;
