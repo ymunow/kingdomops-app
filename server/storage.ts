@@ -547,26 +547,30 @@ export class DatabaseStorage implements IStorage {
       return acc;
     }, {} as Record<GiftKey, number>);
 
-    // Get age distribution for pie chart
-    const ageDistributionResults = await db
-      .select({
-        ageRange: sql`${results.ageGroups}->0`.as('age_range'),
-        count: count()
-      })
-      .from(results)
-      .where(and(
-        eq(results.organizationId, organizationId),
-        sql`${results.ageGroups} IS NOT NULL`
-      ))
-      .groupBy(sql`${results.ageGroups}->0`);
+    // Get age distribution for pie chart - simplified to avoid JSON operator issues
+    let ageGroupDistribution: Record<string, number> = {};
+    
+    try {
+      const ageDistributionResults = await db
+        .select({
+          ageGroups: results.ageGroups,
+        })
+        .from(results)
+        .where(eq(results.organizationId, organizationId));
 
-    const ageGroupDistribution = ageDistributionResults.reduce((acc, item) => {
-      const ageRange = item.ageRange as string;
-      if (ageRange) {
-        acc[ageRange] = item.count;
-      }
-      return acc;
-    }, {} as Record<string, number>);
+      // Process age groups in JavaScript to avoid database JSON operator issues
+      ageDistributionResults.forEach(item => {
+        if (item.ageGroups && Array.isArray(item.ageGroups) && item.ageGroups.length > 0) {
+          const ageRange = item.ageGroups[0] as string;
+          if (ageRange) {
+            ageGroupDistribution[ageRange] = (ageGroupDistribution[ageRange] || 0) + 1;
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error getting age distribution:', error);
+      ageGroupDistribution = {};
+    }
 
     return {
       totalCompletions: totalCompletedCount,
