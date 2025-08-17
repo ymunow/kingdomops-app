@@ -121,7 +121,7 @@ export default function AdminDashboard() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
       toast({
         title: "Switched to organization",
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
       setActiveTab("churches");
       toast({

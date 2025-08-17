@@ -57,7 +57,7 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/view-context"] });
       toast({
         title: "View switched",
@@ -86,7 +86,7 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/view-context"] });
       toast({
         title: "Returned to admin view",

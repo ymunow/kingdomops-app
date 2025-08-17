@@ -51,7 +51,7 @@ export default function Profile() {
         title: "Profile updated!",
         description: "Your profile information has been successfully updated.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
       setIsEditing(false);
     },
     onError: (error) => {

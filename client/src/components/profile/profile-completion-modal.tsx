@@ -50,7 +50,7 @@ export default function ProfileCompletionModal({ isOpen, userEmail }: ProfileCom
         title: "Profile completed!",
         description: "Welcome! You can now take your spiritual gifts assessment.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
     },
     onError: (error) => {
       toast({
