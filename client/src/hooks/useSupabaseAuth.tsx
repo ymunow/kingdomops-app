@@ -12,7 +12,16 @@ import { useToast } from "@/hooks/use-toast";
 // Using provided credentials with environment variable fallback
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL || "https://uhrveotjyufguojzpawy.supabase.co",
-  import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVocnZlb3RqeXVmZ3VvanpwYXd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzY2ODksImV4cCI6MjA3MTA1MjY4OX0.pttCCLGODMAMarg6YAZUM6kczMCkB-FLREoAsV8paMk"
+  import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVocnZlb3RqeXVmZ3VvanpwYXd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzY2ODksImV4cCI6MjA3MTA1MjY4OX0.pttCCLGODMAMarg6YAZUM6kczMCkB-FLREoAsV8paMk",
+  {
+    auth: {
+      // Disable automatic redirect to avoid the long URL issue
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+      flowType: 'implicit'
+    }
+  }
 );
 
 type AuthContextType = {
@@ -45,22 +54,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setIsLoading(false);
-    });
+    // Check for initial session with error handling
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Session initialization error:', error);
+        } else {
+          setSession(session);
+        }
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.email || 'no user');
         setSession(session);
         
         if (session) {
           // Set the auth token for API requests
           queryClient.setQueryData(['authToken'], session.access_token);
         } else {
-          queryClient.removeQueries();
+          queryClient.clear();
         }
       }
     );
