@@ -246,7 +246,7 @@ export default function MemberDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Button
                   variant="outline"
-                  onClick={() => setLocation('/admin')}
+                  onClick={() => setLocation('/admin/platform')}
                   className="bg-white hover:bg-gray-50"
                   data-testid="button-platform-overview"
                 >
@@ -255,7 +255,7 @@ export default function MemberDashboard() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setLocation('/admin')}
+                  onClick={() => setLocation('/admin/organizations')}
                   className="bg-white hover:bg-gray-50"
                   data-testid="button-manage-churches"
                 >
@@ -264,7 +264,7 @@ export default function MemberDashboard() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setLocation('/admin')}
+                  onClick={() => setLocation('/admin/system')}
                   className="bg-white hover:bg-gray-50"
                   data-testid="button-system-admin"
                 >
