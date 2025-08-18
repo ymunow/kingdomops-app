@@ -73,7 +73,7 @@ export default function SubdomainDemo() {
                 onChange={(e) => setTestSubdomain(e.target.value)}
                 className="max-w-xs"
               />
-              <div className="flex items-center text-sm text-sage-green font-medium">
+              <div className="flex items-center text-sm text-warm-gold font-medium">
                 .kingdomops.app
               </div>
             </div>
@@ -88,7 +88,7 @@ export default function SubdomainDemo() {
                 ) : orgInfo ? (
                   <div className="space-y-3">
                     <div className="flex items-center">
-                      <CheckCircle className="h-5 w-5 text-sage-green mr-2" />
+                      <CheckCircle className="h-5 w-5 text-warm-gold mr-2" />
                       <span className="font-medium text-charcoal">Subdomain exists!</span>
                     </div>
                     <div className="bg-white p-3 rounded border border-spiritual-blue/20">
@@ -102,14 +102,14 @@ export default function SubdomainDemo() {
                           <Button 
                             size="sm" 
                             variant="outline"
-                            className="border-sage-green/30 text-sage-green hover:bg-sage-green hover:text-white"
+                            className="border-warm-gold/30 text-warm-gold hover:bg-warm-gold hover:text-white"
                             onClick={() => setShowLanding(true)}
                           >
                             Preview Landing
                           </Button>
                           <Button 
                             size="sm"
-                            className="bg-gradient-to-r from-spiritual-blue to-sage-green hover:from-spiritual-blue/90 hover:to-sage-green/90 text-white"
+                            className="bg-gradient-to-r from-spiritual-blue to-warm-gold hover:from-spiritual-blue/90 hover:to-warm-gold/90 text-white"
                             onClick={() => window.open(testSubdomainUrl(testSubdomain), '_blank')}
                           >
                             <ExternalLink className="h-3 w-3 mr-1" />
@@ -131,10 +131,10 @@ export default function SubdomainDemo() {
         </Card>
 
         {/* Known Active Subdomains */}
-        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-sage-green/20">
+        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-warm-gold/20">
           <CardHeader>
             <CardTitle className="flex items-center text-charcoal">
-              <Church className="h-5 w-5 mr-2 text-sage-green" />
+              <Church className="h-5 w-5 mr-2 text-warm-gold" />
               Active Church Subdomains
             </CardTitle>
             <CardDescription className="text-charcoal/70">
@@ -147,7 +147,7 @@ export default function SubdomainDemo() {
                 <div key={church.name} className="p-4 border border-spiritual-blue/20 rounded-lg hover:shadow-md hover:border-spiritual-blue/40 transition-all">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-charcoal">{church.org}</h4>
-                    <Badge variant="secondary" className="bg-sage-green/20 text-sage-green border-sage-green/30">Active</Badge>
+                    <Badge variant="secondary" className="bg-warm-gold/20 text-warm-gold border-warm-gold/30">Active</Badge>
                   </div>
                   <p className="text-sm text-charcoal/70 mb-3">{church.description}</p>
                   <div className="space-y-2">
@@ -158,7 +158,7 @@ export default function SubdomainDemo() {
                       <Button 
                         size="sm" 
                         variant="outline"
-                        className="border-sage-green/30 text-sage-green hover:bg-sage-green hover:text-white"
+                        className="border-warm-gold/30 text-warm-gold hover:bg-warm-gold hover:text-white"
                         onClick={() => {
                           setTestSubdomain(church.name);
                           setShowLanding(true);
@@ -168,7 +168,7 @@ export default function SubdomainDemo() {
                       </Button>
                       <Button 
                         size="sm"
-                        className="bg-gradient-to-r from-spiritual-blue to-sage-green hover:from-spiritual-blue/90 hover:to-sage-green/90 text-white"
+                        className="bg-gradient-to-r from-spiritual-blue to-warm-gold hover:from-spiritual-blue/90 hover:to-warm-gold/90 text-white"
                         onClick={() => window.open(testSubdomainUrl(church.name), '_blank')}
                       >
                         <ExternalLink className="h-3 w-3 mr-1" />
@@ -203,7 +203,7 @@ export default function SubdomainDemo() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-sage-green mb-3">✅ New: Subdomains</h4>
+                <h4 className="font-semibold text-warm-gold mb-3">✅ New: Subdomains</h4>
                 <ul className="space-y-2 text-sm text-charcoal/70">
                   <li>• Professional: "fwc.kingdomops.app"</li>
                   <li>• Easy to remember and share</li>
@@ -234,7 +234,7 @@ export default function SubdomainDemo() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-3 text-sage-green">For Members</h4>
+                <h4 className="font-semibold mb-3 text-warm-gold">For Members</h4>
                 <ul className="space-y-2 text-sm text-charcoal/70">
                   <li>• Intuitive church-specific URLs</li>
                   <li>• Seamless assessment experience</li>

@@ -42,7 +42,7 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/10 to-sage-green/10 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/10 to-warm-gold/10 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <div className="text-center">
@@ -57,7 +57,7 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
 
   if (error || !orgInfo) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/10 to-sage-green/10 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/10 to-warm-gold/10 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
@@ -85,18 +85,18 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/10 to-sage-green/10">
+    <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/10 to-warm-gold/10">
       {/* Header */}
       <header className="bg-white/95 backdrop-blur-sm border-b border-spiritual-blue/20 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-br from-spiritual-blue to-sage-green text-white p-2 rounded-lg shadow-md">
+              <div className="bg-gradient-to-br from-spiritual-blue to-warm-gold text-white p-2 rounded-lg shadow-md">
                 <Church className="h-6 w-6" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-charcoal">{orgInfo.name}</h1>
-                <p className="text-sm text-sage-green font-medium">{subdomain}.kingdomops.app</p>
+                <p className="text-sm text-warm-gold font-medium">{subdomain}.kingdomops.app</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
@@ -109,7 +109,7 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
               </Button>
               <Button 
                 onClick={() => setLocation('/auth')}
-                className="bg-gradient-to-r from-spiritual-blue to-sage-green hover:from-spiritual-blue/90 hover:to-sage-green/90 text-white shadow-lg"
+                className="bg-gradient-to-r from-spiritual-blue to-warm-gold hover:from-spiritual-blue/90 hover:to-warm-gold/90 text-white shadow-lg"
                 data-testid="button-join"
               >
                 Join Assessment
@@ -149,9 +149,9 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
             </CardContent>
           </Card>
 
-          <Card className="text-center border-sage-green/20 hover:shadow-lg transition-shadow">
+          <Card className="text-center border-warm-gold/20 hover:shadow-lg transition-shadow">
             <CardHeader>
-              <Users className="h-8 w-8 text-sage-green mx-auto mb-2" />
+              <Users className="h-8 w-8 text-warm-gold mx-auto mb-2" />
               <CardTitle className="text-lg text-charcoal">Find Your Team</CardTitle>
             </CardHeader>
             <CardContent>
@@ -214,7 +214,7 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
         )}
 
         {/* Call to Action */}
-        <Card className="bg-gradient-to-r from-spiritual-blue to-sage-green text-white">
+        <Card className="bg-gradient-to-r from-spiritual-blue to-warm-gold text-white">
           <CardContent className="text-center py-8">
             <h2 className="text-2xl font-bold mb-4">Ready to Discover Your Calling?</h2>
             <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
