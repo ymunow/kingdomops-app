@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

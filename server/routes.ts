@@ -6,7 +6,7 @@ import { giftContent } from "./content/gifts";
 import { emailService } from "./services/email";
 import { sendEmail } from "./services/email-service";
 import { generateChurchWelcomeEmail } from "./services/email-templates";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupSupabaseAuth, isAuthenticated } from "./supabaseAuth";
 import {
   requirePermission,
   requireRole,
@@ -40,13 +40,12 @@ const assessmentLimiter = rateLimit({
 
 // Legacy admin check middleware (updated to use new roles)
 function requireAdmin(req: any, res: any, next: any) {
-  const userId = req.user?.claims?.sub;
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
   
   // Get user from storage to check role
-  
   storage.getUser(userId as string).then(user => {
     if (!user || !["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN"].includes(user.role)) {
       return res.status(403).json({ message: "Admin access required" });
@@ -59,7 +58,7 @@ function requireAdmin(req: any, res: any, next: any) {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
+  await setupSupabaseAuth(app);
 
   // Initialize seed data if needed
   let activeVersion = await storage.getActiveAssessmentVersion();

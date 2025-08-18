@@ -4,7 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useAuth } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/useSupabaseAuth";
+import AuthPage from "@/pages/auth";
 import { initializeCacheManagement } from "./utils/cache-management";
 import ProfileCompletionModal from "@/components/profile/profile-completion-modal";
 import Landing from "@/pages/landing";
@@ -22,7 +23,11 @@ import JoinCongregation from "@/pages/join-congregation";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading, needsProfileCompletion, user } = useAuth();
+  const { user, isLoading, session } = useAuth();
+  const isAuthenticated = !!user;
+  
+  // For now, skip profile completion check - we'll implement this later
+  const needsProfileCompletion = false;
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -45,26 +50,13 @@ function Router() {
       />
       
       <Switch>
-        <Route path="/" component={Landing} />
-        <Route path="/results/:responseId" component={Results} />
-        
-        {/* Public routes for church and congregation signup */}
-        <Route path="/church-signup" component={ChurchSignup} />
-        <Route path="/church-admin-welcome" component={ChurchAdminWelcome} />
-        <Route path="/join" component={JoinCongregation} />
-        {/* Legacy route - redirect to invite code flow */}
-        <Route path="/join/:orgId" component={CongregationSignup} />
-        
-        {/* Anonymous assessment temporarily disabled - focus on church-based assessments
-        <Route path="/anonymous-assessment" component={AnonymousAssessment} />
-        */}
-        
-        {/* Protected routes - only render if authenticated and profile completed */}
-        {isAuthenticated && !needsProfileCompletion && (
+        {isAuthenticated ? (
           <>
+            <Route path="/" component={Landing} />
             <Route path="/assessment" component={Assessment} />
             <Route path="/my-results" component={MyResults} />
             <Route path="/profile" component={Profile} />
+            <Route path="/results/:responseId" component={Results} />
             
             {/* Admin routes - only for admin-level roles */}
             {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
@@ -73,6 +65,17 @@ function Router() {
                 <Route path="/admin-dashboard" component={AdminDashboard} />
               </>
             )}
+          </>
+        ) : (
+          <>
+            <Route path="/" component={AuthPage} />
+            <Route path="/auth" component={AuthPage} />
+            
+            {/* Public routes for church and congregation signup */}
+            <Route path="/church-signup" component={ChurchSignup} />
+            <Route path="/join" component={JoinCongregation} />
+            <Route path="/join/:orgId" component={CongregationSignup} />
+            <Route path="/results/:responseId" component={Results} />
           </>
         )}
         
@@ -91,10 +94,12 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
