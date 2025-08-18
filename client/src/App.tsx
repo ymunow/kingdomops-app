@@ -50,17 +50,21 @@ function Router() {
       />
       
       <Switch>
-        {/* Public routes available to everyone */}
+        {/* Homepage - always shows Landing page */}
+        <Route path="/" component={Landing} />
+        
+        {/* Authentication routes */}
         <Route path="/auth" component={AuthPage} />
+        
+        {/* Public routes available to everyone */}
         <Route path="/church-signup" component={ChurchSignup} />
         <Route path="/join" component={JoinCongregation} />
         <Route path="/join/:orgId" component={CongregationSignup} />
         <Route path="/results/:responseId" component={Results} />
         
-        {isAuthenticated ? (
+        {/* Protected routes - only for authenticated users */}
+        {isAuthenticated && (
           <>
-            {/* Authenticated user routes */}
-            <Route path="/" component={Landing} />
             <Route path="/assessment" component={Assessment} />
             <Route path="/my-results" component={MyResults} />
             <Route path="/profile" component={Profile} />
@@ -72,11 +76,6 @@ function Router() {
                 <Route path="/admin-dashboard" component={AdminDashboard} />
               </>
             )}
-          </>
-        ) : (
-          <>
-            {/* Public landing page for non-authenticated users */}
-            <Route path="/" component={Landing} />
           </>
         )}
         
