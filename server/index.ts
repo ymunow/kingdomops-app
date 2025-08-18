@@ -50,6 +50,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'default-dev-secret-change-in-production',
   resave: false,
   saveUninitialized: false,
+  name: 'viewas.sid', // Use a custom session name to avoid conflicts
   store: new PostgresSessionStore({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: false,
@@ -57,9 +58,10 @@ app.use(session({
     tableName: "sessions"
   }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to false for development
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'lax' // Add sameSite for better compatibility
   }
 }));
 

@@ -57,18 +57,22 @@ export default function MemberDashboard() {
   const latestResult = results[0]; // Most recent result
 
   const handleStartAssessment = () => {
+    console.log("Starting assessment, navigating to /assessment");
     setLocation("/assessment");
   };
 
   const handleViewResults = () => {
+    console.log("Viewing results, navigating to /my-results");
     setLocation("/my-results");
   };
 
   const handleViewProfile = () => {
+    console.log("Viewing profile, navigating to /profile");
     setLocation("/profile");
   };
 
   const handleLogout = () => {
+    console.log("Logging out");
     signOutMutation.mutate();
   };
 
