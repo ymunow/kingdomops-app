@@ -62,6 +62,16 @@ export interface IStorage {
   completeUserProfile(userId: string, profileData: ProfileCompletionData): Promise<User>;
   getUsersByOrganization(organizationId: string, filters?: AdminFilters): Promise<UserWithResults[]>;
   updateUserRole(userId: string, role: OrganizationRole): Promise<User>;
+  updateUserStatus(userId: string, status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'): Promise<User>;
+  deleteUser(userId: string): Promise<boolean>;
+  updateUserPassword(userId: string, hashedPassword: string): Promise<User>;
+  getAllUsers(): Promise<User[]>;
+  
+  // Super Admin platform management
+  getPlatformMetrics(): Promise<any>;
+  getAllOrganizationsWithStats(): Promise<any[]>;
+  getSystemSettings(): Promise<any>;
+  updateSystemSettings(settings: any): Promise<any>;
 
   // Assessment Version operations
   getActiveAssessmentVersion(): Promise<AssessmentVersion | undefined>;
