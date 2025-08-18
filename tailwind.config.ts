@@ -61,34 +61,34 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
-        // Spiritual theme colors
+        // Kingdom Ops Brand Colors
         "spiritual-blue": {
-          DEFAULT: "var(--spiritual-blue)",
-          50: "#eff6ff",
-          100: "#dbeafe",
-          200: "#bfdbfe",
-          300: "#93c5fd",
-          400: "#60a5fa",
-          500: "#3b82f6",
-          600: "#2563eb",
-          700: "#1d4ed8",
-          800: "#1e40af", // Main spiritual-blue
-          900: "#1e3a8a",
-          950: "#172554",
+          DEFAULT: "#250A34", // Primary brand color
+          50: "#f8f6fc",
+          100: "#ede8f5",
+          200: "#d8d0eb",
+          300: "#b9a9db",
+          400: "#9277c6",
+          500: "#7450b3",
+          600: "#5f3a98",
+          700: "#4f2f7b",
+          800: "#432765",
+          900: "#250A34", // Main spiritual-blue
+          950: "#1a0828",
         },
         "warm-gold": {
-          DEFAULT: "var(--warm-gold)",
-          50: "#fffbeb",
-          100: "#fef3c7",
-          200: "#fde68a",
-          300: "#fcd34d",
-          400: "#fbbf24",
-          500: "#f59e0b", // Main warm-gold
-          600: "#d97706",
-          700: "#b45309",
-          800: "#92400e",
-          900: "#78350f",
-          950: "#451a03",
+          DEFAULT: "#EEBC4C", // Secondary brand color
+          50: "#fefbf3",
+          100: "#fdf4e1",
+          200: "#fbe7c2",
+          300: "#f7d397",
+          400: "#f2b86a",
+          500: "#eebc4c", // Main warm-gold
+          600: "#e6a635",
+          700: "#be852c",
+          800: "#976829",
+          900: "#7a5425",
+          950: "#4a3318",
         },
         "sage-green": {
           DEFAULT: "var(--sage-green)",

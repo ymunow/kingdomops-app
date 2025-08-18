@@ -36,11 +36,11 @@
   --sidebar-border: hsl(205.0000, 25.0000%, 90.5882%);
   --sidebar-ring: hsl(202.8169, 89.1213%, 53.1373%);
   
-  /* Custom spiritual theme colors */
-  --spiritual-blue: hsl(279, 68%, 12%);
-  --warm-gold: hsl(42, 92%, 49%);
+  /* Custom spiritual theme colors - Kingdom Ops Brand */
+  --spiritual-blue: hsl(270, 83%, 11%); /* #250A34 */
+  --warm-gold: hsl(43, 80%, 60%); /* #EEBC4C */
   --sage-green: hsl(159, 65%, 40%);
-  --soft-cream: hsl(56, 96%, 96%);
+  --soft-cream: hsl(0, 0%, 100%); /* White */
   --charcoal: hsl(220, 13%, 26%);
   
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
