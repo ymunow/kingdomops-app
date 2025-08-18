@@ -12,8 +12,18 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Get auth token from query client cache if available
-  const authToken = queryClient.getQueryData(['authToken']) as string;
+  // Get Supabase session token from localStorage
+  const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
+  let authToken = null;
+  
+  if (supabaseSession) {
+    try {
+      const session = JSON.parse(supabaseSession);
+      authToken = session?.access_token;
+    } catch (e) {
+      console.warn('Failed to parse Supabase session:', e);
+    }
+  }
   
   const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
   if (authToken) {
@@ -37,8 +47,18 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Get auth token from query client cache if available
-    const authToken = queryClient.getQueryData(['authToken']) as string;
+    // Get Supabase session token from localStorage
+    const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
+    let authToken = null;
+    
+    if (supabaseSession) {
+      try {
+        const session = JSON.parse(supabaseSession);
+        authToken = session?.access_token;
+      } catch (e) {
+        console.warn('Failed to parse Supabase session:', e);
+      }
+    }
     
     const headers: Record<string, string> = {};
     if (authToken) {
