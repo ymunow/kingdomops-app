@@ -17,6 +17,7 @@ import Admin from "@/pages/admin";
 import AdminDashboard from "@/pages/admin-dashboard";
 import AdminPlatform from "@/pages/admin-platform";
 import AdminOrganizations from "@/pages/admin-organizations";
+import AdminOrganizationDetail from "@/pages/admin-organization-detail";
 import AdminSystem from "@/pages/admin-system";
 import MemberDashboard from "@/pages/member-dashboard";
 import Profile from "@/pages/profile";
@@ -81,6 +82,7 @@ function Router() {
                 <Route path="/admin-dashboard" component={AdminDashboard} />
                 <Route path="/admin/platform" component={AdminPlatform} />
                 <Route path="/admin/organizations" component={AdminOrganizations} />
+                <Route path="/admin/organizations/:id" component={AdminOrganizationDetail} />
                 <Route path="/admin/system" component={AdminSystem} />
               </>
             )}

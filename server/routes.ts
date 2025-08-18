@@ -1062,6 +1062,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Super Admin single organization detail endpoint
+  app.get("/api/super-admin/organizations/:orgId", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { orgId } = req.params;
+      const organization = await storage.getOrganization(orgId);
+      
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+
+      // Get stats for the organization
+      const metrics = await storage.getDashboardMetrics(orgId);
+      const totalUsers = await storage.getUserCountByOrganization(orgId);
+      
+      const orgDetail = {
+        ...organization,
+        totalUsers,
+        totalAssessments: metrics.totalCompletions || 0,
+        activeUsers: totalUsers, // For now, assume all users are active
+        completionRate: totalUsers > 0 ? Math.round((metrics.totalCompletions / totalUsers) * 100) : 0
+      };
+      
+      res.json(orgDetail);
+    } catch (error) {
+      console.error("Get organization detail error:", error);
+      res.status(500).json({ message: "Failed to get organization details" });
+    }
+  });
+
   // Super Admin Organizations endpoint - lists all organizations with stats for admin management  
   app.get("/api/super-admin/organizations", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {
