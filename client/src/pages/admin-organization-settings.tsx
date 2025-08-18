@@ -23,6 +23,7 @@ import {
   Users
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { SubdomainManagement } from "@/components/admin/subdomain-management";
 
 interface OrganizationSettings {
   id: string;
@@ -318,6 +319,22 @@ export default function AdminOrganizationSettings() {
                   </p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Subdomain Management */}
+          <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-charcoal flex items-center">
+                <Globe className="h-5 w-5 mr-2" />
+                Web Address Management
+              </CardTitle>
+              <CardDescription>
+                Manage your church's professional web address and sharing links
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SubdomainManagement organization={organization} />
             </CardContent>
           </Card>
 

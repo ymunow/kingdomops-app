@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Church, Mail, Globe, MapPin, User, ArrowRight } from "lucide-react";
+import { SubdomainSelector, SubdomainPreview } from "@/components/subdomain/subdomain-selector";
 
 const churchSignupSchema = z.object({
   churchName: z.string().min(2, "Church name must be at least 2 characters"),
@@ -29,9 +30,8 @@ const churchSignupSchema = z.object({
   description: z.string().min(10, "Please provide a brief description of your church"),
   subdomain: z.string()
     .min(3, "Subdomain must be at least 3 characters")
-    .max(20, "Subdomain must be less than 20 characters")
-    .regex(/^[a-z0-9-]+$/, "Subdomain can only contain lowercase letters, numbers, and hyphens")
-    .optional()
+    .max(30, "Subdomain must be less than 30 characters")
+    .regex(/^[a-z0-9]([a-z0-9-]{1,28}[a-z0-9])?$/, "Invalid subdomain format")
 });
 
 type ChurchSignupData = z.infer<typeof churchSignupSchema>;
@@ -213,20 +213,15 @@ export default function ChurchSignup() {
                     control={form.control}
                     name="subdomain"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center">
-                          Church Identifier (Optional)
-                        </FormLabel>
+                      <FormItem className="md:col-span-2">
                         <FormControl>
-                          <Input 
-                            placeholder="fwc-columbia" 
-                            {...field} 
-                            data-testid="input-subdomain"
+                          <SubdomainSelector
+                            value={field.value || ''}
+                            onChange={field.onChange}
+                            error={form.formState.errors.subdomain?.message}
+                            disabled={isSubmitting}
                           />
                         </FormControl>
-                        <div className="text-xs text-gray-600 mt-1">
-                          A unique identifier for your church (for organization purposes only)
-                        </div>
                         <FormMessage />
                       </FormItem>
                     )}

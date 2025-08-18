@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { subdomainMiddleware, type SubdomainRequest } from "./subdomain";
 import { scoreGifts } from "../client/src/lib/hardened-scoring";
 import { giftContent } from "./content/gifts";
 import { emailService } from "./services/email";
@@ -68,8 +69,15 @@ function requireAdmin(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Subdomain detection middleware
+  app.use(subdomainMiddleware);
+  
   // Auth middleware
   await setupSupabaseAuth(app);
+
+  // Subdomain routes
+  const subdomainRoutes = await import('./routes/subdomain');
+  app.use(subdomainRoutes.default);
 
   // Initialize seed data if needed
   let activeVersion = await storage.getActiveAssessmentVersion();

@@ -12,6 +12,8 @@ import { initializeCacheManagement } from "./utils/cache-management";
 import ProfileCompletionModal from "@/components/profile/profile-completion-modal";
 import Landing from "@/pages/landing";
 import Assessment from "@/pages/assessment";
+import { SubdomainLanding } from "@/components/subdomain/subdomain-landing";
+import { useSubdomain } from "@/hooks/use-subdomain";
 import AnonymousAssessment from "@/pages/anonymous-assessment";
 import Results from "@/pages/results";
 import MyResults from "@/pages/my-results";
@@ -30,11 +32,13 @@ import ChurchSignup from "@/pages/church-signup";
 import ChurchAdminWelcome from "@/pages/church-admin-welcome";
 import CongregationSignup from "@/pages/congregation-signup";
 import JoinCongregation from "@/pages/join-congregation";
+import SubdomainDemo from "@/pages/subdomain-demo";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   const { user, isLoading, session } = useAuth();
   const isAuthenticated = !!user;
+  const { subdomain, organization, isSubdomainMode, hasValidOrganization } = useSubdomain();
   
   // For now, skip profile completion check - we'll implement this later
   const needsProfileCompletion = false;
@@ -65,6 +69,33 @@ function Router() {
     );
   }
 
+  // Handle subdomain-based routing
+  if (isSubdomainMode) {
+    if (hasValidOrganization) {
+      // Show subdomain landing page
+      return (
+        <>
+          <ProfileCompletionModal 
+            isOpen={needsProfileCompletion} 
+            userEmail={(user as any)?.email} 
+          />
+          <SubdomainLanding subdomain={subdomain!} />
+        </>
+      );
+    } else {
+      // Invalid subdomain
+      return (
+        <>
+          <ProfileCompletionModal 
+            isOpen={needsProfileCompletion} 
+            userEmail={(user as any)?.email} 
+          />
+          <SubdomainLanding subdomain={subdomain!} />
+        </>
+      );
+    }
+  }
+
   return (
     <>
       {/* Profile Completion Modal - shown when user needs to complete profile */}
@@ -82,6 +113,7 @@ function Router() {
         <Route path="/join" component={JoinCongregation} />
         <Route path="/join/:orgId" component={CongregationSignup} />
         <Route path="/results/:responseId" component={Results} />
+        <Route path="/subdomain-demo" component={SubdomainDemo} />
         
         {/* Homepage routing - different for authenticated vs non-authenticated */}
         {isAuthenticated ? (
