@@ -13,6 +13,8 @@ declare global {
         };
         organizationId?: string;
         role?: OrganizationRole;
+        id?: string;
+        email?: string;
       };
     }
   }

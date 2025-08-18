@@ -30,6 +30,10 @@ export async function setupSupabaseAuth(app: Express) {
             firstName: user.user_metadata?.first_name,
             lastName: user.user_metadata?.last_name,
             profileImageUrl: user.user_metadata?.avatar_url,
+            claims: {
+              sub: user.id,
+              email: user.email,
+            }
           };
           
           // Ensure user exists in our database
