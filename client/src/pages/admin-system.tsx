@@ -327,7 +327,7 @@ export default function AdminSystem() {
                 <CardDescription>View and manage all platform users</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
                   <div className="flex-1">
                     <Input
                       placeholder="Search users by email or name..."
@@ -336,75 +336,19 @@ export default function AdminSystem() {
                       data-testid="input-search-users"
                     />
                   </div>
-                  <div className="flex gap-2">
-                    <Select value={selectedRole} onValueChange={setSelectedRole}>
-                      <SelectTrigger className="w-48" data-testid="select-role-filter">
-                        <SelectValue placeholder="Filter by role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ALL">All Roles</SelectItem>
-                        <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
-                        <SelectItem value="ORG_OWNER">Org Owner</SelectItem>
-                        <SelectItem value="ORG_ADMIN">Org Admin</SelectItem>
-                        <SelectItem value="ORG_LEADER">Org Leader</SelectItem>
-                        <SelectItem value="PARTICIPANT">Participant</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button variant="outline" data-testid="button-bulk-actions">
-                      Bulk Actions
-                    </Button>
-                    <Button variant="outline" data-testid="button-export-users">
-                      <Download className="mr-2 h-4 w-4" />
-                      Export
-                    </Button>
-                    <Button variant="outline" data-testid="button-import-users">
-                      <Upload className="mr-2 h-4 w-4" />
-                      Import
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Security & Analytics Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-blue-700">Active Sessions</p>
-                        <p className="text-2xl font-bold text-blue-900">127</p>
-                      </div>
-                      <Activity className="h-8 w-8 text-blue-600" />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-green-700">Profile Complete</p>
-                        <p className="text-2xl font-bold text-green-900">89%</p>
-                      </div>
-                      <Users className="h-8 w-8 text-green-600" />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-orange-700">Failed Logins (24h)</p>
-                        <p className="text-2xl font-bold text-orange-900">12</p>
-                      </div>
-                      <AlertTriangle className="h-8 w-8 text-orange-600" />
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-purple-700">Dormant Users</p>
-                        <p className="text-2xl font-bold text-purple-900">23</p>
-                      </div>
-                      <Bell className="h-8 w-8 text-purple-600" />
-                    </div>
-                  </div>
+                  <Select value={selectedRole} onValueChange={setSelectedRole}>
+                    <SelectTrigger className="w-full md:w-48" data-testid="select-role-filter">
+                      <SelectValue placeholder="Filter by role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">All Roles</SelectItem>
+                      <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
+                      <SelectItem value="ORG_OWNER">Org Owner</SelectItem>
+                      <SelectItem value="ORG_ADMIN">Org Admin</SelectItem>
+                      <SelectItem value="ORG_LEADER">Org Leader</SelectItem>
+                      <SelectItem value="PARTICIPANT">Participant</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>
@@ -430,12 +374,9 @@ export default function AdminSystem() {
                       {filteredUsers.map((systemUser) => (
                         <tr key={systemUser.id} className="border-b hover:bg-gray-50">
                           <td className="p-4">
-                            <div className="flex items-center gap-3">
-                              <input type="checkbox" className="rounded" />
-                              <div>
-                                <p className="font-medium text-charcoal">{systemUser.name || systemUser.email}</p>
-                                <p className="text-sm text-gray-500">{systemUser.email}</p>
-                              </div>
+                            <div>
+                              <p className="font-medium text-charcoal">{systemUser.name || systemUser.email}</p>
+                              <p className="text-sm text-gray-500">{systemUser.email}</p>
                             </div>
                           </td>
                           <td className="p-4">
@@ -447,58 +388,28 @@ export default function AdminSystem() {
                             </Badge>
                           </td>
                           <td className="p-4">
-                            <div className="flex flex-col gap-1">
-                              <Badge className={getStatusColor(systemUser.status)}>
-                                {systemUser.status}
-                              </Badge>
-                              {systemUser.status === 'SUSPENDED' && (
-                                <span className="text-xs text-red-600">Security</span>
-                              )}
-                            </div>
+                            <Badge className={getStatusColor(systemUser.status)}>
+                              {systemUser.status}
+                            </Badge>
                           </td>
                           <td className="p-4">
-                            <div>
-                              <span className="text-sm text-gray-500">
-                                {systemUser.lastActive ? new Date(systemUser.lastActive).toLocaleDateString() : 'Never'}
-                              </span>
-                              {systemUser.lastActive && new Date(systemUser.lastActive) < new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) && (
-                                <div className="text-xs text-orange-600">Inactive 30+ days</div>
-                              )}
-                            </div>
+                            <span className="text-sm text-gray-500">
+                              {systemUser.lastActive ? new Date(systemUser.lastActive).toLocaleDateString() : 'Never'}
+                            </span>
                           </td>
                           <td className="p-4">
-                            <div className="flex gap-2">
-                              <Select onValueChange={(role) => updateUserRoleMutation.mutate({ userId: systemUser.id, role })}>
-                                <SelectTrigger className="w-32" data-testid={`select-role-${systemUser.id}`}>
-                                  <SelectValue placeholder="Role" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
-                                  <SelectItem value="ORG_OWNER">Org Owner</SelectItem>
-                                  <SelectItem value="ORG_ADMIN">Org Admin</SelectItem>
-                                  <SelectItem value="ORG_LEADER">Org Leader</SelectItem>
-                                  <SelectItem value="PARTICIPANT">Participant</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => console.log('Reset password for', systemUser.id)}
-                                data-testid={`button-reset-password-${systemUser.id}`}
-                              >
-                                <Key className="h-3 w-3" />
-                              </Button>
-                              
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => console.log('View sessions for', systemUser.id)}
-                                data-testid={`button-view-sessions-${systemUser.id}`}
-                              >
-                                <Shield className="h-3 w-3" />
-                              </Button>
-                            </div>
+                            <Select onValueChange={(role) => updateUserRoleMutation.mutate({ userId: systemUser.id, role })}>
+                              <SelectTrigger className="w-32" data-testid={`select-role-${systemUser.id}`}>
+                                <SelectValue placeholder="Change Role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
+                                <SelectItem value="ORG_OWNER">Org Owner</SelectItem>
+                                <SelectItem value="ORG_ADMIN">Org Admin</SelectItem>
+                                <SelectItem value="ORG_LEADER">Org Leader</SelectItem>
+                                <SelectItem value="PARTICIPANT">Participant</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </td>
                         </tr>
                       ))}
