@@ -68,31 +68,31 @@ export async function seedDatabase() {
         versionId: defaultVersion.id,
         text: "I enjoy organizing events and bringing people together for a common purpose.",
         giftKey: "LEADERSHIP_ORG",
-        order: 1
+        orderIndex: 1
       },
       {
         versionId: defaultVersion.id,
         text: "I find great satisfaction in explaining biblical concepts to others.",
         giftKey: "TEACHING",
-        order: 2
+        orderIndex: 2
       },
       {
         versionId: defaultVersion.id,
         text: "I often receive insights about situations that help guide important decisions.",
         giftKey: "WISDOM_INSIGHT",
-        order: 3
+        orderIndex: 3
       },
       {
         versionId: defaultVersion.id,
         text: "I can sense when something is not spiritually right in a situation.",
         giftKey: "PROPHETIC_DISCERNMENT",
-        order: 4
+        orderIndex: 4
       },
       {
         versionId: defaultVersion.id,
         text: "I love encouraging others and helping them see their potential.",
         giftKey: "EXHORTATION",
-        order: 5
+        orderIndex: 5
       }
     ];
 
