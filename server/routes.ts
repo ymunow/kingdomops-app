@@ -1196,8 +1196,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .sort((a, b) => b.count - a.count)
         .slice(0, 8);
 
-      // Get age distribution with percentages
-      const ageDistribution = Object.entries(metrics.ageGroupDistribution || {})
+      // Get age distribution from all users (not just assessment completions)
+      const ageGroupCounts: Record<string, number> = {};
+      allUsers.forEach(user => {
+        if (user.ageRange) {
+          ageGroupCounts[user.ageRange] = (ageGroupCounts[user.ageRange] || 0) + 1;
+        }
+      });
+
+      const ageDistribution = Object.entries(ageGroupCounts)
         .map(([ageRange, count]) => ({
           ageRange,
           count,
