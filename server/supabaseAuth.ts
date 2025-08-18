@@ -23,20 +23,8 @@ export async function setupSupabaseAuth(app: Express) {
         const { data: { user }, error } = await supabase.auth.getUser(token);
         if (user && !error) {
           console.log('Auth middleware - User authenticated:', user.email);
-          // Store user info in request for downstream middleware
-          req.user = {
-            id: user.id,
-            email: user.email,
-            firstName: user.user_metadata?.first_name,
-            lastName: user.user_metadata?.last_name,
-            profileImageUrl: user.user_metadata?.avatar_url,
-            claims: {
-              sub: user.id,
-              email: user.email,
-            }
-          };
           
-          // Ensure user exists in our database
+          // Ensure user exists in our database and get full user info
           await storage.upsertUser({
             id: user.id,
             email: user.email,
@@ -44,6 +32,24 @@ export async function setupSupabaseAuth(app: Express) {
             lastName: user.user_metadata?.last_name,
             profileImageUrl: user.user_metadata?.avatar_url,
           });
+          
+          // Get full user info including role and organizationId from database
+          const dbUser = await storage.getUser(user.id);
+          
+          // Store complete user info in request for downstream middleware
+          req.user = {
+            id: user.id,
+            email: user.email,
+            firstName: user.user_metadata?.first_name,
+            lastName: user.user_metadata?.last_name,
+            profileImageUrl: user.user_metadata?.avatar_url,
+            role: dbUser?.role,
+            organizationId: dbUser?.organizationId,
+            claims: {
+              sub: user.id,
+              email: user.email,
+            }
+          };
         } else {
           console.log('Auth middleware - Token invalid:', error?.message);
         }

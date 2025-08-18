@@ -1161,6 +1161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hasAccess = isSuperAdmin || isOrgMember;
       
       console.log('Church overview access check:', { 
+        user: user,
         userRole: user.role, 
         userOrgId: user.organizationId, 
         requestedOrgId: orgId,
