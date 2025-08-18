@@ -92,8 +92,8 @@ export default function SubdomainDemo() {
                       <span className="font-medium">Subdomain exists!</span>
                     </div>
                     <div className="bg-white p-3 rounded border">
-                      <h4 className="font-semibold">{orgInfo.name}</h4>
-                      <p className="text-sm text-gray-600 mt-1">{orgInfo.description}</p>
+                      <h4 className="font-semibold">{(orgInfo as any)?.name || 'Unknown Organization'}</h4>
+                      <p className="text-sm text-gray-600 mt-1">{(orgInfo as any)?.description || 'No description available'}</p>
                       <div className="flex items-center justify-between mt-3">
                         <div className="text-sm font-mono bg-blue-100 px-2 py-1 rounded">
                           {testSubdomain}.kingdomops.app
