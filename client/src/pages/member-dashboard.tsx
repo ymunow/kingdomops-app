@@ -159,17 +159,17 @@ export default function MemberDashboard() {
         {/* View Context Indicator for Super Admins */}
         {user?.role === 'SUPER_ADMIN' && (
           <div className="mb-6">
-            {viewContext?.viewContext || user?.viewContext?.isViewingAs ? (
+            {viewContext?.viewContext ? (
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <User className="h-5 w-5 text-amber-600 mr-2" />
                     <div>
                       <h3 className="font-medium text-amber-800">
-                        Viewing as {(user?.viewContext?.role || viewContext?.viewContext?.role || 'member').replace('_', ' ').toLowerCase()}
+                        Viewing as {(viewContext?.viewContext?.role || 'member').replace('_', ' ').toLowerCase()}
                       </h3>
                       <p className="text-sm text-amber-700">
-                        Organization: {user?.viewContext?.organizationName || viewContext?.viewContext?.organizationName || 'Current Organization'}
+                        Organization: {viewContext?.viewContext?.organizationName || 'Current Organization'}
                       </p>
                     </div>
                   </div>
@@ -348,9 +348,11 @@ export default function MemberDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Primary Action Card */}
+          {/* Conditional Primary Content Based on Role */}
           <div className="lg:col-span-2">
-            <Card className="border-spiritual-blue border-2">
+            {/* MEMBER ROLE: Show Assessment Card ONLY */}
+            {(effectiveRole === "PARTICIPANT" || currentViewType === "PARTICIPANT") && (
+              <Card className="border-spiritual-blue border-2">
               <CardHeader className="text-center pb-4">
                 <div className="inline-block p-3 bg-spiritual-blue/10 rounded-full mb-4">
                   {hasCompletedAssessment ? (
@@ -431,6 +433,130 @@ export default function MemberDashboard() {
                 )}
               </CardContent>
             </Card>
+            )}
+
+            {/* SUPER ADMIN: Show Platform Metrics - NO personal assessment data */}
+            {effectiveRole === "SUPER_ADMIN" && !currentViewType && (
+              <Card className="border-purple-200 border-2">
+                <CardHeader className="text-center pb-4">
+                  <div className="inline-block p-3 bg-purple-100 rounded-full mb-4">
+                    <BarChart3 className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <CardTitle className="text-2xl text-gray-900">Platform Metrics</CardTitle>
+                  <CardDescription className="text-gray-600">
+                    KingdomOps platform overview and system analytics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-900">
+                        1
+                      </div>
+                      <div className="text-sm text-gray-600">Total Churches</div>
+                    </div>
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-900">
+                        {results.length}
+                      </div>
+                      <div className="text-sm text-gray-600">Platform Assessments</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Button onClick={() => setLocation('/admin')} className="w-full" data-testid="button-platform-overview">
+                      <Church className="mr-2 h-4 w-4" />
+                      Manage Churches
+                    </Button>
+                    <Button variant="outline" onClick={() => setLocation('/admin')} className="w-full" data-testid="button-system-admin">
+                      <Settings className="mr-2 h-4 w-4" />
+                      System Admin
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* CHURCH ADMIN: Show Church Management - NO personal assessment unless they have participant profile */}
+            {(effectiveRole === "ORG_ADMIN" || currentViewType === "ORG_ADMIN") && (
+              <Card className="border-blue-200 border-2">
+                <CardHeader className="text-center pb-4">
+                  <div className="inline-block p-3 bg-blue-100 rounded-full mb-4">
+                    <Users className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-2xl text-gray-900">Church Management</CardTitle>
+                  <CardDescription className="text-gray-600">
+                    Manage users, assessments, and ministry assignments for {organization?.name || 'your church'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-900">
+                        {results.length}
+                      </div>
+                      <div className="text-sm text-gray-600">Assessments Completed</div>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-900">
+                        Active
+                      </div>
+                      <div className="text-sm text-gray-600">Church Status</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Button onClick={() => setLocation('/admin')} className="w-full" data-testid="button-manage-church-users">
+                      <User className="mr-2 h-4 w-4" />
+                      Manage Church Users
+                    </Button>
+                    <Button variant="outline" onClick={() => setLocation('/admin')} className="w-full" data-testid="button-assessment-reports">
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Assessment Reports
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* CHURCH LEADER: Show Ministry Team Management - NO church-wide stats */}
+            {(effectiveRole === "ORG_LEADER" || currentViewType === "ORG_LEADER") && (
+              <Card className="border-green-200 border-2">
+                <CardHeader className="text-center pb-4">
+                  <div className="inline-block p-3 bg-green-100 rounded-full mb-4">
+                    <Users className="h-8 w-8 text-green-600" />
+                  </div>
+                  <CardTitle className="text-2xl text-gray-900">Ministry Team</CardTitle>
+                  <CardDescription className="text-gray-600">
+                    Manage your ministry team members and track their assessment progress
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-900">
+                        {results.length}
+                      </div>
+                      <div className="text-sm text-gray-600">Team Assessments</div>
+                    </div>
+                    <div className="text-center p-4 bg-amber-50 rounded-lg">
+                      <div className="text-2xl font-bold text-amber-900">
+                        Active
+                      </div>
+                      <div className="text-sm text-gray-600">Ministry Status</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <Button className="w-full" data-testid="button-manage-team-members">
+                      <Users className="mr-2 h-4 w-4" />
+                      Manage Team Members
+                    </Button>
+                    <Button variant="outline" onClick={handleViewResults} className="w-full" data-testid="button-team-assessment-status">
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Team Assessment Status
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
