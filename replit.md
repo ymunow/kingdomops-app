@@ -6,6 +6,15 @@ This is a full-stack web application for conducting spiritual gifts assessments.
 
 ## Recent Updates (August 2025)
 
+### Church Leader Ministry Opportunity System (August 18, 2025)
+- **Enhanced ORG_LEADER Role**: Church Leaders can now create and manage ministry opportunities churchwide
+- **Smart Matching Algorithm**: AI-powered system recommends members based on spiritual gifts and natural abilities
+- **Ministry Opportunity Creation**: Full-featured form for creating serving opportunities with required/preferred gifts and abilities
+- **Real-time Match Scoring**: Algorithm calculates compatibility scores (60% required gifts, 20% preferred gifts, 20% natural abilities)
+- **Churchwide Visibility**: All opportunities are posted organization-wide with targeted member recommendations
+- **Leadership Dashboard**: Dedicated Church Leader section with ministry tools and team analytics
+- **Permission-Based Access**: ORG_LEADER role has `placements_view` and `placements_manage` permissions
+
 ### Church Overview Dashboard as Landing Page (August 18, 2025)
 - **New Default Landing Experience**: Made the Church Overview Dashboard the primary homepage for all admin-level users
 - **Role-Based Dashboard Routing**: SUPER_ADMIN users see platform overview, church admins see their organization-specific overview

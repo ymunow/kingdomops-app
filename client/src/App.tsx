@@ -23,6 +23,7 @@ import AdminOrganizationDetail from "@/pages/admin-organization-detail";
 import AdminOrganizationSettings from "@/pages/admin-organization-settings";
 import AdminSystem from "@/pages/admin-system";
 import ChurchOverview from "@/pages/church-overview";
+import LeaderOpportunities from "@/pages/leader-opportunities";
 import MemberDashboard from "@/pages/member-dashboard";
 import Profile from "@/pages/profile";
 import ChurchSignup from "@/pages/church-signup";
@@ -130,6 +131,13 @@ function Router() {
                 </Route>
                 <Route path="/admin/organizations/:id" component={AdminOrganizationDetail} />
                 <Route path="/admin/system" component={AdminSystem} />
+              </>
+            )}
+            
+            {/* Leader routes - for ORG_LEADER and above */}
+            {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER"].includes((user as any).role) && (
+              <>
+                <Route path="/leader/opportunities" component={LeaderOpportunities} />
               </>
             )}
           </>

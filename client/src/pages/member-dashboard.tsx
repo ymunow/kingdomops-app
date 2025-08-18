@@ -372,7 +372,7 @@ export default function MemberDashboard() {
                   data-testid="button-ministry-opportunities"
                 >
                   <Calendar className="mr-2 h-4 w-4" />
-                  Ministry Opportunities
+                  Create Opportunities
                 </Button>
                 <Button
                   variant="outline"

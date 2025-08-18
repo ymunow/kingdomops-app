@@ -106,6 +106,7 @@ export interface IStorage {
 
   // Ministry Opportunity operations
   getMinistryOpportunities(organizationId: string): Promise<MinistryOpportunity[]>;
+  getMinistryOpportunity(id: string): Promise<MinistryOpportunity | undefined>;
   createMinistryOpportunity(opportunity: InsertMinistryOpportunity): Promise<MinistryOpportunity>;
   updateMinistryOpportunity(id: string, updates: Partial<InsertMinistryOpportunity>): Promise<MinistryOpportunity>;
 
@@ -466,6 +467,14 @@ export class DatabaseStorage implements IStorage {
       .from(ministryOpportunities)
       .where(eq(ministryOpportunities.organizationId, organizationId))
       .orderBy(ministryOpportunities.title);
+  }
+
+  async getMinistryOpportunity(id: string): Promise<MinistryOpportunity | undefined> {
+    const [opportunity] = await db
+      .select()
+      .from(ministryOpportunities)
+      .where(eq(ministryOpportunities.id, id));
+    return opportunity;
   }
 
   async createMinistryOpportunity(opportunity: InsertMinistryOpportunity): Promise<MinistryOpportunity> {

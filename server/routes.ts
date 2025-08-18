@@ -1380,7 +1380,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Ministry Opportunities Management
-  app.get("/api/admin/ministry-opportunities", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
+  // Ministry opportunities - accessible to ORG_LEADER and above
+  app.get("/api/ministry-opportunities/:orgId?", isAuthenticated, addUserContext(), requirePermission(PERMISSIONS.PLACEMENTS_VIEW), async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -1409,7 +1410,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/ministry-opportunities", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
+  app.post("/api/ministry-opportunities", isAuthenticated, addUserContext(), requirePermission(PERMISSIONS.PLACEMENTS_MANAGE), async (req, res) => {
     try {
       const userId = (req.user as any)?.claims?.sub;
       if (!userId) {
@@ -1440,6 +1441,120 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Create ministry opportunity error:", error);
       res.status(500).json({ message: "Failed to create ministry opportunity" });
+    }
+  });
+
+  // Smart Matching System - Get recommended matches for an opportunity
+  app.get("/api/ministry-opportunities/:opportunityId/matches", isAuthenticated, addUserContext(), requirePermission(PERMISSIONS.PLACEMENTS_VIEW), async (req, res) => {
+    try {
+      const userId = (req.user as any)?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const opportunityId = req.params.opportunityId;
+      const opportunity = await storage.getMinistryOpportunity(opportunityId);
+      
+      if (!opportunity) {
+        return res.status(404).json({ message: "Opportunity not found" });
+      }
+
+      // Get all users in the organization with assessment results
+      const users = await storage.getUsersByOrganization(opportunity.organizationId);
+      const matches = [];
+
+      for (const user of users) {
+        const results = await storage.getUserResults(user.id);
+        if (results.length === 0) continue; // Skip users without assessments
+
+        const latestResult = results[0]; // Most recent result
+        let matchScore = 0;
+        const reasons = [];
+
+        // Calculate match based on required gifts
+        if (opportunity.requiredGifts && opportunity.requiredGifts.length > 0) {
+          const userGifts = [
+            latestResult.topGift1,
+            latestResult.topGift2,
+            latestResult.topGift3
+          ].filter(Boolean);
+
+          const matchingRequiredGifts = opportunity.requiredGifts.filter(gift => 
+            userGifts.includes(gift as any)
+          );
+
+          if (matchingRequiredGifts.length > 0) {
+            matchScore += (matchingRequiredGifts.length / opportunity.requiredGifts.length) * 60;
+            reasons.push(`Has ${matchingRequiredGifts.length} of ${opportunity.requiredGifts.length} required spiritual gifts`);
+          } else if (opportunity.requiredGifts.length > 0) {
+            // If no required gifts match, low score
+            matchScore += 10;
+          }
+        }
+
+        // Bonus points for preferred gifts
+        if (opportunity.preferredGifts && opportunity.preferredGifts.length > 0) {
+          const userGifts = [
+            latestResult.topGift1,
+            latestResult.topGift2,
+            latestResult.topGift3
+          ].filter(Boolean);
+
+          const matchingPreferredGifts = opportunity.preferredGifts.filter(gift => 
+            userGifts.includes(gift as any)
+          );
+
+          if (matchingPreferredGifts.length > 0) {
+            matchScore += (matchingPreferredGifts.length / opportunity.preferredGifts.length) * 20;
+            reasons.push(`Has ${matchingPreferredGifts.length} preferred spiritual gifts`);
+          }
+        }
+
+        // Bonus for natural abilities match
+        if (opportunity.preferredAbilities && opportunity.preferredAbilities.length > 0 && latestResult.naturalAbilities) {
+          const userAbilities = latestResult.naturalAbilities as string[];
+          const matchingAbilities = opportunity.preferredAbilities.filter(ability => 
+            userAbilities.includes(ability)
+          );
+
+          if (matchingAbilities.length > 0) {
+            matchScore += (matchingAbilities.length / opportunity.preferredAbilities.length) * 20;
+            reasons.push(`Has ${matchingAbilities.length} matching natural abilities`);
+          }
+        }
+
+        // Only include matches with reasonable scores
+        if (matchScore >= 30) {
+          matches.push({
+            user,
+            result: latestResult,
+            opportunity,
+            matchScore: Math.round(matchScore),
+            reasons
+          });
+        }
+      }
+
+      // Sort by match score (highest first)
+      matches.sort((a, b) => b.matchScore - a.matchScore);
+
+      res.json(matches);
+    } catch (error) {
+      console.error("Get opportunity matches error:", error);
+      res.status(500).json({ message: "Failed to get matches" });
+    }
+  });
+
+  // Get admin ministry opportunities (legacy endpoint)
+  app.get("/api/admin/ministry-opportunities", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
+    // Redirect to new endpoint
+    const userId = (req.user as any)?.claims?.sub;
+    const user = await storage.getUser(userId);
+    if (user?.organizationId) {
+      const opportunities = await storage.getMinistryOpportunities(user.organizationId);
+      res.json(opportunities);
+    } else {
+      res.status(400).json({ message: "User organization not found" });
     }
   });
 
