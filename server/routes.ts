@@ -47,7 +47,18 @@ function requireAdmin(req: any, res: any, next: any) {
   
   // Get user from storage to check role
   storage.getUser(userId as string).then(user => {
-    if (!user || !["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN"].includes(user.role)) {
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+    
+    // Check if super admin is using View As functionality
+    const viewContext = (req.session as any)?.viewAsContext;
+    if (user.role === "SUPER_ADMIN" && viewContext) {
+      // Super admin can access admin functions while viewing as any role
+      return next();
+    }
+    
+    if (!["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN"].includes(user.role)) {
       return res.status(403).json({ message: "Admin access required" });
     }
     next();
@@ -236,16 +247,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date()
       };
       
-      console.log('Setting view context in session:', {
-        sessionId: req.sessionID,
-        viewAsContext: (req.session as any).viewAsContext,
-        organizationId
-      });
-      
-      res.json({ 
-        success: true, 
-        viewContext: (req.session as any).viewAsContext,
-        message: organizationId ? `Now managing organization` : `Now viewing as ${userType}` 
+      // Save session before responding
+      req.session.save((err: any) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ message: "Failed to save session" });
+        }
+        
+        console.log('Setting view context in session:', {
+          sessionId: req.sessionID,
+          viewAsContext: (req.session as any).viewAsContext,
+          organizationId
+        });
+        
+        res.json({ 
+          success: true, 
+          viewContext: (req.session as any).viewAsContext,
+          message: organizationId ? `Now managing organization` : `Now viewing as ${userType}` 
+        });
       });
     } catch (error) {
       console.error("View as error:", error);
