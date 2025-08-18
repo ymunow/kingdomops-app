@@ -28,7 +28,7 @@ export async function apiRequest(
     }
   }
   
-  console.log('API Request - Token available:', !!authToken, 'for URL:', url);
+  console.log('API Request - Token available:', !!authToken, 'Token starts with:', authToken?.substring(0, 10), 'for URL:', url);
   
   const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
   if (authToken) {

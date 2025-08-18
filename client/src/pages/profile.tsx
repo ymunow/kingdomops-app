@@ -3,6 +3,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useOrganization } from "@/hooks/use-organization";
@@ -47,16 +48,7 @@ export default function Profile() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: ProfileCompletionData) => {
-      const response = await fetch("/api/auth/complete-profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
-      }
+      const response = await apiRequest("POST", "/api/auth/complete-profile", data);
       return response.json();
     },
     onSuccess: () => {
@@ -64,7 +56,7 @@ export default function Profile() {
         title: "Profile updated!",
         description: "Your profile information has been successfully updated.",
       });
-      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       setIsEditing(false);
     },
     onError: (error) => {
