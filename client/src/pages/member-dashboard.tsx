@@ -127,16 +127,19 @@ export default function MemberDashboard() {
                 Welcome, {user?.displayName || user?.firstName || user?.email?.split('@')[0] || "Member"}
               </span>
               
-              {/* Admin Role Indicator and View As Controls */}
-              {(user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER" || user?.role === "SUPER_ADMIN") && (
+              {/* Role Indicator and View As Controls */}
+              {(user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER" || user?.role === "ORG_LEADER" || user?.role === "SUPER_ADMIN") && (
                 <>
                   <Badge variant="outline" className={
                     user?.role === "SUPER_ADMIN" 
                       ? "bg-purple-50 text-purple-700 border-purple-200" 
+                      : user?.role === "ORG_LEADER"
+                      ? "bg-green-50 text-green-700 border-green-200"
                       : "bg-blue-50 text-blue-700 border-blue-200"
                   }>
                     <Shield className="mr-1 h-3 w-3" />
-                    {user?.role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}
+                    {user?.role === "SUPER_ADMIN" ? "Super Admin" : 
+                     user?.role === "ORG_LEADER" ? "Church Leader" : "Admin"}
                   </Badge>
                   {user?.role === "SUPER_ADMIN" && <ViewAsSwitcher user={user} />}
                 </>
@@ -312,6 +315,97 @@ export default function MemberDashboard() {
                   <Users className="mr-2 h-4 w-4" />
                   Manage Ministries
                 </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Church Leader Section - Only for ORG_LEADER */}
+        {(effectiveRole === "ORG_LEADER" || (user?.role === "ORG_LEADER" && !currentViewType)) && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
+              <div className="flex items-center mb-4">
+                <Crown className="h-6 w-6 text-green-600 mr-3" />
+                <h2 className="text-xl font-bold text-gray-900">Ministry Leadership Tools</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/leader/assessments')}
+                  className="bg-white hover:bg-green-50 border-green-200"
+                  data-testid="button-view-team-results"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Team Assessment Results
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/leader/placements')}
+                  className="bg-white hover:bg-green-50 border-green-200"
+                  data-testid="button-ministry-placements"
+                >
+                  <Target className="mr-2 h-4 w-4" />
+                  Ministry Placements
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/leader/teams')}
+                  className="bg-white hover:bg-green-50 border-green-200"
+                  data-testid="button-team-builder"
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Build Ministry Teams
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/leader/gifts-analysis')}
+                  className="bg-white hover:bg-green-50 border-green-200"
+                  data-testid="button-gifts-analysis"
+                >
+                  <Award className="mr-2 h-4 w-4" />
+                  Spiritual Gifts Analysis
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/leader/opportunities')}
+                  className="bg-white hover:bg-green-50 border-green-200"
+                  data-testid="button-ministry-opportunities"
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Ministry Opportunities
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/leader/insights')}
+                  className="bg-white hover:bg-green-50 border-green-200"
+                  data-testid="button-leadership-insights"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Leadership Insights
+                </Button>
+              </div>
+              
+              {/* Leader Quick Stats */}
+              <div className="mt-6 pt-6 border-t border-green-200">
+                <h3 className="text-sm font-medium text-green-800 mb-3">Ministry Overview</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-700">15</div>
+                    <div className="text-sm text-green-600">Team Members</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-700">8</div>
+                    <div className="text-sm text-green-600">Open Positions</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-700">3</div>
+                    <div className="text-sm text-green-600">Ministry Areas</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-700">12</div>
+                    <div className="text-sm text-green-600">Completed Assessments</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
