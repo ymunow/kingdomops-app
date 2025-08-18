@@ -217,12 +217,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/complete-profile', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      console.log("Profile update request body:", JSON.stringify(req.body, null, 2));
       const validatedData = profileCompletionSchema.parse(req.body);
-      console.log("Validated profile data:", JSON.stringify(validatedData, null, 2));
       
       const updatedUser = await storage.completeUserProfile(userId, validatedData);
-      console.log("Updated user returned:", JSON.stringify(updatedUser, null, 2));
       res.json(updatedUser);
     } catch (error) {
       console.error("Profile completion error:", error);

@@ -26,7 +26,6 @@ export default function Profile() {
 
   // Force refresh user data on component mount to ensure we have latest data
   React.useEffect(() => {
-    console.log("Profile component mounted, refreshing user data");
     queryClient.removeQueries({ queryKey: ["/api/auth/user"] });
     queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
   }, [queryClient]);
@@ -44,7 +43,6 @@ export default function Profile() {
   // Reset form values when user data changes, but only when not editing
   React.useEffect(() => {
     if (user && !isEditing) {
-      console.log("Resetting form with user data:", user);
       form.reset({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
@@ -52,7 +50,7 @@ export default function Profile() {
         ageRange: user.ageRange || undefined,
       });
     }
-  }, [user, isEditing]); // Remove form from dependencies to prevent reset loops
+  }, [user, isEditing]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: ProfileCompletionData) => {
@@ -60,7 +58,6 @@ export default function Profile() {
       return response.json();
     },
     onSuccess: (updatedUser) => {
-      console.log("Profile update successful, updated user:", updatedUser);
       toast({
         title: "Profile updated!",
         description: "Your profile information has been successfully updated.",
@@ -83,7 +80,6 @@ export default function Profile() {
   });
 
   const onSubmit = (data: ProfileCompletionData) => {
-    console.log("Form submitted with data:", data);
     updateMutation.mutate(data);
   };
 
@@ -101,7 +97,6 @@ export default function Profile() {
   const handleEditClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Edit button clicked - entering edit mode");
     setIsEditing(true);
   };
 
