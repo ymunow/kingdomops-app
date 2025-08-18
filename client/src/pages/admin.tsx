@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useOrganization } from "@/hooks/use-organization";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,10 @@ export default function Admin() {
   useEffect(() => {
     const adminRoles = ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"];
     
-    // Check actual user role (including original role if in view-as mode)
-    const actualUserRole = (user as any)?.viewContext?.originalUser?.role || (user as any)?.role;
+    // Check user role directly
+    const userRole = user?.role;
     
-    if (!isLoading && (!user || !adminRoles.includes(actualUserRole))) {
+    if (!isLoading && (!user || !adminRoles.includes(userRole))) {
       toast({
         title: "Access denied",
         description: "Admin access required to view this page.",
@@ -45,8 +45,7 @@ export default function Admin() {
   }
 
   const adminRoles = ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"];
-  const actualUserRole = (user as any)?.viewContext?.originalUser?.role || (user as any)?.role;
-  if (!user || !adminRoles.includes(actualUserRole)) {
+  if (!user || !adminRoles.includes(user?.role)) {
     return null;
   }
 
