@@ -221,48 +221,83 @@ export default function MemberDashboard() {
           </div>
         )}
 
-        {/* Administration Section - Role-based access control */}
-        {canViewAdministration && (
+        {/* Super Admin Platform Overview */}
+        {canViewAdministration && user?.role === "SUPER_ADMIN" && (
           <div className="mb-8">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-6">
               <div className="flex items-center mb-4">
-                <Settings className="h-6 w-6 text-blue-600 mr-3" />
-                <h2 className="text-xl font-bold text-gray-900">Administration</h2>
+                <Shield className="h-6 w-6 text-purple-600 mr-3" />
+                <h2 className="text-xl font-bold text-gray-900">Super Admin Dashboard</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {canManageUsers && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setLocation('/admin')}
-                    className="bg-white hover:bg-gray-50"
-                    data-testid="button-manage-users"
-                  >
-                    <User className="mr-2 h-4 w-4" />
-                    Manage Users
-                  </Button>
-                )}
-                {canViewAllAssessments && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setLocation('/admin')}
-                    className="bg-white hover:bg-gray-50"
-                    data-testid="button-view-assessments"
-                  >
-                    <BarChart3 className="mr-2 h-4 w-4" />
-                    View Assessments
-                  </Button>
-                )}
-                {canManageOrganizations && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setLocation('/admin')}
-                    className="bg-white hover:bg-gray-50"
-                    data-testid="button-manage-organizations"
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Manage Organizations
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-platform-overview"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Platform Overview
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-manage-churches"
+                >
+                  <Church className="mr-2 h-4 w-4" />
+                  Manage Churches
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-system-admin"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  System Admin
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Church Admin Section - Only for ORG_ADMIN */}
+        {canViewAdministration && user?.role === "ORG_ADMIN" && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-6">
+              <div className="flex items-center mb-4">
+                <Settings className="h-6 w-6 text-blue-600 mr-3" />
+                <h2 className="text-xl font-bold text-gray-900">Church Administration</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-manage-users"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Manage Users
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-view-assessments"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  View Assessments
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-manage-ministries"
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Ministries
+                </Button>
               </div>
             </div>
           </div>
@@ -276,14 +311,14 @@ export default function MemberDashboard() {
                 <User className="h-5 w-5 text-amber-600 mr-2" />
                 <div>
                   <h3 className="font-medium text-amber-800">
-                    {currentViewType === "PARTICIPANT" && "Church Member View"}
-                    {currentViewType === "ORG_LEADER" && "Church Leader View"}
-                    {currentViewType === "ORG_ADMIN" && "Church Admin View"}
+                    {currentViewType === "PARTICIPANT" && "Member Dashboard (Church Attendee)"}
+                    {currentViewType === "ORG_LEADER" && "Leader Dashboard (Ministry Leader)"}
+                    {currentViewType === "ORG_ADMIN" && "Church Admin Dashboard (Organization Administrator)"}
                   </h3>
                   <p className="text-sm text-amber-700">
-                    {currentViewType === "PARTICIPANT" && "You can take assessments and view your own results."}
-                    {currentViewType === "ORG_LEADER" && "You can view assessment results and analytics for your organization."}
-                    {currentViewType === "ORG_ADMIN" && "You can manage users and view all assessment data."}
+                    {currentViewType === "PARTICIPANT" && "Participate in assessments, discover gifts, view personal ministry fit"}
+                    {currentViewType === "ORG_LEADER" && "Manage people serving under your ministry team, view team assessments"}
+                    {currentViewType === "ORG_ADMIN" && "Oversee entire local church account, manage users and ministries"}
                   </p>
                 </div>
               </div>
@@ -291,19 +326,24 @@ export default function MemberDashboard() {
           </div>
         )}
 
-        {/* Welcome Section */}
+        {/* Role-Based Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {hasCompletedAssessment ? 
-              `Welcome back, ${user?.displayName || user?.firstName || 'Member'}!` : 
-              `Welcome, ${user?.displayName || user?.firstName || 'Member'}!`
-            }
+            {currentViewType === "PARTICIPANT" && `Welcome, ${user?.firstName || 'Member'}!`}
+            {currentViewType === "ORG_LEADER" && `Welcome, Leader ${user?.firstName || 'Admin'}!`}
+            {currentViewType === "ORG_ADMIN" && `Church Admin Dashboard - ${user?.firstName || 'Administrator'}`}
+            {!currentViewType && user?.role === "SUPER_ADMIN" && `Super Admin Platform - ${user?.firstName || 'TEMBI'}`}
+            {!currentViewType && user?.role !== "SUPER_ADMIN" && `Welcome back, ${user?.firstName || 'Member'}!`}
           </h2>
           <p className="text-gray-600">
-            {hasCompletedAssessment 
+            {currentViewType === "PARTICIPANT" && "Participate in assessments, discover your gifts, and view personal ministry fit recommendations"}
+            {currentViewType === "ORG_LEADER" && `Manage people serving under your ministry team at ${organization?.name || 'your organization'}`}
+            {currentViewType === "ORG_ADMIN" && `Church overview: ${organization?.name || 'your church'} - manage users, assessments and ministries`}
+            {!currentViewType && user?.role === "SUPER_ADMIN" && "Platform overview - manage churches, users, and system-wide analytics across KingdomOps"}
+            {!currentViewType && user?.role !== "SUPER_ADMIN" && (hasCompletedAssessment 
               ? "View your spiritual gifts and explore new opportunities to serve."
               : "Discover your unique spiritual gifts through our comprehensive assessment."
-            }
+            )}
           </p>
         </div>
 
@@ -429,46 +469,152 @@ export default function MemberDashboard() {
                 <CardTitle className="text-lg">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start" 
-                  onClick={handleViewProfile}
-                  data-testid="button-edit-profile"
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  Edit Profile
-                  <ChevronRight className="ml-auto h-4 w-4" />
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start" 
-                  onClick={handleViewResults}
-                  disabled={!hasCompletedAssessment}
-                  data-testid="button-view-results"
-                >
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  {effectiveRole === "PARTICIPANT" || currentViewType === "PARTICIPANT"
-                    ? "View My Results"
-                    : "View Assessment Results"
-                  }
-                  <ChevronRight className="ml-auto h-4 w-4" />
-                </Button>
+                {/* Member-specific actions */}
+                {(effectiveRole === "PARTICIPANT" || currentViewType === "PARTICIPANT") && (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={handleViewProfile}
+                      data-testid="button-edit-profile"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Update Profile
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+                    
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={handleViewResults}
+                      disabled={!hasCompletedAssessment}
+                      data-testid="button-view-results"
+                    >
+                      <Award className="mr-2 h-4 w-4" />
+                      View My Gifts & Fit
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
 
-                {/* Show admin actions based on effective role */}
-                {canViewAllAssessments && effectiveRole !== "PARTICIPANT" && (
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start" 
-                    onClick={() => setLocation('/admin')}
-                    data-testid="button-admin-dashboard"
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    {effectiveRole === "ORG_LEADER" ? "Leadership Dashboard" : 
-                     effectiveRole === "ORG_ADMIN" ? "Admin Dashboard" : 
-                     "Super Admin Dashboard"}
-                    <ChevronRight className="ml-auto h-4 w-4" />
-                  </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      data-testid="button-ministry-assignments"
+                    >
+                      <Users className="mr-2 h-4 w-4" />
+                      Ministry Assignments
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+
+                {/* Leader-specific actions */}
+                {(effectiveRole === "ORG_LEADER" || currentViewType === "ORG_LEADER") && (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      data-testid="button-manage-team"
+                    >
+                      <Users className="mr-2 h-4 w-4" />
+                      Manage Ministry Team
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+                    
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={handleViewResults}
+                      data-testid="button-team-assessments"
+                    >
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Team Assessment Status
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      data-testid="button-ministry-calendar"
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      Ministry Calendar
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+
+                {/* Church Admin-specific actions */}
+                {(effectiveRole === "ORG_ADMIN" || currentViewType === "ORG_ADMIN") && (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => setLocation('/admin')}
+                      data-testid="button-manage-users"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Manage Church Users
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+                    
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => setLocation('/admin')}
+                      data-testid="button-assessment-reports"
+                    >
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Assessment Reports
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      data-testid="button-church-settings"
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Church Settings
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+
+                {/* Super Admin-specific actions */}
+                {effectiveRole === "SUPER_ADMIN" && !currentViewType && (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => setLocation('/admin')}
+                      data-testid="button-platform-metrics"
+                    >
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Platform Metrics
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+                    
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => setLocation('/admin')}
+                      data-testid="button-manage-churches"
+                    >
+                      <Church className="mr-2 h-4 w-4" />
+                      Manage Churches
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      data-testid="button-system-tools"
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      System Tools
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    </Button>
+                  </>
                 )}
               </CardContent>
             </Card>

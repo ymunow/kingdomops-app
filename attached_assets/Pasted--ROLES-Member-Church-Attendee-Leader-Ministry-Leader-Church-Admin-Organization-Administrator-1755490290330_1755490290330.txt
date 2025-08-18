@@ -1,0 +1,71 @@
+🎭 ROLES:
+Member (Church Attendee)
+Leader (Ministry Leader)
+Church Admin (Organization Administrator)
+Super Admin (Platform Owner/System Admin)
+👤 1. Member Dashboard
+Purpose: Participate in assessments, discover gifts, view personal ministry fit.
+Visible on Dashboard:
+Welcome message with member’s name
+Button to start or continue the Spiritual Gifts Assessment
+Results Summary (Top 3 spiritual gifts + scriptures)
+Ministry Fit Recommendations
+Assigned ministries (if placed by leader/admin)
+Upcoming serving schedule or events (optional)
+Earned Gamification Badges
+Option to update profile (name, age group, etc.)
+Support or feedback button
+🧑‍🏫 2. Leader Dashboard
+Purpose: Manage people serving under their ministry team.
+Visible on Dashboard:
+Welcome message with role tag (Leader of [Ministry Name])
+View and manage participants in assigned ministries
+Names, gift results (read-only), contact info
+Ministry assignment status (active, pending, etc.)
+Send messages to team members (optional)
+Assessment Completion status for their team
+Ministry team calendar/events
+Ability to recommend or request volunteers for open roles
+Feedback summary from their team (optional)
+🧑‍💼 3. Church Admin Dashboard
+Purpose: Oversee entire local church account.
+Visible on Dashboard:
+Church overview: number of members, assessments completed
+Manage Users:
+Add/edit/delete users
+Assign roles (Member/Leader)
+View assessments:
+Export/download reports
+Filter by group, date, gift type
+View/Assign ministries
+Customize church branding (logo, colors if applicable)
+Send announcements or reminders
+View activity feed of recent logins, completions
+Set preferences: visibility rules, auto-reminders, gamification on/off
+🛡️ 4. Super Admin Dashboard
+Purpose: Manage the entire KingdomOps platform (multi-org support).
+Visible on Dashboard:
+Platform overview metrics:
+Total churches registered
+Total users
+Assessments completed across all orgs
+List of registered churches:
+Filter by active/inactive, date created, admin contact
+View individual church dashboards (impersonate)
+View and manage:
+Church Admins
+Church subscription plans
+Role assignments across organizations
+Admin Analytics:
+Engagement charts
+Ministry fit distribution
+Regional usage breakdown
+Create and assign assessment templates
+View & manage feedback from all organizations
+Global branding tools, email template management
+Security & audit log tools
+📌 NOTE FOR AI AGENT:
+Always load the correct dashboard based on the user's assigned role.
+Roles are mutually exclusive per login session (use “View As” when needed).
+Only show data the user has permission to access.
+Use scalable layouts (grid or modular) for future features like Events, Volunteer Scheduling, etc.
