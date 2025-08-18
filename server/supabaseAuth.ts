@@ -17,10 +17,12 @@ export async function setupSupabaseAuth(app: Express) {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
+      console.log('Auth middleware - Processing token:', token.substring(0, 20) + '...');
       
       try {
         const { data: { user }, error } = await supabase.auth.getUser(token);
         if (user && !error) {
+          console.log('Auth middleware - User authenticated:', user.email);
           // Store user info in request for downstream middleware
           req.user = {
             id: user.id,
@@ -38,10 +40,14 @@ export async function setupSupabaseAuth(app: Express) {
             lastName: user.user_metadata?.last_name,
             profileImageUrl: user.user_metadata?.avatar_url,
           });
+        } else {
+          console.log('Auth middleware - Token invalid:', error?.message);
         }
       } catch (error) {
         console.error('Error verifying Supabase token:', error);
       }
+    } else {
+      console.log('Auth middleware - No auth header found');
     }
     next();
   });

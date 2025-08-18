@@ -28,6 +28,8 @@ export async function apiRequest(
     }
   }
   
+  console.log('API Request - Token available:', !!authToken, 'for URL:', url);
+  
   const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
   if (authToken) {
     headers.Authorization = `Bearer ${authToken}`;

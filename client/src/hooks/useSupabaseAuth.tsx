@@ -81,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session) {
           // Set the auth token for API requests
           queryClient.setQueryData(['authToken'], session.access_token);
+          console.log('Set auth token:', session.access_token?.substring(0, 20) + '...');
         } else {
           queryClient.clear();
         }
