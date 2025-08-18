@@ -416,6 +416,15 @@ export default function AdminOrganizationDetail() {
             <div className="flex space-x-3">
               <Button 
                 variant="outline"
+                onClick={() => setLocation(`/admin/organizations/${orgId}/overview`)}
+                data-testid="button-church-overview"
+                className="bg-spiritual-blue/5 border-spiritual-blue/20 text-spiritual-blue hover:bg-spiritual-blue/10"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Church Overview
+              </Button>
+              <Button 
+                variant="outline"
                 onClick={() => setLocation(`/admin/organizations/${orgId}/settings`)}
                 data-testid="button-organization-settings"
               >

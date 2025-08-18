@@ -1138,6 +1138,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Church Overview API endpoint
+  app.get("/api/church-overview/:orgId", isAuthenticated, async (req, res) => {
+    try {
+      const { orgId } = req.params;
+      const user = req.user as User;
+      
+      // Verify access permissions
+      if (!orgId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      const organization = await storage.getOrganization(orgId);
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+
+      // Check if user has access to this organization
+      const hasAccess = user.role === 'SUPER_ADMIN' || 
+                       (user.organizationId === orgId && ['ORG_ADMIN', 'ORG_OWNER'].includes(user.role));
+      
+      if (!hasAccess) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Get comprehensive church metrics
+      const metrics = await storage.getDashboardMetrics(orgId);
+      const allUsers = await storage.getUsersByOrganization(orgId);
+      const responses = await storage.getResponsesByOrganization(orgId);
+      
+      // Calculate member stats
+      const totalMembers = allUsers.length;
+      const activeMembers = allUsers.filter(u => u.totalAssessments > 0).length;
+      const pendingAssessments = totalMembers - metrics.totalCompletions;
+      const completionRate = totalMembers > 0 ? Math.round((metrics.totalCompletions / totalMembers) * 100) : 0;
+
+      // Get top gifts with labels
+      const topGifts = Object.entries(metrics.topGiftDistribution || {})
+        .map(([gift, count]) => ({
+          gift,
+          giftLabel: gift.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          count,
+          percentage: totalMembers > 0 ? Math.round((count / totalMembers) * 100) : 0
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 8);
+
+      // Get age distribution with percentages
+      const ageDistribution = Object.entries(metrics.ageGroupDistribution || {})
+        .map(([ageRange, count]) => ({
+          ageRange,
+          count,
+          percentage: totalMembers > 0 ? Math.round((count / totalMembers) * 100) : 0
+        }))
+        .sort((a, b) => b.count - a.count);
+
+      // Generate recent activity from responses
+      const recentActivity = responses
+        .filter(r => r.submittedAt)
+        .sort((a, b) => new Date(b.submittedAt!).getTime() - new Date(a.submittedAt!).getTime())
+        .slice(0, 10)
+        .map(response => {
+          const user = allUsers.find(u => u.id === response.userId);
+          return {
+            type: 'Assessment Completed',
+            description: user 
+              ? `${user.firstName} ${user.lastName} completed their spiritual gifts assessment`
+              : 'A member completed their spiritual gifts assessment',
+            timestamp: response.submittedAt!,
+            userName: user ? `${user.firstName} ${user.lastName}` : undefined
+          };
+        });
+
+      const churchMetrics = {
+        totalMembers,
+        activeMembers,
+        totalAssessments: metrics.totalCompletions,
+        completionRate,
+        completionsLast30Days: metrics.completionsLast30Days,
+        averageTimeMinutes: metrics.averageTimeMinutes,
+        pendingAssessments,
+        topGifts,
+        ageDistribution,
+        recentActivity,
+        ministryOpportunities: 0, // TODO: Implement ministry opportunities count
+        placementMatches: 0, // TODO: Implement placement matches count
+        availableVolunteers: activeMembers
+      };
+
+      res.json(churchMetrics);
+    } catch (error) {
+      console.error("Church overview error:", error);
+      res.status(500).json({ message: "Failed to get church overview" });
+    }
+  });
+
   // Super Admin organization update endpoint
   app.patch("/api/super-admin/organizations/:orgId", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {

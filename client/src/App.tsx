@@ -20,6 +20,7 @@ import AdminOrganizations from "@/pages/admin-organizations";
 import AdminOrganizationDetail from "@/pages/admin-organization-detail";
 import AdminOrganizationSettings from "@/pages/admin-organization-settings";
 import AdminSystem from "@/pages/admin-system";
+import ChurchOverview from "@/pages/church-overview";
 import MemberDashboard from "@/pages/member-dashboard";
 import Profile from "@/pages/profile";
 import ChurchSignup from "@/pages/church-signup";
@@ -84,6 +85,9 @@ function Router() {
                 <Route path="/admin/platform" component={AdminPlatform} />
                 <Route path="/admin/organizations" component={AdminOrganizations} />
                 <Route path="/admin/organizations/:id/settings" component={AdminOrganizationSettings} />
+                <Route path="/admin/organizations/:id/overview">
+                  {(params) => <ChurchOverview organizationId={params.id} />}
+                </Route>
                 <Route path="/admin/organizations/:id" component={AdminOrganizationDetail} />
                 <Route path="/admin/system" component={AdminSystem} />
               </>
