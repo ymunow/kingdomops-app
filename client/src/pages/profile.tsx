@@ -34,9 +34,9 @@ export default function Profile() {
     },
   });
 
-  // Reset form values when user data changes or when entering edit mode
+  // Reset form values when user data changes, but only when not editing
   React.useEffect(() => {
-    if (user) {
+    if (user && !isEditing) {
       form.reset({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
@@ -44,18 +44,21 @@ export default function Profile() {
         ageRange: user.ageRange || undefined,
       });
     }
-  }, [user, form]);
+  }, [user, form, isEditing]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: ProfileCompletionData) => {
       const response = await apiRequest("POST", "/api/auth/complete-profile", data);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
       toast({
         title: "Profile updated!",
         description: "Your profile information has been successfully updated.",
       });
+      // Update cache with new data immediately
+      queryClient.setQueryData(["/api/auth/user"], updatedUser);
+      // Also invalidate to trigger refetch
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       setIsEditing(false);
     },
