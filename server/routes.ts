@@ -92,6 +92,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Auth routes
+  // Get organization for authenticated user
+  app.get('/api/auth/organization', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Super admins can see all organizations, but we need to determine which one to show
+      if (user.role === 'SUPER_ADMIN') {
+        // Check for view-as context
+        const viewContext = (req.session as any).viewAsContext;
+        if (viewContext?.viewAsOrganizationId) {
+          const organization = await storage.getOrganization(viewContext.viewAsOrganizationId);
+          return res.json(organization);
+        }
+        
+        // Default: return the first organization or null
+        const organizations = await storage.getOrganizations();
+        return res.json(organizations[0] || null);
+      }
+
+      // Regular users: return their organization
+      if (user.organizationId) {
+        const organization = await storage.getOrganization(user.organizationId);
+        return res.json(organization);
+      }
+
+      res.json(null);
+    } catch (error) {
+      console.error("Get organization error:", error);
+      res.status(500).json({ message: "Failed to get organization" });
+    }
+  });
+
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;

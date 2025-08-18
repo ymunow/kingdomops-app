@@ -41,6 +41,13 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
     refetchOnWindowFocus: false,
   });
 
+  // Get all organizations for super admin
+  const { data: organizations = [] } = useQuery<any[]>({
+    queryKey: ["/api/organizations"],
+    enabled: user?.role === "SUPER_ADMIN",
+    refetchOnWindowFocus: false,
+  });
+
   const viewContext: ViewContext | null = user?.viewContext || null;
 
   // Switch view mutation
@@ -57,13 +64,16 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/view-context"] });
       toast({
         title: "View switched",
         description: "Successfully switched user view context.",
       });
       setIsOpen(false);
+      // Refresh page to ensure all components update
+      window.location.reload();
     },
     onError: (error) => {
       toast({
@@ -86,13 +96,16 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["auth-user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/view-context"] });
       toast({
         title: "Returned to admin view",
         description: "You're now viewing as the super admin again.",
       });
       setIsOpen(false);
+      // Refresh page to ensure all components update
+      window.location.reload();
     },
     onError: (error) => {
       toast({
@@ -219,6 +232,31 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
             </DropdownMenuItem>
             
             <DropdownMenuSeparator />
+            
+            {/* Organization Management Section */}
+            {organizations.length > 0 && (
+              <>
+                <div className="px-2 py-1.5 text-sm font-semibold text-gray-700">
+                  Manage Organizations
+                </div>
+                
+                {organizations.map((org: any) => (
+                  <DropdownMenuItem
+                    key={org.id}
+                    onClick={() => handleSwitchToOrganization(org.id)}
+                    disabled={switchViewMutation.isPending}
+                    data-testid={`menu-item-manage-org-${org.id}`}
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    {org.name}
+                    <span className="ml-auto text-xs text-gray-500">Manage</span>
+                  </DropdownMenuItem>
+                ))}
+                
+                <DropdownMenuSeparator />
+              </>
+            )}
+            
             <div className="px-2 py-1.5 text-xs text-gray-500">
               Test different user experiences without logging out
             </div>
