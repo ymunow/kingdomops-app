@@ -20,10 +20,18 @@ import {
   BarChart3,
   PieChart,
   Activity,
-  Star
+  Star,
+  User,
+  Shield,
+  Settings,
+  Church,
+  Crown
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from "recharts";
 import { Link, useLocation } from "wouter";
+import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
+import { viewAsStorage } from "@/lib/view-as-storage";
+import { useOrganization } from "@/hooks/use-organization";
 
 interface ChurchMetrics {
   // Overview Stats
@@ -89,9 +97,8 @@ const GIFT_LABELS: Record<string, string> = {
 
 export default function ChurchOverview({ organizationId }: ChurchOverviewProps) {
   const [, setLocation] = useLocation();
-  const { user } = useAuth();
-  // const { organization } = useOrganization(); // TODO: Use organization hook
-  const organization = null; // Temporary placeholder
+  const { user, signOutMutation } = useAuth();
+  const { organization } = useOrganization();
   
   // Use provided organizationId or current organization
   const targetOrgId = organizationId || organization?.id;
@@ -100,10 +107,35 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
   const isSuperAdmin = user?.role === "SUPER_ADMIN";
   const isChurchAdmin = ["ORG_OWNER", "ORG_ADMIN", "ORG_LEADER"].includes(user?.role || "");
   
+  // Fetch current view context for super admins
+  const { data: viewContext } = useQuery<{ viewContext: any }>({
+    queryKey: ["/api/super-admin/view-context"],
+    enabled: user?.role === 'SUPER_ADMIN',
+    retry: false,
+  });
+
+  // Get current view context from all sources
+  const localViewContext = viewAsStorage.getViewContext();
+  const currentViewType = 
+    localViewContext?.viewAsType || 
+    (viewContext && 'viewContext' in viewContext ? viewContext.viewContext?.viewAsType : null) || 
+    null;
+    
+  // Determine effective user role based on view context
+  const effectiveRole = currentViewType || user?.role;
+  
+  // Role-based permission checks
+  const canViewAdministration = 
+    !currentViewType && // Only show when not viewing as someone else
+    (user?.role === "SUPER_ADMIN" || user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER");
+  
   // Determine the dashboard title based on role and context
   const dashboardTitle = isSuperAdmin 
     ? (targetOrgId === "default-org-001" ? "Platform Overview" : `${targetOrgName} Overview`)
     : `${targetOrgName} Dashboard`;
+
+  const handleViewProfile = () => setLocation("/profile");
+  const handleLogout = () => signOutMutation.mutate();
 
   const { data: metrics, isLoading, error } = useQuery<ChurchMetrics>({
     queryKey: ['/api/church-overview', targetOrgId],
@@ -153,36 +185,202 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
   return (
     <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
       {/* Header */}
-      <section className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-charcoal">{dashboardTitle}</h1>
-              <p className="text-gray-600 mt-1">
-                {isSuperAdmin 
-                  ? "Platform-wide insights and church management" 
-                  : "Comprehensive insights into your congregation's spiritual gifts and ministry engagement"}
-              </p>
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
+              <div>
+                <h1 className="font-display font-bold text-xl text-charcoal">
+                  {targetOrgName}
+                </h1>
+                <p className="text-sm text-gray-600">{dashboardTitle}</p>
+              </div>
             </div>
-            <div className="flex space-x-3">
-              {user?.role === 'SUPER_ADMIN' && (
-                <Button variant="outline" asChild>
-                  <Link href="/admin/organizations">
-                    <Users className="h-4 w-4 mr-2" />
-                    All Churches
-                  </Link>
-                </Button>
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-700" data-testid="text-username">
+                Welcome, {user?.displayName || user?.firstName || user?.email?.split('@')[0] || "Member"}
+              </span>
+              
+              {/* Admin Role Indicator and View As Controls */}
+              {(user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER" || user?.role === "SUPER_ADMIN") && (
+                <>
+                  <Badge variant="outline" className={
+                    user?.role === "SUPER_ADMIN" 
+                      ? "bg-purple-50 text-purple-700 border-purple-200" 
+                      : "bg-blue-50 text-blue-700 border-blue-200"
+                  }>
+                    <Shield className="mr-1 h-3 w-3" />
+                    {user?.role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}
+                  </Badge>
+                  {user?.role === "SUPER_ADMIN" && <ViewAsSwitcher user={user} />}
+                </>
               )}
-              <Button variant="outline" disabled>
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Export Report
+              
+              <Button variant="outline" onClick={handleViewProfile} data-testid="button-profile">
+                <User className="mr-2 h-4 w-4" />
+                Profile
+              </Button>
+              <Button variant="outline" onClick={handleLogout} data-testid="button-logout">
+                Sign Out
               </Button>
             </div>
           </div>
         </div>
-      </section>
+      </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* View Context Indicator for Super Admins */}
+        {user?.role === 'SUPER_ADMIN' && (
+          <div className="mb-6">
+            {(currentViewType && currentViewType !== user?.role) ? (
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <User className="h-5 w-5 text-amber-600 mr-2" />
+                    <div>
+                      <h3 className="font-medium text-amber-800">
+                        Viewing as {currentViewType ? currentViewType.replace('_', ' ').toLowerCase() : 'participant'}
+                      </h3>
+                      <p className="text-sm text-amber-700">
+                        You are currently viewing the dashboard with limited access
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
+                      <User className="mr-1 h-3 w-3" />
+                      View Mode Active
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        viewAsStorage.clearViewContext();
+                        fetch('/api/super-admin/view-as', { 
+                          method: 'DELETE',
+                          headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`,
+                            'Content-Type': 'application/json'
+                          }
+                        }).then(() => {
+                          window.location.reload();
+                        }).catch(() => {
+                          window.location.reload();
+                        });
+                      }}
+                      className="bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200"
+                      data-testid="button-return-to-admin"
+                    >
+                      Return to Admin
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <Shield className="h-5 w-5 text-purple-600 mr-2" />
+                  <div>
+                    <h3 className="font-medium text-purple-800">Super Admin View</h3>
+                    <p className="text-sm text-purple-700">You are viewing as yourself with full admin privileges.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Super Admin Platform Controls */}
+        {canViewAdministration && user?.role === "SUPER_ADMIN" && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-6">
+              <div className="flex items-center mb-4">
+                <Shield className="h-6 w-6 text-purple-600 mr-3" />
+                <h2 className="text-xl font-bold text-gray-900">Super Admin Controls</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin/platform')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-platform-overview"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Platform Stats
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin/organizations')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-manage-churches"
+                >
+                  <Church className="mr-2 h-4 w-4" />
+                  All Churches
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin/system')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-system-admin"
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  System Admin
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled
+                  className="bg-white hover:bg-gray-50"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Export Report
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Church Admin Controls */}
+        {canViewAdministration && user?.role === "ORG_ADMIN" && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-6">
+              <div className="flex items-center mb-4">
+                <Settings className="h-6 w-6 text-blue-600 mr-3" />
+                <h2 className="text-xl font-bold text-gray-900">Church Administration</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-manage-users"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Manage Users
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-view-assessments"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  View Assessments
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-manage-ministries"
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Ministries
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-8">
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
