@@ -159,17 +159,17 @@ export default function MemberDashboard() {
         {/* View Context Indicator for Super Admins */}
         {user?.role === 'SUPER_ADMIN' && (
           <div className="mb-6">
-            {(viewContext && 'viewContext' in viewContext && viewContext.viewContext) ? (
+            {(currentViewType && currentViewType !== user?.role) ? (
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <User className="h-5 w-5 text-amber-600 mr-2" />
                     <div>
                       <h3 className="font-medium text-amber-800">
-                        Viewing as {((viewContext && 'viewContext' in viewContext ? viewContext.viewContext?.role : null) || 'member').replace('_', ' ').toLowerCase()}
+                        Viewing as {currentViewType ? currentViewType.replace('_', ' ').toLowerCase() : 'participant'}
                       </h3>
                       <p className="text-sm text-amber-700">
-                        Organization: {(viewContext && 'viewContext' in viewContext ? viewContext.viewContext?.organizationName : null) || 'Current Organization'}
+                        You are currently viewing the dashboard with limited access
                       </p>
                     </div>
                   </div>
@@ -182,10 +182,24 @@ export default function MemberDashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        fetch('/api/super-admin/view-as', { method: 'DELETE' })
-                          .then(() => window.location.reload());
+                        // Clear local view context first
+                        viewAsStorage.clearViewContext();
+                        // Then call API to clear server context
+                        fetch('/api/super-admin/view-as', { 
+                          method: 'DELETE',
+                          headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`,
+                            'Content-Type': 'application/json'
+                          }
+                        }).then(() => {
+                          window.location.reload();
+                        }).catch(() => {
+                          // Even if API fails, still reload since we cleared local context
+                          window.location.reload();
+                        });
                       }}
                       className="bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200"
+                      data-testid="button-return-to-admin"
                     >
                       Return to Admin
                     </Button>
