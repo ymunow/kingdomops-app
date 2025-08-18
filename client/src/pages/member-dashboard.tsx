@@ -47,26 +47,34 @@ export default function MemberDashboard() {
     retry: false,
   });
 
-  // Check if currently viewing as a Church Member (PARTICIPANT) or any role
+  // Get current view context from all sources
   const localViewContext = viewAsStorage.getViewContext();
-  const isViewingAsParticipant = 
-    localViewContext?.viewAsType === "PARTICIPANT" || 
-    viewContext?.viewContext?.viewAsType === "PARTICIPANT" || 
-    user?.viewContext?.viewAsType === "PARTICIPANT";
+  const currentViewType = 
+    localViewContext?.viewAsType || 
+    viewContext?.viewContext?.viewAsType || 
+    null;
     
-  // Check if viewing as any role (should hide admin panel for all view modes except super admin default)
-  const isViewingAsAnyRole = 
-    localViewContext?.viewAsType && localViewContext.viewAsType !== "SUPER_ADMIN" ||
-    viewContext?.viewContext?.viewAsType && viewContext.viewContext.viewAsType !== "SUPER_ADMIN" ||
-    user?.viewContext?.viewAsType && user.viewContext.viewAsType !== "SUPER_ADMIN";
+  // Determine effective user role based on view context
+  const effectiveRole = currentViewType || user?.role;
+  
+  // Role-based permission checks
+  const canViewAdministration = 
+    !currentViewType && // Only show when not viewing as someone else
+    (user?.role === "SUPER_ADMIN" || user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER");
     
+  const canManageUsers = effectiveRole === "SUPER_ADMIN" || effectiveRole === "ORG_ADMIN" || effectiveRole === "ORG_OWNER";
+  const canViewAllAssessments = effectiveRole === "SUPER_ADMIN" || effectiveRole === "ORG_ADMIN" || effectiveRole === "ORG_LEADER";
+  const canManageOrganizations = effectiveRole === "SUPER_ADMIN";
+  
   // Debug logging
-  console.log("View context debug:", {
-    localViewContext,
-    serverViewContext: viewContext?.viewContext,
-    userViewContext: user?.viewContext,
-    isViewingAsParticipant,
-    isViewingAsAnyRole
+  console.log("Role-based permissions debug:", {
+    currentViewType,
+    effectiveRole,
+    canViewAdministration,
+    canManageUsers,
+    canViewAllAssessments,
+    canManageOrganizations,
+    userRole: user?.role
   });
 
   // Fetch user's results
@@ -213,9 +221,8 @@ export default function MemberDashboard() {
           </div>
         )}
 
-        {/* Admin Management Section - Hide when viewing as any role (Church Member, Admin, Leader) */}
-        {(user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER" || user?.role === "SUPER_ADMIN") && 
-         !isViewingAsAnyRole && (
+        {/* Administration Section - Role-based access control */}
+        {canViewAdministration && (
           <div className="mb-8">
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
               <div className="flex items-center mb-4">
@@ -223,25 +230,29 @@ export default function MemberDashboard() {
                 <h2 className="text-xl font-bold text-gray-900">Administration</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setLocation('/admin')}
-                  className="bg-white hover:bg-gray-50"
-                  data-testid="button-manage-users"
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  Manage Users
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setLocation('/admin')}
-                  className="bg-white hover:bg-gray-50"
-                  data-testid="button-view-assessments"
-                >
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  View Assessments
-                </Button>
-                {user?.role === "SUPER_ADMIN" && (
+                {canManageUsers && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setLocation('/admin')}
+                    className="bg-white hover:bg-gray-50"
+                    data-testid="button-manage-users"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Manage Users
+                  </Button>
+                )}
+                {canViewAllAssessments && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setLocation('/admin')}
+                    className="bg-white hover:bg-gray-50"
+                    data-testid="button-view-assessments"
+                  >
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    View Assessments
+                  </Button>
+                )}
+                {canManageOrganizations && (
                   <Button
                     variant="outline"
                     onClick={() => setLocation('/admin')}
@@ -252,6 +263,29 @@ export default function MemberDashboard() {
                     Manage Organizations
                   </Button>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Role-Based Context Information */}
+        {currentViewType && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <User className="h-5 w-5 text-amber-600 mr-2" />
+                <div>
+                  <h3 className="font-medium text-amber-800">
+                    {currentViewType === "PARTICIPANT" && "Church Member View"}
+                    {currentViewType === "ORG_LEADER" && "Church Leader View"}
+                    {currentViewType === "ORG_ADMIN" && "Church Admin View"}
+                  </h3>
+                  <p className="text-sm text-amber-700">
+                    {currentViewType === "PARTICIPANT" && "You can take assessments and view your own results."}
+                    {currentViewType === "ORG_LEADER" && "You can view assessment results and analytics for your organization."}
+                    {currentViewType === "ORG_ADMIN" && "You can manage users and view all assessment data."}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -389,7 +423,7 @@ export default function MemberDashboard() {
               </Card>
             )}
 
-            {/* Quick Actions */}
+            {/* Quick Actions - Role-based visibility */}
             <Card>
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg">Quick Actions</CardTitle>
@@ -405,30 +439,59 @@ export default function MemberDashboard() {
                   Edit Profile
                   <ChevronRight className="ml-auto h-4 w-4" />
                 </Button>
-                {hasCompletedAssessment && (
+                
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start" 
+                  onClick={handleViewResults}
+                  disabled={!hasCompletedAssessment}
+                  data-testid="button-view-results"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  {effectiveRole === "PARTICIPANT" || currentViewType === "PARTICIPANT"
+                    ? "View My Results"
+                    : "View Assessment Results"
+                  }
+                  <ChevronRight className="ml-auto h-4 w-4" />
+                </Button>
+
+                {/* Show admin actions based on effective role */}
+                {canViewAllAssessments && effectiveRole !== "PARTICIPANT" && (
                   <Button 
                     variant="ghost" 
                     className="w-full justify-start" 
-                    onClick={handleViewResults}
-                    data-testid="button-view-all-results"
+                    onClick={() => setLocation('/admin')}
+                    data-testid="button-admin-dashboard"
                   >
-                    <BarChart3 className="mr-2 h-4 w-4" />
-                    View All Results
+                    <Settings className="mr-2 h-4 w-4" />
+                    {effectiveRole === "ORG_LEADER" ? "Leadership Dashboard" : 
+                     effectiveRole === "ORG_ADMIN" ? "Admin Dashboard" : 
+                     "Super Admin Dashboard"}
                     <ChevronRight className="ml-auto h-4 w-4" />
                   </Button>
                 )}
               </CardContent>
             </Card>
 
-            {/* Assessment Stats */}
+            {/* Progress Stats - Role-based content */}
             {hasCompletedAssessment && (
               <Card>
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-lg">Your Progress</CardTitle>
+                  <CardTitle className="text-lg">
+                    {effectiveRole === "PARTICIPANT" || currentViewType === "PARTICIPANT"
+                      ? "Your Progress"
+                      : "Organization Progress"
+                    }
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Assessments Completed</span>
+                    <span className="text-sm text-gray-600">
+                      {effectiveRole === "PARTICIPANT" || currentViewType === "PARTICIPANT"
+                        ? "Assessments Completed"
+                        : "Total Assessments"
+                      }
+                    </span>
                     <Badge variant="secondary">{results.length}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
@@ -437,6 +500,20 @@ export default function MemberDashboard() {
                       {new Date(latestResult.createdAt).toLocaleDateString()}
                     </span>
                   </div>
+                  
+                  {/* Show role-specific information */}
+                  {currentViewType && (
+                    <div className="pt-2 border-t">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Current View</span>
+                        <Badge variant="outline" className="text-xs">
+                          {currentViewType === "PARTICIPANT" && "Church Member"}
+                          {currentViewType === "ORG_LEADER" && "Church Leader"}
+                          {currentViewType === "ORG_ADMIN" && "Church Admin"}
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
