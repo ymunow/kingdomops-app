@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Eye, EyeOff, Crown, Users, Shield, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface ViewContext {
   isViewingAs: boolean;
@@ -57,14 +58,7 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
   // Switch view mutation
   const switchViewMutation = useMutation({
     mutationFn: async ({ userType, organizationId }: { userType?: string; organizationId?: string }) => {
-      const response = await fetch("/api/super-admin/view-as", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userType, organizationId }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to switch view");
-      }
+      const response = await apiRequest("POST", "/api/super-admin/view-as", { userType, organizationId });
       return response.json();
     },
     onSuccess: () => {
@@ -91,12 +85,7 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
   // Return to admin view mutation
   const returnToAdminMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch("/api/super-admin/view-as", {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        throw new Error("Failed to return to admin view");
-      }
+      const response = await apiRequest("DELETE", "/api/super-admin/view-as");
       return response.json();
     },
     onSuccess: () => {
