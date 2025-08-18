@@ -110,6 +110,14 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Initialize database with seed data on startup
+  try {
+    const { seedDatabase } = await import("./seed-database");
+    await seedDatabase();
+  } catch (error) {
+    console.error("Database seeding failed:", error);
+  }
+
   // Check environment more explicitly
   const isProduction = process.env.NODE_ENV === "production";
   
