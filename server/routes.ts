@@ -1091,6 +1091,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Super Admin organization update endpoint
+  app.patch("/api/super-admin/organizations/:orgId", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { orgId } = req.params;
+      const updates = req.body;
+      
+      // Validate the organization exists
+      const organization = await storage.getOrganization(orgId);
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+
+      // Update the organization
+      const updatedOrganization = await storage.updateOrganization(orgId, updates);
+      res.json(updatedOrganization);
+    } catch (error) {
+      console.error("Update organization error:", error);
+      res.status(500).json({ message: "Failed to update organization" });
+    }
+  });
+
   // Super Admin Organizations endpoint - lists all organizations with stats for admin management  
   app.get("/api/super-admin/organizations", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {
