@@ -50,12 +50,21 @@ function Router() {
     retry: false,
   });
 
-  // Get current view context from all sources
+  // Clear any persistent view context on app load for super admins
+  useEffect(() => {
+    if (user?.role === 'SUPER_ADMIN' && !window.location.pathname.includes('view-as')) {
+      // Clear client-side view context storage
+      viewAsStorage.clearViewContext();
+    }
+  }, [user?.role]);
+
+  // Get current view context from all sources - only if explicitly set
   const localViewContext = viewAsStorage.getViewContext();
-  const currentViewType = 
-    localViewContext?.viewAsType || 
-    (viewContext && 'viewContext' in viewContext ? viewContext.viewContext?.viewAsType : null) || 
-    null;
+  const serverViewContext = viewContext && 'viewContext' in viewContext ? viewContext.viewContext?.viewAsType : null;
+  
+  // Only use view context if it was explicitly set by user action (not persistent from old sessions)
+  // Super admins should get their admin view by default unless they explicitly choose "View As"
+  const currentViewType = (user?.role === 'SUPER_ADMIN' && !localViewContext) ? null : (localViewContext?.viewAsType || serverViewContext || null);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -124,15 +133,14 @@ function Router() {
                 const userRole = (user as any)?.role;
                 const organizationId = (user as any)?.organizationId;
                 
-                // If super admin is viewing as PARTICIPANT, show member dashboard
-                if (userRole === "SUPER_ADMIN" && currentViewType === "PARTICIPANT") {
-                  return <MemberDashboard />;
-                }
-                
-                // Normal admin routing
+                // Normal admin routing - super admins get admin view by default
                 if (userRole && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes(userRole)) {
                   if (userRole === "SUPER_ADMIN") {
-                    // For super admins, show platform overview with default organization
+                    // If super admin is explicitly viewing as PARTICIPANT, show member dashboard
+                    if (currentViewType === "PARTICIPANT") {
+                      return <MemberDashboard />;
+                    }
+                    // Default: show platform overview with default organization
                     return <ChurchOverview organizationId="default-org-001" />;
                   } else if (organizationId && ["ORG_OWNER", "ORG_ADMIN", "ORG_LEADER"].includes(userRole)) {
                     // For church admins, show their own organization overview
