@@ -6,6 +6,13 @@ This is a full-stack web application for conducting spiritual gifts assessments.
 
 ## Recent Updates (August 2025)
 
+### Church Overview Dashboard as Landing Page (August 18, 2025)
+- **New Default Landing Experience**: Made the Church Overview Dashboard the primary homepage for all admin-level users
+- **Role-Based Dashboard Routing**: SUPER_ADMIN users see platform overview, church admins see their organization-specific overview
+- **Enhanced Visual Analytics**: Beautiful pie charts for age distribution, spiritual gifts visualization, and real-time activity feeds
+- **Improved Admin Experience**: Admins now land directly on comprehensive insights rather than traditional admin menus
+- **Smart Context Detection**: Dashboard automatically adapts title and content based on user role and organization context
+
 ### Super Admin Roadmap Creation (August 18, 2025)
 - **Comprehensive Enhancement Plan**: Created detailed roadmap for advanced Super Admin user management capabilities
 - **Phased Implementation Strategy**: Organized 15+ missing features into 7 phases with clear priorities and timelines

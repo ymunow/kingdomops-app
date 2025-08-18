@@ -23,7 +23,7 @@ import {
   Star
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from "recharts";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 interface ChurchMetrics {
   // Overview Stats
@@ -88,13 +88,22 @@ const GIFT_LABELS: Record<string, string> = {
 };
 
 export default function ChurchOverview({ organizationId }: ChurchOverviewProps) {
+  const [, setLocation] = useLocation();
   const { user } = useAuth();
   // const { organization } = useOrganization(); // TODO: Use organization hook
   const organization = null; // Temporary placeholder
   
   // Use provided organizationId or current organization
   const targetOrgId = organizationId || organization?.id;
-  const targetOrgName = organization?.name || "Your Church";
+  const targetOrgName = organization?.name || "Kingdom Impact Training";
+  
+  const isSuperAdmin = user?.role === "SUPER_ADMIN";
+  const isChurchAdmin = ["ORG_OWNER", "ORG_ADMIN", "ORG_LEADER"].includes(user?.role || "");
+  
+  // Determine the dashboard title based on role and context
+  const dashboardTitle = isSuperAdmin 
+    ? (targetOrgId === "default-org-001" ? "Platform Overview" : `${targetOrgName} Overview`)
+    : `${targetOrgName} Dashboard`;
 
   const { data: metrics, isLoading, error } = useQuery<ChurchMetrics>({
     queryKey: ['/api/church-overview', targetOrgId],
@@ -148,8 +157,12 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-charcoal">{targetOrgName} - Dashboard Overview</h1>
-              <p className="text-gray-600 mt-1">Comprehensive insights into your congregation's spiritual gifts and ministry engagement</p>
+              <h1 className="text-3xl font-bold text-charcoal">{dashboardTitle}</h1>
+              <p className="text-gray-600 mt-1">
+                {isSuperAdmin 
+                  ? "Platform-wide insights and church management" 
+                  : "Comprehensive insights into your congregation's spiritual gifts and ministry engagement"}
+              </p>
             </div>
             <div className="flex space-x-3">
               {user?.role === 'SUPER_ADMIN' && (

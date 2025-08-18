@@ -69,8 +69,34 @@ function Router() {
         {/* Homepage routing - different for authenticated vs non-authenticated */}
         {isAuthenticated ? (
           <>
-            {/* Member dashboard as homepage for authenticated users */}
-            <Route path="/" component={MemberDashboard} />
+            {/* Homepage routing based on user role */}
+            {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) ? (
+              <>
+                {/* Church Overview Dashboard as homepage for admins */}
+                <Route path="/">
+                  {() => {
+                    const userRole = (user as any)?.role;
+                    const organizationId = (user as any)?.organizationId;
+                    
+                    if (userRole === "SUPER_ADMIN") {
+                      // For super admins, show platform overview with default organization
+                      return <ChurchOverview organizationId="default-org-001" />;
+                    } else if (organizationId && ["ORG_OWNER", "ORG_ADMIN", "ORG_LEADER"].includes(userRole)) {
+                      // For church admins, show their own organization overview
+                      return <ChurchOverview organizationId={organizationId} />;
+                    } else {
+                      // Fallback to member dashboard
+                      return <MemberDashboard />;
+                    }
+                  }}
+                </Route>
+              </>
+            ) : (
+              <>
+                {/* Member dashboard as homepage for regular users */}
+                <Route path="/" component={MemberDashboard} />
+              </>
+            )}
             
             {/* Protected routes */}
             <Route path="/assessment" component={Assessment} />
