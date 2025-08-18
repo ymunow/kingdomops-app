@@ -52,9 +52,9 @@ app.use(session({
   saveUninitialized: false,
   store: new PostgresSessionStore({
     conString: process.env.DATABASE_URL,
-    createTableIfMissing: true,
+    createTableIfMissing: false,
     ttl: 24 * 60 * 60, // 24 hours in seconds
-    tableName: "view_sessions"
+    tableName: "sessions"
   }),
   cookie: {
     secure: process.env.NODE_ENV === 'production',

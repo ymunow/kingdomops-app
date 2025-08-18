@@ -92,22 +92,18 @@ export default function MemberDashboard() {
                 Welcome, {user?.displayName || user?.firstName || user?.email?.split('@')[0] || "Member"}
               </span>
               
-              {/* Super Admin View As Controls */}
-              {user?.role === 'SUPER_ADMIN' && (
+              {/* Admin Role Indicator and View As Controls */}
+              {(user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER" || user?.role === "SUPER_ADMIN") && (
                 <>
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                  <Badge variant="outline" className={
+                    user?.role === "SUPER_ADMIN" 
+                      ? "bg-purple-50 text-purple-700 border-purple-200" 
+                      : "bg-blue-50 text-blue-700 border-blue-200"
+                  }>
                     <Shield className="mr-1 h-3 w-3" />
-                    Super Admin
+                    {user?.role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}
                   </Badge>
-                  <ViewAsSwitcher user={user} />
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setLocation('/admin')} 
-                    data-testid="button-admin-dashboard"
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Admin
-                  </Button>
+                  {user?.role === "SUPER_ADMIN" && <ViewAsSwitcher user={user} />}
                 </>
               )}
               
@@ -185,6 +181,49 @@ export default function MemberDashboard() {
                 <p className="text-sm text-purple-700">
                   You have full administrative access. Use "View As" to switch between organizations and manage all church accounts.
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Admin Management Section */}
+        {(user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER" || user?.role === "SUPER_ADMIN") && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+              <div className="flex items-center mb-4">
+                <Settings className="h-6 w-6 text-blue-600 mr-3" />
+                <h2 className="text-xl font-bold text-gray-900">Administration</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-manage-users"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Manage Users
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation('/admin')}
+                  className="bg-white hover:bg-gray-50"
+                  data-testid="button-view-assessments"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  View Assessments
+                </Button>
+                {user?.role === "SUPER_ADMIN" && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setLocation('/admin')}
+                    className="bg-white hover:bg-gray-50"
+                    data-testid="button-manage-organizations"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Manage Organizations
+                  </Button>
+                )}
               </div>
             </div>
           </div>
