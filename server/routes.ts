@@ -270,7 +270,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/super-admin/view-context', isAuthenticated, async (req: any, res) => {
     try {
-      const viewContext = (req.session as any).viewAsContext || null;
+      const viewContext = req.session?.viewAsContext || null;
       res.json({ viewContext });
     } catch (error) {
       console.error("Get view context error:", error);

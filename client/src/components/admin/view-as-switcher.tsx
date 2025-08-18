@@ -22,6 +22,10 @@ interface ViewContext {
     role: string;
   };
   viewAsType: string;
+  targetOrganization?: {
+    id: string;
+    name: string;
+  };
 }
 
 interface ViewAsSwitcherProps {

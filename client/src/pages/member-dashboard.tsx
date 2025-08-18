@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
 import { 
   Play, 
   BarChart3, 
@@ -17,7 +18,9 @@ import {
   Calendar,
   Target,
   Users,
-  Church
+  Church,
+  Settings,
+  Shield
 } from "lucide-react";
 
 interface UserResult {
@@ -81,6 +84,26 @@ export default function MemberDashboard() {
               <span className="text-gray-700" data-testid="text-username">
                 Welcome, {user?.firstName || user?.email?.split('@')[0] || "Member"}
               </span>
+              
+              {/* Super Admin View As Controls */}
+              {user?.role === 'SUPER_ADMIN' && (
+                <>
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                    <Shield className="mr-1 h-3 w-3" />
+                    Super Admin
+                  </Badge>
+                  <ViewAsSwitcher user={user} />
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setLocation('/admin')} 
+                    data-testid="button-admin-dashboard"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Admin
+                  </Button>
+                </>
+              )}
+              
               <Button variant="outline" onClick={handleViewProfile} data-testid="button-profile">
                 <User className="mr-2 h-4 w-4" />
                 Profile
@@ -95,6 +118,21 @@ export default function MemberDashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Super Admin Status Alert */}
+        {user?.role === 'SUPER_ADMIN' && (
+          <div className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <Shield className="h-5 w-5 text-purple-600 mr-2" />
+              <div>
+                <h3 className="font-semibold text-purple-900">Super Administrator Access</h3>
+                <p className="text-sm text-purple-700">
+                  You have full administrative access. Use "View As" to switch between organizations and manage all church accounts.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
