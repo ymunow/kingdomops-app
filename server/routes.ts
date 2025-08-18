@@ -94,7 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       // Check for view-as context
@@ -145,7 +145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user's organization info
   app.get('/api/auth/organization', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       
       // Check for view-as context for organization switching
@@ -181,7 +181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/auth/complete-profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const validatedData = profileCompletionSchema.parse(req.body);
       
       const updatedUser = await storage.completeUserProfile(userId, validatedData);
@@ -199,7 +199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Store view context in session
       req.session.viewAsContext = {
-        originalUserId: req.user.claims.sub,
+        originalUserId: req.user.id,
         viewAsType: userType, // 'PARTICIPANT', 'ORG_ADMIN', etc.
         viewAsUserId: userId, // Optional: specific user to view as
         viewAsOrganizationId: organizationId, // Optional: specific organization to view as
@@ -693,7 +693,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // My Results - authenticated user's own results
   app.get("/api/my-results", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Get all user's responses and their results
       const userResults = await storage.getUserResults(userId);

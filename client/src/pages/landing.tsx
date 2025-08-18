@@ -8,15 +8,18 @@ import { Crown, Clock, BarChart3, Users, Eye, HandHeart, Shield, Mountain, BellR
 
 export default function Landing() {
   const [, setLocation] = useLocation();
-  const { user, isAuthenticated } = useAuth();
+  const { user, session } = useAuth();
+  const isAuthenticated = !!user;
   const { organization } = useOrganization();
 
+  const { signOutMutation } = useAuth();
+
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    setLocation("/auth");
   };
 
   const handleLogout = () => {
-    window.location.href = "/api/logout";
+    signOutMutation.mutate();
   };
 
   const startAssessment = () => {
