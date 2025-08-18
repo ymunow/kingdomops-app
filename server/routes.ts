@@ -98,7 +98,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       
       // Check for view-as context
-      const viewContext = req.session.viewAsContext;
+      const viewContext = (req.session as any).viewAsContext;
       if (viewContext && user?.role === 'SUPER_ADMIN') {
         // If viewing a specific organization, get that org's details
         let targetOrganization = null;
@@ -149,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       
       // Check for view-as context for organization switching
-      const viewContext = req.session.viewAsContext;
+      const viewContext = (req.session as any).viewAsContext;
       let targetOrgId = user?.organizationId;
       
       if (viewContext && user?.role === 'SUPER_ADMIN' && viewContext.viewAsOrganizationId) {
@@ -198,7 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { userType, userId, organizationId } = req.body;
       
       // Store view context in session
-      req.session.viewAsContext = {
+      (req.session as any).viewAsContext = {
         originalUserId: req.user.id,
         viewAsType: userType, // 'PARTICIPANT', 'ORG_ADMIN', etc.
         viewAsUserId: userId, // Optional: specific user to view as
@@ -208,7 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ 
         success: true, 
-        viewContext: req.session.viewAsContext,
+        viewContext: (req.session as any).viewAsContext,
         message: organizationId ? `Now managing organization` : `Now viewing as ${userType}` 
       });
     } catch (error) {
@@ -219,8 +219,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/super-admin/view-as', isAuthenticated, async (req: any, res) => {
     try {
-      if (req.session.viewAsContext) {
-        delete req.session.viewAsContext;
+      if ((req.session as any).viewAsContext) {
+        delete (req.session as any).viewAsContext;
       }
       
       res.json({ 
@@ -235,7 +235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/super-admin/view-context', isAuthenticated, async (req: any, res) => {
     try {
-      const viewContext = req.session.viewAsContext || null;
+      const viewContext = (req.session as any).viewAsContext || null;
       res.json({ viewContext });
     } catch (error) {
       console.error("Get view context error:", error);
@@ -837,12 +837,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Consolidated organization update route (for both super admin and church admin)
   app.put("/api/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
+      const userId = req.user?.id;
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
       
-      const user = await storage.getUser(userId as string);
+      const user = await storage.getUser(userId);
       if (!user) {
         return res.status(401).json({ message: "User not found" });
       }
@@ -872,7 +872,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Church Admin Dashboard Routes
   app.get("/api/admin/dashboard/metrics", isAuthenticated, addUserContext(), requireOrgAdmin, async (req, res) => {
     try {
-      const userId = (req.user as any)?.claims?.sub;
+      const userId = req.user?.id;
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
@@ -880,7 +880,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let organizationId: string;
       
       // Check for view-as context first
-      const viewContext = req.session.viewAsContext;
+      const viewContext = (req.session as any).viewAsContext;
       if (viewContext && viewContext.viewAsOrganizationId) {
         organizationId = viewContext.viewAsOrganizationId;
       } else {
@@ -909,7 +909,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let organizationId: string;
       
       // Check for view-as context first
-      const viewContext = req.session.viewAsContext;
+      const viewContext = (req.session as any).viewAsContext;
       if (viewContext && viewContext.viewAsOrganizationId) {
         organizationId = viewContext.viewAsOrganizationId;
         console.log(`Dashboard Users - Using View As context - orgId: ${organizationId}`);
@@ -950,7 +950,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let organizationId: string;
       
       // Check for view-as context first
-      const viewContext = req.session.viewAsContext;
+      const viewContext = (req.session as any).viewAsContext;
       if (viewContext && viewContext.viewAsOrganizationId) {
         organizationId = viewContext.viewAsOrganizationId;
       } else {
@@ -1073,7 +1073,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let organizationId: string;
       
       // Check for view-as context first
-      const viewContext = req.session.viewAsContext;
+      const viewContext = (req.session as any).viewAsContext;
       if (viewContext && viewContext.viewAsOrganizationId) {
         organizationId = viewContext.viewAsOrganizationId;
       } else {
@@ -1102,7 +1102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let organizationId: string;
       
       // Check for view-as context first
-      const viewContext = req.session.viewAsContext;
+      const viewContext = (req.session as any).viewAsContext;
       if (viewContext && viewContext.viewAsOrganizationId) {
         organizationId = viewContext.viewAsOrganizationId;
       } else {

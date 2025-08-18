@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Express, RequestHandler } from "express";
 import { storage } from "./storage";
 
-// Temporarily hardcode for setup - will be replaced with environment variables
+// Using provided credentials with environment variable fallback
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://uhrveotjyufguojzpawy.supabase.co";
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVocnZlb3RqeXVmZ3VvanpwYXd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NzY2ODksImV4cCI6MjA3MTA1MjY4OX0.pttCCLGODMAMarg6YAZUM6kczMCkB-FLREoAsV8paMk";
 
