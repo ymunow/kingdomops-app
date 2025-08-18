@@ -76,7 +76,9 @@ export async function setupSupabaseAuth(app: Express) {
           first_name: firstName,
           last_name: lastName,
         },
-        emailRedirectTo: `${req.protocol}://${req.get('host')}/auth?confirmed=true`
+        emailRedirectTo: process.env.NODE_ENV === 'production' 
+          ? `https://kingdomops.org/auth?confirmed=true`
+          : `${req.protocol}://${req.get('host')}/auth?confirmed=true`
       }
     });
 
