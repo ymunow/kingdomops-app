@@ -46,6 +46,9 @@ export default function MemberDashboard() {
     retry: false,
   });
 
+  // Check if currently viewing as a Church Member (PARTICIPANT)
+  const isViewingAsParticipant = viewContext?.viewContext?.viewAsType === "PARTICIPANT" || user?.viewContext?.viewAsType === "PARTICIPANT";
+
   // Fetch user's results
   const { data: results = [], isLoading: resultsLoading } = useQuery<UserResult[]>({
     queryKey: ["/api/my-results"],
@@ -190,8 +193,9 @@ export default function MemberDashboard() {
           </div>
         )}
 
-        {/* Admin Management Section */}
-        {(user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER" || user?.role === "SUPER_ADMIN") && (
+        {/* Admin Management Section - Hide when viewing as regular Church Member */}
+        {(user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER" || user?.role === "SUPER_ADMIN") && 
+         !isViewingAsParticipant && (
           <div className="mb-8">
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
               <div className="flex items-center mb-4">
