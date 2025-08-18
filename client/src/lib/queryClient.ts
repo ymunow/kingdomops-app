@@ -12,16 +12,19 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Get Supabase session token from localStorage
-  const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
-  let authToken = null;
+  // Try to get auth token from query cache first (set by auth hook)
+  let authToken = queryClient.getQueryData(['authToken']) as string;
   
-  if (supabaseSession) {
-    try {
-      const session = JSON.parse(supabaseSession);
-      authToken = session?.access_token;
-    } catch (e) {
-      console.warn('Failed to parse Supabase session:', e);
+  // Fallback to Supabase localStorage if not in cache
+  if (!authToken) {
+    const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
+    if (supabaseSession) {
+      try {
+        const session = JSON.parse(supabaseSession);
+        authToken = session?.access_token;
+      } catch (e) {
+        console.warn('Failed to parse Supabase session:', e);
+      }
     }
   }
   
@@ -47,16 +50,19 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Get Supabase session token from localStorage
-    const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
-    let authToken = null;
+    // Try to get auth token from query cache first (set by auth hook)
+    let authToken = queryClient.getQueryData(['authToken']) as string;
     
-    if (supabaseSession) {
-      try {
-        const session = JSON.parse(supabaseSession);
-        authToken = session?.access_token;
-      } catch (e) {
-        console.warn('Failed to parse Supabase session:', e);
+    // Fallback to Supabase localStorage if not in cache
+    if (!authToken) {
+      const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
+      if (supabaseSession) {
+        try {
+          const session = JSON.parse(supabaseSession);
+          authToken = session?.access_token;
+        } catch (e) {
+          console.warn('Failed to parse Supabase session:', e);
+        }
       }
     }
     
