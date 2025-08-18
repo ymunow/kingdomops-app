@@ -418,7 +418,7 @@ function EditOrgForm({ organization, onSubmit }: { organization: Organization; o
       </div>
       <div>
         <Label htmlFor="edit-status">Status</Label>
-        <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+        <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' }))}>
           <SelectTrigger data-testid="select-edit-status">
             <SelectValue />
           </SelectTrigger>

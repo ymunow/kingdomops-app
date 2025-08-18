@@ -1062,6 +1062,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Super Admin Organizations endpoint - lists all organizations with stats for admin management  
+  app.get("/api/super-admin/organizations", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const organizations = await storage.getOrganizations();
+      
+      // Get stats for each organization
+      const orgStats = await Promise.all(
+        organizations.map(async (org) => {
+          const metrics = await storage.getDashboardMetrics(org.id);
+          const totalUsers = await storage.getUserCountByOrganization(org.id);
+          
+          return {
+            id: org.id,
+            name: org.name,
+            contactEmail: org.contactEmail,
+            phone: org.address || "",
+            address: org.address || "",
+            memberCount: totalUsers,
+            completedAssessments: metrics.totalCompletions || 0,
+            status: org.status,
+            createdAt: org.createdAt
+          };
+        })
+      );
+      
+      res.json(orgStats);
+    } catch (error) {
+      console.error("Super admin organizations error:", error);
+      res.status(500).json({ message: "Failed to fetch organizations" });
+    }
+  });
+
   app.get("/api/super-admin/organizations/overview", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {
       const organizations = await storage.getOrganizations();

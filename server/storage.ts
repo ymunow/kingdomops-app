@@ -70,6 +70,7 @@ export interface IStorage {
   // Super Admin platform management
   getPlatformMetrics(): Promise<any>;
   getAllOrganizationsWithStats(): Promise<any[]>;
+  getUserCountByOrganization(organizationId: string): Promise<number>;
   getSystemSettings(): Promise<any>;
   updateSystemSettings(settings: any): Promise<any>;
 
@@ -687,6 +688,15 @@ export class DatabaseStorage implements IStorage {
     });
 
     return distribution;
+  }
+
+  async getUserCountByOrganization(organizationId: string): Promise<number> {
+    const result = await db
+      .select({ count: count() })
+      .from(users)
+      .where(eq(users.organizationId, organizationId));
+    
+    return result[0]?.count || 0;
   }
 
   // Permission helpers
