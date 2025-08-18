@@ -39,6 +39,13 @@ export default function MemberDashboard() {
   const { organization } = useOrganization();
   const [, setLocation] = useLocation();
 
+  // Fetch current view context for super admins
+  const { data: viewContext } = useQuery({
+    queryKey: ["/api/super-admin/view-context"],
+    enabled: user?.role === 'SUPER_ADMIN',
+    retry: false,
+  });
+
   // Fetch user's results
   const { data: results = [], isLoading: resultsLoading } = useQuery<UserResult[]>({
     queryKey: ["/api/my-results"],
@@ -118,8 +125,45 @@ export default function MemberDashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Super Admin Status Alert */}
+        {/* View Context Indicator for Super Admins */}
         {user?.role === 'SUPER_ADMIN' && (
+          <div className="mb-6">
+            {viewContext?.viewContext ? (
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <User className="h-5 w-5 text-amber-600 mr-2" />
+                    <div>
+                      <h3 className="font-medium text-amber-800">
+                        Viewing as {viewContext.viewContext.role.replace('_', ' ').toLowerCase()}
+                      </h3>
+                      <p className="text-sm text-amber-700">
+                        Organization: {viewContext.viewContext.organizationName}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
+                    <User className="mr-1 h-3 w-3" />
+                    View Mode Active
+                  </Badge>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <Shield className="h-5 w-5 text-purple-600 mr-2" />
+                  <div>
+                    <h3 className="font-medium text-purple-800">Super Admin View</h3>
+                    <p className="text-sm text-purple-700">You are viewing as yourself with full admin privileges.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Super Admin Status Alert */}
+        {user?.role === 'SUPER_ADMIN' && false && (
           <div className="mb-6 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
             <div className="flex items-center">
               <Shield className="h-5 w-5 text-purple-600 mr-2" />
