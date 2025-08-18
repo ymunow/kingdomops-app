@@ -578,7 +578,12 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                   <Activity className="h-5 w-5 mr-2" />
                   Recent Activity
                 </span>
-                <Button variant="outline" size="sm" disabled>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setLocation('/admin')}
+                  data-testid="button-view-all-activity"
+                >
                   View All
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
