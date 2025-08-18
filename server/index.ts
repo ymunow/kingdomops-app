@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
 import helmet from "helmet";
+import session from "express-session";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
@@ -40,6 +41,18 @@ app.use(compression({
 // Body parsing with security limits
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// Session middleware for View As functionality
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'default-dev-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 // Cache control for API routes
 app.use('/api', (req, res, next) => {
