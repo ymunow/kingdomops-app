@@ -89,7 +89,7 @@ export default function MemberDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700" data-testid="text-username">
-                Welcome, {user?.firstName || user?.email?.split('@')[0] || "Member"}
+                Welcome, {user?.displayName || user?.firstName || user?.email?.split('@')[0] || "Member"}
               </span>
               
               {/* Super Admin View As Controls */}
@@ -180,7 +180,10 @@ export default function MemberDashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {hasCompletedAssessment ? "Welcome back!" : "Welcome to your spiritual journey!"}
+            {hasCompletedAssessment ? 
+              `Welcome back, ${user?.displayName || user?.firstName || 'Member'}!` : 
+              `Welcome, ${user?.displayName || user?.firstName || 'Member'}!`
+            }
           </h2>
           <p className="text-gray-600">
             {hasCompletedAssessment 
