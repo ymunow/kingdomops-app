@@ -65,13 +65,14 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/view-context"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/my-results"] });
       toast({
         title: "View switched",
         description: "Successfully switched user view context.",
       });
       setIsOpen(false);
-      // Refresh page to ensure all components update
-      window.location.reload();
+      // Don't reload page - let React Query handle the updates
     },
     onError: (error) => {
       toast({
@@ -92,13 +93,14 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/view-context"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/my-results"] });
       toast({
         title: "Returned to admin view",
         description: "You're now viewing as the super admin again.",
       });
       setIsOpen(false);
-      // Refresh page to ensure all components update
-      window.location.reload();
+      // Don't reload page - let React Query handle the updates
     },
     onError: (error) => {
       toast({

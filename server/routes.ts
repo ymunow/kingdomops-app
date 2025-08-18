@@ -132,7 +132,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
       
-      // Check for view-as context
+      // Check for view-as context but preserve actual user data
       const viewContext = (req.session as any).viewAsContext;
       if (viewContext && user?.role === 'SUPER_ADMIN') {
         // If viewing a specific organization, get that org's details
@@ -141,16 +141,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           targetOrganization = await storage.getOrganization(viewContext.viewAsOrganizationId);
         }
         
-        // Return a mock user object based on view context
-        const mockUserData = {
-          id: 'view-as-mock',
-          role: viewContext.viewAsType || 'ORG_ADMIN',
-          email: targetOrganization ? `admin@${targetOrganization.name.toLowerCase().replace(/\s+/g, '')}.org` : `viewing-as-${(viewContext.viewAsType || 'admin').toLowerCase()}@example.com`,
-          firstName: 'Managing',
-          lastName: targetOrganization ? targetOrganization.name : `As ${(viewContext.viewAsType || 'Admin').replace('_', ' ')}`,
-          displayName: targetOrganization ? `Managing ${targetOrganization.name}` : `View As ${(viewContext.viewAsType || 'Admin').replace('_', ' ')}`,
-          profileCompleted: true,
-          organizationId: viewContext.viewAsOrganizationId || user.organizationId,
+        // Return the actual user data with view context added, not mock data
+        const userWithViewContext = {
+          ...user, // Preserve all actual user data (including name changes)
           viewContext: {
             isViewingAs: true,
             originalUser: {
@@ -162,11 +155,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               organizationId: user.organizationId
             },
             viewAsType: viewContext.viewAsType || 'ORG_ADMIN',
-            targetOrganization: targetOrganization
+            targetOrganization: targetOrganization,
+            role: viewContext.viewAsType || 'ORG_ADMIN',
+            organizationName: targetOrganization?.name
           }
         };
         
-        res.json(mockUserData);
+        res.json(userWithViewContext);
         return;
       }
       

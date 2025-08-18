@@ -128,17 +128,17 @@ export default function MemberDashboard() {
         {/* View Context Indicator for Super Admins */}
         {user?.role === 'SUPER_ADMIN' && (
           <div className="mb-6">
-            {viewContext?.viewContext ? (
+            {viewContext?.viewContext || user?.viewContext?.isViewingAs ? (
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <User className="h-5 w-5 text-amber-600 mr-2" />
                     <div>
                       <h3 className="font-medium text-amber-800">
-                        Viewing as {viewContext.viewContext.role.replace('_', ' ').toLowerCase()}
+                        Viewing as {(user?.viewContext?.role || viewContext?.viewContext?.role || 'member').replace('_', ' ').toLowerCase()}
                       </h3>
                       <p className="text-sm text-amber-700">
-                        Organization: {viewContext.viewContext.organizationName}
+                        Organization: {user?.viewContext?.organizationName || viewContext?.viewContext?.organizationName || 'Current Organization'}
                       </p>
                     </div>
                   </div>
