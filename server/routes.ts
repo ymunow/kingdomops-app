@@ -1108,7 +1108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get assessment results for each user
       const membersWithAssessments = await Promise.all(
         users.map(async (user) => {
-          const results = await storage.getResultsByUser(user.id);
+          const results = await storage.getUserResults(user.id);
           const latestResult = results?.[0]; // Most recent result
           
           return {

@@ -249,11 +249,22 @@ export class DatabaseStorage implements IStorage {
       .where(and(...conditions))
       .orderBy(desc(users.createdAt));
     
-    // Transform to UserWithResults type (simplified for now)
-    return userResults.map(user => ({
-      ...user,
-      totalAssessments: 0, // Would need a join to calculate
-    }));
+    // Get assessment counts for each user
+    const usersWithAssessments = await Promise.all(
+      userResults.map(async (user) => {
+        const userResponsesCount = await db
+          .select({ count: count() })
+          .from(responses)
+          .where(eq(responses.userId, user.id));
+        
+        return {
+          ...user,
+          totalAssessments: userResponsesCount[0]?.count || 0,
+        };
+      })
+    );
+    
+    return usersWithAssessments;
   }
 
   async updateUserRole(userId: string, role: OrganizationRole): Promise<User> {
