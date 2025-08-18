@@ -6,6 +6,12 @@ This is a full-stack web application for conducting spiritual gifts assessments.
 
 ## Recent Updates (August 2025)
 
+### Profile Editing System Fix (August 18, 2025)
+- **Resolved auto-submit bug**: Fixed critical issue where profile edit form was automatically submitting when clicking "Edit Profile" instead of enabling edit mode
+- **Form state management**: Implemented proper form submission control that only allows submission when in editing mode
+- **Data persistence**: Confirmed profile updates are correctly saving to database and displaying updated information
+- **Enhanced debugging**: Added comprehensive logging to track profile update requests and responses
+
 ### Assessment Page Modernization
 - **Complete UI overhaul**: Redesigned the assessment page with modern glass-morphism effects, gradient backgrounds, and animated progress indicators
 - **Enhanced user experience**: Added color-coded step system with icons, interactive card-based selections with hover effects, and polished typography
