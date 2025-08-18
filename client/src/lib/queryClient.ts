@@ -22,6 +22,10 @@ export async function apiRequest(
       try {
         const session = JSON.parse(supabaseSession);
         authToken = session?.access_token;
+        // Store in cache for next time
+        if (authToken) {
+          queryClient.setQueryData(['authToken'], authToken);
+        }
       } catch (e) {
         console.warn('Failed to parse Supabase session:', e);
       }

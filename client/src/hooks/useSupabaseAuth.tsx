@@ -62,6 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error('Session initialization error:', error);
         } else {
           setSession(session);
+          // Set initial auth token if session exists
+          if (session?.access_token) {
+            queryClient.setQueryData(['authToken'], session.access_token);
+            console.log('Initial auth token set:', session.access_token.substring(0, 20) + '...');
+          }
         }
       } catch (error) {
         console.error('Auth initialization failed:', error);
