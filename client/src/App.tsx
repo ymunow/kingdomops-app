@@ -5,6 +5,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useSupabaseAuth";
+import { viewAsStorage } from "./lib/view-as-storage";
+import { useQuery } from "@tanstack/react-query";
 import AuthPage from "@/pages/auth";
 import { initializeCacheManagement } from "./utils/cache-management";
 import ProfileCompletionModal from "@/components/profile/profile-completion-modal";
@@ -35,6 +37,20 @@ function Router() {
   
   // For now, skip profile completion check - we'll implement this later
   const needsProfileCompletion = false;
+  
+  // Fetch current view context for super admins
+  const { data: viewContext } = useQuery<{ viewContext: any }>({
+    queryKey: ["/api/super-admin/view-context"],
+    enabled: user?.role === 'SUPER_ADMIN',
+    retry: false,
+  });
+
+  // Get current view context from all sources
+  const localViewContext = viewAsStorage.getViewContext();
+  const currentViewType = 
+    localViewContext?.viewAsType || 
+    (viewContext && 'viewContext' in viewContext ? viewContext.viewContext?.viewAsType : null) || 
+    null;
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -69,34 +85,32 @@ function Router() {
         {/* Homepage routing - different for authenticated vs non-authenticated */}
         {isAuthenticated ? (
           <>
-            {/* Homepage routing based on user role */}
-            {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) ? (
-              <>
-                {/* Church Overview Dashboard as homepage for admins */}
-                <Route path="/">
-                  {() => {
-                    const userRole = (user as any)?.role;
-                    const organizationId = (user as any)?.organizationId;
-                    
-                    if (userRole === "SUPER_ADMIN") {
-                      // For super admins, show platform overview with default organization
-                      return <ChurchOverview organizationId="default-org-001" />;
-                    } else if (organizationId && ["ORG_OWNER", "ORG_ADMIN", "ORG_LEADER"].includes(userRole)) {
-                      // For church admins, show their own organization overview
-                      return <ChurchOverview organizationId={organizationId} />;
-                    } else {
-                      // Fallback to member dashboard
-                      return <MemberDashboard />;
-                    }
-                  }}
-                </Route>
-              </>
-            ) : (
-              <>
-                {/* Member dashboard as homepage for regular users */}
-                <Route path="/" component={MemberDashboard} />
-              </>
-            )}
+            {/* Homepage routing based on user role and view context */}
+            <Route path="/">
+              {() => {
+                const userRole = (user as any)?.role;
+                const organizationId = (user as any)?.organizationId;
+                
+                // If super admin is viewing as PARTICIPANT, show member dashboard
+                if (userRole === "SUPER_ADMIN" && currentViewType === "PARTICIPANT") {
+                  return <MemberDashboard />;
+                }
+                
+                // Normal admin routing
+                if (userRole && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes(userRole)) {
+                  if (userRole === "SUPER_ADMIN") {
+                    // For super admins, show platform overview with default organization
+                    return <ChurchOverview organizationId="default-org-001" />;
+                  } else if (organizationId && ["ORG_OWNER", "ORG_ADMIN", "ORG_LEADER"].includes(userRole)) {
+                    // For church admins, show their own organization overview
+                    return <ChurchOverview organizationId={organizationId} />;
+                  }
+                }
+                
+                // Default to member dashboard for all other cases
+                return <MemberDashboard />;
+              }}
+            </Route>
             
             {/* Protected routes */}
             <Route path="/assessment" component={Assessment} />
