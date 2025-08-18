@@ -50,13 +50,20 @@ function Router() {
       />
       
       <Switch>
+        {/* Public routes available to everyone */}
+        <Route path="/auth" component={AuthPage} />
+        <Route path="/church-signup" component={ChurchSignup} />
+        <Route path="/join" component={JoinCongregation} />
+        <Route path="/join/:orgId" component={CongregationSignup} />
+        <Route path="/results/:responseId" component={Results} />
+        
         {isAuthenticated ? (
           <>
+            {/* Authenticated user routes */}
             <Route path="/" component={Landing} />
             <Route path="/assessment" component={Assessment} />
             <Route path="/my-results" component={MyResults} />
             <Route path="/profile" component={Profile} />
-            <Route path="/results/:responseId" component={Results} />
             
             {/* Admin routes - only for admin-level roles */}
             {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
@@ -68,14 +75,8 @@ function Router() {
           </>
         ) : (
           <>
-            <Route path="/" component={AuthPage} />
-            <Route path="/auth" component={AuthPage} />
-            
-            {/* Public routes for church and congregation signup */}
-            <Route path="/church-signup" component={ChurchSignup} />
-            <Route path="/join" component={JoinCongregation} />
-            <Route path="/join/:orgId" component={CongregationSignup} />
-            <Route path="/results/:responseId" component={Results} />
+            {/* Public landing page for non-authenticated users */}
+            <Route path="/" component={Landing} />
           </>
         )}
         
