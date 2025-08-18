@@ -15,6 +15,7 @@ import Results from "@/pages/results";
 import MyResults from "@/pages/my-results";
 import Admin from "@/pages/admin";
 import AdminDashboard from "@/pages/admin-dashboard";
+import MemberDashboard from "@/pages/member-dashboard";
 import Profile from "@/pages/profile";
 import ChurchSignup from "@/pages/church-signup";
 import ChurchAdminWelcome from "@/pages/church-admin-welcome";
@@ -50,9 +51,6 @@ function Router() {
       />
       
       <Switch>
-        {/* Homepage - always shows Landing page */}
-        <Route path="/" component={Landing} />
-        
         {/* Authentication routes */}
         <Route path="/auth" component={AuthPage} />
         
@@ -62,9 +60,13 @@ function Router() {
         <Route path="/join/:orgId" component={CongregationSignup} />
         <Route path="/results/:responseId" component={Results} />
         
-        {/* Protected routes - only for authenticated users */}
-        {isAuthenticated && (
+        {/* Homepage routing - different for authenticated vs non-authenticated */}
+        {isAuthenticated ? (
           <>
+            {/* Member dashboard as homepage for authenticated users */}
+            <Route path="/" component={MemberDashboard} />
+            
+            {/* Protected routes */}
             <Route path="/assessment" component={Assessment} />
             <Route path="/my-results" component={MyResults} />
             <Route path="/profile" component={Profile} />
@@ -76,6 +78,11 @@ function Router() {
                 <Route path="/admin-dashboard" component={AdminDashboard} />
               </>
             )}
+          </>
+        ) : (
+          <>
+            {/* Public landing page for non-authenticated users */}
+            <Route path="/" component={Landing} />
           </>
         )}
         

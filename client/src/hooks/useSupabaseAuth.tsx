@@ -113,6 +113,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Welcome back!",
         description: "You've been signed in successfully.",
       });
+      // Redirect to dashboard after successful signin
+      window.location.href = '/';
     },
     onError: (error: Error) => {
       toast({
@@ -138,11 +140,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      toast({
-        title: "Account created!",
-        description: "Please check your email to verify your account.",
-      });
+    onSuccess: (data) => {
+      if (data.session) {
+        // User is automatically logged in
+        setSession(data.session);
+        toast({
+          title: "Welcome!",
+          description: "Your account has been created successfully.",
+        });
+        window.location.href = '/';
+      } else {
+        // Email confirmation required
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account.",
+        });
+      }
     },
     onError: (error: Error) => {
       toast({

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,10 +26,10 @@ export default function Profile() {
   const form = useForm<ProfileCompletionData>({
     resolver: zodResolver(profileCompletionSchema),
     defaultValues: {
-      firstName: (user as any)?.firstName || "",
-      lastName: (user as any)?.lastName || "",
-      displayName: (user as any)?.displayName || "",
-      ageRange: (user as any)?.ageRange || undefined,
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      displayName: user?.displayName || "",
+      ageRange: user?.ageRange || undefined,
     },
   });
 
@@ -37,10 +37,10 @@ export default function Profile() {
   React.useEffect(() => {
     if (user) {
       form.reset({
-        firstName: (user as any)?.firstName || "",
-        lastName: (user as any)?.lastName || "",
-        displayName: (user as any)?.displayName || "",
-        ageRange: (user as any)?.ageRange || undefined,
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        displayName: user.displayName || "",
+        ageRange: user.ageRange || undefined,
       });
     }
   }, [user, form]);
