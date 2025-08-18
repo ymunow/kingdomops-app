@@ -75,7 +75,8 @@ export async function setupSupabaseAuth(app: Express) {
         data: {
           first_name: firstName,
           last_name: lastName,
-        }
+        },
+        emailRedirectTo: `${req.protocol}://${req.get('host')}/auth?confirmed=true`
       }
     });
 

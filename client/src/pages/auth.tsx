@@ -11,6 +11,15 @@ import { useEffect } from "react";
 export default function AuthPage() {
   const { user, signInMutation, signUpMutation } = useAuth();
   const [, setLocation] = useLocation();
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // Check for confirmation parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('confirmed') === 'true') {
+      setShowConfirmation(true);
+    }
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -18,6 +27,30 @@ export default function AuthPage() {
       setLocation('/');
     }
   }, [user, setLocation]);
+
+  if (showConfirmation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-spiritual-blue">Email Confirmed!</CardTitle>
+            <CardDescription>Your account has been verified. You can now sign in.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full" 
+              onClick={() => {
+                setShowConfirmation(false);
+                window.history.replaceState({}, '', '/auth');
+              }}
+            >
+              Continue to Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const [signInData, setSignInData] = useState({
     email: '',
