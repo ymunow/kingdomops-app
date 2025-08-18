@@ -44,7 +44,7 @@ export default function Profile() {
         ageRange: user.ageRange || undefined,
       });
     }
-  }, [user, form, isEditing]);
+  }, [user, isEditing]); // Remove form from dependencies to prevent reset loops
 
   const updateMutation = useMutation({
     mutationFn: async (data: ProfileCompletionData) => {
@@ -88,11 +88,11 @@ export default function Profile() {
     setIsEditing(false);
   };
 
-  const handleEditClick = () => {
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     console.log("Edit button clicked - entering edit mode");
     setIsEditing(true);
-    // Don't reset form here - it may trigger submission
-    // The form already has the current values
   };
 
   return (
@@ -157,7 +157,7 @@ export default function Profile() {
               </div>
 
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={isEditing ? form.handleSubmit(onSubmit) : (e) => e.preventDefault()} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
