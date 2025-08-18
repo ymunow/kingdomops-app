@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
+import { viewAsStorage } from "@/lib/view-as-storage";
 import { 
   Play, 
   BarChart3, 
@@ -46,8 +47,27 @@ export default function MemberDashboard() {
     retry: false,
   });
 
-  // Check if currently viewing as a Church Member (PARTICIPANT)
-  const isViewingAsParticipant = viewContext?.viewContext?.viewAsType === "PARTICIPANT" || user?.viewContext?.viewAsType === "PARTICIPANT";
+  // Check if currently viewing as a Church Member (PARTICIPANT) or any role
+  const localViewContext = viewAsStorage.getViewContext();
+  const isViewingAsParticipant = 
+    localViewContext?.viewAsType === "PARTICIPANT" || 
+    viewContext?.viewContext?.viewAsType === "PARTICIPANT" || 
+    user?.viewContext?.viewAsType === "PARTICIPANT";
+    
+  // Check if viewing as any role (should hide admin panel for all view modes except super admin default)
+  const isViewingAsAnyRole = 
+    localViewContext?.viewAsType && localViewContext.viewAsType !== "SUPER_ADMIN" ||
+    viewContext?.viewContext?.viewAsType && viewContext.viewContext.viewAsType !== "SUPER_ADMIN" ||
+    user?.viewContext?.viewAsType && user.viewContext.viewAsType !== "SUPER_ADMIN";
+    
+  // Debug logging
+  console.log("View context debug:", {
+    localViewContext,
+    serverViewContext: viewContext?.viewContext,
+    userViewContext: user?.viewContext,
+    isViewingAsParticipant,
+    isViewingAsAnyRole
+  });
 
   // Fetch user's results
   const { data: results = [], isLoading: resultsLoading } = useQuery<UserResult[]>({
@@ -193,9 +213,9 @@ export default function MemberDashboard() {
           </div>
         )}
 
-        {/* Admin Management Section - Hide when viewing as regular Church Member */}
+        {/* Admin Management Section - Hide when viewing as any role (Church Member, Admin, Leader) */}
         {(user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER" || user?.role === "SUPER_ADMIN") && 
-         !isViewingAsParticipant && (
+         !isViewingAsAnyRole && (
           <div className="mb-8">
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
               <div className="flex items-center mb-4">
