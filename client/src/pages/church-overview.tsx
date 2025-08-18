@@ -102,7 +102,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
   
   // Use provided organizationId or current organization
   const targetOrgId = organizationId || organization?.id;
-  const targetOrgName = organization?.name || "Kingdom Impact Training";
+  const targetOrgName = organization?.name || "KingdomOps";
   
   const isSuperAdmin = user?.role === "SUPER_ADMIN";
   const isChurchAdmin = ["ORG_OWNER", "ORG_ADMIN", "ORG_LEADER"].includes(user?.role || "");

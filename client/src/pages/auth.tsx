@@ -91,7 +91,7 @@ export default function AuthPage() {
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-spiritual-blue mb-2">Kingdom Impact Training</h1>
+            <h1 className="text-3xl font-bold text-spiritual-blue mb-2">KingdomOps</h1>
             <p className="text-gray-600">Discover your spiritual gifts and ministry calling</p>
           </div>
 

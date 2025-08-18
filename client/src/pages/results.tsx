@@ -308,7 +308,7 @@ export default function Results() {
     </div>
 
     <div class="footer">
-      <p><strong>Kingdom Impact Training</strong><br>
+      <p><strong>KingdomOps</strong><br>
       Spiritual Gifts Assessment Platform</p>
       <p>Discover your unique calling and serve God's Kingdom with purpose.</p>
       <p style="margin-top: 20px; font-size: 12px;">Powered by <a href="https://www.graymusicmedia.com" target="_blank" style="color: #2563eb; text-decoration: none;">Gray Music Media Group</a></p>

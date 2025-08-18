@@ -1,10 +1,17 @@
-# Kingdom Impact Training - Spiritual Gifts Assessment
+# KingdomOps - Spiritual Gifts Assessment
 
 ## Overview
 
 This is a full-stack web application for conducting spiritual gifts assessments. The system provides a 60-question Likert-scale survey that evaluates participants across 12 spiritual gift categories, calculates their top 3 gifts, and provides detailed results with biblical context and ministry recommendations. The application includes user authentication, assessment administration, results visualization, and administrative dashboards for tracking participation and outcomes.
 
 ## Recent Updates (August 2025)
+
+### Complete Platform Rebrand to KingdomOps (August 18, 2025)
+- **Full Application Rebrand**: Updated all references from "Kingdom Impact Training" to "KingdomOps" across the entire platform
+- **Consistent Branding**: Applied new brand name to all user-facing text, emails, headers, footers, and documentation
+- **Updated Components**: Modified landing pages, assessment pages, member dashboards, admin interfaces, and subdomain landing pages
+- **Email Templates**: Updated all email service templates and preview files with new KingdomOps branding
+- **Professional Identity**: Maintained the same high-quality spiritual gifts assessment platform with cleaner, more modern branding
 
 ### Professional Subdomain System Implementation (August 18, 2025)
 - **Complete Subdomain-Based Church Access**: Replaced join codes with professional web addresses like fwc.kingdomops.app and thegathering.kingdomops.app

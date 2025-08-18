@@ -39,7 +39,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     const transporter = createTransporter();
     
     const mailOptions = {
-      from: options.from || `"Kingdom Impact Training" <${process.env.SMTP_USER}>`,
+      from: options.from || `"KingdomOps" <${process.env.SMTP_USER}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,

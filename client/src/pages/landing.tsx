@@ -41,7 +41,7 @@ export default function Landing() {
                 <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
                 <div>
                   <h1 className="font-display font-bold text-xl text-charcoal">
-                    {isAuthenticated && organization?.name ? organization.name : "Kingdom Impact Training"}
+                    {isAuthenticated && organization?.name ? organization.name : "KingdomOps"}
                   </h1>
                   {isAuthenticated && organization?.name && (
                     <p className="text-sm text-gray-600">Spiritual Gifts Assessment</p>

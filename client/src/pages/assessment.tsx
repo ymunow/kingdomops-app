@@ -271,7 +271,7 @@ export default function Assessment() {
                   Spiritual Gifts Assessment
                 </h1>
                 <p className="text-base text-gray-600 mt-2 font-medium">
-                  {organization?.name ? `Discover your spiritual gifts within ${organization.name}` : "Kingdom Impact Training"}
+                  {organization?.name ? `Discover your spiritual gifts within ${organization.name}` : "KingdomOps"}
                 </p>
               </div>
             </div>
