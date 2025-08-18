@@ -128,7 +128,6 @@ export default function MemberDashboard() {
         {/* View Context Indicator for Super Admins */}
         {user?.role === 'SUPER_ADMIN' && (
           <div className="mb-6">
-
             {viewContext?.viewContext || user?.viewContext?.isViewingAs ? (
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
@@ -143,10 +142,23 @@ export default function MemberDashboard() {
                       </p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
-                    <User className="mr-1 h-3 w-3" />
-                    View Mode Active
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
+                      <User className="mr-1 h-3 w-3" />
+                      View Mode Active
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        fetch('/api/super-admin/view-as', { method: 'DELETE' })
+                          .then(() => window.location.reload());
+                      }}
+                      className="bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200"
+                    >
+                      Return to Admin
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : (

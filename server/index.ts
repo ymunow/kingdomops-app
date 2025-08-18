@@ -42,11 +42,20 @@ app.use(compression({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
-// Session middleware for View As functionality
+// Session middleware for View As functionality - use PostgreSQL store
+import connectPg from "connect-pg-simple";
+const PostgresSessionStore = connectPg(session);
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default-dev-secret-change-in-production',
   resave: false,
   saveUninitialized: false,
+  store: new PostgresSessionStore({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true,
+    ttl: 24 * 60 * 60, // 24 hours in seconds
+    tableName: "view_sessions"
+  }),
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,

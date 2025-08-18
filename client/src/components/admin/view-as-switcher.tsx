@@ -116,6 +116,21 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
     return null;
   }
 
+  // Show return to admin button if currently in view mode
+  if (user?.viewContext?.isViewingAs) {
+    return (
+      <Button
+        variant="outline"
+        onClick={() => returnToAdminMutation.mutate()}
+        disabled={returnToAdminMutation.isPending}
+        className="bg-amber-50 border-amber-300 text-amber-800 hover:bg-amber-100"
+      >
+        <User className="mr-2 h-4 w-4" />
+        Return to Admin
+      </Button>
+    );
+  }
+
   const handleSwitchView = (userType: string) => {
     switchViewMutation.mutate({ userType });
   };
