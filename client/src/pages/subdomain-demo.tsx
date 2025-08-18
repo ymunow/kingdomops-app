@@ -55,13 +55,13 @@ export default function SubdomainDemo() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* Live Subdomain Tester */}
-        <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-spiritual-blue/20">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Search className="h-5 w-5 mr-2" />
+            <CardTitle className="flex items-center text-charcoal">
+              <Search className="h-5 w-5 mr-2 text-spiritual-blue" />
               Live Subdomain Tester
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-charcoal/70">
               Test any subdomain to see if it exists and view organization information
             </CardDescription>
           </CardHeader>
@@ -73,7 +73,7 @@ export default function SubdomainDemo() {
                 onChange={(e) => setTestSubdomain(e.target.value)}
                 className="max-w-xs"
               />
-              <div className="flex items-center text-sm text-gray-600">
+              <div className="flex items-center text-sm text-sage-green font-medium">
                 .kingdomops.app
               </div>
             </div>
@@ -88,26 +88,28 @@ export default function SubdomainDemo() {
                 ) : orgInfo ? (
                   <div className="space-y-3">
                     <div className="flex items-center">
-                      <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                      <span className="font-medium">Subdomain exists!</span>
+                      <CheckCircle className="h-5 w-5 text-sage-green mr-2" />
+                      <span className="font-medium text-charcoal">Subdomain exists!</span>
                     </div>
-                    <div className="bg-white p-3 rounded border">
-                      <h4 className="font-semibold">{(orgInfo as any)?.name || 'Unknown Organization'}</h4>
-                      <p className="text-sm text-gray-600 mt-1">{(orgInfo as any)?.description || 'No description available'}</p>
+                    <div className="bg-white p-3 rounded border border-spiritual-blue/20">
+                      <h4 className="font-semibold text-charcoal">{(orgInfo as any)?.name || 'Unknown Organization'}</h4>
+                      <p className="text-sm text-charcoal/70 mt-1">{(orgInfo as any)?.description || 'No description available'}</p>
                       <div className="flex items-center justify-between mt-3">
-                        <div className="text-sm font-mono bg-blue-100 px-2 py-1 rounded">
+                        <div className="text-sm font-mono bg-spiritual-blue/10 text-spiritual-blue px-2 py-1 rounded">
                           {testSubdomain}.kingdomops.app
                         </div>
                         <div className="flex space-x-2">
                           <Button 
                             size="sm" 
                             variant="outline"
+                            className="border-sage-green/30 text-sage-green hover:bg-sage-green hover:text-white"
                             onClick={() => setShowLanding(true)}
                           >
                             Preview Landing
                           </Button>
                           <Button 
                             size="sm"
+                            className="bg-gradient-to-r from-spiritual-blue to-sage-green hover:from-spiritual-blue/90 hover:to-sage-green/90 text-white"
                             onClick={() => window.open(testSubdomainUrl(testSubdomain), '_blank')}
                           >
                             <ExternalLink className="h-3 w-3 mr-1" />
@@ -119,8 +121,8 @@ export default function SubdomainDemo() {
                   </div>
                 ) : error ? (
                   <div className="flex items-center">
-                    <XCircle className="h-5 w-5 text-red-600 mr-2" />
-                    <span>Subdomain not found - available for registration</span>
+                    <XCircle className="h-5 w-5 text-warm-gold mr-2" />
+                    <span className="text-charcoal">Subdomain not found - available for registration</span>
                   </div>
                 ) : null}
               </div>
@@ -129,33 +131,34 @@ export default function SubdomainDemo() {
         </Card>
 
         {/* Known Active Subdomains */}
-        <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-sage-green/20">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Church className="h-5 w-5 mr-2" />
+            <CardTitle className="flex items-center text-charcoal">
+              <Church className="h-5 w-5 mr-2 text-sage-green" />
               Active Church Subdomains
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-charcoal/70">
               Churches currently using the subdomain system
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {knownSubdomains.map((church) => (
-                <div key={church.name} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                <div key={church.name} className="p-4 border border-spiritual-blue/20 rounded-lg hover:shadow-md hover:border-spiritual-blue/40 transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold">{church.org}</h4>
-                    <Badge variant="secondary">Active</Badge>
+                    <h4 className="font-semibold text-charcoal">{church.org}</h4>
+                    <Badge variant="secondary" className="bg-sage-green/20 text-sage-green border-sage-green/30">Active</Badge>
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">{church.description}</p>
+                  <p className="text-sm text-charcoal/70 mb-3">{church.description}</p>
                   <div className="space-y-2">
-                    <div className="text-xs font-mono bg-gray-100 px-2 py-1 rounded">
+                    <div className="text-xs font-mono bg-spiritual-blue/10 text-spiritual-blue px-2 py-1 rounded">
                       {church.name}.kingdomops.app
                     </div>
                     <div className="flex space-x-2">
                       <Button 
                         size="sm" 
                         variant="outline"
+                        className="border-sage-green/30 text-sage-green hover:bg-sage-green hover:text-white"
                         onClick={() => {
                           setTestSubdomain(church.name);
                           setShowLanding(true);
@@ -165,6 +168,7 @@ export default function SubdomainDemo() {
                       </Button>
                       <Button 
                         size="sm"
+                        className="bg-gradient-to-r from-spiritual-blue to-sage-green hover:from-spiritual-blue/90 hover:to-sage-green/90 text-white"
                         onClick={() => window.open(testSubdomainUrl(church.name), '_blank')}
                       >
                         <ExternalLink className="h-3 w-3 mr-1" />
@@ -179,18 +183,18 @@ export default function SubdomainDemo() {
         </Card>
 
         {/* Benefits Comparison */}
-        <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-warm-gold/20">
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Share2 className="h-5 w-5 mr-2" />
+            <CardTitle className="flex items-center text-charcoal">
+              <Share2 className="h-5 w-5 mr-2 text-warm-gold" />
               Subdomain Benefits vs Join Codes
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-semibold text-red-600 mb-3">❌ Old: Join Codes</h4>
-                <ul className="space-y-2 text-sm">
+                <h4 className="font-semibold text-warm-gold/80 mb-3">❌ Old: Join Codes</h4>
+                <ul className="space-y-2 text-sm text-charcoal/70">
                   <li>• Difficult to remember: "ABC123XYZ"</li>
                   <li>• Not professional or branded</li>
                   <li>• Hard to share verbally</li>
@@ -199,8 +203,8 @@ export default function SubdomainDemo() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-green-600 mb-3">✅ New: Subdomains</h4>
-                <ul className="space-y-2 text-sm">
+                <h4 className="font-semibold text-sage-green mb-3">✅ New: Subdomains</h4>
+                <ul className="space-y-2 text-sm text-charcoal/70">
                   <li>• Professional: "fwc.kingdomops.app"</li>
                   <li>• Easy to remember and share</li>
                   <li>• Direct links to all features</li>
@@ -213,15 +217,15 @@ export default function SubdomainDemo() {
         </Card>
 
         {/* Feature Overview */}
-        <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-spiritual-blue/20">
           <CardHeader>
-            <CardTitle>System Features</CardTitle>
+            <CardTitle className="text-charcoal">System Features</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-semibold mb-3">For Churches</h4>
-                <ul className="space-y-2 text-sm">
+                <h4 className="font-semibold mb-3 text-spiritual-blue">For Churches</h4>
+                <ul className="space-y-2 text-sm text-charcoal/70">
                   <li>• Professional web presence</li>
                   <li>• Custom landing pages</li>
                   <li>• Direct assessment links</li>
@@ -230,8 +234,8 @@ export default function SubdomainDemo() {
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-3">For Members</h4>
-                <ul className="space-y-2 text-sm">
+                <h4 className="font-semibold mb-3 text-sage-green">For Members</h4>
+                <ul className="space-y-2 text-sm text-charcoal/70">
                   <li>• Intuitive church-specific URLs</li>
                   <li>• Seamless assessment experience</li>
                   <li>• Church-branded interface</li>

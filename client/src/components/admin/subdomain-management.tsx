@@ -100,13 +100,13 @@ export function SubdomainManagement({ organization }: SubdomainManagementProps) 
   return (
     <div className="space-y-6">
       {/* Current Subdomain Display */}
-      <Card>
+      <Card className="border-spiritual-blue/20">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Globe className="h-5 w-5 mr-2" />
+          <CardTitle className="flex items-center text-charcoal">
+            <Globe className="h-5 w-5 mr-2 text-spiritual-blue" />
             Church Web Address
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-charcoal/70">
             Your church's unique web address for easy sharing and professional branding
           </CardDescription>
         </CardHeader>
@@ -115,10 +115,10 @@ export function SubdomainManagement({ organization }: SubdomainManagementProps) 
             <>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="font-mono text-lg bg-gray-100 px-3 py-2 rounded-md">
+                  <div className="font-mono text-lg bg-spiritual-blue/10 text-spiritual-blue px-3 py-2 rounded-md">
                     {organization.subdomain}.kingdomops.app
                   </div>
-                  <Badge variant="secondary" className="flex items-center">
+                  <Badge variant="secondary" className="flex items-center bg-sage-green/20 text-sage-green border-sage-green/30">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Active
                   </Badge>
@@ -181,23 +181,23 @@ export function SubdomainManagement({ organization }: SubdomainManagementProps) 
       </Card>
 
       {/* Quick Share Links */}
-      <Card>
+      <Card className="border-sage-green/20">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Share2 className="h-5 w-5 mr-2" />
+          <CardTitle className="flex items-center text-charcoal">
+            <Share2 className="h-5 w-5 mr-2 text-sage-green" />
             Quick Share Links
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-charcoal/70">
             Common links to share with your church members and community
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {/* Main Church Page */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-spiritual-blue/5 rounded-lg border border-spiritual-blue/10">
               <div>
-                <p className="font-medium text-sm">Church Landing Page</p>
-                <p className="text-xs text-gray-600 font-mono">{shareUrls.direct}</p>
+                <p className="font-medium text-sm text-charcoal">Church Landing Page</p>
+                <p className="text-xs text-spiritual-blue font-mono">{shareUrls.direct}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Button
@@ -218,10 +218,10 @@ export function SubdomainManagement({ organization }: SubdomainManagementProps) 
             </div>
 
             {/* Assessment Link */}
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-sage-green/5 rounded-lg border border-sage-green/10">
               <div>
-                <p className="font-medium text-sm">Direct Assessment Link</p>
-                <p className="text-xs text-gray-600 font-mono">{shareUrls.assessment}</p>
+                <p className="font-medium text-sm text-charcoal">Direct Assessment Link</p>
+                <p className="text-xs text-sage-green font-mono">{shareUrls.assessment}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Button
@@ -242,10 +242,10 @@ export function SubdomainManagement({ organization }: SubdomainManagementProps) 
             </div>
 
             {/* Join Link */}
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-warm-gold/5 rounded-lg border border-warm-gold/10">
               <div>
-                <p className="font-medium text-sm">Member Registration</p>
-                <p className="text-xs text-gray-600 font-mono">{shareUrls.join}</p>
+                <p className="font-medium text-sm text-charcoal">Member Registration</p>
+                <p className="text-xs text-warm-gold font-mono">{shareUrls.join}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Button
@@ -269,9 +269,9 @@ export function SubdomainManagement({ organization }: SubdomainManagementProps) 
       </Card>
 
       {/* Marketing Tips */}
-      <Card>
+      <Card className="border-warm-gold/20">
         <CardHeader>
-          <CardTitle>Sharing Your Church's Web Address</CardTitle>
+          <CardTitle className="text-charcoal">Sharing Your Church's Web Address</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3 text-sm text-gray-600">

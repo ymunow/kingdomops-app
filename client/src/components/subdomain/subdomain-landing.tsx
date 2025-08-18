@@ -87,16 +87,16 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/10 to-sage-green/10">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
+      <header className="bg-white/95 backdrop-blur-sm border-b border-spiritual-blue/20 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="bg-spiritual-blue text-white p-2 rounded-lg">
+              <div className="bg-gradient-to-br from-spiritual-blue to-sage-green text-white p-2 rounded-lg shadow-md">
                 <Church className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">{orgInfo.name}</h1>
-                <p className="text-sm text-gray-500">{subdomain}.kingdomops.app</p>
+                <h1 className="text-xl font-bold text-charcoal">{orgInfo.name}</h1>
+                <p className="text-sm text-sage-green font-medium">{subdomain}.kingdomops.app</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
@@ -109,6 +109,7 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
               </Button>
               <Button 
                 onClick={() => setLocation('/auth')}
+                className="bg-gradient-to-r from-spiritual-blue to-sage-green hover:from-spiritual-blue/90 hover:to-sage-green/90 text-white shadow-lg"
                 data-testid="button-join"
               >
                 Join Assessment
@@ -122,51 +123,51 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <Badge variant="secondary" className="mb-4">
+          <Badge variant="secondary" className="mb-4 bg-warm-gold/20 text-warm-gold border-warm-gold/30">
             <CheckCircle className="h-3 w-3 mr-1" />
             Active Church
           </Badge>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-charcoal mb-4">
             Welcome to {orgInfo.name}
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-charcoal/70 max-w-2xl mx-auto">
             Discover your unique spiritual gifts and find your perfect place to serve in ministry
           </p>
         </div>
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <Card className="text-center">
+          <Card className="text-center border-spiritual-blue/20 hover:shadow-lg transition-shadow">
             <CardHeader>
               <Award className="h-8 w-8 text-spiritual-blue mx-auto mb-2" />
-              <CardTitle className="text-lg">Discover Your Gifts</CardTitle>
+              <CardTitle className="text-lg text-charcoal">Discover Your Gifts</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
+              <CardDescription className="text-charcoal/70">
                 Take our comprehensive spiritual gifts assessment to uncover your God-given talents and calling
               </CardDescription>
             </CardContent>
           </Card>
 
-          <Card className="text-center">
+          <Card className="text-center border-sage-green/20 hover:shadow-lg transition-shadow">
             <CardHeader>
               <Users className="h-8 w-8 text-sage-green mx-auto mb-2" />
-              <CardTitle className="text-lg">Find Your Team</CardTitle>
+              <CardTitle className="text-lg text-charcoal">Find Your Team</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
+              <CardDescription className="text-charcoal/70">
                 Connect with ministry opportunities that match your gifts and passion for serving
               </CardDescription>
             </CardContent>
           </Card>
 
-          <Card className="text-center">
+          <Card className="text-center border-warm-gold/20 hover:shadow-lg transition-shadow">
             <CardHeader>
               <Heart className="h-8 w-8 text-warm-gold mx-auto mb-2" />
-              <CardTitle className="text-lg">Make an Impact</CardTitle>
+              <CardTitle className="text-lg text-charcoal">Make an Impact</CardTitle>
             </CardHeader>
             <CardContent>
-              <CardDescription>
+              <CardDescription className="text-charcoal/70">
                 Use your gifts to build God's kingdom and make a lasting difference in your community
               </CardDescription>
             </CardContent>
