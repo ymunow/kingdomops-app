@@ -188,7 +188,7 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
       case "ORG_LEADER":
         return "Church Leader";
       default:
-        return type.replace("_", " ");
+        return type ? type.replace("_", " ") : "Unknown";
     }
   };
 
