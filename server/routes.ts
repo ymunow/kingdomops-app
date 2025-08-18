@@ -1154,8 +1154,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if user has access to this organization
-      const hasAccess = user.role === 'SUPER_ADMIN' || 
-                       (user.organizationId === orgId && ['ORG_ADMIN', 'ORG_OWNER'].includes(user.role));
+      // SUPER_ADMIN can access any organization
+      // Other roles can only access their own organization
+      const isSuperAdmin = user.role === 'SUPER_ADMIN';
+      const isOrgMember = user.organizationId === orgId && ['ORG_ADMIN', 'ORG_OWNER', 'ORG_LEADER'].includes(user.role);
+      const hasAccess = isSuperAdmin || isOrgMember;
+      
+      console.log('Church overview access check:', { 
+        userRole: user.role, 
+        userOrgId: user.organizationId, 
+        requestedOrgId: orgId,
+        isSuperAdmin,
+        isOrgMember,
+        hasAccess
+      });
       
       if (!hasAccess) {
         return res.status(403).json({ message: "Access denied" });
