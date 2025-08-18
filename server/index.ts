@@ -49,8 +49,8 @@ const PostgresSessionStore = connectPg(session);
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default-dev-secret-change-in-production',
   resave: false,
-  saveUninitialized: false,
-  name: 'viewas.sid', // Use a custom session name to avoid conflicts
+  saveUninitialized: true, // Changed to true to create sessions for anonymous users
+  name: 'connect.sid', // Use standard session name
   store: new PostgresSessionStore({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: false,
@@ -59,7 +59,7 @@ app.use(session({
   }),
   cookie: {
     secure: false, // Set to false for development
-    httpOnly: true,
+    httpOnly: false, // Set to false so frontend can access if needed
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'lax' // Add sameSite for better compatibility
   }

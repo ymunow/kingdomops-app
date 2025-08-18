@@ -276,12 +276,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       if ((req.session as any).viewAsContext) {
         delete (req.session as any).viewAsContext;
+        
+        // Save session after deletion
+        req.session.save((err: any) => {
+          if (err) {
+            console.error('Session save error during clear:', err);
+            return res.status(500).json({ message: "Failed to clear session" });
+          }
+          
+          console.log('View context cleared from session:', req.sessionID);
+          res.json({ 
+            success: true, 
+            message: "Returned to admin view" 
+          });
+        });
+      } else {
+        res.json({ 
+          success: true, 
+          message: "Already in admin view" 
+        });
       }
-      
-      res.json({ 
-        success: true, 
-        message: "Returned to admin view" 
-      });
     } catch (error) {
       console.error("Clear view context error:", error);
       res.status(500).json({ message: "Failed to clear view context" });
@@ -290,7 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/super-admin/view-context', isAuthenticated, async (req: any, res) => {
     try {
-      const viewContext = req.session?.viewAsContext || null;
+      const viewContext = (req.session as any)?.viewAsContext || null;
       console.log('View context requested:', { 
         sessionExists: !!req.session,
         viewAsContext: viewContext,
