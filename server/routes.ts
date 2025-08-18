@@ -236,6 +236,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date()
       };
       
+      console.log('Setting view context in session:', {
+        sessionId: req.sessionID,
+        viewAsContext: (req.session as any).viewAsContext,
+        organizationId
+      });
+      
       res.json({ 
         success: true, 
         viewContext: (req.session as any).viewAsContext,
@@ -266,6 +272,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/super-admin/view-context', isAuthenticated, async (req: any, res) => {
     try {
       const viewContext = req.session?.viewAsContext || null;
+      console.log('View context requested:', { 
+        sessionExists: !!req.session,
+        viewAsContext: viewContext,
+        sessionId: req.sessionID 
+      });
       res.json({ viewContext });
     } catch (error) {
       console.error("Get view context error:", error);

@@ -128,6 +128,7 @@ export default function MemberDashboard() {
         {/* View Context Indicator for Super Admins */}
         {user?.role === 'SUPER_ADMIN' && (
           <div className="mb-6">
+
             {viewContext?.viewContext || user?.viewContext?.isViewingAs ? (
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
