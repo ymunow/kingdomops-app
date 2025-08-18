@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import {
 import { Eye, EyeOff, Crown, Users, Shield, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { viewAsStorage } from "@/lib/view-as-storage";
 
 interface ViewContext {
   isViewingAs: boolean;
@@ -38,11 +39,18 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const [localViewContext, setLocalViewContext] = useState<any>(null);
 
-  // Get current view context
+  // Check local storage for view context on component mount
+  useEffect(() => {
+    const storedContext = viewAsStorage.getViewContext();
+    setLocalViewContext(storedContext);
+  }, []);
+
+  // Get current view context from server (backup)
   const { data: viewContextData } = useQuery({
     queryKey: ["/api/super-admin/view-context"],
-    enabled: user?.role === "SUPER_ADMIN",
+    enabled: user?.role === "SUPER_ADMIN" && !localViewContext,
     refetchOnWindowFocus: false,
   });
 
@@ -53,7 +61,8 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
     refetchOnWindowFocus: false,
   });
 
-  const viewContext: ViewContext | null = user?.viewContext || null;
+  // Use local context first, then server context, then user context
+  const viewContext: ViewContext | null = localViewContext || viewContextData?.viewContext || user?.viewContext || null;
 
   // Switch view mutation
   const switchViewMutation = useMutation({
@@ -61,7 +70,19 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
       const response = await apiRequest("POST", "/api/super-admin/view-as", { userType, organizationId });
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Store context locally for immediate UI update
+      if (data?.viewContext) {
+        viewAsStorage.setViewContext({
+          originalUserId: user.id,
+          viewAsType: data.viewContext.viewAsType,
+          viewAsUserId: data.viewContext.viewAsUserId,
+          viewAsOrganizationId: data.viewContext.viewAsOrganizationId,
+          timestamp: new Date().toISOString()
+        });
+        setLocalViewContext(data.viewContext);
+      }
+      
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/view-context"] });
@@ -72,7 +93,6 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
         description: "Successfully switched user view context.",
       });
       setIsOpen(false);
-      // Don't reload page - let React Query handle the updates
     },
     onError: (error) => {
       toast({
@@ -90,6 +110,10 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
       return response.json();
     },
     onSuccess: () => {
+      // Clear local view context
+      viewAsStorage.clearViewContext();
+      setLocalViewContext(null);
+      
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/organization"] });
       queryClient.invalidateQueries({ queryKey: ["/api/super-admin/view-context"] });
@@ -100,7 +124,6 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
         description: "You're now viewing as the super admin again.",
       });
       setIsOpen(false);
-      // Don't reload page - let React Query handle the updates
     },
     onError: (error) => {
       toast({

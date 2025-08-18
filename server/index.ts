@@ -48,9 +48,9 @@ const PostgresSessionStore = connectPg(session);
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default-dev-secret-change-in-production',
-  resave: false,
-  saveUninitialized: true, // Changed to true to create sessions for anonymous users
-  name: 'connect.sid', // Use standard session name
+  resave: true, // Changed to true to force session save
+  saveUninitialized: true, // Create sessions for all users
+  name: 'kingdomops.sid', // Use unique session name
   store: new PostgresSessionStore({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: false,
@@ -59,10 +59,12 @@ app.use(session({
   }),
   cookie: {
     secure: false, // Set to false for development
-    httpOnly: false, // Set to false so frontend can access if needed
+    httpOnly: false, // Allow client-side access for session debugging
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax' // Add sameSite for better compatibility
-  }
+    sameSite: 'lax' // Better compatibility
+  },
+  rolling: true, // Refresh session on each request
+  unset: 'keep' // Keep session data when unsetting values
 }));
 
 // Cache control for API routes

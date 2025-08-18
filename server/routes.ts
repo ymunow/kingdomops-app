@@ -247,24 +247,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date()
       };
       
-      // Save session before responding
-      req.session.save((err: any) => {
-        if (err) {
-          console.error('Session save error:', err);
-          return res.status(500).json({ message: "Failed to save session" });
-        }
-        
-        console.log('Setting view context in session:', {
-          sessionId: req.sessionID,
-          viewAsContext: (req.session as any).viewAsContext,
-          organizationId
-        });
-        
-        res.json({ 
-          success: true, 
-          viewContext: (req.session as any).viewAsContext,
-          message: organizationId ? `Now managing organization` : `Now viewing as ${userType}` 
-        });
+      console.log('Setting view context in session:', {
+        sessionId: req.sessionID,
+        viewAsContext: (req.session as any).viewAsContext,
+        organizationId
+      });
+      
+      res.json({ 
+        success: true, 
+        viewContext: (req.session as any).viewAsContext,
+        message: organizationId ? `Now managing organization` : `Now viewing as ${userType}` 
       });
     } catch (error) {
       console.error("View as error:", error);
@@ -304,13 +296,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/super-admin/view-context', isAuthenticated, async (req: any, res) => {
     try {
-      const viewContext = (req.session as any)?.viewAsContext || null;
-      console.log('View context requested:', { 
-        sessionExists: !!req.session,
-        viewAsContext: viewContext,
-        sessionId: req.sessionID 
+      // Force session reload to ensure we get the latest data
+      req.session.reload((err: any) => {
+        if (err) {
+          console.error('Session reload error:', err);
+          return res.json({ viewContext: null });
+        }
+        
+        const viewContext = (req.session as any)?.viewAsContext || null;
+        console.log('View context requested:', { 
+          sessionExists: !!req.session,
+          viewAsContext: viewContext,
+          sessionId: req.sessionID 
+        });
+        res.json({ viewContext });
       });
-      res.json({ viewContext });
     } catch (error) {
       console.error("Get view context error:", error);
       res.status(500).json({ message: "Failed to get view context" });
