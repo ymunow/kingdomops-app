@@ -73,6 +73,7 @@ export default function Profile() {
   });
 
   const onSubmit = (data: ProfileCompletionData) => {
+    console.log("Form submitted with data:", data);
     updateMutation.mutate(data);
   };
 
@@ -88,14 +89,10 @@ export default function Profile() {
   };
 
   const handleEditClick = () => {
-    // Ensure form has current values when entering edit mode
-    form.reset({
-      firstName: (user as any)?.firstName || "",
-      lastName: (user as any)?.lastName || "",
-      displayName: (user as any)?.displayName || "",
-      ageRange: (user as any)?.ageRange || undefined,
-    });
+    console.log("Edit button clicked - entering edit mode");
     setIsEditing(true);
+    // Don't reset form here - it may trigger submission
+    // The form already has the current values
   };
 
   return (
