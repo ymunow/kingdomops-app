@@ -19,7 +19,11 @@ export default function Admin() {
   // Redirect if not authenticated or not admin
   useEffect(() => {
     const adminRoles = ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"];
-    if (!isLoading && (!user || !adminRoles.includes((user as any)?.role))) {
+    
+    // Check actual user role (including original role if in view-as mode)
+    const actualUserRole = (user as any)?.viewContext?.originalUser?.role || (user as any)?.role;
+    
+    if (!isLoading && (!user || !adminRoles.includes(actualUserRole))) {
       toast({
         title: "Access denied",
         description: "Admin access required to view this page.",
@@ -41,7 +45,8 @@ export default function Admin() {
   }
 
   const adminRoles = ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"];
-  if (!user || !adminRoles.includes((user as any)?.role)) {
+  const actualUserRole = (user as any)?.viewContext?.originalUser?.role || (user as any)?.role;
+  if (!user || !adminRoles.includes(actualUserRole)) {
     return null;
   }
 
