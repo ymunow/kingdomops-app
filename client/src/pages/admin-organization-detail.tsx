@@ -4,6 +4,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -18,7 +22,13 @@ import {
   FileText,
   CheckCircle,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Search,
+  Filter,
+  Eye,
+  Download,
+  MoreHorizontal,
+  UserCheck
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -47,6 +57,262 @@ interface OrganizationStats {
   assessmentsByMonth: Array<{ month: string; count: number }>;
   topGifts: Array<{ gift: string; count: number }>;
   recentActivity: Array<{ type: string; description: string; timestamp: string }>;
+}
+
+interface OrganizationMember {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  hasCompletedAssessment: boolean;
+  assessmentDate?: string;
+  topGifts?: string[];
+  joinedAt: string;
+  lastActive?: string;
+}
+
+// Members Table Component
+function MembersTable({ organizationId, organizationName }: { organizationId: string; organizationName: string }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+
+  const { data: members, isLoading: membersLoading } = useQuery<OrganizationMember[]>({
+    queryKey: ['/api/super-admin/organizations', organizationId, 'members'],
+    enabled: !!organizationId,
+  });
+
+  if (membersLoading) {
+    return (
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spiritual-blue mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading members...</p>
+      </div>
+    );
+  }
+
+  const filteredMembers = members?.filter(member => {
+    const matchesSearch = !searchTerm || 
+      member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = roleFilter === "ALL" || member.role === roleFilter;
+    const matchesStatus = statusFilter === "ALL" || member.status === statusFilter;
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  }) || [];
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'SUPER_ADMIN':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'ORG_ADMIN':
+      case 'ORG_OWNER':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'ORG_LEADER':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'ACTIVE':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'INACTIVE':
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Search and Filters */}
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex-1">
+          <Label htmlFor="member-search">Search Members</Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              id="member-search"
+              placeholder="Search by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+              data-testid="input-search-members"
+            />
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <div className="min-w-[150px]">
+            <Label>Role</Label>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger data-testid="select-role-filter">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Roles</SelectItem>
+                <SelectItem value="MEMBER">Member</SelectItem>
+                <SelectItem value="ORG_LEADER">Leader</SelectItem>
+                <SelectItem value="ORG_ADMIN">Admin</SelectItem>
+                <SelectItem value="ORG_OWNER">Owner</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="min-w-[150px]">
+            <Label>Status</Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger data-testid="select-status-filter">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Status</SelectItem>
+                <SelectItem value="ACTIVE">Active</SelectItem>
+                <SelectItem value="INACTIVE">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Members Table */}
+      {filteredMembers.length > 0 ? (
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="text-left p-4 font-medium text-gray-700">Member</th>
+                <th className="text-left p-4 font-medium text-gray-700">Role</th>
+                <th className="text-left p-4 font-medium text-gray-700">Status</th>
+                <th className="text-left p-4 font-medium text-gray-700">Assessment</th>
+                <th className="text-left p-4 font-medium text-gray-700">Top Gifts</th>
+                <th className="text-left p-4 font-medium text-gray-700">Joined</th>
+                <th className="text-left p-4 font-medium text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredMembers.map((member) => (
+                <tr key={member.id} className="border-b hover:bg-gray-50">
+                  <td className="p-4">
+                    <div>
+                      <p className="font-medium text-charcoal">
+                        {member.firstName && member.lastName 
+                          ? `${member.firstName} ${member.lastName}`
+                          : member.email
+                        }
+                      </p>
+                      <p className="text-sm text-gray-500">{member.email}</p>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <Badge className={getRoleColor(member.role)}>
+                      {member.role.replace('ORG_', '').replace('_', ' ')}
+                    </Badge>
+                  </td>
+                  <td className="p-4">
+                    <Badge className={getStatusColor(member.status)}>
+                      {member.status}
+                    </Badge>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center">
+                      {member.hasCompletedAssessment ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                          <div>
+                            <span className="text-green-600 text-sm font-medium">Completed</span>
+                            {member.assessmentDate && (
+                              <p className="text-xs text-gray-500">
+                                {new Date(member.assessmentDate).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="h-4 w-4 text-orange-500 mr-2" />
+                          <span className="text-orange-600 text-sm">Pending</span>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    {member.topGifts && member.topGifts.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {member.topGifts.slice(0, 2).map((gift, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {gift.replace('_', ' ')}
+                          </Badge>
+                        ))}
+                        {member.topGifts.length > 2 && (
+                          <span className="text-xs text-gray-500">+{member.topGifts.length - 2} more</span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">-</span>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <span className="text-sm text-gray-600">
+                      {new Date(member.joinedAt).toLocaleDateString()}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {member.hasCompletedAssessment && (
+                          <DropdownMenuItem disabled>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Results
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem disabled>
+                          <UserCheck className="mr-2 h-4 w-4" />
+                          Manage Role
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+          <p className="text-lg font-medium mb-2">No Members Found</p>
+          <p className="mb-4">
+            {searchTerm || roleFilter !== "ALL" || statusFilter !== "ALL" 
+              ? "No members match your current filters." 
+              : "This organization has no members yet."
+            }
+          </p>
+          {(searchTerm || roleFilter !== "ALL" || statusFilter !== "ALL") && (
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setSearchTerm("");
+                setRoleFilter("ALL");
+                setStatusFilter("ALL");
+              }}
+            >
+              Clear Filters
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function AdminOrganizationDetail() {
@@ -250,24 +516,23 @@ export default function AdminOrganizationDetail() {
               </CardContent>
             </Card>
 
-            {/* Users Section Placeholder */}
+            {/* Members Section */}
             <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
               <CardHeader>
-                <CardTitle className="text-charcoal flex items-center">
-                  <Users className="h-5 w-5 mr-2" />
-                  Members & Users
+                <CardTitle className="text-charcoal flex items-center justify-between">
+                  <span className="flex items-center">
+                    <Users className="h-5 w-5 mr-2" />
+                    Members & Users
+                  </span>
+                  <Button variant="outline" size="sm" disabled>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
                 </CardTitle>
-                <CardDescription>Manage organization members and their roles</CardDescription>
+                <CardDescription>View and manage all members of {organization.name}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-gray-500">
-                  <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p className="text-lg font-medium mb-2">User Management</p>
-                  <p className="mb-4">View and manage all members of this organization</p>
-                  <Button variant="outline" disabled>
-                    Coming Soon
-                  </Button>
-                </div>
+                <MembersTable organizationId={orgId} organizationName={organization.name} />
               </CardContent>
             </Card>
           </div>

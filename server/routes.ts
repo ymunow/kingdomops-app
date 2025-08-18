@@ -1091,6 +1091,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Super Admin organization members endpoint
+  app.get("/api/super-admin/organizations/:orgId/members", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { orgId } = req.params;
+      
+      // Verify organization exists
+      const organization = await storage.getOrganization(orgId);
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+
+      // Get all users for this organization
+      const users = await storage.getUsersByOrganization(orgId);
+      
+      // Get assessment results for each user
+      const membersWithAssessments = await Promise.all(
+        users.map(async (user) => {
+          const results = await storage.getResultsByUser(user.id);
+          const latestResult = results?.[0]; // Most recent result
+          
+          return {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role || 'MEMBER',
+            status: 'ACTIVE', // For now, all users are active
+            hasCompletedAssessment: !!latestResult,
+            assessmentDate: latestResult?.createdAt,
+            topGifts: latestResult ? [
+              latestResult.top1GiftKey,
+              latestResult.top2GiftKey,
+              latestResult.top3GiftKey
+            ].filter(Boolean) : [],
+            joinedAt: user.createdAt,
+            lastActive: user.updatedAt
+          };
+        })
+      );
+
+      res.json(membersWithAssessments);
+    } catch (error) {
+      console.error("Get organization members error:", error);
+      res.status(500).json({ message: "Failed to get organization members" });
+    }
+  });
+
   // Super Admin organization update endpoint
   app.patch("/api/super-admin/organizations/:orgId", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {
