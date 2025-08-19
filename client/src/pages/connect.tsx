@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp, HandHeart, Filter, CheckCircle, Sparkles } from 'lucide-react';
+import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp, HandHeart, Filter, CheckCircle, Sparkles, Plus, Shield, Lock, Globe, Eye, UserCheck, AlertCircle, X } from 'lucide-react';
+import { useAuth } from '@/hooks/useSupabaseAuth';
 import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +19,26 @@ export default function Connect() {
   const [prayerFilter, setPrayerFilter] = useState<string>('all');
   const [prayerNotifications, setPrayerNotifications] = useState<Record<string, number>>({});
   const [prayerGlow, setPrayerGlow] = useState<string | null>(null);
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
+  const [showRequestGroupModal, setShowRequestGroupModal] = useState(false);
+  const [newGroupData, setNewGroupData] = useState({
+    name: '',
+    description: '',
+    category: '',
+    visibility: 'public' as 'public' | 'private' | 'secret'
+  });
+  const [groupRequest, setGroupRequest] = useState({
+    name: '',
+    description: '',
+    reason: '',
+    category: ''
+  });
+  const [pendingRequests, setPendingRequests] = useState([
+    { id: '1', name: 'College & Career Ministry', requester: 'Sarah Johnson', reason: 'Need a space for young adults to connect', category: 'Ministry', status: 'pending' },
+    { id: '2', name: 'Photography Group', requester: 'Mike Chen', reason: 'Creative outlet for church photographers', category: 'Interest', status: 'pending' }
+  ]);
+  
+  const { user } = useAuth();
   
   const posts = [
     {
@@ -202,10 +223,53 @@ export default function Connect() {
   ];
 
   const suggestedGroups = [
-    { id: '4', name: 'Men\'s Bible Study', members: 15, isJoined: false, privacy: 'public', description: 'Weekly men\'s fellowship and study' },
-    { id: '5', name: 'Parents Connect', members: 32, isJoined: false, privacy: 'public', description: 'Support and encouragement for parents' },
-    { id: '6', name: 'Creative Arts', members: 28, isJoined: false, privacy: 'private', description: 'Artists, musicians, and creatives' }
+    { id: '4', name: 'Men\'s Bible Study', members: 15, isJoined: false, privacy: 'public', description: 'Weekly men\'s fellowship and study', category: 'Ministry' },
+    { id: '5', name: 'Parents Connect', members: 32, isJoined: false, privacy: 'public', description: 'Support and encouragement for parents', category: 'Support' },
+    { id: '6', name: 'Creative Arts', members: 28, isJoined: false, privacy: 'private', description: 'Artists, musicians, and creatives', category: 'Interest' }
   ];
+  
+  const groupCategories = [
+    { id: 'ministry', name: 'Ministry Groups', icon: '⛪', description: 'Official church ministries' },
+    { id: 'smallgroup', name: 'Small Groups', icon: '👥', description: 'Bible study and fellowship' },
+    { id: 'support', name: 'Support Groups', icon: '🤝', description: 'Life stage and situation support' },
+    { id: 'interest', name: 'Interest Groups', icon: '🎨', description: 'Hobbies and shared interests' },
+    { id: 'class', name: 'Classes', icon: '📚', description: 'Learning and development' }
+  ];
+  
+  // Permission checking functions
+  const canCreateGroups = () => {
+    if (!user?.role) return false;
+    const role = user.role;
+    return ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF'].includes(role);
+  };
+  
+  const canCreateMinistryGroups = () => {
+    if (!user?.role) return false;
+    const role = user.role;
+    return ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF', 'MINISTRY_LEADER'].includes(role);
+  };
+  
+  const canManageGroupRequests = () => {
+    if (!user?.role) return false;
+    const role = user.role;
+    return ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF'].includes(role);
+  };
+  
+  const getCreateGroupPermissions = () => {
+    if (!user?.role) return { canCreate: false, allowedCategories: [] };
+    const role = user.role;
+    
+    if (['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN'].includes(role)) {
+      return { canCreate: true, allowedCategories: ['ministry', 'smallgroup', 'support', 'interest', 'class'] };
+    }
+    if (role === 'PASTORAL_STAFF') {
+      return { canCreate: true, allowedCategories: ['ministry', 'smallgroup', 'support', 'class'] };
+    }
+    if (role === 'MINISTRY_LEADER') {
+      return { canCreate: true, allowedCategories: ['ministry', 'smallgroup'] };
+    }
+    return { canCreate: false, allowedCategories: [] };
+  };
 
   const getPrivacyIcon = (privacy: string) => {
     switch (privacy) {
@@ -379,6 +443,56 @@ export default function Connect() {
       case 'prayer': return 'bg-purple-50 text-purple-700 border-purple-200';
       case 'announcement': return 'bg-blue-50 text-blue-700 border-blue-200';
       default: return 'bg-gray-50 text-gray-700 border-gray-200';
+    }
+  };
+  
+  const handleCreateGroup = () => {
+    // Here you would submit the new group data to the backend
+    console.log('Creating group:', newGroupData);
+    setShowCreateGroupModal(false);
+    setNewGroupData({ name: '', description: '', category: '', visibility: 'public' });
+  };
+  
+  const handleRequestGroup = () => {
+    // Here you would submit the group request to the backend
+    console.log('Requesting group:', groupRequest);
+    setPendingRequests(prev => [...prev, {
+      id: Date.now().toString(),
+      name: groupRequest.name,
+      requester: user?.displayName || 'Unknown User',
+      reason: groupRequest.reason,
+      category: groupRequest.category,
+      status: 'pending'
+    }]);
+    setShowRequestGroupModal(false);
+    setGroupRequest({ name: '', description: '', reason: '', category: '' });
+  };
+  
+  const handleApproveRequest = (requestId: string) => {
+    setPendingRequests(prev => prev.map(req => 
+      req.id === requestId ? { ...req, status: 'approved' } : req
+    ));
+  };
+  
+  const handleRejectRequest = (requestId: string) => {
+    setPendingRequests(prev => prev.filter(req => req.id !== requestId));
+  };
+  
+  const getVisibilityIcon = (visibility: string) => {
+    switch (visibility) {
+      case 'public': return <Globe className="h-4 w-4" />;
+      case 'private': return <Lock className="h-4 w-4" />;
+      case 'secret': return <Eye className="h-4 w-4" />;
+      default: return <Globe className="h-4 w-4" />;
+    }
+  };
+  
+  const getVisibilityDescription = (visibility: string) => {
+    switch (visibility) {
+      case 'public': return 'Anyone can discover and join';
+      case 'private': return 'Members must be approved';
+      case 'secret': return 'Invite only, hidden from discovery';
+      default: return 'Anyone can discover and join';
     }
   };
 
@@ -724,6 +838,129 @@ export default function Connect() {
 
           <TabsContent value="groups" className="mt-0">
             <div className="space-y-6">
+              {/* Role-Based Create Group Section */}
+              <Card className="border-2 border-spiritual-blue/20 bg-gradient-to-r from-spiritual-blue/5 to-purple-50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-spiritual-blue rounded-full flex items-center justify-center">
+                        <Users className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-charcoal">Group Creation</h3>
+                        <p className="text-sm text-gray-600">
+                          {user?.role === 'SUPER_ADMIN' || user?.role === 'CHURCH_SUPER_ADMIN' ? 'Full group creation access' :
+                           user?.role === 'PASTORAL_STAFF' ? 'Create ministry and small groups' :
+                           user?.role === 'MINISTRY_LEADER' ? 'Create groups in your ministry area' :
+                           'Request new groups for approval'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {canCreateGroups() || canCreateMinistryGroups() ? (
+                        <Button 
+                          onClick={() => setShowCreateGroupModal(true)}
+                          className="bg-spiritual-blue hover:bg-purple-700 text-white"
+                          data-testid="create-group-button"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create Group
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={() => setShowRequestGroupModal(true)}
+                          variant="outline"
+                          className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue/10"
+                          data-testid="request-group-button"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Request Group
+                        </Button>
+                      )}
+                      {user?.role && ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF'].includes(user.role) && (
+                        <Badge className="bg-amber-100 text-amber-800 border border-amber-200">
+                          <Crown className="h-3 w-3 mr-1" />
+                          Admin Access
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Permission Guide */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className={`p-3 rounded-lg border ${user?.role === 'SUPER_ADMIN' || user?.role === 'CHURCH_SUPER_ADMIN' ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                      <Crown className="h-4 w-4 text-amber-600 mb-1" />
+                      <p className="text-xs font-medium">Admin/Pastor</p>
+                      <p className="text-xs text-gray-600">All groups</p>
+                    </div>
+                    <div className={`p-3 rounded-lg border ${user?.role === 'MINISTRY_LEADER' ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+                      <Shield className="h-4 w-4 text-blue-600 mb-1" />
+                      <p className="text-xs font-medium">Leaders</p>
+                      <p className="text-xs text-gray-600">Ministry groups</p>
+                    </div>
+                    <div className={`p-3 rounded-lg border ${user?.role && ['CHURCH_MEMBER', 'VOLUNTEER'].includes(user.role) ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-200'}`}>
+                      <UserCheck className="h-4 w-4 text-purple-600 mb-1" />
+                      <p className="text-xs font-medium">Members</p>
+                      <p className="text-xs text-gray-600">Request only</p>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-purple-50 border-purple-200">
+                      <AlertCircle className="h-4 w-4 text-purple-600 mb-1" />
+                      <p className="text-xs font-medium">Approval Flow</p>
+                      <p className="text-xs text-gray-600">Requests reviewed</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Admin Pending Requests */}
+              {canManageGroupRequests() && pendingRequests.length > 0 && (
+                <Card className="border-amber-200 bg-amber-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-amber-800">
+                      <AlertCircle className="h-5 w-5" />
+                      <span>Pending Group Requests ({pendingRequests.length})</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {pendingRequests.filter(req => req.status === 'pending').map((request) => (
+                      <div key={request.id} className="p-4 bg-white rounded-lg border border-amber-200">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <p className="font-medium text-sm">{request.name}</p>
+                              <Badge className="text-xs bg-blue-100 text-blue-700">{request.category}</Badge>
+                            </div>
+                            <p className="text-xs text-gray-600 mb-2">Requested by: <span className="font-medium">{request.requester}</span></p>
+                            <p className="text-xs text-gray-700">{request.reason}</p>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button 
+                            size="sm" 
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => handleApproveRequest(request.id)}
+                            data-testid={`approve-request-${request.id}`}
+                          >
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Approve
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="border-red-200 text-red-600 hover:bg-red-50"
+                            onClick={() => handleRejectRequest(request.id)}
+                            data-testid={`reject-request-${request.id}`}
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
               {/* My Groups */}
               <Card>
                 <CardHeader>
@@ -770,6 +1007,7 @@ export default function Connect() {
                             <Badge variant="outline" className={`text-xs px-2 py-1 border ${getPrivacyColor(group.privacy)}`}>
                               {getPrivacyIcon(group.privacy)} {group.privacy}
                             </Badge>
+                            <Badge className="text-xs bg-gray-100 text-gray-700">{group.category}</Badge>
                           </div>
                           <p className="text-xs text-gray-500 mb-1">{group.members} members • Feed access for members only</p>
                           <p className="text-xs text-gray-600">{group.description}</p>
@@ -784,6 +1022,259 @@ export default function Connect() {
               </Card>
             </div>
           </TabsContent>
+          
+          {/* Create Group Modal */}
+          {showCreateGroupModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setShowCreateGroupModal(false)}>
+              <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-charcoal">Create New Group</h2>
+                    <button
+                      onClick={() => setShowCreateGroupModal(false)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100"
+                      data-testid="close-create-modal"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <p className="text-gray-600 mt-1">Build community around shared interests and spiritual growth</p>
+                </div>
+                
+                <div className="p-6 max-h-[70vh] overflow-y-auto">
+                  <div className="space-y-6">
+                    {/* Group Name */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Group Name *</label>
+                      <input
+                        type="text"
+                        value={newGroupData.name}
+                        onChange={(e) => setNewGroupData({...newGroupData, name: e.target.value})}
+                        placeholder="Enter a descriptive group name"
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                        data-testid="input-group-name"
+                      />
+                    </div>
+                    
+                    {/* Category Selection */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Category *</label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {groupCategories.filter(cat => getCreateGroupPermissions().allowedCategories.includes(cat.id)).map((category) => (
+                          <button
+                            key={category.id}
+                            onClick={() => setNewGroupData({...newGroupData, category: category.id})}
+                            className={`p-4 rounded-lg border text-left transition-all ${
+                              newGroupData.category === category.id
+                                ? 'border-spiritual-blue bg-spiritual-blue/10 ring-2 ring-spiritual-blue/20'
+                                : 'border-gray-200 hover:border-spiritual-blue/50'
+                            }`}
+                            data-testid={`category-${category.id}`}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <span className="text-2xl">{category.icon}</span>
+                              <div>
+                                <p className="font-medium text-charcoal">{category.name}</p>
+                                <p className="text-xs text-gray-600">{category.description}</p>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Privacy Settings */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Privacy Level *</label>
+                      <div className="space-y-3">
+                        {(['public', 'private', 'secret'] as const).map((visibility) => (
+                          <button
+                            key={visibility}
+                            onClick={() => setNewGroupData({...newGroupData, visibility})}
+                            className={`w-full p-4 rounded-lg border text-left transition-all ${
+                              newGroupData.visibility === visibility
+                                ? 'border-spiritual-blue bg-spiritual-blue/10 ring-2 ring-spiritual-blue/20'
+                                : 'border-gray-200 hover:border-spiritual-blue/50'
+                            }`}
+                            data-testid={`visibility-${visibility}`}
+                          >
+                            <div className="flex items-center space-x-3">
+                              {getVisibilityIcon(visibility)}
+                              <div>
+                                <p className="font-medium text-charcoal capitalize">{visibility} Group</p>
+                                <p className="text-xs text-gray-600">{getVisibilityDescription(visibility)}</p>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Description */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Description</label>
+                      <textarea
+                        value={newGroupData.description}
+                        onChange={(e) => setNewGroupData({...newGroupData, description: e.target.value})}
+                        placeholder="What is this group about? What will members do together?"
+                        rows={4}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent resize-none"
+                        data-testid="input-group-description"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6 border-t border-gray-200 bg-gray-50">
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-600">
+                      {user?.role && ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF'].includes(user.role) 
+                        ? 'Your group will be created immediately'
+                        : 'Your group will require approval before going live'
+                      }
+                    </div>
+                    <div className="flex space-x-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowCreateGroupModal(false)}
+                        data-testid="cancel-create-group"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleCreateGroup}
+                        disabled={!newGroupData.name || !newGroupData.category}
+                        className="bg-spiritual-blue hover:bg-purple-700 text-white"
+                        data-testid="submit-create-group"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Group
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Request Group Modal */}
+          {showRequestGroupModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setShowRequestGroupModal(false)}>
+              <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-charcoal">Request New Group</h2>
+                    <button
+                      onClick={() => setShowRequestGroupModal(false)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100"
+                      data-testid="close-request-modal"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <p className="text-gray-600 mt-1">Submit a request for church leadership to review</p>
+                </div>
+                
+                <div className="p-6 max-h-[70vh] overflow-y-auto">
+                  <div className="space-y-6">
+                    {/* Request Notice */}
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-start space-x-3">
+                        <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-800">Request Process</p>
+                          <p className="text-xs text-blue-700 mt-1">
+                            Your request will be reviewed by church leadership. They may contact you for additional details before approval.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Group Name */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Proposed Group Name *</label>
+                      <input
+                        type="text"
+                        value={groupRequest.name}
+                        onChange={(e) => setGroupRequest({...groupRequest, name: e.target.value})}
+                        placeholder="What would you like to call this group?"
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                        data-testid="input-request-name"
+                      />
+                    </div>
+                    
+                    {/* Category */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Category *</label>
+                      <select
+                        value={groupRequest.category}
+                        onChange={(e) => setGroupRequest({...groupRequest, category: e.target.value})}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                        data-testid="select-request-category"
+                      >
+                        <option value="">Select a category</option>
+                        {groupCategories.map((category) => (
+                          <option key={category.id} value={category.id}>{category.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    {/* Description */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Group Description *</label>
+                      <textarea
+                        value={groupRequest.description}
+                        onChange={(e) => setGroupRequest({...groupRequest, description: e.target.value})}
+                        placeholder="Describe what this group is about and what activities you plan"
+                        rows={4}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent resize-none"
+                        data-testid="input-request-description"
+                      />
+                    </div>
+                    
+                    {/* Reason */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Why is this group needed? *</label>
+                      <textarea
+                        value={groupRequest.reason}
+                        onChange={(e) => setGroupRequest({...groupRequest, reason: e.target.value})}
+                        placeholder="Explain the need or opportunity this group addresses in our church community"
+                        rows={3}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent resize-none"
+                        data-testid="input-request-reason"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6 border-t border-gray-200 bg-gray-50">
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-600">
+                      Leadership will review your request within 1-2 weeks
+                    </div>
+                    <div className="flex space-x-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowRequestGroupModal(false)}
+                        data-testid="cancel-request-group"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleRequestGroup}
+                        disabled={!groupRequest.name || !groupRequest.category || !groupRequest.description || !groupRequest.reason}
+                        className="bg-spiritual-blue hover:bg-purple-700 text-white"
+                        data-testid="submit-request-group"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Submit Request
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <TabsContent value="serve" className="mt-0 space-y-6">
             {/* Why Serve Banner */}
