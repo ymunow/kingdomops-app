@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Church, Users, Key, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
+import { Church, Users, Key, ArrowRight, CheckCircle, AlertCircle, Crown } from "lucide-react";
 
 const joinCongregationSchema = z.object({
   inviteCode: z.string()
@@ -133,28 +133,57 @@ export default function JoinCongregation() {
 
   if (currentStep === 'invite') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-spiritual-blue rounded-full mb-4">
-              <Church className="h-8 w-8 text-white" />
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+        {/* Navigation */}
+        <nav className="bg-white/80 backdrop-blur-md shadow-sm border-b border-purple-100/50 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
+                <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
+                <div>
+                  <h1 className="font-display font-bold text-xl text-charcoal">
+                    KingdomOps
+                  </h1>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Button variant="ghost" onClick={() => setLocation("/features")}>Features</Button>
+                <Button variant="ghost" onClick={() => setLocation("/pricing")}>Pricing</Button>
+                <Button 
+                  onClick={() => setLocation("/church-signup")}
+                  className="bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-purple-700 hover:to-spiritual-blue text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  Apply for Beta
+                </Button>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Join Your Church
-            </h1>
-            <p className="text-gray-600">
-              Enter your church's invite code to get started
-            </p>
           </div>
+        </nav>
 
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-xl text-center flex items-center justify-center">
-                <Key className="h-5 w-5 mr-2" />
+        <div className="flex items-center justify-center p-4 pt-16">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-spiritual-blue to-purple-700 rounded-2xl mb-6 shadow-lg">
+                <Church className="h-10 w-10 text-white" />
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-spiritual-blue to-purple-700 bg-clip-text text-transparent mb-3">
+                Join Your Church
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Enter your church's invite code to connect with your congregation
+              </p>
+            </div>
+
+          <Card className="bg-white/70 backdrop-blur-md shadow-2xl border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-spiritual-blue/10 to-purple-700/10 border-b border-purple-200/30">
+              <CardTitle className="text-2xl text-center flex items-center justify-center text-gray-800">
+                <div className="p-2 bg-gradient-to-r from-warm-gold/20 to-yellow-300/20 rounded-full mr-3">
+                  <Key className="h-6 w-6 text-warm-gold" />
+                </div>
                 Church Invite Code
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-8">
               <Form {...form}>
                 <form className="space-y-6">
                   <FormField
@@ -170,7 +199,7 @@ export default function JoinCongregation() {
                             onChange={(e) => {
                               field.onChange(e.target.value.toUpperCase());
                             }}
-                            className="text-center text-lg font-mono tracking-wider"
+                            className="text-center text-2xl font-mono tracking-widest bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 focus:border-spiritual-blue rounded-xl h-16 shadow-inner"
                             data-testid="input-invite-code"
                           />
                         </FormControl>
@@ -216,11 +245,11 @@ export default function JoinCongregation() {
                             <Button 
                               type="button"
                               onClick={handleInviteCodeContinue}
-                              className="w-full bg-spiritual-blue hover:bg-purple-800"
+                              className="w-full bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-purple-700 hover:to-spiritual-blue text-white shadow-lg hover:shadow-xl transition-all duration-300 h-14 text-lg rounded-xl"
                               data-testid="button-continue-to-details"
                             >
                               Continue to Registration
-                              <ArrowRight className="ml-2 h-4 w-4" />
+                              <ArrowRight className="ml-3 h-5 w-5" />
                             </Button>
                           </div>
                         </div>
@@ -254,29 +283,61 @@ export default function JoinCongregation() {
 
   // Step 2: User Details Form
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        {/* Church Info Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-spiritual-blue rounded-full mb-4">
-            <Church className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Join {organization?.name}
-          </h1>
-          <p className="text-gray-600">
-            Complete your profile to join this congregation and discover your spiritual gifts
-          </p>
-        </div>
-
-        {/* Church Details Card */}
-        <Card className="mb-6 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-start space-x-4">
-              <div className="p-3 bg-green-100 rounded-full">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      {/* Navigation */}
+      <nav className="bg-white/80 backdrop-blur-md shadow-sm border-b border-purple-100/50 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
+              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
+              <div>
+                <h1 className="font-display font-bold text-xl text-charcoal">
+                  KingdomOps
+                </h1>
               </div>
-              <div className="flex-1">
+            </div>
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" onClick={() => setLocation("/features")}>Features</Button>
+              <Button variant="ghost" onClick={() => setLocation("/pricing")}>Pricing</Button>
+              <Button 
+                onClick={() => setLocation("/church-signup")}
+                className="bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-purple-700 hover:to-spiritual-blue text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Apply for Beta
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="flex items-center justify-center p-4 pt-12">
+        <div className="w-full max-w-2xl">
+          {/* Church Info Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-spiritual-blue to-purple-700 rounded-2xl mb-6 shadow-lg">
+              <Church className="h-10 w-10 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-spiritual-blue to-purple-700 bg-clip-text text-transparent mb-3">
+              Join {organization?.name}
+            </h1>
+            <p className="text-gray-600 text-lg">
+              Complete your profile to connect with your congregation and discover your spiritual gifts
+            </p>
+          </div>
+
+          {/* Church Details Card */}
+          <Card className="mb-8 bg-white/70 backdrop-blur-md shadow-2xl border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-sage-green/10 to-green-500/10 border-b border-green-200/30">
+              <CardTitle className="text-xl flex items-center justify-center text-gray-800">
+                <div className="p-2 bg-gradient-to-r from-sage-green/20 to-green-400/20 rounded-full mr-3">
+                  <CheckCircle className="h-6 w-6 text-sage-green" />
+                </div>
+                Church Confirmed
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="flex items-start space-x-4">
+                <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {organization?.name}
                 </h3>
@@ -292,15 +353,17 @@ export default function JoinCongregation() {
           </CardContent>
         </Card>
 
-        {/* User Details Form */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-xl text-center flex items-center justify-center">
-              <Users className="h-5 w-5 mr-2" />
-              Your Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+          {/* User Details Form */}
+          <Card className="bg-white/70 backdrop-blur-md shadow-2xl border-0 rounded-2xl overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-spiritual-blue/10 to-purple-700/10 border-b border-purple-200/30">
+              <CardTitle className="text-2xl flex items-center justify-center text-gray-800">
+                <div className="p-2 bg-gradient-to-r from-spiritual-blue/20 to-purple-700/20 rounded-full mr-3">
+                  <Users className="h-6 w-6 text-spiritual-blue" />
+                </div>
+                Your Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -386,34 +449,48 @@ export default function JoinCongregation() {
                   )}
                 />
 
-                <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="bg-gradient-to-r from-spiritual-blue/10 to-purple-700/10 p-6 rounded-xl border border-purple-200/30">
                   <div className="flex items-start space-x-3">
-                    <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
-                    <div className="text-sm text-blue-800">
-                      <p className="font-medium mb-1">What happens next?</p>
-                      <ul className="space-y-1 text-blue-700">
-                        <li>• You'll join {organization?.name}'s congregation</li>
-                        <li>• Sign in and take the spiritual gifts assessment</li>
-                        <li>• Discover your top 3 spiritual gifts</li>
-                        <li>• Get matched with ministry opportunities</li>
+                    <div className="p-2 bg-gradient-to-r from-spiritual-blue/20 to-purple-700/20 rounded-full">
+                      <CheckCircle className="h-5 w-5 text-spiritual-blue" />
+                    </div>
+                    <div className="text-gray-800">
+                      <p className="font-semibold mb-3 text-lg">What happens next?</p>
+                      <ul className="space-y-2 text-gray-700">
+                        <li className="flex items-center">
+                          <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
+                          You'll join {organization?.name}'s congregation
+                        </li>
+                        <li className="flex items-center">
+                          <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
+                          Sign in and take the spiritual gifts assessment
+                        </li>
+                        <li className="flex items-center">
+                          <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
+                          Discover your top 3 spiritual gifts
+                        </li>
+                        <li className="flex items-center">
+                          <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
+                          Get matched with ministry opportunities
+                        </li>
                       </ul>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-4">
                   <Button 
                     type="button"
                     variant="outline"
                     onClick={() => setCurrentStep('invite')}
-                    className="flex-1"
+                    className="flex-1 h-12 text-lg border-2 border-gray-300 hover:border-spiritual-blue rounded-xl"
                     data-testid="button-back-to-invite"
                   >
                     ← Back
                   </Button>
                   <Button 
                     type="submit" 
-                    className="flex-1 bg-spiritual-blue hover:bg-purple-800" 
+                    className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-purple-700 hover:to-spiritual-blue text-white shadow-lg hover:shadow-xl transition-all duration-300 h-12 text-lg rounded-xl" 
                     disabled={isSubmitting || signupMutation.isPending}
                     data-testid="button-join-congregation"
                   >
@@ -422,7 +499,7 @@ export default function JoinCongregation() {
                     ) : (
                       <>
                         Join {organization?.name}
-                        <ArrowRight className="ml-2 h-4 w-4" />
+                        <ArrowRight className="ml-3 h-5 w-5" />
                       </>
                     )}
                   </Button>
@@ -432,18 +509,19 @@ export default function JoinCongregation() {
           </CardContent>
         </Card>
 
-        <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
+        <div className="text-center mt-8">
+          <p className="text-gray-600">
             Need help?{" "}
             <button 
               onClick={() => setLocation("/")}
-              className="text-spiritual-blue hover:underline font-medium"
+              className="text-spiritual-blue hover:underline font-medium transition-colors duration-200"
             >
               Return to homepage
             </button>
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }
