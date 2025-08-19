@@ -176,7 +176,7 @@ function Router() {
             <Route path="/settings" component={Settings} />
             
             {/* Admin routes - only for admin-level roles */}
-            {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
+            {user && (user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
               <>
                 <Route path="/admin" component={Admin} />
                 <Route path="/admin-dashboard" component={AdminDashboard} />
@@ -188,6 +188,12 @@ function Router() {
                 </Route>
                 <Route path="/admin/organizations/:id" component={AdminOrganizationDetail} />
                 <Route path="/admin/system" component={AdminSystem} />
+                
+                {/* Super Admin specific routes */}
+                <Route path="/super-admin" component={AdminPlatform} />
+                <Route path="/organizations" component={AdminOrganizations} />
+                <Route path="/super-admin/users" component={AdminSystem} />
+                <Route path="/super-admin/analytics" component={AdminPlatform} />
               </>
             )}
             
