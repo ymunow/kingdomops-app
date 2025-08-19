@@ -273,7 +273,7 @@ export default function JoinCongregation() {
               </p>
               <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
                 <p>You can also visit your church's direct link:</p>
-                <p className="font-medium">yourchurch.kingdomops.app</p>
+                <p className="font-medium">yourchurch.kingdomops.org</p>
               </div>
             </div>
           </div>

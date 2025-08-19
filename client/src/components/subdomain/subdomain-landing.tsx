@@ -96,7 +96,7 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-charcoal">{orgInfo.name}</h1>
-                <p className="text-sm text-warm-gold font-medium">{subdomain}.kingdomops.app</p>
+                <p className="text-sm text-warm-gold font-medium">{subdomain}.kingdomops.org</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">

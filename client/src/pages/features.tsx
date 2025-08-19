@@ -136,7 +136,7 @@ export default function FeaturesPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-center">
-                  A branded, secure subdomain for your church (yourchurch.kingdomops.app) creates a professional online home for your members.
+                  A branded, secure subdomain for your church (yourchurch.kingdomops.org) creates a professional online home for your members.
                 </p>
               </CardContent>
             </Card>

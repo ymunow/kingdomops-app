@@ -88,14 +88,14 @@ export function SubdomainManagement({ organization }: SubdomainManagementProps) 
   };
 
   const openSubdomainSite = () => {
-    const url = `https://${organization.subdomain}.kingdomops.app`;
+    const url = `https://${organization.subdomain}.kingdomops.org`;
     window.open(url, '_blank');
   };
 
   const shareUrls = {
-    direct: `https://${organization.subdomain}.kingdomops.app`,
-    assessment: `https://${organization.subdomain}.kingdomops.app/assessment`,
-    join: `https://${organization.subdomain}.kingdomops.app/join`
+    direct: `https://${organization.subdomain}.kingdomops.org`,
+    assessment: `https://${organization.subdomain}.kingdomops.org/assessment`,
+    join: `https://${organization.subdomain}.kingdomops.org/join`
   };
 
   return (

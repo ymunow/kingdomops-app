@@ -88,7 +88,7 @@ export function SubdomainSelector({ value, onChange, error, disabled }: Subdomai
               data-testid="input-subdomain"
             />
             <div className="flex items-center px-3 bg-gray-50 border border-l-0 rounded-r-md text-lg font-medium text-gray-600 tracking-wide">
-              .kingdomops.app
+              .kingdomops.org
             </div>
           </div>
           <div className="absolute right-20 top-1/2 transform -translate-y-1/2">
@@ -112,7 +112,7 @@ export function SubdomainSelector({ value, onChange, error, disabled }: Subdomai
             <div className="text-sm text-blue-800">
               <p className="font-medium mb-1">Your church will be accessible at:</p>
               <p className="font-sans font-semibold text-lg bg-white px-3 py-2 rounded text-blue-900 tracking-wide">
-                {value || 'yourchurch'}.kingdomops.app
+                {value || 'yourchurch'}.kingdomops.org
               </p>
             </div>
           </div>
@@ -142,7 +142,7 @@ export function SubdomainPreview({ subdomain, organizationName }: SubdomainPrevi
       <AlertDescription className="text-green-800">
         <span className="font-medium">{organizationName}</span> will be accessible at{" "}
         <span className="font-mono font-medium">
-          {subdomain}.kingdomops.app
+          {subdomain}.kingdomops.org
         </span>
       </AlertDescription>
     </Alert>

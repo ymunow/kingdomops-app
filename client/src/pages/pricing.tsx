@@ -211,7 +211,7 @@ export default function Pricing() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-center text-sm">
-                  Branded subdomain (yourchurch.kingdomops.app) for your members.
+                  Branded subdomain (yourchurch.kingdomops.org) for your members.
                 </p>
               </CardContent>
             </Card>

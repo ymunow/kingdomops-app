@@ -172,7 +172,7 @@ export default function ChurchSignup() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Professional Church Domain</h3>
-                      <p className="text-gray-600">Get yourchurch.kingdomops.app - a professional web presence for your congregation</p>
+                      <p className="text-gray-600">Get yourchurch.kingdomops.org - a professional web presence for your congregation</p>
                     </div>
                   </div>
                   
@@ -481,8 +481,8 @@ export default function ChurchSignup() {
                     <div className="text-center pt-2">
                       <p className="text-sm text-gray-600">
                         Questions? Email us at{" "}
-                        <a href="mailto:hello@kingdomops.app" className="text-spiritual-blue hover:underline font-semibold">
-                          hello@kingdomops.app
+                        <a href="mailto:hello@kingdomops.org" className="text-spiritual-blue hover:underline font-semibold">
+                          hello@kingdomops.org
                         </a>
                       </p>
                     </div>

@@ -34,7 +34,7 @@ export default function SubdomainDemo() {
   ];
 
   const testSubdomainUrl = (subdomain: string) => {
-    return `https://${subdomain}.kingdomops.app`;
+    return `https://${subdomain}.kingdomops.org`;
   };
 
   return (
@@ -74,7 +74,7 @@ export default function SubdomainDemo() {
                 className="max-w-xs"
               />
               <div className="flex items-center text-sm text-warm-gold font-medium">
-                .kingdomops.app
+                .kingdomops.org
               </div>
             </div>
 
@@ -96,7 +96,7 @@ export default function SubdomainDemo() {
                       <p className="text-sm text-charcoal/70 mt-1">{(orgInfo as any)?.description || 'No description available'}</p>
                       <div className="flex items-center justify-between mt-3">
                         <div className="text-sm font-mono bg-spiritual-blue/10 text-spiritual-blue px-2 py-1 rounded">
-                          {testSubdomain}.kingdomops.app
+                          {testSubdomain}.kingdomops.org
                         </div>
                         <div className="flex space-x-2">
                           <Button 
@@ -152,7 +152,7 @@ export default function SubdomainDemo() {
                   <p className="text-sm text-charcoal/70 mb-3">{church.description}</p>
                   <div className="space-y-2">
                     <div className="text-xs font-mono bg-spiritual-blue/10 text-spiritual-blue px-2 py-1 rounded">
-                      {church.name}.kingdomops.app
+                      {church.name}.kingdomops.org
                     </div>
                     <div className="flex space-x-2">
                       <Button 
@@ -205,7 +205,7 @@ export default function SubdomainDemo() {
               <div>
                 <h4 className="font-semibold text-warm-gold mb-3">✅ New: Subdomains</h4>
                 <ul className="space-y-2 text-sm text-charcoal/70">
-                  <li>• Professional: "fwc.kingdomops.app"</li>
+                  <li>• Professional: "fwc.kingdomops.org"</li>
                   <li>• Easy to remember and share</li>
                   <li>• Direct links to all features</li>
                   <li>• Church-branded experience</li>
@@ -253,7 +253,7 @@ export default function SubdomainDemo() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto">
             <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="font-semibold">Landing Page Preview: {testSubdomain}.kingdomops.app</h3>
+              <h3 className="font-semibold">Landing Page Preview: {testSubdomain}.kingdomops.org</h3>
               <Button variant="ghost" onClick={() => setShowLanding(false)}>
                 ✕
               </Button>

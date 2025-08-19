@@ -22,7 +22,7 @@ export async function subdomainMiddleware(
   try {
     let subdomain: string | null = null;
 
-    // Extract subdomain from hostname (e.g., "fwc.kingdomops.app" -> "fwc")
+    // Extract subdomain from hostname (e.g., "fwc.kingdomops.org" -> "fwc")
     const hostname = req.hostname;
     const parts = hostname.split('.');
     
@@ -78,7 +78,7 @@ export async function getOrganizationFromSubdomain(hostname: string) {
 /**
  * Helper to generate subdomain URL
  */
-export function generateSubdomainUrl(subdomain: string, baseDomain: string = 'kingdomops.app'): string {
+export function generateSubdomainUrl(subdomain: string, baseDomain: string = 'kingdomops.org'): string {
   return `https://${subdomain}.${baseDomain}`;
 }
 
