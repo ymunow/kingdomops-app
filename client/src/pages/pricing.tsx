@@ -49,7 +49,7 @@ export default function Pricing() {
             className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 inline-block cursor-pointer hover:bg-white/20 transition-colors"
             onClick={() => setLocation("/church-signup")}
           >
-            <span className="bg-warm-gold text-spiritual-blue px-3 sm:px-4 py-2 rounded-full text-sm sm:text-lg font-bold whitespace-nowrap">Apply for Inner Circle</span>
+            <span className="bg-warm-gold text-spiritual-blue px-3 sm:px-4 py-2 rounded-full text-sm sm:text-lg font-bold whitespace-nowrap">Apply Now</span>
           </div>
         </div>
       </section>
@@ -489,7 +489,7 @@ export default function Pricing() {
             data-testid="button-apply-inner-circle"
           >
             <span className="hidden sm:inline">Apply for Inner Circle Access</span>
-            <span className="sm:hidden">Apply for Inner Circle</span>
+            <span className="sm:hidden">Apply Now</span>
             <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         </div>
