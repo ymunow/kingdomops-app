@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Crown, User, Users, Calendar } from "lucide-react";
+import { Sparkles, User, Users, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { profileCompletionSchema, type ProfileCompletionData } from "@shared/schema";
@@ -72,7 +72,7 @@ export default function ProfileCompletionModal({ isOpen, userEmail }: ProfileCom
         <DialogHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="bg-spiritual-blue/10 p-4 rounded-full">
-              <Crown className="h-8 w-8 text-spiritual-blue" />
+              <Sparkles className="h-8 w-8 text-spiritual-blue" />
             </div>
           </div>
           <DialogTitle className="text-2xl font-display font-bold text-charcoal">

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Crown, User, Users, Calendar, ArrowLeft, Save } from "lucide-react";
+import { Sparkles, User, Users, Calendar, ArrowLeft, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { profileCompletionSchema, type ProfileCompletionData } from "@shared/schema";
 
@@ -117,7 +117,7 @@ export default function Profile() {
                 Back to Home
               </Button>
               <div className="flex-shrink-0 flex items-center">
-                <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
+                <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
                 <div>
                   <h1 className="font-display font-bold text-xl text-charcoal">My Profile</h1>
                   {organization?.name && (

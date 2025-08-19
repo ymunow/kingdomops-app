@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Crown, ArrowLeft, ArrowRight, Save } from "lucide-react";
+import { Sparkles, ArrowLeft, ArrowRight, Save } from "lucide-react";
 import { QuestionCard } from "@/components/assessment/question-card";
 import NaturalAbilitiesStep from "@/components/assessment/natural-abilities-step";
 import type { Question, AssessmentState } from "@shared/schema";
@@ -264,7 +264,7 @@ export default function Assessment() {
           <div className="flex justify-between items-start mb-8">
             <div className="flex items-center space-x-4">
               <div className="bg-gradient-to-br from-spiritual-blue to-blue-600 p-3 rounded-xl shadow-lg">
-                <Crown className="h-8 w-8 text-white" />
+                <Sparkles className="h-8 w-8 text-white" />
               </div>
               <div>
                 <h1 className="font-display font-bold text-3xl text-charcoal bg-gradient-to-r from-charcoal to-gray-700 bg-clip-text text-transparent">

@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Crown, ArrowLeft, ArrowRight, Save, Mail } from "lucide-react";
+import { Sparkles, ArrowLeft, ArrowRight, Save, Mail } from "lucide-react";
 import { QuestionCard } from "@/components/assessment/question-card";
 import type { Question } from "@shared/schema";
 
@@ -268,7 +268,7 @@ export default function AnonymousAssessment() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
+              <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
               <div>
                 <h1 className="font-display font-bold text-xl text-charcoal">
                   Spiritual Gifts Assessment

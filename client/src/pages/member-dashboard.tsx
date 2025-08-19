@@ -14,7 +14,7 @@ import {
   User, 
   Award, 
   Clock, 
-  Crown,
+  Sparkles,
   ChevronRight,
   Calendar,
   Target,
@@ -114,7 +114,7 @@ export default function MemberDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
+              <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
               <div>
                 <h1 className="font-display font-bold text-xl text-charcoal">
                   {organization?.name || "KingdomOps"}
@@ -325,7 +325,7 @@ export default function MemberDashboard() {
           <div className="mb-8">
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
               <div className="flex items-center mb-4">
-                <Crown className="h-6 w-6 text-green-600 mr-3" />
+                <Sparkles className="h-6 w-6 text-green-600 mr-3" />
                 <h2 className="text-xl font-bold text-gray-900">Ministry Leadership Tools</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
