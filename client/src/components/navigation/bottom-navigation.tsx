@@ -8,9 +8,9 @@ interface BottomNavigationProps {
 }
 
 const navigationItems = [
-  { path: '/', icon: Home, label: 'Home' },
+  { path: '/dashboard', icon: Home, label: 'Home' },
   { path: '/events', icon: Calendar, label: 'Events' },
-  { path: '/serve', icon: Users, label: 'Serve' },
+  { path: '/connect', icon: Users, label: 'Serve' },
   { path: '/gifts', icon: Gift, label: 'Gifts' },
   { path: '/give', icon: DollarSign, label: 'Give' },
 ];
