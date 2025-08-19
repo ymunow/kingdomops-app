@@ -1264,7 +1264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/platform-overview", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {
       // Get all organizations
-      const allOrganizations = await storage.getAllOrganizations();
+      const allOrganizations = await storage.getOrganizations();
       const totalChurches = allOrganizations.length;
       
       // Get platform-wide user metrics
