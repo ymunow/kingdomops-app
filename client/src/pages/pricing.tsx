@@ -51,6 +51,27 @@ export default function Pricing() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Inner Circle Pricing
+          </h2>
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md mx-auto">
+            <div className="text-center mb-6">
+              <div className="text-6xl font-bold text-spiritual-blue mb-2">$99</div>
+              <div className="text-gray-600 text-lg">/month</div>
+              <div className="bg-warm-gold/10 text-warm-gold px-3 py-1 rounded-full text-sm font-medium mt-4">
+                Beta Pricing
+              </div>
+            </div>
+            <div className="text-sm text-gray-500 mb-6">
+              Lock in lifetime pricing when we launch publicly in Q3 2026
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Beta Program Details */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
