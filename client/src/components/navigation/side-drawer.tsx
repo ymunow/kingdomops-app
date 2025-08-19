@@ -246,15 +246,6 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                     <p className="text-xs text-gray-500">Default Organization</p>
                   </div>
                 </button>
-                
-                {/* View As Switcher */}
-                <div className="mt-3 p-3 bg-amber-50/50 rounded-lg">
-                  <p className="text-xs font-medium text-amber-700 mb-2 flex items-center">
-                    <Lock className="h-3 w-3 mr-1" />
-                    View As Different User
-                  </p>
-                  <ViewAsSwitcher user={user} />
-                </div>
               </div>
             </div>
           </>
@@ -303,45 +294,6 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           </>
         )}
 
-        {/* Account Actions */}
-        <div className="px-3 sm:px-4 space-y-1 sm:space-y-2 border-t border-gray-200 pt-4">
-          <button
-            onClick={() => handleNavigation('/profile')}
-            data-testid="drawer-profile-settings"
-            className={cn(
-              "w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left",
-              location === '/profile' 
-                ? "bg-gray-100 text-charcoal" 
-                : "text-gray-700 hover:bg-gray-50"
-            )}
-          >
-            <Settings className={cn(
-              "h-5 w-5",
-              location === '/profile' ? "text-charcoal" : "text-gray-500"
-            )} />
-            <div>
-              <p className={cn(
-                "font-medium",
-                location === '/profile' ? "text-charcoal" : "text-charcoal"
-              )}>
-                Profile Settings
-              </p>
-              <p className="text-sm text-gray-500">Manage your account</p>
-            </div>
-          </button>
-          
-          <button
-            onClick={handleLogout}
-            data-testid="drawer-logout"
-            className="w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left text-red-600 hover:bg-red-50"
-          >
-            <LogOut className="h-5 w-5" />
-            <div>
-              <p className="font-medium">Sign Out</p>
-              <p className="text-sm text-red-500">Leave KingdomOps</p>
-            </div>
-          </button>
-        </div>
 
         {/* Footer */}
         <div className="mt-6 sm:mt-8 p-4 sm:p-6 border-t border-gray-100">
