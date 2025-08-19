@@ -12,7 +12,7 @@ export default function Pricing() {
       <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation("/")}>
+            <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
               <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
               <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
             </div>
@@ -21,20 +21,12 @@ export default function Pricing() {
               <Button variant="ghost" onClick={() => setLocation("/pricing")}>Pricing</Button>
               <Button variant="ghost">Contact</Button>
               <Button 
-                variant="outline"
                 onClick={() => setLocation("/church-signup")}
-                className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
+                className="bg-spiritual-blue text-white hover:bg-purple-800"
                 data-testid="button-church-signup"
               >
                 <Church className="mr-2 h-4 w-4" />
                 Apply for Beta
-              </Button>
-              <Button 
-                className="bg-spiritual-blue text-white hover:bg-purple-800" 
-                onClick={() => setLocation("/auth")}
-                data-testid="button-signin"
-              >
-                Sign up
               </Button>
             </div>
           </div>
