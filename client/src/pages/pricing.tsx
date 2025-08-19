@@ -88,9 +88,9 @@ export default function Pricing() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <Card className="border-2 border-spiritual-blue/20 hover:border-spiritual-blue/40 transition-colors">
+            <Card className="border-2 border-spiritual-blue/20 hover:border-spiritual-blue/40 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
               <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-spiritual-blue/20 transition-shadow duration-300">
                   <Sparkles className="h-8 w-8 text-spiritual-blue" />
                 </div>
                 <CardTitle className="text-xl text-gray-900">Early Access</CardTitle>
@@ -102,9 +102,9 @@ export default function Pricing() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-warm-gold/30 hover:border-warm-gold/50 transition-colors">
+            <Card className="border-2 border-warm-gold/30 hover:border-warm-gold/50 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
               <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-warm-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-warm-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-warm-gold/20 transition-shadow duration-300">
                   <Shield className="h-8 w-8 text-warm-gold" />
                 </div>
                 <CardTitle className="text-xl text-gray-900">Lifetime Pricing</CardTitle>
@@ -116,9 +116,9 @@ export default function Pricing() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-purple-200 hover:border-purple-300 transition-colors">
+            <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
               <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-400/20 transition-shadow duration-300">
                   <Users className="h-8 w-8 text-purple-600" />
                 </div>
                 <CardTitle className="text-xl text-gray-900">Direct Support</CardTitle>
