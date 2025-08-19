@@ -198,8 +198,8 @@ export default function Pricing() {
             <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-spiritual-blue via-warm-gold to-green-500 transform -translate-y-1/2 z-0"></div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
-              <div className="bg-white rounded-xl shadow-lg border-2 border-spiritual-blue/20 p-6 relative">
-                <div className="w-16 h-16 bg-spiritual-blue rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="bg-white rounded-xl shadow-lg border-2 border-spiritual-blue/20 p-6 relative transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:border-spiritual-blue/40 group">
+                <div className="w-16 h-16 bg-spiritual-blue rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-spiritual-blue/30 transition-shadow duration-300">
                   <Rocket className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="font-bold text-xl text-spiritual-blue mb-2">Inner Circle Launch</h3>
@@ -216,8 +216,8 @@ export default function Pricing() {
                 </div>
               </div>
               
-              <div className="bg-white rounded-xl shadow-lg border-2 border-warm-gold/30 p-6 relative">
-                <div className="w-16 h-16 bg-warm-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="bg-white rounded-xl shadow-lg border-2 border-warm-gold/30 p-6 relative transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:border-warm-gold/60 group">
+                <div className="w-16 h-16 bg-warm-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-warm-gold/30 transition-shadow duration-300">
                   <TrendingUp className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="font-bold text-xl text-warm-gold mb-2">Growth & Expansion</h3>
@@ -234,8 +234,8 @@ export default function Pricing() {
                 </div>
               </div>
               
-              <div className="bg-white rounded-xl shadow-lg border-2 border-green-500/30 p-6 relative">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <div className="bg-white rounded-xl shadow-lg border-2 border-green-500/30 p-6 relative transform hover:scale-105 transition-all duration-300 hover:shadow-xl hover:border-green-500/60 group">
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-green-500/30 transition-shadow duration-300">
                   <Star className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="font-bold text-xl text-green-600 mb-2">Public Launch</h3>
