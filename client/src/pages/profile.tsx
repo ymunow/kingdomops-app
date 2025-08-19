@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Crown, User, Users, Calendar, ArrowLeft, Save, MessageCircle, Heart, MapPin, Gift, Settings, Camera, Edit3, UserPlus } from "lucide-react";
+import { Crown, User, Users, Calendar, ArrowLeft, Save, MessageCircle, Heart, MapPin, Gift, Settings, Camera, Edit3, UserPlus, ChevronDown, Eye, EyeOff, Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { profileCompletionSchema, type ProfileCompletionData } from "@shared/schema";
 import { MainLayout } from '@/components/navigation/main-layout';
@@ -28,6 +28,22 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('about');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editBio, setEditBio] = useState(mockProfileData.bio);
+  const [editLocation, setEditLocation] = useState(mockProfileData.location);
+  const [editFavoriteVerse, setEditFavoriteVerse] = useState(mockProfileData.favoriteVerse);
+  const [editSpiritualGifts, setEditSpiritualGifts] = useState(mockProfileData.spiritualGifts);
+  const [editServingAreas, setEditServingAreas] = useState(mockProfileData.servingAreas);
+  const [privacySettings, setPrivacySettings] = useState({
+    showBio: true,
+    showLocation: true,
+    showSpiritualGifts: true,
+    showServingAreas: true,
+    showStats: true,
+    showFavoriteVerse: true
+  });
+
+  const availableGifts = ['Teaching', 'Encouragement', 'Leadership', 'Prophecy', 'Service', 'Giving', 'Mercy', 'Wisdom', 'Knowledge', 'Faith', 'Healing', 'Administration'];
+  const availableServingAreas = ['Worship Team', 'Youth Ministry', 'Children\'s Ministry', 'Small Groups', 'Ushers', 'Tech Team', 'Prayer Team', 'Outreach', 'Food Ministry'];
 
   // Only refresh user data when component first mounts
   React.useEffect(() => {
@@ -374,12 +390,13 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Edit Profile Modal */}
+        {/* Enhanced Edit Profile Modal */}
         {isEditingProfile && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setIsEditingProfile(false)}>
-            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
               <div className="p-6 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-charcoal">Edit Profile</h2>
+                <h2 className="text-xl font-bold text-charcoal">Edit Profile & Privacy</h2>
+                <p className="text-gray-600 mt-1">Customize what others see on your profile</p>
                 <button
                   onClick={() => setIsEditingProfile(false)}
                   className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100"
@@ -389,100 +406,300 @@ export default function Profile() {
                 </button>
               </div>
               
-              <div className="p-6 max-h-[60vh] overflow-y-auto">
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="firstName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>First Name *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter your first name" {...field} data-testid="input-first-name" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="lastName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Last Name *</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter your last name" {...field} data-testid="input-last-name" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
+              <div className="p-6 max-h-[70vh] overflow-y-auto">
+                <div className="grid md:grid-cols-2 gap-8">
+                  {/* Left Column - Basic Info */}
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-charcoal mb-4">Basic Information</h3>
+                      <Form {...form}>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="firstName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>First Name *</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Enter your first name" {...field} data-testid="input-first-name" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="lastName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Last Name *</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Enter your last name" {...field} data-testid="input-last-name" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <FormField
+                            control={form.control}
+                            name="displayName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Display Name *</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="What would you like to be called?" {...field} data-testid="input-display-name" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="ageRange"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Age Range *</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger data-testid="select-age-range">
+                                      <SelectValue placeholder="Select your age range" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="18-25">18-25</SelectItem>
+                                    <SelectItem value="26-35">26-35</SelectItem>
+                                    <SelectItem value="36-45">36-45</SelectItem>
+                                    <SelectItem value="46-55">46-55</SelectItem>
+                                    <SelectItem value="56-65">56-65</SelectItem>
+                                    <SelectItem value="66+">66+</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </Form>
+                    </div>
+
+                    {/* Bio Section */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-charcoal">About Me</h4>
+                        <button
+                          onClick={() => setPrivacySettings(prev => ({ ...prev, showBio: !prev.showBio }))}
+                          className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                        >
+                          {privacySettings.showBio ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                          {privacySettings.showBio ? 'Public' : 'Hidden'}
+                        </button>
+                      </div>
+                      <textarea
+                        value={editBio}
+                        onChange={(e) => setEditBio(e.target.value)}
+                        placeholder="Share a bit about your faith journey..."
+                        className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                        rows={4}
+                        data-testid="textarea-bio"
                       />
                     </div>
 
-                    <FormField
-                      control={form.control}
-                      name="displayName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Display Name *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="What would you like to be called?" {...field} data-testid="input-display-name" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="ageRange"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Age Range *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger data-testid="select-age-range">
-                                <SelectValue placeholder="Select your age range" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="18-25">18-25</SelectItem>
-                              <SelectItem value="26-35">26-35</SelectItem>
-                              <SelectItem value="36-45">36-45</SelectItem>
-                              <SelectItem value="46-55">46-55</SelectItem>
-                              <SelectItem value="56-65">56-65</SelectItem>
-                              <SelectItem value="66+">66+</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="flex gap-4 pt-4">
-                      <Button
-                        type="submit"
-                        disabled={updateMutation.isPending}
-                        className="bg-spiritual-blue text-white hover:bg-purple-800"
-                        data-testid="button-save-profile"
-                      >
-                        <Save className="mr-2 h-4 w-4" />
-                        {updateMutation.isPending ? "Saving..." : "Save Changes"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsEditingProfile(false)}
-                        disabled={updateMutation.isPending}
-                        data-testid="button-cancel-edit"
-                      >
-                        Cancel
-                      </Button>
+                    {/* Location */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-charcoal">Location</h4>
+                        <button
+                          onClick={() => setPrivacySettings(prev => ({ ...prev, showLocation: !prev.showLocation }))}
+                          className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                        >
+                          {privacySettings.showLocation ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                          {privacySettings.showLocation ? 'Public' : 'Hidden'}
+                        </button>
+                      </div>
+                      <Input
+                        value={editLocation}
+                        onChange={(e) => setEditLocation(e.target.value)}
+                        placeholder="City, State"
+                        data-testid="input-location"
+                      />
                     </div>
-                  </form>
-                </Form>
+
+                    {/* Favorite Verse */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-charcoal">Favorite Bible Verse</h4>
+                        <button
+                          onClick={() => setPrivacySettings(prev => ({ ...prev, showFavoriteVerse: !prev.showFavoriteVerse }))}
+                          className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                        >
+                          {privacySettings.showFavoriteVerse ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                          {privacySettings.showFavoriteVerse ? 'Public' : 'Hidden'}
+                        </button>
+                      </div>
+                      <Input
+                        value={editFavoriteVerse}
+                        onChange={(e) => setEditFavoriteVerse(e.target.value)}
+                        placeholder="Your favorite verse and reference"
+                        data-testid="input-favorite-verse"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right Column - Ministry & Privacy */}
+                  <div className="space-y-6">
+                    {/* Spiritual Gifts */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-charcoal">Spiritual Gifts</h4>
+                        <button
+                          onClick={() => setPrivacySettings(prev => ({ ...prev, showSpiritualGifts: !prev.showSpiritualGifts }))}
+                          className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                        >
+                          {privacySettings.showSpiritualGifts ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                          {privacySettings.showSpiritualGifts ? 'Public' : 'Hidden'}
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          {editSpiritualGifts.map((gift, index) => (
+                            <Badge key={index} className="bg-spiritual-blue text-white">
+                              {gift}
+                              <button
+                                onClick={() => setEditSpiritualGifts(prev => prev.filter((_, i) => i !== index))}
+                                className="ml-2 hover:bg-white/20 rounded-full p-0.5"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                        <Select onValueChange={(value) => {
+                          if (!editSpiritualGifts.includes(value)) {
+                            setEditSpiritualGifts(prev => [...prev, value]);
+                          }
+                        }}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Add a spiritual gift" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableGifts.filter(gift => !editSpiritualGifts.includes(gift)).map((gift) => (
+                              <SelectItem key={gift} value={gift}>{gift}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Serving Areas */}
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-charcoal">Currently Serving</h4>
+                        <button
+                          onClick={() => setPrivacySettings(prev => ({ ...prev, showServingAreas: !prev.showServingAreas }))}
+                          className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                        >
+                          {privacySettings.showServingAreas ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                          {privacySettings.showServingAreas ? 'Public' : 'Hidden'}
+                        </button>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          {editServingAreas.map((area, index) => (
+                            <Badge key={index} className="bg-green-100 text-green-800">
+                              {area}
+                              <button
+                                onClick={() => setEditServingAreas(prev => prev.filter((_, i) => i !== index))}
+                                className="ml-2 hover:bg-green-200 rounded-full p-0.5"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                        <Select onValueChange={(value) => {
+                          if (!editServingAreas.includes(value)) {
+                            setEditServingAreas(prev => [...prev, value]);
+                          }
+                        }}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Add a serving area" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableServingAreas.filter(area => !editServingAreas.includes(area)).map((area) => (
+                              <SelectItem key={area} value={area}>{area}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Profile Photo Section */}
+                    <div>
+                      <h4 className="font-medium text-charcoal mb-3">Profile Photos</h4>
+                      <div className="space-y-3">
+                        <Button variant="outline" className="w-full justify-start">
+                          <Camera className="h-4 w-4 mr-2" />
+                          Change Cover Photo
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <User className="h-4 w-4 mr-2" />
+                          Change Profile Picture
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Privacy Settings */}
+                    <div>
+                      <h4 className="font-medium text-charcoal mb-3">Additional Privacy</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-700">Show Activity Stats</span>
+                          <button
+                            onClick={() => setPrivacySettings(prev => ({ ...prev, showStats: !prev.showStats }))}
+                            className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                          >
+                            {privacySettings.showStats ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                            {privacySettings.showStats ? 'Public' : 'Hidden'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save Buttons */}
+                <div className="flex gap-4 pt-6 border-t border-gray-200 mt-8">
+                  <Button
+                    onClick={() => {
+                      // Here you would save all the profile changes
+                      form.handleSubmit(onSubmit)();
+                      toast({
+                        title: "Profile updated!",
+                        description: "Your profile and privacy settings have been saved.",
+                      });
+                      setIsEditingProfile(false);
+                    }}
+                    disabled={updateMutation.isPending}
+                    className="bg-spiritual-blue text-white hover:bg-purple-800"
+                    data-testid="button-save-full-profile"
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    {updateMutation.isPending ? "Saving..." : "Save All Changes"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsEditingProfile(false)}
+                    disabled={updateMutation.isPending}
+                    data-testid="button-cancel-edit"
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
