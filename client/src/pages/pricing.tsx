@@ -20,7 +20,8 @@ export default function Pricing() {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => setLocation("/")}>Back to Home</Button>
+              <Button variant="ghost" onClick={() => setLocation("/")}>Home</Button>
+              <Button variant="ghost" onClick={() => setLocation("/features")}>Features</Button>
               <Button 
                 variant="outline"
                 onClick={() => setLocation("/church-signup")}
