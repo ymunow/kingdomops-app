@@ -3,13 +3,15 @@ import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
-import { Crown, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings } from "lucide-react";
+import { Crown, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings, Heart, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
   const { user, signOutMutation } = useAuth();
   const isAuthenticated = !!user;
   const { organization } = useOrganization();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleLogin = () => {
     setLocation("/auth");
@@ -196,37 +198,160 @@ export default function Landing() {
 
       {/* Why KingdomOps Section */}
       <section className="py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Why KingdomOps?
-              </h2>
-              <p className="text-lg text-purple-100 mb-8">
-                Equip your church with the resources it needs to better communicate, organize and disciple its members - all from a single platform.
-              </p>
-              
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Why KingdomOps?
+          </h2>
+          <p className="text-lg text-purple-100 mb-8 max-w-3xl mx-auto">
+            Equip your church with the resources it needs to better communicate, organize and disciple its members - all from a single platform.
+          </p>
+        </div>
+      </section>
 
+      {/* Mission Statement Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Heart className="h-8 w-8 text-spiritual-blue" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            Built by Ministry Leaders
+          </h2>
+          <p className="text-lg text-gray-600 leading-relaxed">
+            KingdomOps was built by ministry leaders who understand the challenges of communication, discipleship, and administration. Our mission is to equip churches with the tools they need to thrive.
+          </p>
+        </div>
+      </section>
+
+      {/* Scripture Foundation Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">
+            Scripture-Inspired Foundation
+          </h2>
+          <div className="border-t border-gray-300 w-24 mx-auto mb-8"></div>
+          <blockquote className="text-2xl md:text-3xl font-serif text-spiritual-blue mb-4 italic">
+            "Let all things be done decently and in order."
+          </blockquote>
+          <p className="text-lg text-gray-600 font-medium">1 Corinthians 14:40</p>
+          <div className="border-t border-gray-300 w-24 mx-auto mt-8"></div>
+        </div>
+      </section>
+
+      {/* KingdomOps Inner Circle Section */}
+      <section className="py-20 bg-gradient-to-br from-warm-gold to-yellow-500 text-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Crown className="h-10 w-10 text-white" />
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            The KingdomOps Inner Circle
+          </h2>
+          <p className="text-lg text-yellow-100 mb-8 max-w-4xl mx-auto leading-relaxed">
+            KingdomOps is currently being piloted by churches across the United States. Inner Circle members are the pioneers — investing early to shape the tools that will disciple, equip, and connect churches worldwide. Limited spots available. Apply today to secure your church's place and lifetime pricing when KingdomOps fully launches — including all future upgrades and add-ons.
+          </p>
+          <Button
+            onClick={() => setLocation("/church-signup")}
+            className="bg-white text-warm-gold px-8 py-4 text-lg font-semibold hover:bg-gray-100 transition-colors"
+            data-testid="button-apply-beta"
+          >
+            Apply for Beta Access
+          </Button>
+        </div>
+      </section>
+
+      {/* Vision & Impact Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            Our Vision & Impact
+          </h2>
+          <p className="text-lg text-gray-600 mb-12">
+            Our vision is to see churches more connected, leaders better equipped, and members discipled with tools designed for Kingdom impact.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col items-center">
+              <div className="text-4xl mb-4">🔗</div>
+              <h3 className="text-lg font-semibold text-gray-900">Connected</h3>
             </div>
-            
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <h3 className="text-xl font-bold mb-4">Stay up to date</h3>
-              <p className="text-purple-100 mb-6">
-                Get the latest updates about KingdomOps delivered to your inbox.
-              </p>
-              <div className="flex gap-3">
-                <input
-                  type="email"
-                  placeholder="Email address"
-                  className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-warm-gold"
-                />
-                <Button
-                  className="bg-warm-gold text-spiritual-blue px-6 py-3 font-semibold hover:bg-yellow-400 transition-colors"
+            <div className="flex flex-col items-center">
+              <div className="text-4xl mb-4">🛠️</div>
+              <h3 className="text-lg font-semibold text-gray-900">Equipped</h3>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-4xl mb-4">✝️</div>
+              <h3 className="text-lg font-semibold text-gray-900">Discipled</h3>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-4">
+            {[
+              {
+                question: "How do churches join the beta?",
+                answer: "Apply to join the KingdomOps Inner Circle, our exclusive beta program for early churches."
+              },
+              {
+                question: "What do Inner Circle members receive?",
+                answer: "Early access to all features, direct input into development, priority support, and a locked-in lifetime subscription price once KingdomOps fully launches — covering all future upgrades and add-ons."
+              },
+              {
+                question: "Why is there an application process?",
+                answer: "We're keeping the Inner Circle small and focused so we can work closely with each church to shape KingdomOps together."
+              },
+              {
+                question: "What happens after beta?",
+                answer: "Your church transitions seamlessly into a full subscription plan while keeping the same locked-in lifetime price secured during beta."
+              }
+            ].map((faq, index) => (
+              <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                  className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
                 >
-                  Subscribe
-                </Button>
+                  <span className="font-semibold text-gray-900">{faq.question}</span>
+                  {openFaq === index ? (
+                    <ChevronUp className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-gray-500" />
+                  )}
+                </button>
+                {openFaq === index && (
+                  <div className="px-6 pb-4">
+                    <p className="text-gray-600">{faq.answer}</p>
+                  </div>
+                )}
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stay Up to Date Section */}
+      <section className="py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold mb-4">Stay up to date</h2>
+          <p className="text-lg text-purple-100 mb-8">
+            Get the latest updates about KingdomOps delivered to your inbox.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Email address"
+              className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-warm-gold"
+            />
+            <Button
+              className="bg-warm-gold text-spiritual-blue px-6 py-3 font-semibold hover:bg-yellow-400 transition-colors whitespace-nowrap"
+            >
+              Subscribe
+            </Button>
           </div>
         </div>
       </section>

@@ -1,0 +1,34 @@
+AI Agent Prompt for Homepage Update
+Task: Update the KingdomOps homepage by adding new trust-building sections below the “Why KingdomOps?” section and before the “Stay Up to Date” email capture. Keep the same modern design (clean layout, icons, purple/yellow accents, plenty of white space).
+🔹 Instructions
+Mission Statement Section
+Title: “Built by Ministry Leaders”
+Content: “KingdomOps was built by ministry leaders who understand the challenges of communication, discipleship, and administration. Our mission is to equip churches with the tools they need to thrive.”
+Style: Centered text with a simple ministry-related icon (shepherd’s staff, church, or people graphic).
+Scripture-Inspired Foundation Section
+Title: “Scripture-Inspired Foundation”
+Content: “1 Corinthians 14:40 – Let all things be done decently and in order.”
+Style: Verse displayed larger, with subtle divider lines above and below.
+KingdomOps Inner Circle (Beta Adoption Section)
+Title: “The KingdomOps Inner Circle”
+Content:
+“KingdomOps is currently being piloted by churches across the United States. Inner Circle members are the pioneers — investing early to shape the tools that will disciple, equip, and connect churches worldwide. Limited spots available. Apply today to secure your church’s place and lifetime pricing when KingdomOps fully launches — including all future upgrades and add-ons.”
+CTA Button: Apply for Beta Access
+Style: Highlight this section with a bold icon (church, shield, or crown), and place the CTA button clearly.
+Vision & Impact Section
+Title: “Our Vision & Impact”
+Content: “Our vision is to see churches more connected, leaders better equipped, and members discipled with tools designed for Kingdom impact.”
+Style: Place 3 small icons under the text: 🔗 Connected, 🛠️ Equipped, ✝️ Discipled.
+FAQ Section
+Title: “Frequently Asked Questions”
+Add collapsible/expandable cards for each Q&A:
+Q: How do churches join the beta?
+A: Apply to join the KingdomOps Inner Circle, our exclusive beta program for early churches.
+Q: What do Inner Circle members receive?
+A: Early access to all features, direct input into development, priority support, and a locked-in lifetime subscription price once KingdomOps fully launches — covering all future upgrades and add-ons.
+Q: Why is there an application process?
+A: We’re keeping the Inner Circle small and focused so we can work closely with each church to shape KingdomOps together.
+Q: What happens after beta?
+A: Your church transitions seamlessly into a full subscription plan while keeping the same locked-in lifetime price secured during beta.
+🔹 Final Homepage Flow
+Hero → Spiritual Gifts → Features → Why KingdomOps → Mission → Scripture → KingdomOps Inner Circle → Vision → FAQ → Email Capture
