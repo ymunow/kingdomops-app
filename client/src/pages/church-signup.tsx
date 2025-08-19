@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Church, Mail, Globe, MapPin, User, ArrowRight, Crown, CheckCircle, Users, Shield, Star, Heart, Phone } from "lucide-react";
+import { Church, Mail, Globe, MapPin, User, ArrowRight, Crown, CheckCircle, Users, Shield, Star, Heart, Phone, Menu, X } from "lucide-react";
 
 const betaApplicationSchema = z.object({
   churchName: z.string().min(2, "Church name must be at least 2 characters"),
@@ -37,6 +37,7 @@ export default function ChurchSignup() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const form = useForm<BetaApplicationData>({
     resolver: zodResolver(betaApplicationSchema),
@@ -88,11 +89,14 @@ export default function ChurchSignup() {
       <nav className="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
+            {/* Logo */}
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
               <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
               <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
             </div>
-            <div className="flex items-center space-x-3">
+            
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-3">
               <Button variant="ghost" onClick={() => setLocation("/features")}>Features</Button>
               <Button variant="ghost" onClick={() => setLocation("/pricing")}>Pricing</Button>
               <Button 
@@ -103,7 +107,59 @@ export default function ChurchSignup() {
                 ← Back to Home
               </Button>
             </div>
+            
+            {/* Mobile Menu Button */}
+            <div className="lg:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2"
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
           </div>
+          
+          {/* Mobile Navigation Menu */}
+          {isMobileMenuOpen && (
+            <div className="lg:hidden border-t border-gray-100 py-4 bg-white/90 backdrop-blur-md">
+              <div className="space-y-2">
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-left"
+                  onClick={() => {
+                    setLocation("/features");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Features
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-left"
+                  onClick={() => {
+                    setLocation("/pricing");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Pricing
+                </Button>
+                <div className="px-2 pt-2 border-t border-gray-100">
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
+                    onClick={() => {
+                      setLocation("/");
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    ← Back to Home
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
