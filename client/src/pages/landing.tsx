@@ -67,7 +67,7 @@ export default function Landing() {
               ) : (
                 <div className="flex items-center space-x-3">
                   <Button variant="ghost">Features</Button>
-                  <Button variant="ghost">Pricing</Button>
+                  <Button variant="ghost" onClick={() => setLocation("/pricing")}>Pricing</Button>
                   <Button variant="ghost">Contact</Button>
                   <Button 
                     variant="outline"

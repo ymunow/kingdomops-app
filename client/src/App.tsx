@@ -33,6 +33,7 @@ import ChurchAdminWelcome from "@/pages/church-admin-welcome";
 import CongregationSignup from "@/pages/congregation-signup";
 import JoinCongregation from "@/pages/join-congregation";
 import SubdomainDemo from "@/pages/subdomain-demo";
+import Pricing from "@/pages/pricing";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -119,6 +120,7 @@ function Router() {
         
         {/* Public routes available to everyone */}
         <Route path="/church-signup" component={ChurchSignup} />
+        <Route path="/pricing" component={Pricing} />
         <Route path="/join" component={JoinCongregation} />
         <Route path="/join/:orgId" component={CongregationSignup} />
         <Route path="/results/:responseId" component={Results} />
