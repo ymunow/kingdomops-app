@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'wouter';
-import { Crown, MessageCircle, User, Settings, X } from 'lucide-react';
+import { Crown, MessageCircle, User, Settings, X, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useSupabaseAuth';
@@ -11,6 +11,7 @@ interface SideDrawerProps {
 }
 
 const drawerItems = [
+  { path: '/dashboard', icon: Home, label: 'Home', description: 'Dashboard & Overview' },
   { path: '/connect', icon: MessageCircle, label: 'Connect', description: 'Community & Social' },
   { path: '/profile', icon: User, label: 'Profile', description: 'Personal Information' },
   { path: '/settings', icon: Settings, label: 'Settings', description: 'App Preferences' },
