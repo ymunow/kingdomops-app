@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ClockIcon, ShareIcon, CalendarIcon, Sparkles, AlertTriangle, ChevronRight } from "lucide-react";
+import { ClockIcon, ShareIcon, CalendarIcon, Crown, AlertTriangle, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useOrganization } from "@/hooks/use-organization";
 import { useEffect } from "react";
@@ -122,7 +122,7 @@ export default function MyResults() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-purple-900 flex items-center gap-2">
-                <Sparkles className="h-8 w-8 text-warm-gold-500" />
+                <Crown className="h-8 w-8 text-warm-gold-500" />
                 My Results
               </h1>
               <p className="text-purple-600 mt-1">
@@ -163,7 +163,7 @@ export default function MyResults() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-xl text-purple-900 flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-warm-gold-500" />
+                        <Crown className="h-5 w-5 text-warm-gold-500" />
                         Assessment Results
                       </CardTitle>
                       <CardDescription className="flex items-center gap-4 mt-2">

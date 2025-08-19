@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
-import { Sparkles } from "lucide-react";
+import { Crown } from "lucide-react";
 
 export default function AuthPage() {
   const { user, signInMutation, signUpMutation } = useAuth();
@@ -93,7 +93,7 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-2">
-              <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
+              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
               <h1 className="text-3xl font-bold text-spiritual-blue">KingdomOps</h1>
             </div>
             <p className="text-gray-600">Discover your spiritual gifts and ministry calling</p>

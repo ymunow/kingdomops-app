@@ -37,7 +37,7 @@ import {
   Edit,
   Copy,
   Shield,
-  Sparkles,
+  Crown,
   Settings,
   Church,
   Save
@@ -875,7 +875,7 @@ export default function AdminDashboard() {
                             <td className="p-2 text-sm text-gray-600">{user.email}</td>
                             <td className="p-2">
                               <Badge className={`text-xs ${getRoleBadgeColor(user.role)}`}>
-                                {user.role === 'SUPER_ADMIN' && <Sparkles className="h-3 w-3 mr-1" />}
+                                {user.role === 'SUPER_ADMIN' && <Crown className="h-3 w-3 mr-1" />}
                                 {user.role === 'ORG_OWNER' && <Shield className="h-3 w-3 mr-1" />}
                                 {getRoleDisplayName(user.role)}
                               </Badge>

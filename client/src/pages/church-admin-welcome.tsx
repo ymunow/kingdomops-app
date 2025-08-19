@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Sparkles, CheckCircle, Users, Code, Settings, BarChart3, Copy, UserPlus, ArrowRight } from "lucide-react";
+import { Crown, CheckCircle, Users, Code, Settings, BarChart3, Copy, UserPlus, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface RegistrationData {
@@ -76,7 +76,7 @@ export default function ChurchAdminWelcome() {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-spiritual-blue rounded-full mb-4 mx-auto">
-              <Sparkles className="h-8 w-8 text-white" />
+              <Crown className="h-8 w-8 text-white" />
             </div>
             <CardTitle className="text-2xl">Welcome Church Admin!</CardTitle>
             <p className="text-gray-600">
@@ -125,7 +125,7 @@ export default function ChurchAdminWelcome() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-spiritual-blue rounded-full mb-4">
-              <Sparkles className="h-8 w-8 text-white" />
+              <Crown className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome to Your Admin Portal!

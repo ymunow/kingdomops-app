@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Church, Mail, Globe, MapPin, User, ArrowRight, Sparkles, CheckCircle, Users, Shield, Star, Heart, Phone } from "lucide-react";
+import { Church, Mail, Globe, MapPin, User, ArrowRight, Crown, CheckCircle, Users, Shield, Star, Heart, Phone } from "lucide-react";
 
 const betaApplicationSchema = z.object({
   churchName: z.string().min(2, "Church name must be at least 2 characters"),
@@ -84,7 +84,7 @@ export default function ChurchSignup() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
+              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
               <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
             </div>
             <div className="flex items-center space-x-3">
@@ -112,7 +112,7 @@ export default function ChurchSignup() {
           {/* Header */}
           <div className="text-center mb-16">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-spiritual-blue to-purple-700 rounded-3xl mb-8 shadow-xl">
-              <Sparkles className="h-12 w-12 text-white" />
+              <Crown className="h-12 w-12 text-white" />
             </div>
             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-100 to-blue-100 text-spiritual-blue px-6 py-2 rounded-full text-sm font-bold mb-6">
               <Star className="h-4 w-4" />
@@ -158,7 +158,7 @@ export default function ChurchSignup() {
                 <CardContent className="p-8 space-y-6">
                   <div className="flex items-start">
                     <div className="w-12 h-12 bg-gradient-to-br from-spiritual-blue/20 to-purple-700/20 rounded-2xl flex items-center justify-center mr-4 flex-shrink-0">
-                      <Sparkles className="h-6 w-6 text-spiritual-blue" />
+                      <Crown className="h-6 w-6 text-spiritual-blue" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Biblical Spiritual Gifts Assessment</h3>
@@ -500,7 +500,7 @@ export default function ChurchSignup() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
-              <Sparkles className="h-8 w-8 text-warm-gold mr-3" />
+              <Crown className="h-8 w-8 text-warm-gold mr-3" />
               <h3 className="text-2xl font-bold">KingdomOps</h3>
             </div>
             <p className="text-gray-400 mb-6">

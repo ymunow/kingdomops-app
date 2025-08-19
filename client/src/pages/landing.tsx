@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
-import { Sparkles, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings, Heart, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { Crown, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings, Heart, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
 export default function Landing() {
@@ -32,7 +32,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
+              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
               <div>
                 <h1 className="font-display font-bold text-xl text-charcoal">
                   {isAuthenticated && organization?.name ? organization.name : "KingdomOps"}
@@ -149,7 +149,7 @@ export default function Landing() {
             {/* Spiritual Gifts */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 transform hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-spiritual-blue/30 group">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 group-hover:shadow-spiritual-blue/20 transition-shadow duration-300">
-                <Sparkles className="h-6 w-6 text-spiritual-blue" />
+                <Crown className="h-6 w-6 text-spiritual-blue" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Spiritual Gifts</h3>
               <p className="text-gray-600 text-sm">
@@ -251,7 +251,7 @@ export default function Landing() {
       <section className="py-20 bg-gradient-to-br from-purple-100 to-purple-200 text-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="w-20 h-20 bg-white/60 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Sparkles className="h-10 w-10 text-spiritual-blue" />
+            <Crown className="h-10 w-10 text-spiritual-blue" />
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
             The KingdomOps Inner Circle
@@ -376,7 +376,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
-              <Sparkles className="h-8 w-8 text-warm-gold mr-3" />
+              <Crown className="h-8 w-8 text-warm-gold mr-3" />
               <h3 className="text-2xl font-bold">KingdomOps</h3>
             </div>
             <p className="text-gray-400 mb-6">

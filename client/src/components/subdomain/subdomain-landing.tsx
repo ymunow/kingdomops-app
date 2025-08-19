@@ -15,6 +15,7 @@ import {
   Mail,
   Globe,
   AlertTriangle
+, Crown
 } from "lucide-react";
 import { useLocation } from "wouter";
 
@@ -239,7 +240,7 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-2">
-              <Sparkles className="h-5 w-5 text-warm-gold mr-2" />
+              <Crown className="h-5 w-5 text-warm-gold mr-2" />
               <span className="font-semibold text-gray-700">KingdomOps</span>
             </div>
             <p className="text-gray-500 text-sm">Spiritual Gifts Assessment Platform</p>

@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, CheckCircle, Clock, Users, Shield, ArrowRight, Rocket, TrendingUp, Star, AlertCircle, Church, Zap, Settings, BarChart3, Globe, UserCheck, MessageCircle, Calendar, Heart, BookOpen, DollarSign } from "lucide-react";
+import { Crown, CheckCircle, Clock, Users, Shield, ArrowRight, Rocket, TrendingUp, Star, AlertCircle, Church, Zap, Settings, BarChart3, Globe, UserCheck, MessageCircle, Calendar, Heart, BookOpen, DollarSign } from "lucide-react";
 
 export default function Pricing() {
   const [, setLocation] = useLocation();
@@ -13,7 +13,7 @@ export default function Pricing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
+              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
               <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
             </div>
             <div className="flex items-center space-x-3">
@@ -37,7 +37,7 @@ export default function Pricing() {
       <section className="py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Sparkles className="h-10 w-10 text-white" />
+            <Crown className="h-10 w-10 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             KingdomOps Inner Circle
@@ -72,7 +72,7 @@ export default function Pricing() {
               
               {/* Elegant lifetime guarantee badge */}
               <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-spiritual-blue/5 to-purple-100/50 border border-spiritual-blue/20 px-4 py-2 rounded-full mt-4">
-                <Sparkles className="h-4 w-4 text-spiritual-blue" />
+                <Crown className="h-4 w-4 text-spiritual-blue" />
                 <span className="text-spiritual-blue font-medium text-sm">Lifetime Pricing Guarantee</span>
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function Pricing() {
             <Card className="border-2 border-spiritual-blue/20 hover:border-spiritual-blue/40 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-spiritual-blue/20 transition-shadow duration-300">
-                  <Sparkles className="h-8 w-8 text-spiritual-blue" />
+                  <Crown className="h-8 w-8 text-spiritual-blue" />
                 </div>
                 <CardTitle className="text-xl text-gray-900">Early Access</CardTitle>
               </CardHeader>
@@ -314,7 +314,7 @@ export default function Pricing() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="inline-flex items-center space-x-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <Sparkles className="h-4 w-4" />
+              <Crown className="h-4 w-4" />
               <span>Future Vision</span>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">

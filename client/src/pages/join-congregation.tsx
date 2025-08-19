@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Church, Users, Key, ArrowRight, CheckCircle, AlertCircle, Sparkles } from "lucide-react";
+import { Church, Users, Key, ArrowRight, CheckCircle, AlertCircle, Crown } from "lucide-react";
 
 const joinCongregationSchema = z.object({
   inviteCode: z.string()
@@ -139,7 +139,7 @@ export default function JoinCongregation() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-                <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
+                <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
                 <div>
                   <h1 className="font-display font-bold text-xl text-charcoal">
                     KingdomOps
@@ -290,7 +290,7 @@ export default function JoinCongregation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
+              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
               <div>
                 <h1 className="font-display font-bold text-xl text-charcoal">
                   KingdomOps

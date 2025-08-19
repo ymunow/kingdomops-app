@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Eye, EyeOff, Sparkles, Users, Shield, User } from "lucide-react";
+import { Eye, EyeOff, Crown, Users, Shield, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { viewAsStorage } from "@/lib/view-as-storage";
@@ -210,7 +210,7 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
             disabled={returnToAdminMutation.isPending}
             data-testid="button-return-to-admin"
           >
-            <Sparkles className="h-4 w-4 mr-2" />
+            <Crown className="h-4 w-4 mr-2" />
             Return to Super Admin
           </Button>
         </div>

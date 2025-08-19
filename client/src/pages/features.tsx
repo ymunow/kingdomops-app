@@ -17,7 +17,7 @@ import {
   DollarSign,
   BookOpen,
   ArrowRight,
-  Sparkles,
+  Crown,
   Clock,
   Zap,
   Church
@@ -33,7 +33,7 @@ export default function FeaturesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
+              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
               <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
             </div>
             <div className="flex items-center space-x-3">
@@ -57,7 +57,7 @@ export default function FeaturesPage() {
       <section className="py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Sparkles className="h-10 w-10 text-white" />
+            <Crown className="h-10 w-10 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Features Built for the Church
@@ -239,7 +239,7 @@ export default function FeaturesPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="inline-flex items-center space-x-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
-              <Sparkles className="h-4 w-4" />
+              <Crown className="h-4 w-4" />
               <span>Future Vision</span>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">

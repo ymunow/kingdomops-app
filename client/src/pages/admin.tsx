@@ -5,7 +5,7 @@ import { useOrganization } from "@/hooks/use-organization";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles } from "lucide-react";
+import { Crown } from "lucide-react";
 import { StatsDashboard } from "@/components/admin/stats-dashboard";
 import { ParticipantsTable } from "@/components/admin/participants-table";
 import { AdminNavigationBar } from "@/components/admin/admin-navigation-bar";
@@ -61,7 +61,7 @@ export default function Admin() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
+                <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
                 <div>
                   <h1 className="font-display font-bold text-xl text-charcoal">
                     {organization?.name || "KingdomOps"}
