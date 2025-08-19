@@ -236,10 +236,10 @@ export default function JoinCongregation() {
             <p className="text-sm text-gray-600">
               Don't have a church code?{" "}
               <button 
-                onClick={() => setLocation("/")}
+                onClick={() => setLocation("/church-signup")}
                 className="text-spiritual-blue hover:underline font-medium"
               >
-                Contact your church leadership
+                Apply for Inner Circle beta
               </button>
             </p>
           </div>
@@ -435,7 +435,7 @@ export default function JoinCongregation() {
               onClick={() => setLocation("/")}
               className="text-spiritual-blue hover:underline font-medium"
             >
-              Contact your church leadership
+              Return to homepage
             </button>
           </p>
         </div>
