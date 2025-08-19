@@ -1,0 +1,93 @@
+design Connect profiles to feel like Facebook-style profiles while keeping a church/community-first spin. That way members feel familiar, but you still keep it KingdomOps-branded.
+
+---
+
+🔑 Key Elements to Borrow from Facebook Profiles
+
+1. Cover Photo + Profile Picture
+  * Large banner (cover image) + circular profile picture overlay.
+  * Example: someone’s family, ministry, or favorite scripture background.
+2. Quick Stats / Snapshot
+  * Bio / About section (short testimony or “My story”).
+  * Location (optional) and church role.
+  * Spiritual gifts, interests, or serving areas.
+3. Friends / Connections
+  * Show mutual groups (e.g., “Also in Youth Ministry” or “Attends Small Group Alpha”).
+  * Display profile connections or “followers.”
+4. Tabs or Sections
+  * Timeline / Activity → posts, prayer requests, RSVPs, photos.
+  * Groups → groups they’ve joined.
+  * Events → past + upcoming they’re attending.
+  * Serve → where they volunteer.
+  * Prayer Wall → requests they’ve made or supported.
+5. Interaction Buttons
+  * Message, Add Friend/Connect, Pray for them (instead of “Like”), Encourage (hearts, praying hands).
+  * Share testimonies / scripture highlights.
+
+---
+
+✨ Example: Profile Layout (Church Context)
+
+[Cover Photo]
+[Profile Picture]  John Doe
+📍 Charlotte, NC | 🎶 Worship Team | 🙌 Serving in Youth Ministry
+
+[Connect | Message | Pray for John]
+
+-----------------------------------
+About Me:
+"Passionate about worship and discipleship. Favorite verse: Psalm 23."
+
+Spiritual Gifts: Teaching, Encouragement
+Interests: Worship, Outreach, Youth Mentoring
+-----------------------------------
+Tabs:
+[Timeline] [Groups] [Events] [Serve] [Prayer Wall]
+
+📌 Recent Activity:
+- John joined "Men’s Discipleship Group"
+- John RSVP’d to Sunday Worship Service
+- John shared a testimony in Worship Group
+
+
+---
+
+⚡ Enhancements Over Facebook
+
+* Prayer Button instead of Like 👍
+* Encouragement Stickers/Badges for recognition (e.g., “Faithful Servant,” “Prayer Warrior”)
+* Spiritual Gifts Highlight on profile (unique to church platform)
+* Serve Opportunities pinned to their profile (others can join in with them).
+
+🔧 Profile Customization Options
+
+1. Cover Photo & Profile Picture
+  * Users can upload their own header and profile images.
+  * Adds a personal touch and makes it feel alive.
+2. About Me Section (Editable)
+  * Short bio (testimony, favorite scripture, spiritual gifts, ministry passions).
+  * Option to keep it public or private.
+3. Activity Highlights (Choose what to show)
+  * Events attending
+  * Groups involved in
+  * Serving opportunities signed up for
+  * Recent posts/prayers
+4. Faith Journey Widgets (Optional)
+  * Favorite Bible verse
+  * Baptism date / Spiritual birthday
+  * Current devotion plan
+  * Testimony snippet
+5. Privacy Settings
+  * Toggle what’s visible (friends-only, group members, or everyone in church).
+
+---
+
+🧩 Suggested Layout
+
+* Top Section: Cover photo + profile pic + name + quick stats (friends, groups, serving roles).
+* Custom Tabs (User Chooses):
+  * About
+  * Groups & Serving
+  * Posts & Prayers
+  * Events Attending
+  * Media (photos, testimonies, worship moments)
