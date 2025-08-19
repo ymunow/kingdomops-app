@@ -31,7 +31,7 @@ export default function AuthPage() {
 
   if (showConfirmation) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-purple-50/30">
         <Card className="w-full max-w-md shadow-xl border border-spiritual-blue/20 bg-white/90 backdrop-blur-sm">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center mb-4">
@@ -90,7 +90,7 @@ export default function AuthPage() {
   if (user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 flex">
       {/* Left side - Auth forms */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
@@ -235,7 +235,7 @@ export default function AuthPage() {
       </div>
 
       {/* Right side - Hero section */}
-      <div className="flex-1 bg-gradient-to-br from-spiritual-blue via-purple-600 to-warm-gold/80 p-8 flex items-center justify-center text-white relative overflow-hidden">
+      <div className="flex-1 bg-gradient-to-br from-spiritual-blue to-purple-700 p-8 flex items-center justify-center text-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-white/5 bg-[radial-gradient(circle_at_50%_50%,_transparent_0%,_rgba(255,255,255,0.1)_100%)]" />
         
