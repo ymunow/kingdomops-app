@@ -129,15 +129,15 @@ export default function Pricing() {
               </div>
               <div className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Member management & communication tools</span>
+                <span className="text-gray-700">Core member management (basic profiles + invitations)</span>
               </div>
               <div className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Event planning & coordination system</span>
+                <span className="text-gray-700">Church onboarding tools</span>
               </div>
               <div className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Administrative dashboard & analytics</span>
+                <span className="text-gray-700">Administrative dashboard (basic analytics)</span>
               </div>
             </div>
             <div className="space-y-4">
@@ -148,10 +148,6 @@ export default function Pricing() {
               <div className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                 <span className="text-gray-700">Multi-role user management system</span>
-              </div>
-              <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Email integration & automated communications</span>
               </div>
               <div className="flex items-center">
                 <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
