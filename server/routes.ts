@@ -48,7 +48,7 @@ function requireAdmin(req: any, res: any, next: any) {
   
   // Get user from storage to check role
   storage.getUser(userId as string).then(user => {
-    if (!user) {
+    if (!user || !user.role) {
       return res.status(401).json({ message: "User not found" });
     }
     
@@ -932,7 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if user can update this organization
       const organizationId = req.params.id;
       const isSuperAdmin = user.role === 'SUPER_ADMIN';
-      const isOrgOwnerOrAdmin = ['ORG_OWNER', 'ORG_ADMIN'].includes(user.role) && user.organizationId === organizationId;
+      const isOrgOwnerOrAdmin = user.role && ['ORG_OWNER', 'ORG_ADMIN'].includes(user.role) && user.organizationId === organizationId;
       
       if (!isSuperAdmin && !isOrgOwnerOrAdmin) {
         return res.status(403).json({ message: "Insufficient permissions to update this organization" });
@@ -1165,7 +1165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // SUPER_ADMIN can access any organization
       // Other roles can only access their own organization
       const isSuperAdmin = user.role === 'SUPER_ADMIN';
-      const isOrgMember = user.organizationId === orgId && ['ORG_ADMIN', 'ORG_OWNER', 'ORG_LEADER'].includes(user.role);
+      const isOrgMember = user.organizationId === orgId && user.role && ['ORG_ADMIN', 'ORG_OWNER', 'ORG_LEADER'].includes(user.role);
       const hasAccess = isSuperAdmin || isOrgMember;
       
       console.log('Church overview access check:', { 
@@ -1482,9 +1482,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Calculate match based on required gifts
         if (opportunity.requiredGifts && opportunity.requiredGifts.length > 0) {
           const userGifts = [
-            latestResult.topGift1,
-            latestResult.topGift2,
-            latestResult.topGift3
+            latestResult.top1GiftKey,
+            latestResult.top2GiftKey,
+            latestResult.top3GiftKey
           ].filter(Boolean);
 
           const matchingRequiredGifts = opportunity.requiredGifts.filter(gift => 
@@ -1503,9 +1503,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Bonus points for preferred gifts
         if (opportunity.preferredGifts && opportunity.preferredGifts.length > 0) {
           const userGifts = [
-            latestResult.topGift1,
-            latestResult.topGift2,
-            latestResult.topGift3
+            latestResult.top1GiftKey,
+            latestResult.top2GiftKey,
+            latestResult.top3GiftKey
           ].filter(Boolean);
 
           const matchingPreferredGifts = opportunity.preferredGifts.filter(gift => 
