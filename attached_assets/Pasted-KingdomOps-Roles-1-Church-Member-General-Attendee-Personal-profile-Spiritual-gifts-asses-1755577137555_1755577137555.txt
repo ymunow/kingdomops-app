@@ -1,0 +1,95 @@
+KingdomOps Roles
+
+🔹 1. Church Member (General Attendee)
+
+* Personal profile
+* Spiritual gifts assessment (personal results only)
+* Serving opportunities (sign up)
+* Events (view, register, pay)
+* Giving (own donations/history)
+* Content hub (sermons, devotionals, Bible plans)
+* Groups & community (small groups, prayer wall, discussions)
+
+---
+
+🔹 2. Volunteer / Team Member
+
+* All Church Member access +
+* Volunteer schedule (assigned shifts, swap requests)
+* Team resources (training, devotionals)
+* Internal chat with ministry team
+
+---
+
+🔹 3. Ministry Leader
+
+* All Volunteer access +
+* Event planning form (includes facility + budget requests + volunteer needs)
+* Team management (assign volunteers, approve shifts)
+* Member insights (spiritual gifts results for their team)
+* Event dashboard (track approvals, volunteer assignments)
+* Resource uploads (curriculum, worship sets, training docs)
+
+---
+
+🔹 4. Assimilation Team Member
+
+* Task list only (assigned visitor follow-up calls, emails, newcomer event support)
+* Log notes on assigned contacts (e.g., “spoke with visitor, invited to Next Steps”)
+* Limited event tools (check-in for newcomer events)
+* Communication tools (pre-approved text/email templates for follow-up)
+
+---
+
+🔹 5. Assimilation Director / Pastor
+
+* Full assimilation dashboard (visitor → member → serving pipeline)
+* Assign tasks to team members
+* Track assimilation metrics (visits, follow-ups, class signups, serving activations)
+* Event planning (for newcomer lunches, Next Steps classes, etc., with budget + facilities requests)
+* Oversee newcomer event dashboards
+* Report progress to pastoral staff
+
+---
+
+🔹 6. Pastoral Staff
+
+* All Ministry Leader access +
+* Assimilation overview dashboard (see visitor pipeline, follow-up progress)
+* Discipleship pathway tracking (visitor → member → volunteer → leader)
+* Spiritual gifts reports (church-wide overview, not just one ministry)
+* Prayer & care tracking (pastoral notes, hospital visits, counseling logs)
+* Event oversight (approve/deny budget/facility requests if required by church policy)
+
+---
+
+🔹 7. Finance / Admin Role
+
+* Giving dashboard (tithes, offerings, recurring giving)
+* Budget tools (review/approve requests, track expenses)
+* Donor contribution reports (pledges, statements)
+* Facilities scheduling (approve/deny rooms/equipment, manage conflicts)
+* HR/admin tools (optional: payroll, contracts, vendors)
+
+---
+
+🔹 8. Senior Pastor / Chuch Super Admin (Not my Super Admin Accout)
+
+* Full access to all apps and dashboards
+* Approve high-level budgets/events as needed
+* Customize assessments, workflows, roles
+* View full Kingdom Health Dashboard:
+  * Attendance
+  * Giving health
+  * Volunteer engagement
+  * Spiritual gift distribution
+  * Assimilation pipeline health
+
+---
+
+✅ This lineup makes it clear:
+
+* Members/Volunteers = consumers + doers
+* Leaders/Directors = planners + overseers
+* Pastors/Admins = shepherds + stewards
+* Super Admin = sees and governs all
