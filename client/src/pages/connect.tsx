@@ -495,9 +495,9 @@ export default function Connect() {
                   <h2 className="text-xl font-bold text-charcoal">Why Serve?</h2>
                 </div>
                 <p className="text-gray-700 italic mb-2">
-                  "Each of you should use whatever gift you have received to serve others."
+                  "God has given each of you a gift from his great variety of spiritual gifts. Use them well to serve one another."
                 </p>
-                <p className="text-sm text-gray-600">— 1 Peter 4:10</p>
+                <p className="text-sm text-gray-600">— 1 Peter 4:10 NLT</p>
               </CardContent>
             </Card>
 
