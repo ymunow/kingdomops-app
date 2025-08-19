@@ -35,10 +35,7 @@ export default function FeaturesPage() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setLocation("/")}>
               <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
-              <div>
-                <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
-                <p className="text-sm text-gray-600">Church Management Platform</p>
-              </div>
+              <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
             </div>
             <div className="flex items-center space-x-3">
               <Button variant="ghost" onClick={() => setLocation("/features")}>Features</Button>

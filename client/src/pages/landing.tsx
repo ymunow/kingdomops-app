@@ -37,9 +37,6 @@ export default function Landing() {
                 <h1 className="font-display font-bold text-xl text-charcoal">
                   {isAuthenticated && organization?.name ? organization.name : "KingdomOps"}
                 </h1>
-                {isAuthenticated && organization?.name && (
-                  <p className="text-sm text-gray-600">Church Management Platform</p>
-                )}
               </div>
             </div>
             <div className="flex items-center space-x-4">
