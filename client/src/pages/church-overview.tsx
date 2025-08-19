@@ -611,22 +611,24 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Top Spiritual Gifts Distribution */}
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-charcoal flex items-center">
-                  <Star className="h-5 w-5 mr-2" />
-                  Top Spiritual Gifts in Your Congregation
-                </CardTitle>
-                <CardDescription>
-                  Most common spiritual gifts identified through assessments
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {metrics.topGifts.length > 0 ? (
+          {/* Church-specific charts - only show for church view */}
+          {!isPlatformView && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Top Spiritual Gifts Distribution */}
+              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                <CardHeader>
+                  <CardTitle className="text-charcoal flex items-center">
+                    <Star className="h-5 w-5 mr-2" />
+                    Top Spiritual Gifts in Your Congregation
+                  </CardTitle>
+                  <CardDescription>
+                    Most common spiritual gifts identified through assessments
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {(metrics as ChurchMetrics).topGifts && (metrics as ChurchMetrics).topGifts.length > 0 ? (
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={metrics.topGifts.slice(0, 6)}>
+                    <BarChart data={(metrics as ChurchMetrics).topGifts.slice(0, 6)}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="giftLabel" 
@@ -664,7 +666,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {metrics.ageDistribution.length > 0 ? (
+                {(metrics as ChurchMetrics).ageDistribution && (metrics as ChurchMetrics).ageDistribution.length > 0 ? (
                   <div className="space-y-4">
                     <ResponsiveContainer width="100%" height={200}>
                       <RechartsPieChart>
@@ -672,21 +674,21 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                           formatter={(value, name) => [`${value} members`, name]}
                         />
                         <Pie
-                          data={metrics.ageDistribution}
+                          data={(metrics as ChurchMetrics).ageDistribution}
                           cx="50%"
                           cy="50%"
                           innerRadius={0}
                           outerRadius={80}
                           dataKey="count"
                         >
-                          {metrics.ageDistribution.map((entry, index) => (
+                          {(metrics as ChurchMetrics).ageDistribution.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
                       </RechartsPieChart>
                     </ResponsiveContainer>
                     <div className="grid grid-cols-2 gap-2">
-                      {metrics.ageDistribution.map((item, index) => (
+                      {(metrics as ChurchMetrics).ageDistribution.map((item, index) => (
                         <div key={item.ageRange} className="flex items-center text-sm">
                           <div 
                             className="w-3 h-3 rounded-full mr-2" 
@@ -708,8 +710,10 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
               </CardContent>
             </Card>
           </div>
+          )}
 
-          {/* Recent Activity Feed */}
+          {/* Recent Activity Feed - Church view only */}
+          {!isPlatformView && (
           <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
             <CardHeader>
               <CardTitle className="text-charcoal flex items-center justify-between">
@@ -732,9 +736,9 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {metrics.recentActivity.length > 0 ? (
+              {(metrics as ChurchMetrics).recentActivity && (metrics as ChurchMetrics).recentActivity.length > 0 ? (
                 <div className="space-y-4">
-                  {metrics.recentActivity.slice(0, 8).map((activity, index) => (
+                  {(metrics as ChurchMetrics).recentActivity.slice(0, 8).map((activity, index) => (
                     <div key={index} className="flex items-start space-x-3 py-3 border-b last:border-b-0">
                       <div className="bg-spiritual-blue/10 rounded-full p-2">
                         <UserCheck className="h-4 w-4 text-spiritual-blue" />
@@ -765,6 +769,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
               )}
             </CardContent>
           </Card>
+          )}
         </div>
       </main>
       </div>
