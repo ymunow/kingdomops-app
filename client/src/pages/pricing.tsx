@@ -49,7 +49,7 @@ export default function Pricing() {
             className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 inline-block cursor-pointer hover:bg-white/20 transition-colors"
             onClick={() => setLocation("/church-signup")}
           >
-            <span className="bg-warm-gold text-spiritual-blue px-3 sm:px-4 py-2 rounded-full text-sm sm:text-lg font-bold whitespace-nowrap">Apply Now</span>
+            <span className="bg-warm-gold text-spiritual-blue px-6 sm:px-4 py-3 sm:py-2 rounded-full text-base sm:text-lg font-bold whitespace-nowrap">Apply Now</span>
           </div>
         </div>
       </section>
@@ -485,7 +485,7 @@ export default function Pricing() {
           <Button
             onClick={() => setLocation("/church-signup")}
             size="lg"
-            className="bg-white text-spiritual-blue hover:bg-gray-100 px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-xl"
+            className="bg-white text-spiritual-blue hover:bg-gray-100 px-6 sm:px-8 py-4 sm:py-4 text-lg sm:text-lg font-semibold shadow-xl"
             data-testid="button-apply-inner-circle"
           >
             <span className="hidden sm:inline">Apply for Inner Circle Access</span>
