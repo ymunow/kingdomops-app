@@ -11,6 +11,7 @@ import { FloatingActionButton } from './floating-action-button';
 import { useScrollDirection } from '@/hooks/use-scroll-direction';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 import { ViewAsSwitcher } from '@/components/admin/view-as-switcher';
+import { AppSwitcher } from '@/components/admin/app-switcher';
 import { useLocation } from 'wouter';
 
 interface MainLayoutProps {
@@ -232,6 +233,9 @@ export function MainLayout({ children }: MainLayoutProps) {
 
             {/* Admin Controls Row */}
             <div className="flex flex-wrap items-center gap-2">
+              {/* App Switcher - All Admin Roles */}
+              <AppSwitcher user={user} className="flex-shrink-0" />
+              
               {/* View As Switcher - Super Admin Only */}
               {isSuperAdmin && (
                 <ViewAsSwitcher user={user} className="flex-shrink-0" />

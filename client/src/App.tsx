@@ -180,6 +180,19 @@ function Router() {
               <>
                 <Route path="/admin" component={Admin} />
                 <Route path="/admin-dashboard" component={AdminDashboard} />
+                
+                {/* Module-based routes for App Switcher */}
+                <Route path="/admin/overview">  
+                  {() => {
+                    const organizationId = (user as any)?.organizationId || 'default-org-001';
+                    return <ChurchOverview organizationId={organizationId} />;
+                  }}
+                </Route>
+                <Route path="/admin/assessment" component={Admin} />
+                <Route path="/admin/admin">
+                  {() => (user as any)?.role === 'SUPER_ADMIN' ? <AdminPlatform /> : <NotFound />}
+                </Route>
+                
                 <Route path="/admin/platform" component={AdminPlatform} />
                 <Route path="/admin/organizations" component={AdminOrganizations} />
                 <Route path="/admin/organizations/:id/settings" component={AdminOrganizationSettings} />
