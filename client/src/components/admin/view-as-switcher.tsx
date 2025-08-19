@@ -61,8 +61,8 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
     refetchOnWindowFocus: false,
   });
 
-  // Use local context first, then server context, then user context
-  const viewContext: ViewContext | null = localViewContext || viewContextData?.viewContext || user?.viewContext || null;
+  // Use local context first, then server context
+  const viewContext: ViewContext | null = localViewContext || viewContextData?.viewContext || null;
 
   // Switch view mutation
   const switchViewMutation = useMutation({
@@ -140,7 +140,7 @@ export function ViewAsSwitcher({ user, className }: ViewAsSwitcherProps) {
   }
 
   // Show return to admin button if currently in view mode
-  if (user?.viewContext?.isViewingAs) {
+  if (viewContext?.isViewingAs) {
     return (
       <Button
         variant="outline"
