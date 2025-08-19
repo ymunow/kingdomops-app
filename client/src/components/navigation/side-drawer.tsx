@@ -4,6 +4,7 @@ import { Crown, MessageCircle, User, Settings, X, Home, Calendar, Users, Gift, B
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useSupabaseAuth';
+import { ViewAsSwitcher } from '@/components/admin/view-as-switcher';
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -11,21 +12,21 @@ interface SideDrawerProps {
 }
 
 const mainNavigationItems = [
-  { path: '/dashboard', icon: BarChart3, label: 'Dashboard', description: 'Your church overview', color: 'spiritual-blue' },
-  { path: '/events', icon: Calendar, label: 'Events', description: 'Church gatherings', color: 'blue-600' },
-  { path: '/connect', icon: Users, label: 'Serve', description: 'Ministry opportunities', color: 'green-600' },
-  { path: '/gifts', icon: Gift, label: 'Spiritual Gifts', description: 'Your assessment results', color: 'purple-600' },
+  { path: '/dashboard', icon: BarChart3, label: 'Dashboard', description: 'Your church overview' },
+  { path: '/events', icon: Calendar, label: 'Events', description: 'Church gatherings' },
+  { path: '/connect', icon: Users, label: 'Serve', description: 'Ministry opportunities' },
+  { path: '/gifts', icon: Gift, label: 'Spiritual Gifts', description: 'Your assessment results' },
 ];
 
 const superAdminItems = [
-  { path: '/admin-dashboard', icon: Database, label: 'Platform Admin', description: 'System-wide management', color: 'amber-600' },
-  { path: '/organizations', icon: Building, label: 'All Organizations', description: 'Manage all churches', color: 'blue-600' },
-  { path: '/super-admin/users', icon: UserCog, label: 'User Management', description: 'Platform-wide users', color: 'green-600' },
-  { path: '/super-admin/analytics', icon: Globe, label: 'Platform Analytics', description: 'Usage & insights', color: 'purple-600' },
+  { path: '/admin-dashboard', icon: Database, label: 'Platform Admin', description: 'System-wide management' },
+  { path: '/organizations', icon: Building, label: 'All Organizations', description: 'Manage all churches' },
+  { path: '/super-admin/users', icon: UserCog, label: 'User Management', description: 'Platform-wide users' },
+  { path: '/super-admin/analytics', icon: Globe, label: 'Platform Analytics', description: 'Usage & insights' },
 ];
 
 const adminItems = [
-  { path: '/admin-dashboard', icon: Crown, label: 'Admin Dashboard', description: 'Church management', color: 'amber-600' },
+  { path: '/admin-dashboard', icon: Crown, label: 'Admin Dashboard', description: 'Church management' },
 ];
 
 export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
@@ -132,7 +133,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
 
         {/* Main Navigation Items */}
         <div className="p-4 space-y-2">
-          {mainNavigationItems.map(({ path, icon: Icon, label, description, color }) => {
+          {mainNavigationItems.map(({ path, icon: Icon, label, description }) => {
             const isActive = location === path;
             
             return (
@@ -143,18 +144,18 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                 className={cn(
                   "w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left",
                   isActive 
-                    ? `bg-${color}/10 text-${color}` 
+                    ? "bg-spiritual-blue/10 text-spiritual-blue" 
                     : "text-gray-700 hover:bg-gray-50"
                 )}
               >
                 <Icon className={cn(
                   "h-5 w-5",
-                  isActive ? `text-${color}` : "text-gray-500"
+                  isActive ? "text-spiritual-blue" : "text-gray-500"
                 )} />
                 <div>
                   <p className={cn(
                     "font-medium",
-                    isActive ? `text-${color}` : "text-charcoal"
+                    isActive ? "text-spiritual-blue" : "text-charcoal"
                   )}>
                     {label}
                   </p>
@@ -181,7 +182,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             </div>
             
             <div className="px-4 space-y-2 mb-4">
-              {superAdminItems.map(({ path, icon: Icon, label, description, color }) => {
+              {superAdminItems.map(({ path, icon: Icon, label, description }) => {
                 const isActive = location === path;
                 
                 return (
@@ -192,18 +193,18 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                     className={cn(
                       "w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left",
                       isActive 
-                        ? `bg-${color}/10 text-${color}` 
-                        : "text-gray-700 hover:bg-gray-50"
+                        ? "bg-amber-100 text-amber-700" 
+                        : "text-gray-700 hover:bg-amber-50"
                     )}
                   >
                     <Icon className={cn(
                       "h-5 w-5",
-                      isActive ? `text-${color}` : "text-gray-500"
+                      isActive ? "text-amber-600" : "text-gray-500"
                     )} />
                     <div>
                       <p className={cn(
                         "font-medium",
-                        isActive ? `text-${color}` : "text-charcoal"
+                        isActive ? "text-amber-700" : "text-charcoal"
                       )}>
                         {label}
                       </p>
@@ -245,6 +246,15 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                     <p className="text-xs text-gray-500">Default Organization</p>
                   </div>
                 </button>
+                
+                {/* View As Switcher */}
+                <div className="mt-3 p-3 bg-amber-50/50 rounded-lg">
+                  <p className="text-xs font-medium text-amber-700 mb-2 flex items-center">
+                    <Lock className="h-3 w-3 mr-1" />
+                    View As Different User
+                  </p>
+                  <ViewAsSwitcher user={user} />
+                </div>
               </div>
             </div>
           </>
@@ -258,7 +268,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             </div>
             
             <div className="px-4 space-y-2 mb-4">
-              {adminItems.map(({ path, icon: Icon, label, description, color }) => {
+              {adminItems.map(({ path, icon: Icon, label, description }) => {
                 const isActive = location === path;
                 
                 return (
@@ -269,18 +279,18 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                     className={cn(
                       "w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left",
                       isActive 
-                        ? `bg-${color}/10 text-${color}` 
+                        ? "bg-amber-100 text-amber-700" 
                         : "text-gray-700 hover:bg-gray-50"
                     )}
                   >
                     <Icon className={cn(
                       "h-5 w-5",
-                      isActive ? `text-${color}` : "text-gray-500"
+                      isActive ? "text-amber-600" : "text-gray-500"
                     )} />
                     <div>
                       <p className={cn(
                         "font-medium",
-                        isActive ? `text-${color}` : "text-charcoal"
+                        isActive ? "text-amber-700" : "text-charcoal"
                       )}>
                         {label}
                       </p>
