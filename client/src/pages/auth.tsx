@@ -31,15 +31,18 @@ export default function AuthPage() {
 
   if (showConfirmation) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
+        <Card className="w-full max-w-md shadow-xl border border-spiritual-blue/20 bg-white/90 backdrop-blur-sm">
           <CardHeader className="text-center">
-            <CardTitle className="text-spiritual-blue">Email Confirmed!</CardTitle>
+            <div className="flex items-center justify-center mb-4">
+              <Crown className="text-warm-gold h-8 w-8 mr-3" />
+              <CardTitle className="text-spiritual-blue text-2xl">Email Confirmed!</CardTitle>
+            </div>
             <CardDescription>Your account has been verified. You can now sign in.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button 
-              className="w-full" 
+              className="w-full bg-gradient-to-r from-spiritual-blue to-warm-gold hover:from-spiritual-blue/90 hover:to-warm-gold/90 text-white" 
               onClick={() => {
                 setShowConfirmation(false);
                 window.history.replaceState({}, '', '/auth');
@@ -87,30 +90,30 @@ export default function AuthPage() {
   if (user) return null;
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5 flex">
       {/* Left side - Auth forms */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-2">
               <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
-              <h1 className="text-3xl font-bold text-spiritual-blue">KingdomOps</h1>
+              <h1 className="text-3xl font-bold text-charcoal">KingdomOps</h1>
             </div>
-            <p className="text-gray-600">Discover your spiritual gifts and ministry calling</p>
+            <p className="text-charcoal/70">Access your church management and spiritual gifts platform</p>
           </div>
 
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-white/50 backdrop-blur-sm border border-spiritual-blue/20">
+              <TabsTrigger value="signin" className="data-[state=active]:bg-spiritual-blue data-[state=active]:text-white">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="data-[state=active]:bg-spiritual-blue data-[state=active]:text-white">Sign Up</TabsTrigger>
             </TabsList>
             
             <TabsContent value="signin">
-              <Card>
+              <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-spiritual-blue/20">
                 <CardHeader>
-                  <CardTitle>Welcome Back</CardTitle>
-                  <CardDescription>
-                    Sign in to access your spiritual gifts assessment
+                  <CardTitle className="text-charcoal">Welcome Back</CardTitle>
+                  <CardDescription className="text-charcoal/70">
+                    Sign in to access your church dashboard and assessments
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -139,7 +142,7 @@ export default function AuthPage() {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-spiritual-blue to-warm-gold hover:from-spiritual-blue/90 hover:to-warm-gold/90 text-white shadow-lg"
                       disabled={signInMutation.isPending}
                       data-testid="button-signin"
                     >
@@ -151,11 +154,11 @@ export default function AuthPage() {
             </TabsContent>
             
             <TabsContent value="signup">
-              <Card>
+              <Card className="bg-white/90 backdrop-blur-sm shadow-xl border border-spiritual-blue/20">
                 <CardHeader>
-                  <CardTitle>Create Account</CardTitle>
-                  <CardDescription>
-                    Join thousands discovering their spiritual gifts
+                  <CardTitle className="text-charcoal">Create Account</CardTitle>
+                  <CardDescription className="text-charcoal/70">
+                    Join churches using KingdomOps for better communication and discipleship
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -217,7 +220,7 @@ export default function AuthPage() {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-spiritual-blue to-warm-gold hover:from-spiritual-blue/90 hover:to-warm-gold/90 text-white shadow-lg"
                       disabled={signUpMutation.isPending || signUpData.password !== signUpData.confirmPassword}
                       data-testid="button-signup"
                     >
@@ -232,32 +235,33 @@ export default function AuthPage() {
       </div>
 
       {/* Right side - Hero section */}
-      <div className="flex-1 bg-gradient-to-br from-spiritual-blue to-sage-green p-8 flex items-center justify-center text-white">
-        <div className="max-w-md text-center">
+      <div className="flex-1 bg-gradient-to-br from-spiritual-blue via-purple-600 to-warm-gold/80 p-8 flex items-center justify-center text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-white/5 bg-[radial-gradient(circle_at_50%_50%,_transparent_0%,_rgba(255,255,255,0.1)_100%)]" />
+        
+        <div className="max-w-md text-center relative z-10">
           <div className="mb-8">
-            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
-              </svg>
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+              <Crown className="w-10 h-10" />
             </div>
-            <h2 className="text-3xl font-bold mb-4">Discover Your Purpose</h2>
+            <h2 className="text-3xl font-bold mb-4">The Operating System for Your Church</h2>
             <p className="text-xl text-white/90 mb-6">
-              Take our comprehensive spiritual gifts assessment and unlock your ministry potential
+              Equip your church with comprehensive tools for communication, organization, and discipleship
             </p>
           </div>
           
           <div className="space-y-4">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
               <div className="w-6 h-6 bg-warm-gold rounded-full flex-shrink-0"></div>
-              <span>60-question comprehensive assessment</span>
+              <span>Spiritual gifts assessment and matching</span>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
               <div className="w-6 h-6 bg-warm-gold rounded-full flex-shrink-0"></div>
-              <span>Identify your top 3 spiritual gifts</span>
+              <span>Church communication platform</span>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
               <div className="w-6 h-6 bg-warm-gold rounded-full flex-shrink-0"></div>
-              <span>Get personalized ministry recommendations</span>
+              <span>Member management and analytics</span>
             </div>
           </div>
         </div>
