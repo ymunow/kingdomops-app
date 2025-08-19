@@ -59,7 +59,7 @@ export default function Pricing() {
               Why Join the Inner Circle?
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              We believe technology should serve the Kingdom, not the other way around. That's why KingdomOps was built by ministry leaders who understand the real challenges churches face in communication, discipleship, and administration. It's $99 each month.
+              We believe technology should serve the Kingdom, not the other way around. That's why KingdomOps was built by ministry leaders who understand the real challenges churches face in communication, discipleship, and administration.
             </p>
           </div>
 
