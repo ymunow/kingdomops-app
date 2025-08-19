@@ -239,20 +239,20 @@ export default function Landing() {
       </section>
 
       {/* KingdomOps Inner Circle Section */}
-      <section className="py-20 bg-gradient-to-br from-warm-gold to-yellow-500 text-white">
+      <section className="py-20 bg-gradient-to-br from-purple-100 to-purple-200 text-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Crown className="h-10 w-10 text-white" />
+          <div className="w-20 h-20 bg-white/60 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Crown className="h-10 w-10 text-spiritual-blue" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
             The KingdomOps Inner Circle
           </h2>
-          <p className="text-lg text-yellow-100 mb-8 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
             KingdomOps is currently being piloted by churches across the United States. Inner Circle members are the pioneers — investing early to shape the tools that will disciple, equip, and connect churches worldwide. Limited spots available. Apply today to secure your church's place and lifetime pricing when KingdomOps fully launches — including all future upgrades and add-ons.
           </p>
           <Button
             onClick={() => setLocation("/church-signup")}
-            className="bg-white text-warm-gold px-8 py-4 text-lg font-semibold hover:bg-gray-100 transition-colors"
+            className="bg-spiritual-blue text-white px-8 py-4 text-lg font-semibold hover:bg-purple-800 transition-colors"
             data-testid="button-apply-beta"
           >
             Apply for Beta Access
