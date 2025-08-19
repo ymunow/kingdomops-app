@@ -20,7 +20,7 @@ import {
   Sparkles,
   Clock,
   Zap,
-  Crown,
+  Sparkles as Crown,
   Church
 } from "lucide-react";
 

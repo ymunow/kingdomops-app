@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Church, Users, Key, ArrowRight, CheckCircle, AlertCircle, Crown } from "lucide-react";
+import { Church, Users, Key, ArrowRight, CheckCircle, AlertCircle, Sparkles as Crown } from "lucide-react";
 
 const joinCongregationSchema = z.object({
   inviteCode: z.string()
@@ -174,106 +174,107 @@ export default function JoinCongregation() {
               </p>
             </div>
 
-          <Card className="bg-white/70 backdrop-blur-md shadow-2xl border-0 rounded-2xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-spiritual-blue/10 to-purple-700/10 border-b border-purple-200/30">
-              <CardTitle className="text-2xl text-center flex items-center justify-center text-gray-800">
-                <div className="p-2 bg-gradient-to-r from-warm-gold/20 to-yellow-300/20 rounded-full mr-3">
-                  <Key className="h-6 w-6 text-warm-gold" />
-                </div>
-                Church Invite Code
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-8">
-              <Form {...form}>
-                <form className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="inviteCode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Church Code</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="e.g., FBC2024" 
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e.target.value.toUpperCase());
-                            }}
-                            className="text-center text-2xl font-mono tracking-widest bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 focus:border-spiritual-blue rounded-xl h-16 shadow-inner"
-                            data-testid="input-invite-code"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                        <div className="text-sm text-gray-600">
-                          Get this code from your church leadership
-                        </div>
-                      </FormItem>
+            <Card className="bg-white/70 backdrop-blur-md shadow-2xl border-0 rounded-2xl overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-spiritual-blue/10 to-purple-700/10 border-b border-purple-200/30">
+                <CardTitle className="text-2xl text-center flex items-center justify-center text-gray-800">
+                  <div className="p-2 bg-gradient-to-r from-warm-gold/20 to-yellow-300/20 rounded-full mr-3">
+                    <Key className="h-6 w-6 text-warm-gold" />
+                  </div>
+                  Church Invite Code
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8">
+                <Form {...form}>
+                  <form className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="inviteCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Church Code</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="e.g., FBC2024" 
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e.target.value.toUpperCase());
+                              }}
+                              className="text-center text-2xl font-mono tracking-widest bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 focus:border-spiritual-blue rounded-xl h-16 shadow-inner"
+                              data-testid="input-invite-code"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                          <div className="text-sm text-gray-600">
+                            Get this code from your church leadership
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+
+                    {inviteCode && inviteCode.length >= 3 && (
+                      <div className="mt-4">
+                        {orgLoading && (
+                          <div className="flex items-center justify-center p-4 bg-blue-50 rounded-lg">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                            <span className="text-blue-800">Looking up church...</span>
+                          </div>
+                        )}
+
+                        {orgError && (
+                          <div className="flex items-center p-4 bg-red-50 rounded-lg">
+                            <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+                            <span className="text-red-800 text-sm">{orgError.message}</span>
+                          </div>
+                        )}
+
+                        {organization && (
+                          <div className="p-4 bg-green-50 rounded-lg">
+                            <div className="flex items-center mb-3">
+                              <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                              <span className="text-green-800 font-medium">Church Found!</span>
+                            </div>
+                            <div className="text-left">
+                              <h3 className="font-semibold text-gray-900 mb-1">
+                                {organization.name}
+                              </h3>
+                              {organization.description && (
+                                <p className="text-gray-600 text-sm mb-3">
+                                  {organization.description}
+                                </p>
+                              )}
+                              <Button 
+                                type="button"
+                                onClick={handleInviteCodeContinue}
+                                className="w-full bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-purple-700 hover:to-spiritual-blue text-white shadow-lg hover:shadow-xl transition-all duration-300 h-14 text-lg rounded-xl"
+                                data-testid="button-continue-to-details"
+                              >
+                                Continue to Registration
+                                <ArrowRight className="ml-3 h-5 w-5" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     )}
-                  />
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
 
-                  {inviteCode && inviteCode.length >= 3 && (
-                    <div className="mt-4">
-                      {orgLoading && (
-                        <div className="flex items-center justify-center p-4 bg-blue-50 rounded-lg">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                          <span className="text-blue-800">Looking up church...</span>
-                        </div>
-                      )}
-
-                      {orgError && (
-                        <div className="flex items-center p-4 bg-red-50 rounded-lg">
-                          <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
-                          <span className="text-red-800 text-sm">{orgError.message}</span>
-                        </div>
-                      )}
-
-                      {organization && (
-                        <div className="p-4 bg-green-50 rounded-lg">
-                          <div className="flex items-center mb-3">
-                            <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                            <span className="text-green-800 font-medium">Church Found!</span>
-                          </div>
-                          <div className="text-left">
-                            <h3 className="font-semibold text-gray-900 mb-1">
-                              {organization.name}
-                            </h3>
-                            {organization.description && (
-                              <p className="text-gray-600 text-sm mb-3">
-                                {organization.description}
-                              </p>
-                            )}
-                            <Button 
-                              type="button"
-                              onClick={handleInviteCodeContinue}
-                              className="w-full bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-purple-700 hover:to-spiritual-blue text-white shadow-lg hover:shadow-xl transition-all duration-300 h-14 text-lg rounded-xl"
-                              data-testid="button-continue-to-details"
-                            >
-                              Continue to Registration
-                              <ArrowRight className="ml-3 h-5 w-5" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
-
-          <div className="text-center mt-6 space-y-3">
-            <p className="text-sm text-gray-600">
-              Don't have a church code?{" "}
-              <button 
-                onClick={() => setLocation("/church-signup")}
-                className="text-spiritual-blue hover:underline font-medium"
-              >
-                Apply for Inner Circle beta
-              </button>
-            </p>
-            <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
-              <p>You can also visit your church's direct link:</p>
-              <p className="font-medium">yourchurch.kingdomops.app</p>
+            <div className="text-center mt-6 space-y-3">
+              <p className="text-sm text-gray-600">
+                Don't have a church code?{" "}
+                <button 
+                  onClick={() => setLocation("/church-signup")}
+                  className="text-spiritual-blue hover:underline font-medium"
+                >
+                  Apply for Inner Circle beta
+                </button>
+              </p>
+              <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
+                <p>You can also visit your church's direct link:</p>
+                <p className="font-medium">yourchurch.kingdomops.app</p>
+              </div>
             </div>
           </div>
         </div>
@@ -338,20 +339,20 @@ export default function JoinCongregation() {
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
                 <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {organization?.name}
-                </h3>
-                <div className="flex items-center text-sm text-gray-600 mb-2">
-                  <Key className="h-4 w-4 mr-1" />
-                  Church Code: <span className="font-mono ml-1">{organization?.inviteCode}</span>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {organization?.name}
+                  </h3>
+                  <div className="flex items-center text-sm text-gray-600 mb-2">
+                    <Key className="h-4 w-4 mr-1" />
+                    Church Code: <span className="font-mono ml-1">{organization?.inviteCode}</span>
+                  </div>
+                  {organization?.description && (
+                    <p className="text-gray-600">{organization.description}</p>
+                  )}
                 </div>
-                {organization?.description && (
-                  <p className="text-gray-600">{organization.description}</p>
-                )}
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
           {/* User Details Form */}
           <Card className="bg-white/70 backdrop-blur-md shadow-2xl border-0 rounded-2xl overflow-hidden">
@@ -364,20 +365,58 @@ export default function JoinCongregation() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-8">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="John" 
+                              {...field} 
+                              data-testid="input-first-name"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Smith" 
+                              {...field} 
+                              data-testid="input-last-name"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   <FormField
                     control={form.control}
-                    name="firstName"
+                    name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name</FormLabel>
+                        <FormLabel>Email Address</FormLabel>
                         <FormControl>
                           <Input 
-                            placeholder="John" 
+                            type="email" 
+                            placeholder="john.smith@email.com" 
                             {...field} 
-                            data-testid="input-first-name"
+                            data-testid="input-email"
                           />
                         </FormControl>
                         <FormMessage />
@@ -387,141 +426,103 @@ export default function JoinCongregation() {
 
                   <FormField
                     control={form.control}
-                    name="lastName"
+                    name="ageRange"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Smith" 
-                            {...field} 
-                            data-testid="input-last-name"
-                          />
-                        </FormControl>
+                        <FormLabel>Age Range</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger data-testid="select-age-range">
+                              <SelectValue placeholder="Select your age range" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="18-25">18-25 years old</SelectItem>
+                            <SelectItem value="26-35">26-35 years old</SelectItem>
+                            <SelectItem value="36-45">36-45 years old</SelectItem>
+                            <SelectItem value="46-55">46-55 years old</SelectItem>
+                            <SelectItem value="56-65">56-65 years old</SelectItem>
+                            <SelectItem value="66+">66+ years old</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="email" 
-                          placeholder="john.smith@email.com" 
-                          {...field} 
-                          data-testid="input-email"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="ageRange"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Age Range</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-age-range">
-                            <SelectValue placeholder="Select your age range" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="18-25">18-25 years old</SelectItem>
-                          <SelectItem value="26-35">26-35 years old</SelectItem>
-                          <SelectItem value="36-45">36-45 years old</SelectItem>
-                          <SelectItem value="46-55">46-55 years old</SelectItem>
-                          <SelectItem value="56-65">56-65 years old</SelectItem>
-                          <SelectItem value="66+">66+ years old</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="bg-gradient-to-r from-spiritual-blue/10 to-purple-700/10 p-6 rounded-xl border border-purple-200/30">
-                  <div className="flex items-start space-x-3">
-                    <div className="p-2 bg-gradient-to-r from-spiritual-blue/20 to-purple-700/20 rounded-full">
-                      <CheckCircle className="h-5 w-5 text-spiritual-blue" />
-                    </div>
-                    <div className="text-gray-800">
-                      <p className="font-semibold mb-3 text-lg">What happens next?</p>
-                      <ul className="space-y-2 text-gray-700">
-                        <li className="flex items-center">
-                          <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
-                          You'll join {organization?.name}'s congregation
-                        </li>
-                        <li className="flex items-center">
-                          <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
-                          Sign in and take the spiritual gifts assessment
-                        </li>
-                        <li className="flex items-center">
-                          <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
-                          Discover your top 3 spiritual gifts
-                        </li>
-                        <li className="flex items-center">
-                          <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
-                          Get matched with ministry opportunities
-                        </li>
-                      </ul>
+                  <div className="bg-gradient-to-r from-spiritual-blue/10 to-purple-700/10 p-6 rounded-xl border border-purple-200/30">
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-gradient-to-r from-spiritual-blue/20 to-purple-700/20 rounded-full">
+                        <CheckCircle className="h-5 w-5 text-spiritual-blue" />
+                      </div>
+                      <div className="text-gray-800">
+                        <p className="font-semibold mb-3 text-lg">What happens next?</p>
+                        <ul className="space-y-2 text-gray-700">
+                          <li className="flex items-center">
+                            <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
+                            You'll join {organization?.name}'s congregation
+                          </li>
+                          <li className="flex items-center">
+                            <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
+                            Sign in and take the spiritual gifts assessment
+                          </li>
+                          <li className="flex items-center">
+                            <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
+                            Discover your top 3 spiritual gifts
+                          </li>
+                          <li className="flex items-center">
+                            <div className="w-2 h-2 bg-spiritual-blue rounded-full mr-3"></div>
+                            Get matched with ministry opportunities
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex gap-4">
-                  <Button 
-                    type="button"
-                    variant="outline"
-                    onClick={() => setCurrentStep('invite')}
-                    className="flex-1 h-12 text-lg border-2 border-gray-300 hover:border-spiritual-blue rounded-xl"
-                    data-testid="button-back-to-invite"
-                  >
-                    ← Back
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-purple-700 hover:to-spiritual-blue text-white shadow-lg hover:shadow-xl transition-all duration-300 h-12 text-lg rounded-xl" 
-                    disabled={isSubmitting || signupMutation.isPending}
-                    data-testid="button-join-congregation"
-                  >
-                    {isSubmitting || signupMutation.isPending ? (
-                      "Joining..."
-                    ) : (
-                      <>
-                        Join {organization?.name}
-                        <ArrowRight className="ml-3 h-5 w-5" />
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+                  <div className="flex gap-4">
+                    <Button 
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCurrentStep('invite')}
+                      className="flex-1 h-12 text-lg border-2 border-gray-300 hover:border-spiritual-blue rounded-xl"
+                      data-testid="button-back-to-invite"
+                    >
+                      ← Back
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-purple-700 hover:to-spiritual-blue text-white shadow-lg hover:shadow-xl transition-all duration-300 h-12 text-lg rounded-xl" 
+                      disabled={isSubmitting || signupMutation.isPending}
+                      data-testid="button-join-congregation"
+                    >
+                      {isSubmitting || signupMutation.isPending ? (
+                        "Joining..."
+                      ) : (
+                        <>
+                          Join {organization?.name}
+                          <ArrowRight className="ml-3 h-5 w-5" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
 
-        <div className="text-center mt-8">
-          <p className="text-gray-600">
-            Need help?{" "}
-            <button 
-              onClick={() => setLocation("/")}
-              className="text-spiritual-blue hover:underline font-medium transition-colors duration-200"
-            >
-              Return to homepage
-            </button>
-          </p>
+          <div className="text-center mt-8">
+            <p className="text-gray-600">
+              Need help?{" "}
+              <button 
+                onClick={() => setLocation("/")}
+                className="text-spiritual-blue hover:underline font-medium transition-colors duration-200"
+              >
+                Return to homepage
+              </button>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }
