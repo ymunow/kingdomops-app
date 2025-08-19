@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Bell, Heart, MessageSquare, Users, Crown } from 'lucide-react';
+import { Menu, Bell, Heart, MessageSquare, Users, Crown, User, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -9,6 +9,9 @@ import { BottomNavigation } from './bottom-navigation';
 import { SideDrawer } from './side-drawer';
 import { FloatingActionButton } from './floating-action-button';
 import { useScrollDirection } from '@/hooks/use-scroll-direction';
+import { useAuth } from '@/hooks/useSupabaseAuth';
+import { ViewAsSwitcher } from '@/components/admin/view-as-switcher';
+import { useLocation } from 'wouter';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -18,6 +21,8 @@ export function MainLayout({ children }: MainLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const scrollDirection = useScrollDirection();
+  const { user, signOutMutation } = useAuth();
+  const [, setLocation] = useLocation();
   
   // Bottom nav is visible when scrolling up or at top, hidden when scrolling down
   const isBottomNavVisible = scrollDirection !== 'down';
@@ -66,6 +71,17 @@ export function MainLayout({ children }: MainLayoutProps) {
   ];
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const handleLogout = () => {
+    signOutMutation.mutate();
+  };
+
+  const handleProfileClick = () => {
+    setLocation('/profile');
+  };
+
+  const isSuperAdmin = (user as any)?.role === 'SUPER_ADMIN';
+  const isAdmin = (user as any)?.role && ['ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER', 'ADMIN'].includes((user as any).role);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -171,6 +187,84 @@ export function MainLayout({ children }: MainLayoutProps) {
           </div>
         </div>
       </header>
+
+      {/* Admin Controls Card - Only for admins */}
+      {(isSuperAdmin || isAdmin) && (
+        <div className="sticky top-[73px] z-20 bg-white/95 backdrop-blur-md border-b border-gray-200">
+          <div className="p-4 space-y-4">
+            {/* User Info Section */}
+            <div className="flex items-center space-x-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                isSuperAdmin 
+                  ? 'bg-gradient-to-r from-amber-500 to-yellow-600' 
+                  : 'bg-spiritual-blue/10'
+              }`}>
+                {isSuperAdmin ? (
+                  <Crown className="h-5 w-5 text-white" />
+                ) : (
+                  <User className="h-5 w-5 text-spiritual-blue" />
+                )}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center space-x-2">
+                  <p className="font-semibold text-charcoal text-sm">
+                    {(user as any)?.firstName && (user as any)?.lastName 
+                      ? `${(user as any).firstName} ${(user as any).lastName}`
+                      : user?.displayName || user?.email || 'Member'}
+                  </p>
+                  {isSuperAdmin && (
+                    <div className="px-2 py-0.5 bg-amber-500 text-white text-xs font-bold rounded-full">
+                      SUPER
+                    </div>
+                  )}
+                </div>
+                <p className={`text-xs ${
+                  isSuperAdmin ? 'text-amber-700 font-medium' : 'text-gray-600'
+                }`}>
+                  {isSuperAdmin ? 'Platform Administrator' :
+                   (user as any)?.role === 'ORG_ADMIN' ? 'Church Admin' :
+                   (user as any)?.role === 'ORG_LEADER' ? 'Church Leader' :
+                   (user as any)?.role === 'GROUP_LEADER' ? 'Group Leader' :
+                   'Member'}
+                </p>
+              </div>
+            </div>
+
+            {/* Admin Controls Row */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* View As Switcher - Super Admin Only */}
+              {isSuperAdmin && (
+                <ViewAsSwitcher user={user} className="flex-shrink-0" />
+              )}
+              
+              {/* Profile Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleProfileClick}
+                className="flex-shrink-0"
+                data-testid="button-profile"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Profile
+              </Button>
+              
+              {/* Sign Out Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                disabled={signOutMutation.isPending}
+                className="flex-shrink-0 text-red-600 border-red-200 hover:bg-red-50"
+                data-testid="button-sign-out"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="pb-20">
