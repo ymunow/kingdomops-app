@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid3X3, BarChart3, Target, Settings, Crown, ChevronDown, Clock, User, Users, Shield } from 'lucide-react';
+import { Grid3X3, BarChart3, Target, Settings, Crown, ChevronDown, Clock, User, Users, Shield, TrendingUp, Calendar, MessageSquare, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
@@ -87,66 +87,84 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
   const getModulesForRole = (): AppModule[] => {
     if (isSuperAdmin) {
       return [
-        // Community Pillar - Super Admin view
+        // Insights Section
         {
           id: 'overview',
           name: 'Platform Analytics',
-          description: 'Cross-church metrics and system health',
-          icon: BarChart3,
+          description: 'Cross-church metrics',
+          icon: TrendingUp,
           path: '/admin/overview',
-          pillar: 'Control Center',
+          pillar: 'Insights',
           permissions: ['SUPER_ADMIN'],
           badgeCount: 0
         },
-        
-        // Assessment Pillar - Super Admin view
         {
           id: 'assessment',
           name: 'Global Assessments',
-          description: 'Platform-wide spiritual gifts insights',
+          description: 'Platform-wide insights',
           icon: Target,
           path: '/admin/assessment',
-          pillar: 'Control Center',
+          pillar: 'Insights',
           permissions: ['SUPER_ADMIN'],
           badgeCount: 0
         },
         
-        // Admin Pillar - Super Admin view
+        // Management Section
         {
           id: 'admin',
-          name: 'System Administration',
-          description: 'Churches, users, and system configuration',
+          name: 'System Admin',
+          description: 'Churches & configuration',
           icon: Settings,
           path: '/admin/admin',
-          pillar: 'Platform Management',
+          pillar: 'Management',
           permissions: ['SUPER_ADMIN'],
           badgeCount: 0
         },
       ];
     } else {
       return [
-        // Community Pillar - Church Admin view
+        // Growth Section
         {
           id: 'overview',
           name: 'Church Overview',
-          description: 'Member growth and congregation insights',
-          icon: BarChart3,
+          description: 'Member insights',
+          icon: TrendingUp,
           path: '/admin/overview',
-          pillar: 'Church Operations',
+          pillar: 'Growth',
+          permissions: ['ORG_ADMIN', 'ORG_LEADER', 'SUPER_ADMIN'],
+          badgeCount: 0
+        },
+        {
+          id: 'assessment',
+          name: 'Spiritual Gifts',
+          description: 'Track gifts',
+          icon: Target,
+          path: '/admin/assessment',
+          pillar: 'Growth',
           permissions: ['ORG_ADMIN', 'ORG_LEADER', 'SUPER_ADMIN'],
           badgeCount: 0
         },
         
-        // Assessment Pillar - Church Admin view
+        // Engagement Section  
         {
-          id: 'assessment',
-          name: 'Spiritual Gifts',
-          description: 'Assessment management and member results',
-          icon: Target,
-          path: '/admin/assessment',
-          pillar: 'Discipleship',
+          id: 'events',
+          name: 'Events',
+          description: 'Manage events',
+          icon: Calendar,
+          path: '/admin/events',
+          pillar: 'Engagement',
           permissions: ['ORG_ADMIN', 'ORG_LEADER', 'SUPER_ADMIN'],
           badgeCount: 0
+        },
+        {
+          id: 'serve',
+          name: 'Serve Central',
+          description: 'Ministry opportunities',
+          icon: Users,
+          path: '/admin/serve',
+          pillar: 'Engagement',
+          permissions: ['ORG_ADMIN', 'ORG_LEADER', 'SUPER_ADMIN'],
+          badgeCount: 3
         }
       ];
     }
@@ -156,8 +174,8 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
 
   // Get recent items (mock for Phase 1A)
   const recentItems = [
-    { id: 'overview', name: 'Church Overview', icon: BarChart3, lastVisited: '2 minutes ago' },
-    { id: 'assessment', name: 'Spiritual Gifts', icon: Target, lastVisited: '1 hour ago' },
+    { id: 'overview', name: isSuperAdmin ? 'Platform Analytics' : 'Church Overview', icon: TrendingUp, lastVisited: '2 minutes ago' },
+    { id: 'assessment', name: isSuperAdmin ? 'Global Assessments' : 'Spiritual Gifts', icon: Target, lastVisited: '1 hour ago' },
   ];
 
   // Filter modules based on user permissions
@@ -264,74 +282,81 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
 
   // Desktop Dropdown Content
   const DesktopContent = () => (
-    <div className="w-80 p-4 space-y-4">
+    <div className={`w-80 p-0 ${theme.dropdownClass} rounded-xl shadow-2xl border`}>
+      {/* Header */}
+      <div className="p-4 border-b border-opacity-20">
+        <h3 className={`font-semibold text-sm ${isSuperAdmin ? 'text-amber-300' : 'text-spiritual-blue'}`}>KingdomOps Apps</h3>
+      </div>
+      
       {/* Recent Items */}
       {recentItems.length > 0 && (
-        <div>
+        <div className="p-4">
           <div className="flex items-center space-x-2 mb-3">
-            <Clock className="h-4 w-4 text-gray-500" />
-            <h3 className="font-medium text-gray-900 text-sm">Recent</h3>
+            <Clock className={`h-4 w-4 ${theme.recentHeaderClass}`} />
+            <h3 className={`font-medium text-sm ${theme.recentHeaderClass}`}>Recent</h3>
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-1">
             {recentItems.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleRecentClick(item)}
-                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all text-left group ${isSuperAdmin ? 'hover:bg-white/10' : 'hover:bg-spiritual-blue/5'}`}
                 >
-                  <div className="w-6 h-6 rounded bg-spiritual-blue/10 flex items-center justify-center">
-                    <Icon className="h-3 w-3 text-spiritual-blue" />
+                  <div className={`w-8 h-8 rounded-lg ${theme.iconClass} bg-opacity-10 flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                    <Icon className={`h-4 w-4 ${theme.iconClass}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-gray-900 truncate">{item.name}</p>
-                    <p className="text-xs text-gray-500">{item.lastVisited}</p>
+                    <p className={`font-medium text-sm ${isSuperAdmin ? 'text-white' : 'text-gray-900'} truncate`}>{item.name}</p>
+                    <p className={`text-xs ${isSuperAdmin ? 'text-slate-400' : 'text-gray-500'}`}>{item.lastVisited}</p>
                   </div>
                 </button>
               );
             })}
           </div>
-          <div className="border-t border-gray-100 my-4" />
+          <div className={`border-t my-4 ${isSuperAdmin ? 'border-slate-600' : 'border-gray-100'}`} />
         </div>
       )}
 
       {/* Modules by Pillar */}
-      {Object.entries(groupedModules).map(([pillar, modules]) => (
-        <div key={pillar}>
-          <h3 className="font-medium text-gray-900 text-sm mb-2">{pillar}</h3>
-          <div className="grid gap-1">
-            {modules.map((module) => {
-              const Icon = module.icon;
-              return (
-                <button
-                  key={module.id}
-                  onClick={() => handleModuleClick(module)}
-                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-spiritual-blue/10 flex items-center justify-center">
-                    <Icon className="h-4 w-4 text-spiritual-blue" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium text-sm text-gray-900">{module.name}</p>
-                      {module.badgeCount && module.badgeCount > 0 && (
-                        <Badge variant="destructive" className="text-xs">
-                          {module.badgeCount}
-                        </Badge>
-                      )}
+      <div className="px-4 pb-4">
+        {Object.entries(groupedModules).map(([pillar, modules]) => (
+          <div key={pillar} className="mb-4 last:mb-0">
+            <h3 className={`font-semibold text-xs uppercase tracking-wide mb-3 ${theme.pillarHeaderClass}`}>{pillar}</h3>
+            <div className="grid gap-1">
+              {modules.map((module) => {
+                const Icon = module.icon;
+                return (
+                  <button
+                    key={module.id}
+                    onClick={() => handleModuleClick(module)}
+                    className={`flex items-center space-x-3 p-3 rounded-lg transition-all text-left group ${isSuperAdmin ? 'hover:bg-white/10' : 'hover:bg-spiritual-blue/5'}`}
+                  >
+                    <div className={`w-10 h-10 rounded-xl ${isSuperAdmin ? 'bg-amber-500/20' : 'bg-spiritual-blue/10'} flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                      <Icon className={`h-5 w-5 ${theme.iconClass}`} />
                     </div>
-                    <p className="text-xs text-gray-500 truncate">{module.description}</p>
-                  </div>
-                </button>
-              );
-            })}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className={`font-semibold text-sm ${isSuperAdmin ? 'text-white' : 'text-gray-900'}`}>{module.name}</p>
+                        {module.badgeCount && module.badgeCount > 0 && (
+                          <Badge className={`text-xs ${theme.badgeClass} border-0`}>
+                            {module.badgeCount}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className={`text-xs ${isSuperAdmin ? 'text-slate-400' : 'text-gray-600'} truncate`}>{module.description}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            {pillar !== Object.keys(groupedModules)[Object.keys(groupedModules).length - 1] && (
+              <div className={`border-t my-4 ${isSuperAdmin ? 'border-slate-600' : 'border-gray-100'}`} />
+            )}
           </div>
-          {pillar !== Object.keys(groupedModules)[Object.keys(groupedModules).length - 1] && (
-            <div className="border-t border-gray-100 my-3" />
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 

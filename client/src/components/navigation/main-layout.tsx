@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Bell, Heart, MessageSquare, Users, Crown, User, Settings, LogOut } from 'lucide-react';
+import { Menu, Bell, Heart, MessageSquare, Users, Crown, User, Settings, LogOut, Search, Plus, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -104,11 +104,42 @@ export function MainLayout({ children }: MainLayoutProps) {
             
             {/* Apps Switcher - Only for admins */}
             {(isSuperAdmin || isAdmin) && (
-              <AppSwitcher user={user} className="" />
+              <AppSwitcher user={user} className="bg-white/20 hover:bg-white/30 border-white/30 hover:border-white/40 rounded-full px-4 py-2 transition-all duration-200" />
             )}
           </div>
           
-          <div className="flex items-center space-x-4">
+          {/* Center - Global Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/60" />
+              <input
+                type="text"
+                placeholder="Search churches, users, events..."
+                className="w-full pl-10 pr-4 py-2 bg-white/20 border border-white/30 rounded-full text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/25 transition-all"
+                data-testid="global-search"
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            {/* Quick Create Button - Only for admins */}
+            {(isSuperAdmin || isAdmin) && (
+              <div className="relative group">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="bg-white/20 hover:bg-white/30 border border-white/30 hover:border-white/40 rounded-full px-4 py-2 text-white transition-all duration-200"
+                  data-testid="quick-create"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Create</span>
+                  <ChevronDown className="h-3 w-3 ml-2" />
+                </Button>
+              </div>
+            )}
+            
+            {/* Divider */}
+            <div className="hidden sm:block w-px h-6 bg-white/30" />
             {/* Notifications */}
             <Popover open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
               <PopoverTrigger asChild>
@@ -191,7 +222,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                 <span className="text-white font-bold text-sm">K</span>
               </div>
-              <span className="font-bold text-white hidden sm:inline">KingdomOps</span>
+              <span className="font-bold text-white hidden lg:inline">KingdomOps</span>
             </div>
           </div>
         </div>
