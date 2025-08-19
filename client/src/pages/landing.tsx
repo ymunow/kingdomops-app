@@ -271,7 +271,7 @@ export default function Landing() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col items-center">
-              <div className="text-4xl mb-4">🔗</div>
+              <div className="text-4xl mb-4">🤝</div>
               <h3 className="text-lg font-semibold text-gray-900">Connected</h3>
             </div>
             <div className="flex flex-col items-center">
