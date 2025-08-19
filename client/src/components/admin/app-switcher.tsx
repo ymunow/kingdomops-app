@@ -51,7 +51,7 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
     if (isSuperAdmin) {
       // Super Admin: Dark "control center" theme
       return {
-        buttonClass: "bg-gradient-to-r from-slate-800 to-slate-900 border-slate-700 text-white hover:from-slate-700 hover:to-slate-800 shadow-lg hover:shadow-slate-500/25 transition-all duration-200",
+        buttonClass: "bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/40 shadow-lg hover:shadow-amber-500/25 transition-all duration-200",
         dropdownClass: "bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 text-white",
         iconClass: "text-amber-400",
         badgeClass: "bg-amber-500 text-slate-900",
@@ -61,7 +61,7 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
     } else if (isChurchAdmin) {
       // Church Admin: Warm community theme
       return {
-        buttonClass: "bg-gradient-to-r from-spiritual-blue to-purple-600 border-spiritual-blue/20 text-white hover:from-spiritual-blue/90 hover:to-purple-600/90 shadow-lg hover:shadow-spiritual-blue/25 transition-all duration-200",
+        buttonClass: "bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/40 shadow-lg transition-all duration-200",
         dropdownClass: "bg-gradient-to-br from-white to-purple-50/50 border-spiritual-blue/20",
         iconClass: "text-spiritual-blue",
         badgeClass: "bg-warm-gold text-white",
@@ -71,7 +71,7 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
     } else {
       // Default theme
       return {
-        buttonClass: "bg-white border-gray-200 text-gray-700 hover:bg-gray-50",
+        buttonClass: "bg-white/20 border-white/30 text-white hover:bg-white/30",
         dropdownClass: "bg-white border-gray-200",
         iconClass: "text-spiritual-blue",
         badgeClass: "bg-red-500 text-white",

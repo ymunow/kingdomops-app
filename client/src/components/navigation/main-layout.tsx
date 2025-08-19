@@ -86,19 +86,27 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200">
+      {/* Top Header - Planning Center Style */}
+      <header className="sticky top-0 z-30 bg-gradient-to-r from-spiritual-blue/95 to-purple-600/95 backdrop-blur-md border-b border-spiritual-blue/20">
         <div className="flex items-center justify-between p-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsDrawerOpen(true)}
-            data-testid="menu-button"
-            className="flex items-center space-x-2"
-          >
-            <Menu className="h-5 w-5" />
-            <span className="hidden sm:inline">Menu</span>
-          </Button>
+          <div className="flex items-center space-x-4">
+            {/* Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsDrawerOpen(true)}
+              data-testid="menu-button"
+              className="flex items-center space-x-2 text-white hover:bg-white/10"
+            >
+              <Menu className="h-5 w-5" />
+              <span className="hidden sm:inline">Menu</span>
+            </Button>
+            
+            {/* Apps Switcher - Only for admins */}
+            {(isSuperAdmin || isAdmin) && (
+              <AppSwitcher user={user} className="" />
+            )}
+          </div>
           
           <div className="flex items-center space-x-4">
             {/* Notifications */}
@@ -107,7 +115,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="relative"
+                  className="relative text-white hover:bg-white/10"
                   data-testid="notifications-button"
                 >
                   <Bell className="h-5 w-5" />
@@ -180,41 +188,41 @@ export function MainLayout({ children }: MainLayoutProps) {
             
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-spiritual-blue/10 flex items-center justify-center">
-                <span className="text-spiritual-blue font-bold text-sm">K</span>
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                <span className="text-white font-bold text-sm">K</span>
               </div>
-              <span className="font-bold text-charcoal hidden sm:inline">KingdomOps</span>
+              <span className="font-bold text-white hidden sm:inline">KingdomOps</span>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Admin Controls Card - Only for admins */}
+      {/* Simplified Admin Controls - Only for admins */}
       {(isSuperAdmin || isAdmin) && (
-        <div className="sticky top-[73px] z-20 bg-white/95 backdrop-blur-md border-b border-gray-200">
-          <div className="p-4 space-y-4">
-            {/* User Info Section */}
+        <div className="bg-white/95 backdrop-blur-md border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 py-3">
+            {/* User Info */}
             <div className="flex items-center space-x-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                 isSuperAdmin 
                   ? 'bg-gradient-to-r from-amber-500 to-yellow-600' 
                   : 'bg-spiritual-blue/10'
               }`}>
                 {isSuperAdmin ? (
-                  <Crown className="h-5 w-5 text-white" />
+                  <Crown className="h-4 w-4 text-white" />
                 ) : (
-                  <User className="h-5 w-5 text-spiritual-blue" />
+                  <User className="h-4 w-4 text-spiritual-blue" />
                 )}
               </div>
-              <div className="flex-1">
+              <div>
                 <div className="flex items-center space-x-2">
-                  <p className="font-semibold text-charcoal text-sm">
+                  <p className="font-medium text-charcoal text-sm">
                     {(user as any)?.firstName && (user as any)?.lastName 
                       ? `${(user as any).firstName} ${(user as any).lastName}`
                       : user?.displayName || user?.email || 'Member'}
                   </p>
                   {isSuperAdmin && (
-                    <div className="px-2 py-0.5 bg-amber-500 text-white text-xs font-bold rounded-full">
+                    <div className="px-2 py-0.5 bg-amber-500 text-white text-xs font-semibold rounded-full">
                       SUPER
                     </div>
                   )}
@@ -225,45 +233,41 @@ export function MainLayout({ children }: MainLayoutProps) {
                   {isSuperAdmin ? 'Platform Administrator' :
                    (user as any)?.role === 'ORG_ADMIN' ? 'Church Admin' :
                    (user as any)?.role === 'ORG_LEADER' ? 'Church Leader' :
-                   (user as any)?.role === 'GROUP_LEADER' ? 'Group Leader' :
                    'Member'}
                 </p>
               </div>
             </div>
 
-            {/* Admin Controls Row */}
-            <div className="flex flex-wrap items-center gap-2">
-              {/* App Switcher - All Admin Roles */}
-              <AppSwitcher user={user} className="flex-shrink-0" />
-              
+            {/* Quick Actions */}
+            <div className="flex items-center gap-2">
               {/* View As Switcher - Super Admin Only */}
               {isSuperAdmin && (
-                <ViewAsSwitcher user={user} className="flex-shrink-0" />
+                <ViewAsSwitcher user={user} className="" />
               )}
               
               {/* Profile Button */}
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={handleProfileClick}
-                className="flex-shrink-0"
+                className="text-gray-600 hover:text-gray-900"
                 data-testid="button-profile"
               >
-                <Settings className="h-4 w-4 mr-2" />
-                Profile
+                <Settings className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Profile</span>
               </Button>
               
               {/* Sign Out Button */}
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={handleLogout}
                 disabled={signOutMutation.isPending}
-                className="flex-shrink-0 text-red-600 border-red-200 hover:bg-red-50"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 data-testid="button-sign-out"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+                <LogOut className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">Sign Out</span>
               </Button>
             </div>
           </div>
