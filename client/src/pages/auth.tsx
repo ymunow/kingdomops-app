@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
-import { Crown, Eye, EyeOff } from "lucide-react";
+import { Crown, Eye, EyeOff, Check } from "lucide-react";
 
 export default function AuthPage() {
   const { user, signInMutation } = useAuth();
@@ -113,7 +113,7 @@ export default function AuthPage() {
                     aria-invalid={errors.email ? 'true' : 'false'}
                     required
                     data-testid="input-signin-email"
-                    className="mt-1"
+                    className="mt-1 border-gray-300 focus:border-spiritual-blue focus:ring-spiritual-blue"
                   />
                   {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
                 </div>
@@ -129,7 +129,7 @@ export default function AuthPage() {
                       aria-invalid={errors.password ? 'true' : 'false'}
                       required
                       data-testid="input-signin-password"
-                      className="pr-12"
+                      className="pr-12 border-gray-300 focus:border-spiritual-blue focus:ring-spiritual-blue"
                     />
                     <button
                       type="button"
@@ -199,27 +199,19 @@ export default function AuthPage() {
           
           <div className="space-y-3">
             <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/5 border border-white/10">
-              <div className="w-8 h-8 bg-gradient-to-br from-white/20 to-white/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-              </div>
+              <Check className="w-5 h-5 text-warm-gold flex-shrink-0 mt-0.5" />
               <span className="leading-relaxed">Spiritual gifts assessment & ministry matching</span>
             </div>
             <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/5 border border-white/10">
-              <div className="w-8 h-8 bg-gradient-to-br from-white/20 to-white/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-              </div>
+              <Check className="w-5 h-5 text-warm-gold flex-shrink-0 mt-0.5" />
               <span className="leading-relaxed">Member management (beta)</span>
             </div>
             <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/5 border border-white/10">
-              <div className="w-8 h-8 bg-gradient-to-br from-white/20 to-white/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-              </div>
+              <Check className="w-5 h-5 text-warm-gold flex-shrink-0 mt-0.5" />
               <span className="leading-relaxed">Administrative dashboard (basic analytics)</span>
             </div>
             <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/5 border border-white/10">
-              <div className="w-8 h-8 bg-gradient-to-br from-white/20 to-white/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-              </div>
+              <Check className="w-5 h-5 text-warm-gold flex-shrink-0 mt-0.5" />
               <span className="leading-relaxed">Professional church subdomain (yourchurch.kingdomops.org)</span>
             </div>
           </div>
