@@ -200,8 +200,13 @@ function Router() {
           </>
         ) : (
           <>
-            {/* Public landing page for non-authenticated users */}
+            {/* Public routes for non-authenticated users */}
             <Route path="/" component={Landing} />
+            <Route path="/pricing" component={Pricing} />
+            <Route path="/features" component={Features} />
+            <Route path="/church-signup" component={ChurchSignup} />
+            <Route path="/congregation-signup" component={CongregationSignup} />
+            <Route path="/subdomain-demo" component={SubdomainDemo} />
           </>
         )}
         
