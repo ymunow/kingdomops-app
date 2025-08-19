@@ -504,7 +504,7 @@ export default function ChurchSignup() {
               <h3 className="text-2xl font-bold">KingdomOps</h3>
             </div>
             <p className="text-gray-400 mb-6">
-              Empowering churches to discover, deploy, and develop spiritual gifts for Kingdom impact.
+              Equip your church with the resources it needs to better communicate, organize and disciple its members for Kingdom impact.
             </p>
             <p className="text-gray-500 text-sm">
               Powered by{" "}
