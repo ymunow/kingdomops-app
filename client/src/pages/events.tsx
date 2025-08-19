@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, MapPin, Users, Video, Heart, Clock, Share, CalendarPlus, MessageCircle, Bell, Grid3x3, List, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Users, Video, Heart, Clock, Share, CalendarPlus, MessageCircle, Bell, Grid3x3, List, ChevronLeft, ChevronRight, Plus, Shield, Crown, UserCheck, AlertCircle, X, CheckCircle, Repeat, Settings } from 'lucide-react';
 import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,75 @@ export default function Events() {
   const [viewMode, setViewMode] = useState<'cards' | 'calendar'>('cards');
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [showCreateEventModal, setShowCreateEventModal] = useState(false);
+  const [showSuggestEventModal, setShowSuggestEventModal] = useState(false);
+  const [newEventData, setNewEventData] = useState({ name: '', description: '', category: '', date: '', time: '', location: '', recurring: false, frequency: '', scope: 'group' });
+  const [eventSuggestion, setEventSuggestion] = useState({ name: '', description: '', date: '', time: '', location: '', reason: '', recurring: false, frequency: '' });
+  
+  // Mock user data - in real app this comes from auth
+  const user = { role: 'GROUP_LEADER' }; // Can be CHURCH_MEMBER, GROUP_LEADER, PASTORAL_STAFF, SUPER_ADMIN, etc.
+  
+  // Mock pending event requests for admins
+  const pendingEventRequests = [
+    { id: '1', name: 'Youth Pizza Night', category: 'Youth', requester: 'Sarah Johnson', group: 'Youth Ministry', reason: 'Monthly fellowship for teens', status: 'pending', scope: 'church-wide' },
+    { id: '2', name: 'Men\'s Bible Study', category: 'Small Group', requester: 'Mike Davis', group: 'Men\'s Ministry', reason: 'Weekly study for spiritual growth', status: 'pending', scope: 'group' }
+  ];
+  
+  // Permission functions
+  const canCreateEvents = () => {
+    return ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF', 'GROUP_LEADER'].includes(user?.role || '');
+  };
+  
+  const canApproveChurchWideEvents = () => {
+    return ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF'].includes(user?.role || '');
+  };
+  
+  const canManageEventRequests = () => {
+    return ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF', 'GROUP_LEADER'].includes(user?.role || '');
+  };
+  
+  const handleCreateEvent = () => {
+    console.log('Creating event:', newEventData);
+    setShowCreateEventModal(false);
+    setNewEventData({ name: '', description: '', category: '', date: '', time: '', location: '', recurring: false, frequency: '', scope: 'group' });
+  };
+  
+  const handleSuggestEvent = () => {
+    console.log('Suggesting event:', eventSuggestion);
+    setShowSuggestEventModal(false);
+    setEventSuggestion({ name: '', description: '', date: '', time: '', location: '', reason: '', recurring: false, frequency: '' });
+  };
+  
+  const handleApproveEventRequest = (requestId: string) => {
+    console.log('Approving event request:', requestId);
+  };
+  
+  const handleRejectEventRequest = (requestId: string) => {
+    console.log('Rejecting event request:', requestId);
+  };
+  
+  const eventCategories = [
+    { id: 'worship', name: 'Worship Service', icon: '🙌', description: 'Sunday services and special worship events' },
+    { id: 'youth', name: 'Youth Ministry', icon: '🎯', description: 'Programs and activities for teens and young adults' },
+    { id: 'training', name: 'Training & Education', icon: '📚', description: 'Leadership development and learning opportunities' },
+    { id: 'service', name: 'Community Service', icon: '🤝', description: 'Outreach and volunteer opportunities' },
+    { id: 'fellowship', name: 'Fellowship', icon: '🍞', description: 'Social gatherings and community building' },
+    { id: 'prayer', name: 'Prayer & Spiritual', icon: '🙏', description: 'Prayer meetings and spiritual growth events' }
+  ];
+  
+  const getCreateEventPermissions = () => {
+    const role = user?.role;
+    if (['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN'].includes(role || '')) {
+      return { allowedCategories: eventCategories.map(c => c.id), canPromoteChurchWide: true };
+    }
+    if (role === 'PASTORAL_STAFF') {
+      return { allowedCategories: eventCategories.map(c => c.id), canPromoteChurchWide: true };
+    }
+    if (role === 'GROUP_LEADER') {
+      return { allowedCategories: ['fellowship', 'training', 'service', 'prayer'], canPromoteChurchWide: false };
+    }
+    return { allowedCategories: [], canPromoteChurchWide: false };
+  };
   
   const upcomingEvents = [
     {
@@ -136,8 +205,31 @@ export default function Events() {
               <p className="text-gray-600">Discover upcoming gatherings and connect with your community</p>
             </div>
             
-            {/* View Toggle */}
-            <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            {/* Create Event Action */}
+            <div className="flex items-center space-x-2">
+              {canCreateEvents() ? (
+                <Button 
+                  onClick={() => setShowCreateEventModal(true)}
+                  className="bg-spiritual-blue hover:bg-purple-700 text-white shadow-lg"
+                  data-testid="create-event-button"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Event
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => setShowSuggestEventModal(true)}
+                  variant="outline"
+                  className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue/10 shadow-lg"
+                  data-testid="suggest-event-button"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Suggest Event
+                </Button>
+              )}
+              
+              {/* View Toggle */}
+              <div className="flex items-center bg-gray-100 rounded-lg p-1">
               <Button
                 variant={viewMode === 'cards' ? 'default' : 'ghost'}
                 size="sm"
@@ -166,8 +258,115 @@ export default function Events() {
                 <Grid3x3 className="h-4 w-4 mr-2" />
                 Calendar
               </Button>
+              </div>
             </div>
           </div>
+          
+          {/* Event Creation Permission Guide */}
+          <div className="mb-6 p-6 bg-gradient-to-r from-gray-50 to-blue-50/30 rounded-2xl border border-gray-200/50 shadow-sm">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-gradient-to-r from-spiritual-blue to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                <CalendarPlus className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-charcoal">Event Creation</h3>
+                <p className="text-sm text-gray-600">
+                  {user?.role === 'SUPER_ADMIN' || user?.role === 'CHURCH_SUPER_ADMIN' ? 'Full event creation and church-wide promotion access' :
+                   user?.role === 'PASTORAL_STAFF' ? 'Create and approve church-wide events' :
+                   user?.role === 'GROUP_LEADER' ? 'Create group events, request church-wide promotion' :
+                   'Suggest events for group leader approval'}
+                </p>
+              </div>
+              {user?.role && ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF'].includes(user.role) && (
+                <Badge className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 border border-amber-300 shadow-sm">
+                  <Crown className="h-3 w-3 mr-1" />
+                  Admin Access
+                </Badge>
+              )}
+            </div>
+            
+            {/* Permission Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className={`p-4 rounded-xl border transition-all duration-200 ${user?.role === 'SUPER_ADMIN' || user?.role === 'CHURCH_SUPER_ADMIN' ? 'bg-gradient-to-br from-green-50 to-emerald-100 border-green-200 shadow-md' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200'}`}>
+                <Crown className="h-5 w-5 text-amber-600 mb-2" />
+                <p className="text-sm font-medium text-charcoal">Admin/Pastor</p>
+                <p className="text-xs text-gray-600">All events + conflicts</p>
+              </div>
+              <div className={`p-4 rounded-xl border transition-all duration-200 ${user?.role === 'GROUP_LEADER' ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-md' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200'}`}>
+                <Shield className="h-5 w-5 text-blue-600 mb-2" />
+                <p className="text-sm font-medium text-charcoal">Group Leaders</p>
+                <p className="text-xs text-gray-600">Group events + approval</p>
+              </div>
+              <div className={`p-4 rounded-xl border transition-all duration-200 ${user?.role && ['CHURCH_MEMBER', 'VOLUNTEER'].includes(user.role) ? 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-md' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200'}`}>
+                <UserCheck className="h-5 w-5 text-purple-600 mb-2" />
+                <p className="text-sm font-medium text-charcoal">Members</p>
+                <p className="text-xs text-gray-600">Suggest only</p>
+              </div>
+              <div className="p-4 rounded-xl border bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-md">
+                <Repeat className="h-5 w-5 text-orange-600 mb-2" />
+                <p className="text-sm font-medium text-charcoal">Recurring Events</p>
+                <p className="text-xs text-gray-600">Series management</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Admin Pending Event Requests */}
+          {canManageEventRequests() && pendingEventRequests.length > 0 && (
+            <div className="mb-6 p-6 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 rounded-2xl border border-amber-200/50 shadow-lg">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <AlertCircle className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-amber-900">Pending Event Requests</h3>
+                  <p className="text-sm text-amber-700">{pendingEventRequests.length} events awaiting approval</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                {pendingEventRequests.filter(req => req.status === 'pending').map((request) => (
+                  <div key={request.id} className="p-5 bg-white rounded-xl border border-amber-200/50 shadow-sm hover:shadow-md transition-all duration-200">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h4 className="font-semibold text-charcoal">{request.name}</h4>
+                          <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-300">{request.category}</Badge>
+                          {request.scope === 'church-wide' && (
+                            <Badge className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-300">
+                              <Crown className="h-3 w-3 mr-1" />
+                              Church-Wide
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">Requested by: <span className="font-medium text-charcoal">{request.requester}</span> from <span className="font-medium">{request.group}</span></p>
+                        <p className="text-sm text-gray-700 leading-relaxed">{request.reason}</p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-3">
+                      <Button 
+                        size="sm" 
+                        className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
+                        onClick={() => handleApproveEventRequest(request.id)}
+                        data-testid={`approve-event-${request.id}`}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Approve
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-red-200 text-red-600 hover:bg-red-50 shadow-sm"
+                        onClick={() => handleRejectEventRequest(request.id)}
+                        data-testid={`reject-event-${request.id}`}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
           {/* Personalized Recommendations - Only show in cards view */}
           {viewMode === 'cards' && (
@@ -720,6 +919,405 @@ export default function Events() {
                     </Button>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Create Event Modal */}
+        {showCreateEventModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setShowCreateEventModal(false)}>
+            <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-charcoal">Create New Event</h2>
+                  <button
+                    onClick={() => setShowCreateEventModal(false)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100"
+                    data-testid="close-create-event-modal"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <p className="text-gray-600 mt-1">Build community through meaningful gatherings and shared experiences</p>
+              </div>
+              
+              <div className="p-6 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-6">
+                  {/* Event Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Event Name *</label>
+                    <input
+                      type="text"
+                      value={newEventData.name}
+                      onChange={(e) => setNewEventData({...newEventData, name: e.target.value})}
+                      placeholder="Enter a descriptive event name"
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                      data-testid="input-event-name"
+                    />
+                  </div>
+                  
+                  {/* Category Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Category *</label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {eventCategories.filter(cat => getCreateEventPermissions().allowedCategories.includes(cat.id)).map((category) => (
+                        <button
+                          key={category.id}
+                          onClick={() => setNewEventData({...newEventData, category: category.id})}
+                          className={`p-4 rounded-lg border text-left transition-all ${
+                            newEventData.category === category.id
+                              ? 'border-spiritual-blue bg-spiritual-blue/10 ring-2 ring-spiritual-blue/20'
+                              : 'border-gray-200 hover:border-spiritual-blue/50'
+                          }`}
+                          data-testid={`event-category-${category.id}`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span className="text-2xl">{category.icon}</span>
+                            <div>
+                              <p className="font-medium text-charcoal">{category.name}</p>
+                              <p className="text-xs text-gray-600">{category.description}</p>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Date & Time */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Date *</label>
+                      <input
+                        type="date"
+                        value={newEventData.date}
+                        onChange={(e) => setNewEventData({...newEventData, date: e.target.value})}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                        data-testid="input-event-date"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Time *</label>
+                      <input
+                        type="time"
+                        value={newEventData.time}
+                        onChange={(e) => setNewEventData({...newEventData, time: e.target.value})}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                        data-testid="input-event-time"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Recurring Event */}
+                  <div>
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={newEventData.recurring}
+                        onChange={(e) => setNewEventData({...newEventData, recurring: e.target.checked})}
+                        className="w-5 h-5 text-spiritual-blue rounded focus:ring-spiritual-blue"
+                        data-testid="checkbox-recurring"
+                      />
+                      <div>
+                        <span className="font-medium text-charcoal">Recurring Event</span>
+                        <p className="text-sm text-gray-600">This event repeats on a schedule</p>
+                      </div>
+                    </label>
+                    
+                    {newEventData.recurring && (
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-charcoal mb-2">Frequency</label>
+                        <select
+                          value={newEventData.frequency}
+                          onChange={(e) => setNewEventData({...newEventData, frequency: e.target.value})}
+                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                          data-testid="select-frequency"
+                        >
+                          <option value="">Select frequency</option>
+                          <option value="daily">Daily</option>
+                          <option value="weekly">Weekly</option>
+                          <option value="biweekly">Bi-Weekly</option>
+                          <option value="monthly">Monthly</option>
+                          <option value="custom">Custom</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Location */}
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Location</label>
+                    <input
+                      type="text"
+                      value={newEventData.location}
+                      onChange={(e) => setNewEventData({...newEventData, location: e.target.value})}
+                      placeholder="Where will this event take place?"
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                      data-testid="input-event-location"
+                    />
+                  </div>
+                  
+                  {/* Scope Selection for Group Leaders */}
+                  {user?.role === 'GROUP_LEADER' && (
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Event Scope</label>
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => setNewEventData({...newEventData, scope: 'group'})}
+                          className={`w-full p-4 rounded-lg border text-left transition-all ${
+                            newEventData.scope === 'group'
+                              ? 'border-spiritual-blue bg-spiritual-blue/10 ring-2 ring-spiritual-blue/20'
+                              : 'border-gray-200 hover:border-spiritual-blue/50'
+                          }`}
+                          data-testid="scope-group"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <Users className="h-5 w-5 text-blue-600" />
+                            <div>
+                              <p className="font-medium text-charcoal">Group Only</p>
+                              <p className="text-xs text-gray-600">Event visible only to your group members</p>
+                            </div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => setNewEventData({...newEventData, scope: 'church-wide'})}
+                          className={`w-full p-4 rounded-lg border text-left transition-all ${
+                            newEventData.scope === 'church-wide'
+                              ? 'border-spiritual-blue bg-spiritual-blue/10 ring-2 ring-spiritual-blue/20'
+                              : 'border-gray-200 hover:border-spiritual-blue/50'
+                          }`}
+                          data-testid="scope-church-wide"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <Crown className="h-5 w-5 text-amber-600" />
+                            <div>
+                              <p className="font-medium text-charcoal">Promote Church-Wide</p>
+                              <p className="text-xs text-gray-600">Request to promote to entire church (requires admin approval)</p>
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Description</label>
+                    <textarea
+                      value={newEventData.description}
+                      onChange={(e) => setNewEventData({...newEventData, description: e.target.value})}
+                      placeholder="What can attendees expect from this event?"
+                      rows={4}
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent resize-none"
+                      data-testid="input-event-description"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6 border-t border-gray-200 bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-600">
+                    {user?.role && ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF'].includes(user.role) 
+                      ? 'Your event will be created immediately'
+                      : newEventData.scope === 'church-wide' 
+                        ? 'Church-wide events require admin approval'
+                        : 'Your group event will be created immediately'
+                    }
+                  </div>
+                  <div className="flex space-x-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowCreateEventModal(false)}
+                      data-testid="cancel-create-event"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleCreateEvent}
+                      disabled={!newEventData.name || !newEventData.category || !newEventData.date || !newEventData.time}
+                      className="bg-spiritual-blue hover:bg-purple-700 text-white"
+                      data-testid="submit-create-event"
+                    >
+                      <CalendarPlus className="h-4 w-4 mr-2" />
+                      Create Event
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Suggest Event Modal */}
+        {showSuggestEventModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setShowSuggestEventModal(false)}>
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-charcoal">Suggest New Event</h2>
+                  <button
+                    onClick={() => setShowSuggestEventModal(false)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100"
+                    data-testid="close-suggest-event-modal"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <p className="text-gray-600 mt-1">Submit an event suggestion for your group leader to review</p>
+              </div>
+              
+              <div className="p-6 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-6">
+                  {/* Suggestion Notice */}
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start space-x-3">
+                      <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-blue-800">Suggestion Process</p>
+                        <p className="text-xs text-blue-700 mt-1">
+                          Your group leader will review this suggestion and may approve it as a group event or request church-wide promotion.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Event Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Proposed Event Name *</label>
+                    <input
+                      type="text"
+                      value={eventSuggestion.name}
+                      onChange={(e) => setEventSuggestion({...eventSuggestion, name: e.target.value})}
+                      placeholder="What would you like to call this event?"
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                      data-testid="input-suggestion-name"
+                    />
+                  </div>
+                  
+                  {/* Date & Time */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Proposed Date *</label>
+                      <input
+                        type="date"
+                        value={eventSuggestion.date}
+                        onChange={(e) => setEventSuggestion({...eventSuggestion, date: e.target.value})}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                        data-testid="input-suggestion-date"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Proposed Time *</label>
+                      <input
+                        type="time"
+                        value={eventSuggestion.time}
+                        onChange={(e) => setEventSuggestion({...eventSuggestion, time: e.target.value})}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                        data-testid="input-suggestion-time"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Recurring Option */}
+                  <div>
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={eventSuggestion.recurring}
+                        onChange={(e) => setEventSuggestion({...eventSuggestion, recurring: e.target.checked})}
+                        className="w-5 h-5 text-spiritual-blue rounded focus:ring-spiritual-blue"
+                        data-testid="checkbox-suggestion-recurring"
+                      />
+                      <div>
+                        <span className="font-medium text-charcoal">Recurring Event</span>
+                        <p className="text-sm text-gray-600">This event would repeat on a schedule</p>
+                      </div>
+                    </label>
+                    
+                    {eventSuggestion.recurring && (
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-charcoal mb-2">Suggested Frequency</label>
+                        <select
+                          value={eventSuggestion.frequency}
+                          onChange={(e) => setEventSuggestion({...eventSuggestion, frequency: e.target.value})}
+                          className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                          data-testid="select-suggestion-frequency"
+                        >
+                          <option value="">Select frequency</option>
+                          <option value="weekly">Weekly</option>
+                          <option value="biweekly">Bi-Weekly</option>
+                          <option value="monthly">Monthly</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Location */}
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Suggested Location</label>
+                    <input
+                      type="text"
+                      value={eventSuggestion.location}
+                      onChange={(e) => setEventSuggestion({...eventSuggestion, location: e.target.value})}
+                      placeholder="Where should this event take place?"
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                      data-testid="input-suggestion-location"
+                    />
+                  </div>
+                  
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Event Description *</label>
+                    <textarea
+                      value={eventSuggestion.description}
+                      onChange={(e) => setEventSuggestion({...eventSuggestion, description: e.target.value})}
+                      placeholder="Describe what this event is about and what activities are planned"
+                      rows={4}
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent resize-none"
+                      data-testid="input-suggestion-description"
+                    />
+                  </div>
+                  
+                  {/* Reason */}
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">Why is this event needed? *</label>
+                    <textarea
+                      value={eventSuggestion.reason}
+                      onChange={(e) => setEventSuggestion({...eventSuggestion, reason: e.target.value})}
+                      placeholder="Explain how this event would benefit the group or church community"
+                      rows={3}
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent resize-none"
+                      data-testid="input-suggestion-reason"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6 border-t border-gray-200 bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-600">
+                    Your group leader will review this suggestion within 1-2 weeks
+                  </div>
+                  <div className="flex space-x-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowSuggestEventModal(false)}
+                      data-testid="cancel-suggest-event"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSuggestEvent}
+                      disabled={!eventSuggestion.name || !eventSuggestion.date || !eventSuggestion.time || !eventSuggestion.description || !eventSuggestion.reason}
+                      className="bg-spiritual-blue hover:bg-purple-700 text-white"
+                      data-testid="submit-suggest-event"
+                    >
+                      <CalendarPlus className="h-4 w-4 mr-2" />
+                      Submit Suggestion
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

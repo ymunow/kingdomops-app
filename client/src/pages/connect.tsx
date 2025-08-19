@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp, HandHeart, Filter, CheckCircle, Sparkles, Plus, Shield, Lock, Globe, Eye, UserCheck, AlertCircle, X } from 'lucide-react';
+import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp, HandHeart, Filter, CheckCircle, Sparkles, Plus, Shield, Lock, Globe, Eye, UserCheck, AlertCircle, X, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
@@ -837,189 +837,234 @@ export default function Connect() {
           </TabsContent>
 
           <TabsContent value="groups" className="mt-0">
+            {/* Modern Header */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-charcoal mb-2">Groups</h1>
+                  <p className="text-gray-600">Connect with others through meaningful community and shared purpose</p>
+                </div>
+                
+                {/* Create Group Action */}
+                <div className="flex items-center space-x-2">
+                  {canCreateGroups() || canCreateMinistryGroups() ? (
+                    <Button 
+                      onClick={() => setShowCreateGroupModal(true)}
+                      className="bg-spiritual-blue hover:bg-purple-700 text-white shadow-lg"
+                      data-testid="create-group-button"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Group
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={() => setShowRequestGroupModal(true)}
+                      variant="outline"
+                      className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue/10 shadow-lg"
+                      data-testid="request-group-button"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Request Group
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
+              {/* Personalized Recommendations */}
+              <div className="p-4 bg-gradient-to-r from-spiritual-blue/5 to-purple-50 rounded-lg border border-spiritual-blue/20">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Users className="h-5 w-5 text-spiritual-blue" />
+                  <span className="font-medium text-spiritual-blue">Recommended for you</span>
+                </div>
+                <p className="text-sm text-gray-700">
+                  Based on your spiritual gifts and interests, we think you'll love <span className="font-medium">Men's Bible Study</span> and <span className="font-medium">Creative Arts</span> groups.
+                </p>
+              </div>
+            </div>
+            
             <div className="space-y-6">
-              {/* Role-Based Create Group Section */}
-              <Card className="border-2 border-spiritual-blue/20 bg-gradient-to-r from-spiritual-blue/5 to-purple-50">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-spiritual-blue rounded-full flex items-center justify-center">
-                        <Users className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-charcoal">Group Creation</h3>
-                        <p className="text-sm text-gray-600">
-                          {user?.role === 'SUPER_ADMIN' || user?.role === 'CHURCH_SUPER_ADMIN' ? 'Full group creation access' :
-                           user?.role === 'PASTORAL_STAFF' ? 'Create ministry and small groups' :
-                           user?.role === 'MINISTRY_LEADER' ? 'Create groups in your ministry area' :
-                           'Request new groups for approval'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {canCreateGroups() || canCreateMinistryGroups() ? (
-                        <Button 
-                          onClick={() => setShowCreateGroupModal(true)}
-                          className="bg-spiritual-blue hover:bg-purple-700 text-white"
-                          data-testid="create-group-button"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Create Group
-                        </Button>
-                      ) : (
-                        <Button 
-                          onClick={() => setShowRequestGroupModal(true)}
-                          variant="outline"
-                          className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue/10"
-                          data-testid="request-group-button"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Request Group
-                        </Button>
-                      )}
-                      {user?.role && ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF'].includes(user.role) && (
-                        <Badge className="bg-amber-100 text-amber-800 border border-amber-200">
-                          <Crown className="h-3 w-3 mr-1" />
-                          Admin Access
-                        </Badge>
-                      )}
-                    </div>
+              {/* Role-Based Permission Guide - Modernized */}
+              <div className="p-6 bg-gradient-to-r from-gray-50 to-blue-50/30 rounded-2xl border border-gray-200/50 shadow-sm">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-10 h-10 bg-gradient-to-r from-spiritual-blue to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                    <Shield className="h-5 w-5 text-white" />
                   </div>
+                  <div>
+                    <h3 className="font-semibold text-charcoal">Permission Guide</h3>
+                    <p className="text-sm text-gray-600">
+                      {user?.role === 'SUPER_ADMIN' || user?.role === 'CHURCH_SUPER_ADMIN' ? 'Full group creation access' :
+                       user?.role === 'PASTORAL_STAFF' ? 'Create ministry and small groups' :
+                       user?.role === 'MINISTRY_LEADER' ? 'Create groups in your ministry area' :
+                       'Request new groups for approval'}
+                    </p>
+                  </div>
+                  {user?.role && ['SUPER_ADMIN', 'CHURCH_SUPER_ADMIN', 'PASTORAL_STAFF'].includes(user.role) && (
+                    <Badge className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 border border-amber-300 shadow-sm">
+                      <Crown className="h-3 w-3 mr-1" />
+                      Admin Access
+                    </Badge>
+                  )}
+                </div>
                   
-                  {/* Permission Guide */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className={`p-3 rounded-lg border ${user?.role === 'SUPER_ADMIN' || user?.role === 'CHURCH_SUPER_ADMIN' ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
-                      <Crown className="h-4 w-4 text-amber-600 mb-1" />
-                      <p className="text-xs font-medium">Admin/Pastor</p>
-                      <p className="text-xs text-gray-600">All groups</p>
+                {/* Permission Cards - Modern Design */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className={`p-4 rounded-xl border transition-all duration-200 ${user?.role === 'SUPER_ADMIN' || user?.role === 'CHURCH_SUPER_ADMIN' ? 'bg-gradient-to-br from-green-50 to-emerald-100 border-green-200 shadow-md' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200'}`}>
+                    <Crown className="h-5 w-5 text-amber-600 mb-2" />
+                    <p className="text-sm font-medium text-charcoal">Admin/Pastor</p>
+                    <p className="text-xs text-gray-600">All groups</p>
+                  </div>
+                  <div className={`p-4 rounded-xl border transition-all duration-200 ${user?.role === 'MINISTRY_LEADER' ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-md' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200'}`}>
+                    <Shield className="h-5 w-5 text-blue-600 mb-2" />
+                    <p className="text-sm font-medium text-charcoal">Leaders</p>
+                    <p className="text-xs text-gray-600">Ministry groups</p>
+                  </div>
+                  <div className={`p-4 rounded-xl border transition-all duration-200 ${user?.role && ['CHURCH_MEMBER', 'VOLUNTEER'].includes(user.role) ? 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-md' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200'}`}>
+                    <UserCheck className="h-5 w-5 text-purple-600 mb-2" />
+                    <p className="text-sm font-medium text-charcoal">Members</p>
+                    <p className="text-xs text-gray-600">Request only</p>
+                  </div>
+                  <div className="p-4 rounded-xl border bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-md">
+                    <AlertCircle className="h-5 w-5 text-purple-600 mb-2" />
+                    <p className="text-sm font-medium text-charcoal">Approval Flow</p>
+                    <p className="text-xs text-gray-600">Requests reviewed</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Admin Pending Requests - Modern Design */}
+              {canManageGroupRequests() && pendingRequests.length > 0 && (
+                <div className="p-6 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 rounded-2xl border border-amber-200/50 shadow-lg">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                      <AlertCircle className="h-5 w-5 text-white" />
                     </div>
-                    <div className={`p-3 rounded-lg border ${user?.role === 'MINISTRY_LEADER' ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
-                      <Shield className="h-4 w-4 text-blue-600 mb-1" />
-                      <p className="text-xs font-medium">Leaders</p>
-                      <p className="text-xs text-gray-600">Ministry groups</p>
-                    </div>
-                    <div className={`p-3 rounded-lg border ${user?.role && ['CHURCH_MEMBER', 'VOLUNTEER'].includes(user.role) ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-200'}`}>
-                      <UserCheck className="h-4 w-4 text-purple-600 mb-1" />
-                      <p className="text-xs font-medium">Members</p>
-                      <p className="text-xs text-gray-600">Request only</p>
-                    </div>
-                    <div className="p-3 rounded-lg border bg-purple-50 border-purple-200">
-                      <AlertCircle className="h-4 w-4 text-purple-600 mb-1" />
-                      <p className="text-xs font-medium">Approval Flow</p>
-                      <p className="text-xs text-gray-600">Requests reviewed</p>
+                    <div>
+                      <h3 className="text-lg font-bold text-amber-900">Pending Group Requests</h3>
+                      <p className="text-sm text-amber-700">{pendingRequests.length} requests awaiting review</p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Admin Pending Requests */}
-              {canManageGroupRequests() && pendingRequests.length > 0 && (
-                <Card className="border-amber-200 bg-amber-50">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2 text-amber-800">
-                      <AlertCircle className="h-5 w-5" />
-                      <span>Pending Group Requests ({pendingRequests.length})</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
+                  <div className="space-y-4">
                     {pendingRequests.filter(req => req.status === 'pending').map((request) => (
-                      <div key={request.id} className="p-4 bg-white rounded-lg border border-amber-200">
-                        <div className="flex items-start justify-between mb-3">
+                      <div key={request.id} className="p-5 bg-white rounded-xl border border-amber-200/50 shadow-sm hover:shadow-md transition-all duration-200">
+                        <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <p className="font-medium text-sm">{request.name}</p>
-                              <Badge className="text-xs bg-blue-100 text-blue-700">{request.category}</Badge>
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h4 className="font-semibold text-charcoal">{request.name}</h4>
+                              <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-300">{request.category}</Badge>
                             </div>
-                            <p className="text-xs text-gray-600 mb-2">Requested by: <span className="font-medium">{request.requester}</span></p>
-                            <p className="text-xs text-gray-700">{request.reason}</p>
+                            <p className="text-sm text-gray-600 mb-2">Requested by: <span className="font-medium text-charcoal">{request.requester}</span></p>
+                            <p className="text-sm text-gray-700 leading-relaxed">{request.reason}</p>
                           </div>
                         </div>
-                        <div className="flex space-x-2">
+                        <div className="flex space-x-3">
                           <Button 
                             size="sm" 
-                            className="bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
                             onClick={() => handleApproveRequest(request.id)}
                             data-testid={`approve-request-${request.id}`}
                           >
-                            <CheckCircle className="h-3 w-3 mr-1" />
+                            <CheckCircle className="h-4 w-4 mr-2" />
                             Approve
                           </Button>
                           <Button 
                             size="sm" 
                             variant="outline" 
-                            className="border-red-200 text-red-600 hover:bg-red-50"
+                            className="border-red-200 text-red-600 hover:bg-red-50 shadow-sm"
                             onClick={() => handleRejectRequest(request.id)}
                             data-testid={`reject-request-${request.id}`}
                           >
-                            <X className="h-3 w-3 mr-1" />
+                            <X className="h-4 w-4 mr-2" />
                             Reject
                           </Button>
                         </div>
                       </div>
                     ))}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               )}
 
-              {/* My Groups */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Users className="h-5 w-5 text-spiritual-blue" />
-                    <span>My Groups</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
+              {/* My Groups - Modern Design */}
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 bg-gradient-to-r from-spiritual-blue to-purple-600 rounded-full flex items-center justify-center">
+                    <Users className="h-4 w-4 text-white" />
+                  </div>
+                  <h2 className="text-xl font-bold text-charcoal">My Groups</h2>
+                </div>
+                <div className="grid gap-4">
                   {myGroups.map((group) => (
-                    <div key={group.id} className="p-4 rounded-lg border border-gray-100 hover:border-spiritual-blue/30 transition-colors bg-white/50">
-                      <div className="flex items-start justify-between mb-2">
+                    <div key={group.id} className="p-6 rounded-xl border border-gray-200/50 hover:border-spiritual-blue/30 transition-all duration-200 bg-gradient-to-r from-white to-gray-50/30 shadow-sm hover:shadow-md">
+                      <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <p className="font-medium text-sm">{group.name}</p>
-                            <Badge variant="outline" className={`text-xs px-2 py-1 border ${getPrivacyColor(group.privacy)}`}>
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h3 className="font-semibold text-charcoal">{group.name}</h3>
+                            <Badge variant="outline" className={`text-xs px-3 py-1 border rounded-full ${getPrivacyColor(group.privacy)}`}>
                               {getPrivacyIcon(group.privacy)} {group.privacy}
                             </Badge>
                           </div>
-                          <p className="text-xs text-gray-500 mb-1">{group.members} members • Feed access for members only</p>
-                          <p className="text-xs text-gray-600">{group.description}</p>
+                          <p className="text-sm text-gray-500 mb-2 flex items-center space-x-2">
+                            <Users className="h-4 w-4" />
+                            <span>{group.members} members</span>
+                            <span>•</span>
+                            <span>Active feed</span>
+                          </p>
+                          <p className="text-sm text-gray-600 leading-relaxed">{group.description}</p>
                         </div>
                       </div>
-                      <Button size="sm" variant="outline" className="w-full" data-testid={`open-group-${group.id}`}>
+                      <Button 
+                        size="sm" 
+                        className="w-full bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white shadow-lg" 
+                        data-testid={`open-group-${group.id}`}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
                         Open Group Feed
                       </Button>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Suggested Groups */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Discover Groups</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
+              {/* Suggested Groups - Modern Design */}
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-white" />
+                  </div>
+                  <h2 className="text-xl font-bold text-charcoal">Discover Groups</h2>
+                </div>
+                <div className="grid gap-4">
                   {suggestedGroups.map((group) => (
-                    <div key={group.id} className="p-4 rounded-lg border border-gray-100 hover:border-spiritual-blue/30 transition-colors bg-white/50">
-                      <div className="flex items-start justify-between mb-3">
+                    <div key={group.id} className="p-6 rounded-xl border border-gray-200/50 hover:border-spiritual-blue/30 transition-all duration-200 bg-gradient-to-r from-white to-blue-50/20 shadow-sm hover:shadow-md">
+                      <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <p className="font-medium text-sm">{group.name}</p>
-                            <Badge variant="outline" className={`text-xs px-2 py-1 border ${getPrivacyColor(group.privacy)}`}>
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h3 className="font-semibold text-charcoal">{group.name}</h3>
+                            <Badge variant="outline" className={`text-xs px-3 py-1 border rounded-full ${getPrivacyColor(group.privacy)}`}>
                               {getPrivacyIcon(group.privacy)} {group.privacy}
                             </Badge>
-                            <Badge className="text-xs bg-gray-100 text-gray-700">{group.category}</Badge>
+                            <Badge className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full border border-gray-300">{group.category}</Badge>
                           </div>
-                          <p className="text-xs text-gray-500 mb-1">{group.members} members • Feed access for members only</p>
-                          <p className="text-xs text-gray-600">{group.description}</p>
+                          <p className="text-sm text-gray-500 mb-2 flex items-center space-x-2">
+                            <Users className="h-4 w-4" />
+                            <span>{group.members} members</span>
+                            <span>•</span>
+                            <span>Join to access feed</span>
+                          </p>
+                          <p className="text-sm text-gray-600 leading-relaxed">{group.description}</p>
                         </div>
                       </div>
-                      <Button size="sm" className="w-full bg-spiritual-blue hover:bg-spiritual-blue/90" data-testid={`join-group-${group.id}`}>
+                      <Button 
+                        size="sm" 
+                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg" 
+                        data-testid={`join-group-${group.id}`}
+                      >
+                        <UserPlus className="h-4 w-4 mr-2" />
                         {group.privacy === 'private' ? 'Request to Join' : 'Join Group'}
                       </Button>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </TabsContent>
           
