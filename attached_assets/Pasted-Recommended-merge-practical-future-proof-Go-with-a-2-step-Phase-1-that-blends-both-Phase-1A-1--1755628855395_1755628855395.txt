@@ -1,0 +1,36 @@
+Recommended merge (practical + future‑proof)
+Go with a 2‑step Phase 1 that blends both:
+Phase 1A (1 week): “Visual switcher”
+Build the AppSwitcher UI (desktop dropdown + mobile sheet).
+Map existing pages to modules: Overview, Assessment, Admin.
+Add icons/descriptions + “Recent”.
+Route via /admin/{module} but keep current permissions.
+✅ Acceptance: switcher works; nothing breaks.
+Phase 1B (1–1.5 weeks): “Lightweight spine”
+Add feature flags per module (DB table or config).
+Introduce a tiny role→permission helper (hasRole, canViewModule).
+Add a stub Approvals inbox (UI + API shell; list items manually seeded for now).
+Badge counts on switcher pull from the inbox.
+✅ Acceptance: modules hide/show by flag; switcher only shows allowed items; approvals page loads.
+After that:
+Phase 2: Launch Serve Central (MVP: list + apply).
+Phase 3: Events with group publish + “Promote church‑wide → Admin approval”.
+Phase 4: Granular roles (MINISTRY_LEADER, CHURCH_SUPER_ADMIN, etc.) + real approvals wiring.
+Phase 5: Global search (⌘K) and deeper moderation tools.
+Concrete to‑dos for Phase 1A/1B
+Schema (minimal):
+create table modules(id text primary key, label text, pillar text, enabled boolean default true);
+create table church_modules(church_id uuid, module_id text, enabled boolean,
+                            primary key(church_id,module_id));
+Code:
+getEnabledModules(churchId, user) → list for switcher.
+hasRole(user, role) + canViewModule(user, moduleId) (for now, wrap current perms).
+ApprovalsList route with placeholder items; badgeCount = countOpenApprovals(user).
+UX:
+AppSwitcher with sections: Community, Growth, Assessment, Serve, Events, Admin.
+Badges on items (even if from stub inbox).
+Keyboard launcher ⌘K (optional in 1B if time).
+Why this blend wins
+You keep the agent’s speed and low risk.
+You also lay just enough infrastructure so Serve/Events/Approvals drop in cleanly—no big refactors later.
+If that works for you, I’ll write the exact SQL for modules/church_modules, a TypeScript AppSwitcher skeleton, and the tiny permissions.ts helper so your agent can start Phase 1A/1B immediately.
