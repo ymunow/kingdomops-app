@@ -74,6 +74,52 @@ interface ChurchMetrics {
   availableVolunteers: number;
 }
 
+interface PlatformMetrics {
+  // Core platform metrics
+  totalChurches: number;
+  churchGrowthRate: number;
+  totalMembers: number;
+  memberGrowthRate: number;
+  activeUsers: number;
+  activeUsersLast30Days: number;
+  
+  // Assessment metrics
+  globalAssessments: number;
+  globalCompletions: number;
+  globalCompletionRate: number;
+  pendingAssessments: number;
+  
+  // System oversight
+  systemAlerts: Array<{
+    type: string;
+    severity: string;
+    message: string;
+    timestamp: string;
+  }>;
+  pendingApprovals: {
+    newChurches: number;
+    featureRequests: number;
+    supportTickets: number;
+  };
+  
+  // Activity feed
+  recentActivity: Array<{
+    type: string;
+    description: string;
+    timestamp: string;
+    userName?: string;
+    organizationName?: string;
+  }>;
+  
+  // Top performing churches
+  topChurches: Array<{
+    name: string;
+    subdomain?: string;
+    memberCount: number;
+    completionRate: number;
+  }>;
+}
+
 interface ChurchOverviewProps {
   organizationId?: string;
 }
@@ -129,19 +175,35 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     !currentViewType && // Only show when not viewing as someone else
     (user?.role === "SUPER_ADMIN" || user?.role === "ORG_ADMIN" || user?.role === "ORG_OWNER");
   
+  // Determine if this is a platform-wide view
+  const isPlatformView = isSuperAdmin && !currentViewType;
+  
   // Determine the dashboard title based on role and context
-  const dashboardTitle = isSuperAdmin 
-    ? (targetOrgId === "default-org-001" ? "Platform Overview" : `${targetOrgName} Overview`)
-    : `${targetOrgName} Dashboard`;
+  const dashboardTitle = isPlatformView
+    ? "Platform Overview" 
+    : isSuperAdmin 
+      ? `${targetOrgName} Overview`
+      : `${targetOrgName} Dashboard`;
 
   const handleViewProfile = () => setLocation("/profile");
   const handleLogout = () => signOutMutation.mutate();
 
-  const { data: metrics, isLoading, error } = useQuery<ChurchMetrics>({
-    queryKey: ['/api/church-overview', targetOrgId],
-    enabled: !!targetOrgId && !!user,
-    refetchInterval: 30000, // Refresh every 30 seconds
+  // Fetch platform metrics for Super Admin or church metrics for others
+  const { data: platformMetrics, isLoading: isPlatformLoading, error: platformError } = useQuery<PlatformMetrics>({
+    queryKey: ['/api/platform-overview'],
+    enabled: isPlatformView && !!user,
+    refetchInterval: 30000,
   });
+  
+  const { data: churchMetrics, isLoading: isChurchLoading, error: churchError } = useQuery<ChurchMetrics>({
+    queryKey: ['/api/church-overview', targetOrgId],
+    enabled: !isPlatformView && !!targetOrgId && !!user,
+    refetchInterval: 30000,
+  });
+  
+  const isLoading = isPlatformView ? isPlatformLoading : isChurchLoading;
+  const error = isPlatformView ? platformError : churchError;
+  const metrics = isPlatformView ? platformMetrics : churchMetrics;
 
   if (isLoading) {
     return (
@@ -384,25 +446,102 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
         <div className="space-y-8">
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 font-medium">Total Members</p>
-                    <p className="text-3xl font-bold text-charcoal">{metrics.totalMembers}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {metrics.activeMembers} active this month
-                    </p>
+            {isPlatformView ? (
+              // Platform-wide metrics for Super Admin
+              <>
+                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Total Churches</p>
+                        <p className="text-3xl font-bold text-charcoal">{(metrics as PlatformMetrics).totalChurches}</p>
+                        <p className="text-xs text-green-600 font-medium mt-1">
+                          ↗ {(metrics as PlatformMetrics).churchGrowthRate}% growth
+                        </p>
+                      </div>
+                      <div className="bg-purple-100 rounded-full p-3">
+                        <Church className="text-purple-600 h-6 w-6" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Total Members</p>
+                        <p className="text-3xl font-bold text-charcoal">{(metrics as PlatformMetrics).totalMembers}</p>
+                        <p className="text-xs text-green-600 font-medium mt-1">
+                          ↗ {(metrics as PlatformMetrics).memberGrowthRate}% growth
+                        </p>
+                      </div>
+                      <div className="bg-blue-100 rounded-full p-3">
+                        <Users className="text-blue-600 h-6 w-6" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Active Users</p>
+                        <p className="text-3xl font-bold text-charcoal">{(metrics as PlatformMetrics).activeUsersLast30Days}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Last 30 days
+                        </p>
+                      </div>
+                      <div className="bg-green-100 rounded-full p-3">
+                        <Activity className="text-green-600 h-6 w-6" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Global Assessments</p>
+                        <p className="text-3xl font-bold text-charcoal">{(metrics as PlatformMetrics).globalCompletions}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {(metrics as PlatformMetrics).globalCompletionRate}% completion rate
+                        </p>
+                      </div>
+                      <div className="bg-amber-100 rounded-full p-3">
+                        <Target className="text-amber-600 h-6 w-6" />
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <Progress value={(metrics as PlatformMetrics).globalCompletionRate} className="h-2" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              // Church-specific metrics for Church Admin
+              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 font-medium">Total Members</p>
+                      <p className="text-3xl font-bold text-charcoal">{(metrics as ChurchMetrics).totalMembers}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {(metrics as ChurchMetrics).activeMembers} active this month
+                      </p>
+                    </div>
+                    <div className="bg-spiritual-blue/10 rounded-full p-3">
+                      <Users className="text-spiritual-blue h-6 w-6" />
+                    </div>
                   </div>
-                  <div className="bg-spiritual-blue/10 rounded-full p-3">
-                    <Users className="text-spiritual-blue h-6 w-6" />
+                  <div className="mt-4">
+                    <Progress value={((metrics as ChurchMetrics).activeMembers / (metrics as ChurchMetrics).totalMembers) * 100} className="h-2" />
                   </div>
-                </div>
-                <div className="mt-4">
-                  <Progress value={(metrics.activeMembers / metrics.totalMembers) * 100} className="h-2" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
               <CardContent className="p-6">

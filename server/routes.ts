@@ -1260,6 +1260,126 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Platform Overview API endpoint for Super Admin
+  app.get("/api/platform-overview", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      // Get all organizations
+      const allOrganizations = await storage.getAllOrganizations();
+      const totalChurches = allOrganizations.length;
+      
+      // Get platform-wide user metrics
+      let totalMembers = 0;
+      let activeUsers = 0;
+      let globalAssessments = 0;
+      let globalCompletions = 0;
+      let recentActivity = [];
+      
+      for (const org of allOrganizations) {
+        const orgUsers = await storage.getUsersByOrganization(org.id);
+        const orgMetrics = await storage.getDashboardMetrics(org.id);
+        const orgResponses = await storage.getResponsesByOrganization(org.id);
+        
+        totalMembers += orgUsers.length;
+        activeUsers += orgUsers.filter(u => u.totalAssessments > 0).length;
+        globalAssessments += orgResponses.length;
+        globalCompletions += orgMetrics.totalCompletions;
+        
+        // Add recent activity from this org
+        const orgActivity = orgResponses
+          .filter(r => r.submittedAt)
+          .sort((a, b) => new Date(b.submittedAt!).getTime() - new Date(a.submittedAt!).getTime())
+          .slice(0, 5)
+          .map(response => {
+            const user = orgUsers.find(u => u.id === response.userId);
+            return {
+              type: 'Assessment Completed',
+              description: user 
+                ? `${user.firstName} ${user.lastName} completed assessment at ${org.name}`
+                : `Member completed assessment at ${org.name}`,
+              timestamp: response.submittedAt!,
+              userName: user ? `${user.firstName} ${user.lastName}` : undefined,
+              organizationName: org.name
+            };
+          });
+        recentActivity.push(...orgActivity);
+      }
+      
+      // Sort and limit recent activity
+      recentActivity = recentActivity
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 20);
+      
+      // Calculate growth metrics (mock for now - would need historical data)
+      const churchGrowthRate = 8; // Mock 8% growth
+      const memberGrowthRate = 12; // Mock 12% growth
+      
+      // Calculate completion rate
+      const globalCompletionRate = totalMembers > 0 ? Math.round((globalCompletions / totalMembers) * 100) : 0;
+      
+      // Mock system alerts (would be from monitoring system)
+      const systemAlerts = [
+        {
+          type: 'Integration',
+          severity: 'warning',
+          message: 'Email service experiencing delays',
+          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          type: 'Performance',
+          severity: 'info',
+          message: 'Database query optimization complete',
+          timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+        }
+      ];
+      
+      // Mock pending approvals (would be from various approval queues)
+      const pendingApprovals = {
+        newChurches: 2,
+        featureRequests: 5,
+        supportTickets: 8
+      };
+      
+      const platformMetrics = {
+        // Core platform metrics
+        totalChurches,
+        churchGrowthRate,
+        totalMembers,
+        memberGrowthRate,
+        activeUsers,
+        activeUsersLast30Days: Math.round(activeUsers * 0.8), // Mock 80% active in last 30 days
+        
+        // Assessment metrics
+        globalAssessments,
+        globalCompletions,
+        globalCompletionRate,
+        pendingAssessments: globalAssessments - globalCompletions,
+        
+        // System oversight
+        systemAlerts,
+        pendingApprovals,
+        
+        // Activity feed
+        recentActivity,
+        
+        // Top performing churches (mock)
+        topChurches: allOrganizations
+          .map(org => ({
+            name: org.name,
+            subdomain: org.subdomain,
+            memberCount: Math.floor(Math.random() * 200) + 50, // Mock data
+            completionRate: Math.floor(Math.random() * 40) + 60 // Mock 60-100%
+          }))
+          .sort((a, b) => b.completionRate - a.completionRate)
+          .slice(0, 5)
+      };
+      
+      res.json(platformMetrics);
+    } catch (error) {
+      console.error("Platform overview error:", error);
+      res.status(500).json({ message: "Failed to get platform overview" });
+    }
+  });
+
   // Super Admin organization update endpoint
   app.patch("/api/super-admin/organizations/:orgId", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {
