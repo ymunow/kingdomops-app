@@ -1,0 +1,40 @@
+The layout is clean! here’s a tight set of fixes/tweaks for desktop specifically, plus a couple honesty/copy updates so it matches what’s live in Phase 1.
+Quick wins (desktop UI)
+Tabs: use sentence case everywhere → “Sign in” / “Sign up”. Make the active tab visually stronger (bold label + slightly darker pill).
+Form card: increase contrast on labels (aim for WCAG 4.5:1), and add:
+“Show password” toggle
+“Forgot password?” link under the password field
+Inline error text (e.g., “Please enter a valid email”)
+Primary button: same brand purple as your site, width 100% of card, min-height 48–52px.
+Microcopy under button: “Secure sign in • By continuing, you agree to our Terms and Privacy Policy.”
+Keyboard/Accessibility: associate <label for> with inputs, autocomplete="email" and autocomplete="current-password", visible focus ring.
+Right panel (desktop hero) — accuracy + clarity
+Your three bullets currently promise features that aren’t live yet (e.g., “Church communication platform”). Swap to what’s true in Phase 1:
+Headline: The Operating System for Your Church
+Subhead: Equip your church with tools for communication, organization, and discipleship.
+Bullets (desktop):
+Spiritual gifts assessment & ministry matching
+Member management (beta)
+Administrative dashboard (basic analytics)
+Professional church subdomain (yourchurch.kingdomops.app)
+Tip: keep to 3–4 bullets total; each ~3–5 words + a small descriptor if needed.
+Copy polish (ready to paste)
+Under logo: “Access your church management and spiritual gifts platform.”
+Card header: “Welcome back”
+Subtext: “Sign in to access your church dashboard and assessments.”
+Right-panel headline alternative (stronger): “Discover Your Gifts & Purpose”
+Subhead: “Take the spiritual gifts assessment and equip your members to serve where they thrive.”
+Visual tweaks (desktop)
+Balance the split: reduce left-side white space by ~8–12% or increase the form card width slightly so the left feels anchored.
+Icon alignment: center the crown icon vertically with the right-panel headline; increase top padding so the hero breathes.
+Shadow/Depth: give the form card a soft shadow (e.g., Tailwind shadow-xl/5) and rounded-2xl to match the rest of the brand.
+Optional enhancements (if supported)
+Social auth: “Continue with Google/Apple” buttons above the form or as secondary row below it.
+Remember me checkbox.
+Back to Home link in the top-right (mirrors your Inner Circle page).
+Acceptance criteria (dev-ready)
+Active tab uses brand purple background, white text, bold label.
+Email field has type="email" autocomplete="email", password has autocomplete="current-password".
+“Forgot password?” link routes to reset flow; error messages appear inline and set aria-invalid="true".
+Right-panel bullets updated to Phase-1 features (no comms platform claim).
+Button height ≥48px; tab and button hit areas ≥44px vertically.
