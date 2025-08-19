@@ -62,7 +62,23 @@ export default function Profile() {
     showSpiritualGifts: true,
     showServingAreas: true,
     showStats: true,
-    showFavoriteVerse: true
+    showFavoriteVerse: true,
+    showTestimonies: true,
+    showMinistryPassions: true,
+    showVolunteerAvailability: true,
+    showPrayerRequests: true,
+    showChurchActivity: true,
+    showPersonalPosts: true
+  });
+
+  const [additionalSections, setAdditionalSections] = useState({
+    testimonies: "God has been so faithful in my journey of faith. Recently, I've seen His provision in amazing ways through our church family.",
+    ministryPassions: ["Youth Mentorship", "Community Outreach", "Worship Arts"],
+    volunteerAvailability: {
+      weekdays: "Evenings after 6pm",
+      weekends: "Saturday mornings, Sunday afternoons",
+      specialEvents: "Always available for community service projects"
+    }
   });
 
   const availableGifts = ['Teaching', 'Encouragement', 'Leadership', 'Prophecy', 'Service', 'Giving', 'Mercy', 'Wisdom', 'Knowledge', 'Faith', 'Healing', 'Administration'];
@@ -290,19 +306,23 @@ export default function Profile() {
             {activeTab === 'about' && (
               <div className="space-y-6">
                 {/* About Me */}
-                <div>
-                  <h3 className="text-lg font-semibold text-charcoal mb-3">About Me</h3>
-                  <p className="text-gray-700 leading-relaxed">{mockProfileData.bio}</p>
-                </div>
+                {privacySettings.showBio && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-charcoal mb-3">About Me</h3>
+                    <p className="text-gray-700 leading-relaxed">{mockProfileData.bio}</p>
+                  </div>
+                )}
 
                 {/* Spiritual Journey */}
                 <div>
                   <h3 className="text-lg font-semibold text-charcoal mb-3">My Faith Journey</h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-spiritual-blue/5 rounded-lg">
-                      <h4 className="font-medium text-spiritual-blue mb-2">Favorite Verse</h4>
-                      <p className="text-sm text-gray-700 italic">{mockProfileData.favoriteVerse}</p>
-                    </div>
+                    {privacySettings.showFavoriteVerse && (
+                      <div className="p-4 bg-spiritual-blue/5 rounded-lg">
+                        <h4 className="font-medium text-spiritual-blue mb-2">Favorite Verse</h4>
+                        <p className="text-sm text-gray-700 italic">{mockProfileData.favoriteVerse}</p>
+                      </div>
+                    )}
                     <div className="p-4 bg-green-50 rounded-lg">
                       <h4 className="font-medium text-green-700 mb-2">Church Member Since</h4>
                       <p className="text-sm text-gray-700">{mockProfileData.memberSince}</p>
@@ -310,35 +330,87 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Spiritual Gifts */}
-                <div>
-                  <h3 className="text-lg font-semibold text-charcoal mb-3">Spiritual Gifts</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {mockProfileData.spiritualGifts.map((gift) => (
-                      <Badge key={gift} className="bg-spiritual-blue text-white">
-                        {gift}
-                      </Badge>
-                    ))}
+                {/* Testimonies */}
+                {privacySettings.showTestimonies && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-charcoal mb-3">Recent Testimony</h3>
+                    <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
+                      <p className="text-gray-700 italic">"{additionalSections.testimonies}"</p>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* Ministry Passions */}
+                {privacySettings.showMinistryPassions && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-charcoal mb-3">Ministry Passions</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {additionalSections.ministryPassions.map((passion) => (
+                        <Badge key={passion} className="bg-orange-100 text-orange-800 border border-orange-200">
+                          <Heart className="h-3 w-3 mr-1" />
+                          {passion}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Volunteer Availability */}
+                {privacySettings.showVolunteerAvailability && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-charcoal mb-3">Volunteer Availability</h3>
+                    <div className="grid gap-3">
+                      <div className="flex items-center p-3 bg-blue-50 rounded-lg">
+                        <Calendar className="h-5 w-5 text-blue-600 mr-3" />
+                        <div>
+                          <div className="font-medium text-blue-800">Weekdays</div>
+                          <div className="text-sm text-blue-600">{additionalSections.volunteerAvailability.weekdays}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center p-3 bg-green-50 rounded-lg">
+                        <Calendar className="h-5 w-5 text-green-600 mr-3" />
+                        <div>
+                          <div className="font-medium text-green-800">Weekends</div>
+                          <div className="text-sm text-green-600">{additionalSections.volunteerAvailability.weekends}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Spiritual Gifts */}
+                {privacySettings.showSpiritualGifts && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-charcoal mb-3">Spiritual Gifts</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {mockProfileData.spiritualGifts.map((gift) => (
+                        <Badge key={gift} className="bg-spiritual-blue text-white">
+                          {gift}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
             {activeTab === 'groups' && (
               <div className="space-y-6">
                 {/* Serving Areas */}
-                <div>
-                  <h3 className="text-lg font-semibold text-charcoal mb-3">Currently Serving</h3>
-                  <div className="grid gap-3">
-                    {mockProfileData.servingAreas.map((area) => (
-                      <div key={area} className="flex items-center p-3 bg-green-50 rounded-lg border border-green-200">
-                        <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                        <span className="font-medium text-green-800">{area}</span>
-                        <Badge className="ml-auto bg-green-100 text-green-700">Active</Badge>
-                      </div>
-                    ))}
+                {privacySettings.showServingAreas && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-charcoal mb-3">Currently Serving</h3>
+                    <div className="grid gap-3">
+                      {mockProfileData.servingAreas.map((area) => (
+                        <div key={area} className="flex items-center p-3 bg-green-50 rounded-lg border border-green-200">
+                          <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
+                          <span className="font-medium text-green-800">{area}</span>
+                          <Badge className="ml-auto bg-green-100 text-green-700">Active</Badge>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Groups */}
                 <div>
@@ -358,19 +430,113 @@ export default function Profile() {
 
             {activeTab === 'activity' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-charcoal mb-3">Recent Activity</h3>
-                {mockProfileData.recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
-                    <div className={`w-2 h-2 rounded-full mt-2 ${
-                      activity.type === 'rsvp' ? 'bg-green-500' :
-                      activity.type === 'group' ? 'bg-blue-500' : 'bg-purple-500'
-                    }`}></div>
-                    <div className="flex-1">
-                      <p className="text-gray-800">{activity.text}</p>
-                      <p className="text-sm text-gray-500 mt-1">{activity.time}</p>
-                    </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-charcoal">Personal Timeline</h3>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <button 
+                      onClick={() => setPrivacySettings(prev => ({ ...prev, showPersonalPosts: !prev.showPersonalPosts }))}
+                      className={`px-3 py-1 rounded-full border ${
+                        privacySettings.showPersonalPosts ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+                      }`}
+                    >
+                      Posts
+                    </button>
+                    <button 
+                      onClick={() => setPrivacySettings(prev => ({ ...prev, showChurchActivity: !prev.showChurchActivity }))}
+                      className={`px-3 py-1 rounded-full border ${
+                        privacySettings.showChurchActivity ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+                      }`}
+                    >
+                      Church Activity
+                    </button>
+                    <button 
+                      onClick={() => setPrivacySettings(prev => ({ ...prev, showPrayerRequests: !prev.showPrayerRequests }))}
+                      className={`px-3 py-1 rounded-full border ${
+                        privacySettings.showPrayerRequests ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+                      }`}
+                    >
+                      Prayers
+                    </button>
                   </div>
-                ))}
+                </div>
+                
+                {/* Unified Timeline Feed */}
+                <div className="space-y-4">
+                  {/* Personal Post Example */}
+                  {privacySettings.showPersonalPosts && (
+                    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                      <div className="flex items-center mb-3">
+                        <Avatar className="w-8 h-8 mr-3">
+                          <AvatarFallback className="bg-spiritual-blue text-white text-sm">
+                            {user?.displayName?.charAt(0) || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium text-gray-900">Shared a reflection</div>
+                          <div className="text-sm text-gray-500">2 hours ago</div>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 mb-3">"Grateful for today's sermon on faith. Pastor John's words about trusting God's timing really spoke to my heart. 🙏"</p>
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <button className="flex items-center hover:text-spiritual-blue">
+                          <Heart className="h-4 w-4 mr-1" /> 12 prayers
+                        </button>
+                        <button className="flex items-center hover:text-spiritual-blue">
+                          <MessageCircle className="h-4 w-4 mr-1" /> 3 comments
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Church Activity */}
+                  {privacySettings.showChurchActivity && mockProfileData.recentActivity.map((activity, index) => (
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                      <div className="flex items-start space-x-3">
+                        <div className={`w-3 h-3 rounded-full mt-2 ${
+                          activity.type === 'rsvp' ? 'bg-green-500' :
+                          activity.type === 'group' ? 'bg-blue-500' : 'bg-purple-500'
+                        }`}></div>
+                        <div className="flex-1">
+                          <p className="text-gray-800">{activity.text}</p>
+                          <p className="text-sm text-gray-500 mt-1">{activity.time}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Prayer Request Example */}
+                  {privacySettings.showPrayerRequests && (
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                      <div className="flex items-center mb-3">
+                        <Heart className="h-5 w-5 text-purple-600 mr-2" />
+                        <div>
+                          <div className="font-medium text-purple-900">Prayer Request</div>
+                          <div className="text-sm text-purple-600">1 week ago</div>
+                        </div>
+                      </div>
+                      <p className="text-purple-800 mb-3">"Please pray for my family as we navigate this season of change. Your prayers mean everything! 💜"</p>
+                      <div className="flex items-center space-x-4 text-sm text-purple-600">
+                        <span className="flex items-center">
+                          <Users className="h-4 w-4 mr-1" /> 24 people praying
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Ministry Milestone */}
+                  {privacySettings.showChurchActivity && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <div className="flex items-center mb-3">
+                        <Gift className="h-5 w-5 text-yellow-600 mr-2" />
+                        <div>
+                          <div className="font-medium text-yellow-900">Ministry Milestone</div>
+                          <div className="text-sm text-yellow-600">2 weeks ago</div>
+                        </div>
+                      </div>
+                      <p className="text-yellow-800">"Celebrated 1 year serving on the worship team! God has taught me so much through music ministry. 🎵"</p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -652,18 +818,68 @@ export default function Profile() {
                       </div>
                     </div>
 
-                    {/* Privacy Settings */}
+                    {/* Enhanced Privacy Controls */}
                     <div>
-                      <h4 className="font-medium text-charcoal mb-3">Additional Privacy</h4>
+                      <h4 className="font-medium text-charcoal mb-3">Section Visibility</h4>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-700">Show Activity Stats</span>
+                          <span className="text-sm text-gray-700">Activity Stats</span>
                           <button
                             onClick={() => setPrivacySettings(prev => ({ ...prev, showStats: !prev.showStats }))}
                             className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
                           >
                             {privacySettings.showStats ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
                             {privacySettings.showStats ? 'Public' : 'Hidden'}
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-700">Testimonies</span>
+                          <button
+                            onClick={() => setPrivacySettings(prev => ({ ...prev, showTestimonies: !prev.showTestimonies }))}
+                            className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                          >
+                            {privacySettings.showTestimonies ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                            {privacySettings.showTestimonies ? 'Public' : 'Hidden'}
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-700">Ministry Passions</span>
+                          <button
+                            onClick={() => setPrivacySettings(prev => ({ ...prev, showMinistryPassions: !prev.showMinistryPassions }))}
+                            className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                          >
+                            {privacySettings.showMinistryPassions ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                            {privacySettings.showMinistryPassions ? 'Public' : 'Hidden'}
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-700">Volunteer Schedule</span>
+                          <button
+                            onClick={() => setPrivacySettings(prev => ({ ...prev, showVolunteerAvailability: !prev.showVolunteerAvailability }))}
+                            className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                          >
+                            {privacySettings.showVolunteerAvailability ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                            {privacySettings.showVolunteerAvailability ? 'Public' : 'Hidden'}
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-700">Timeline Posts</span>
+                          <button
+                            onClick={() => setPrivacySettings(prev => ({ ...prev, showPersonalPosts: !prev.showPersonalPosts }))}
+                            className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                          >
+                            {privacySettings.showPersonalPosts ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                            {privacySettings.showPersonalPosts ? 'Public' : 'Hidden'}
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-700">Prayer Requests</span>
+                          <button
+                            onClick={() => setPrivacySettings(prev => ({ ...prev, showPrayerRequests: !prev.showPrayerRequests }))}
+                            className="flex items-center text-sm text-gray-500 hover:text-spiritual-blue"
+                          >
+                            {privacySettings.showPrayerRequests ? <Eye className="h-4 w-4 mr-1" /> : <EyeOff className="h-4 w-4 mr-1" />}
+                            {privacySettings.showPrayerRequests ? 'Public' : 'Hidden'}
                           </button>
                         </div>
                       </div>
