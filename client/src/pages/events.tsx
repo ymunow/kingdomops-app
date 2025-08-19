@@ -11,6 +11,7 @@ export default function Events() {
   const [interestedEvents, setInterestedEvents] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'cards' | 'calendar'>('cards');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
   
   const upcomingEvents = [
     {
@@ -275,8 +276,9 @@ export default function Events() {
                             return (
                               <div
                                 key={event.id}
-                                className={`text-xs p-1 rounded text-white truncate cursor-pointer hover:opacity-80 ${category.color}`}
+                                className={`text-xs p-1 rounded text-white truncate cursor-pointer hover:opacity-80 transition-all duration-200 hover:scale-105 ${category.color}`}
                                 title={event.title}
+                                onClick={() => setSelectedEvent(event)}
                                 data-testid={`calendar-event-${event.id}`}
                               >
                                 {event.title}
@@ -564,6 +566,162 @@ export default function Events() {
               </div>
             );
           })}
+          </div>
+        )}
+        
+        {/* Event Detail Modal */}
+        {selectedEvent && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedEvent(null)}>
+            <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              {/* Event Image Header */}
+              <div className="relative h-48 overflow-hidden">
+                <img 
+                  src={selectedEvent.image} 
+                  alt={selectedEvent.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                
+                {/* Category Badge */}
+                <div className="absolute top-4 left-4">
+                  <Badge className={`${categoryConfig[selectedEvent.category as keyof typeof categoryConfig].badge} font-medium`}>
+                    {categoryConfig[selectedEvent.category as keyof typeof categoryConfig].name}
+                  </Badge>
+                </div>
+                
+                {/* Close Button */}
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+                  data-testid="close-event-modal"
+                >
+                  ✕
+                </button>
+                
+                {/* Event Title */}
+                <div className="absolute bottom-4 left-4 right-4">
+                  <h3 className="text-xl font-bold text-white mb-1">{selectedEvent.title}</h3>
+                  <p className="text-white/90 text-sm">{selectedEvent.description}</p>
+                </div>
+              </div>
+
+              {/* Event Details */}
+              <div className="p-6">
+                {/* Date and Location */}
+                <div className="flex items-center space-x-4 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5 text-spiritual-blue" />
+                    <span className="font-medium text-charcoal">{selectedEvent.displayDate}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {selectedEvent.isVirtual ? (
+                      <>
+                        <Video className="h-5 w-5 text-spiritual-blue" />
+                        <span className="text-gray-600">Virtual</span>
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="h-5 w-5 text-spiritual-blue" />
+                        <span className="text-gray-600">{selectedEvent.location}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Attendee Info */}
+                <div className="flex items-center space-x-4 mb-4 text-sm text-gray-600">
+                  <div className="flex items-center space-x-1">
+                    <Users className="h-4 w-4" />
+                    <span>{selectedEvent.attendees} attending</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Heart className="h-4 w-4" />
+                    <span>{selectedEvent.interested} interested</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <MessageCircle className="h-4 w-4" />
+                    <span>{selectedEvent.comments} comments</span>
+                  </div>
+                </div>
+
+                {/* Friends Attending */}
+                {selectedEvent.friendsAttending && selectedEvent.friendsAttending.length > 0 && (
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-800">
+                        Your friends: {selectedEvent.friendsAttending.slice(0, 2).join(', ')}
+                        {selectedEvent.friendsAttending.length > 2 && ` +${selectedEvent.friendsAttending.length - 2} more`}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <Button 
+                    onClick={() => handleRSVP(selectedEvent.id)}
+                    className={`transition-all duration-200 ${
+                      rsvpStatuses[selectedEvent.id] === 'attending'
+                        ? 'bg-green-600 hover:bg-green-700 text-white'
+                        : 'bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-spiritual-blue/90 hover:to-purple-700/90 text-white'
+                    }`}
+                    data-testid={`modal-rsvp-${selectedEvent.id}`}
+                  >
+                    {rsvpStatuses[selectedEvent.id] === 'attending' ? '✓ Attending' : 'RSVP Now'}
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleInterested(selectedEvent.id)}
+                    className={`transition-all duration-200 ${
+                      interestedEvents.includes(selectedEvent.id) ? 'bg-red-50 border-red-200 text-red-600' : 'hover:bg-gray-50'
+                    }`}
+                    data-testid={`modal-interested-${selectedEvent.id}`}
+                  >
+                    <Heart className={`h-4 w-4 mr-1 ${interestedEvents.includes(selectedEvent.id) ? 'fill-current' : ''}`} />
+                    Interested
+                  </Button>
+                </div>
+                
+                {/* Secondary Actions */}
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <CalendarPlus className="h-4 w-4 mr-2" />
+                    Add to Calendar
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <Share className="h-4 w-4 mr-2" />
+                    Share
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      setViewMode('cards');
+                      setSelectedEvent(null);
+                    }}
+                    className="flex-1"
+                    data-testid="view-full-details"
+                  >
+                    Full Details
+                  </Button>
+                </div>
+
+                {/* Virtual Meeting Button */}
+                {selectedEvent.isVirtual && selectedEvent.meetingLink && (
+                  <div className="mt-4 p-3 bg-gradient-to-r from-emerald-50 to-blue-50 rounded-lg border border-emerald-200">
+                    <Button 
+                      className="w-full bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-medium"
+                      data-testid={`modal-join-meeting-${selectedEvent.id}`}
+                    >
+                      <Video className="h-4 w-4 mr-2" />
+                      Join Virtual Meeting
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
