@@ -76,7 +76,7 @@ export default function Landing() {
                     className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
                   >
                     <Church className="mr-2 h-4 w-4" />
-                    For Churches
+                    Apply for Beta
                   </Button>
                   <Button 
                     className="bg-spiritual-blue text-white hover:bg-purple-800" 

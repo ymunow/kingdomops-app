@@ -183,7 +183,7 @@ export default function ChurchSignup() {
                   <Church className="h-6 w-6 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Register Your Church
+                  Apply for KingdomOps Inner Circle
                 </h2>
                 <p className="text-gray-600">
                   Get started with your church management platform

@@ -73,7 +73,7 @@ export function SubdomainLanding({ subdomain }: SubdomainLandingProps) {
                   onClick={() => setLocation('/register')}
                   className="w-full"
                 >
-                  Register Your Church
+                  Apply for Beta
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
