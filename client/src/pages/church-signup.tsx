@@ -162,19 +162,16 @@ export default function ChurchSignup() {
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-spiritual-blue">500+</div>
-                  <div className="text-sm text-gray-600">Churches</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-spiritual-blue">10K+</div>
-                  <div className="text-sm text-gray-600">Assessments</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-spiritual-blue">12</div>
-                  <div className="text-sm text-gray-600">Gift Categories</div>
+              {/* Beta Badge */}
+              <div className="pt-8 border-t border-gray-200">
+                <div className="bg-spiritual-blue/10 border border-spiritual-blue/20 rounded-lg p-4">
+                  <div className="flex items-center justify-center">
+                    <span className="bg-spiritual-blue text-white px-3 py-1 rounded-full text-sm font-medium mr-3">BETA</span>
+                    <span className="text-spiritual-blue font-medium">Join our beta program</span>
+                  </div>
+                  <p className="text-center text-sm text-gray-600 mt-2">
+                    Be among the first churches to experience KingdomOps and help shape the future of church management.
+                  </p>
                 </div>
               </div>
             </div>
