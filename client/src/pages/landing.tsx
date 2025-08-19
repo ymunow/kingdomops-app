@@ -217,24 +217,14 @@ export default function Landing() {
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
             Built by Ministry Leaders
           </h2>
-          <p className="text-lg text-gray-600 leading-relaxed">
+          <p className="text-lg text-gray-600 leading-relaxed mb-8">
             KingdomOps was built by ministry leaders who understand the challenges of communication, discipleship, and administration. Our mission is to equip churches with the tools they need to thrive.
           </p>
-        </div>
-      </section>
-
-      {/* Scripture Foundation Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            Scripture-Inspired Foundation
-          </h2>
-          <div className="border-t border-gray-300 w-24 mx-auto mb-8"></div>
-          <blockquote className="text-2xl md:text-3xl font-serif text-spiritual-blue mb-4 italic">
+          <div className="border-t border-gray-300 w-16 mx-auto mb-6"></div>
+          <blockquote className="text-lg text-spiritual-blue italic mb-2">
             "Let all things be done decently and in order."
           </blockquote>
-          <p className="text-lg text-gray-600 font-medium">1 Corinthians 14:40</p>
-          <div className="border-t border-gray-300 w-24 mx-auto mt-8"></div>
+          <p className="text-sm text-gray-500">1 Corinthians 14:40</p>
         </div>
       </section>
 
