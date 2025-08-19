@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'wouter';
-import { Crown, MessageCircle, User, Settings, X, Home } from 'lucide-react';
+import { Crown, MessageCircle, User, Settings, X, Home, Calendar, Users, Gift, BarChart3, Database, Building, UserCog, Globe, Zap, Lock, Eye, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useSupabaseAuth';
@@ -10,21 +10,40 @@ interface SideDrawerProps {
   onClose: () => void;
 }
 
-const drawerItems = [
-  { path: '/dashboard', icon: Home, label: 'Home', description: 'Dashboard & Overview' },
-  { path: '/connect', icon: MessageCircle, label: 'Connect', description: 'Community & Social' },
-  { path: '/profile', icon: User, label: 'Profile', description: 'Personal Information' },
-  { path: '/settings', icon: Settings, label: 'Settings', description: 'App Preferences' },
+const mainNavigationItems = [
+  { path: '/dashboard', icon: BarChart3, label: 'Dashboard', description: 'Your church overview', color: 'spiritual-blue' },
+  { path: '/events', icon: Calendar, label: 'Events', description: 'Church gatherings', color: 'blue-600' },
+  { path: '/connect', icon: Users, label: 'Serve', description: 'Ministry opportunities', color: 'green-600' },
+  { path: '/gifts', icon: Gift, label: 'Spiritual Gifts', description: 'Your assessment results', color: 'purple-600' },
+];
+
+const superAdminItems = [
+  { path: '/admin-dashboard', icon: Database, label: 'Platform Admin', description: 'System-wide management', color: 'amber-600' },
+  { path: '/organizations', icon: Building, label: 'All Organizations', description: 'Manage all churches', color: 'blue-600' },
+  { path: '/super-admin/users', icon: UserCog, label: 'User Management', description: 'Platform-wide users', color: 'green-600' },
+  { path: '/super-admin/analytics', icon: Globe, label: 'Platform Analytics', description: 'Usage & insights', color: 'purple-600' },
+];
+
+const adminItems = [
+  { path: '/admin-dashboard', icon: Crown, label: 'Admin Dashboard', description: 'Church management', color: 'amber-600' },
 ];
 
 export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   const [location, setLocation] = useLocation();
-  const { user } = useAuth();
+  const { user, signOutMutation } = useAuth();
 
   const handleNavigation = (path: string) => {
     setLocation(path);
     onClose();
   };
+
+  const handleLogout = () => {
+    signOutMutation.mutate();
+    onClose();
+  };
+
+  const isSuperAdmin = (user as any)?.role === 'SUPER_ADMIN';
+  const isAdmin = (user as any)?.role && ['ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER', 'ADMIN'].includes((user as any).role);
 
   return (
     <>
@@ -62,46 +81,80 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           </Button>
         </div>
 
-        {/* User Info */}
-        <div className="p-6 border-b border-gray-100">
+        {/* Enhanced User Info */}
+        <div className={`p-6 border-b border-gray-100 ${
+          isSuperAdmin 
+            ? 'bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 border-amber-200' 
+            : ''
+        }`}>
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-full bg-spiritual-blue/10 flex items-center justify-center">
-              <User className="h-6 w-6 text-spiritual-blue" />
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+              isSuperAdmin 
+                ? 'bg-gradient-to-r from-amber-500 to-yellow-600' 
+                : 'bg-spiritual-blue/10'
+            }`}>
+              {isSuperAdmin ? (
+                <Crown className="h-6 w-6 text-white" />
+              ) : (
+                <User className="h-6 w-6 text-spiritual-blue" />
+              )}
             </div>
-            <div>
-              <p className="font-semibold text-charcoal">
-                {user?.firstName || user?.displayName || 'Member'}
+            <div className="flex-1">
+              <div className="flex items-center space-x-2">
+                <p className="font-semibold text-charcoal">
+                  {(user as any)?.firstName && (user as any)?.lastName 
+                    ? `${(user as any).firstName} ${(user as any).lastName}`
+                    : user?.displayName || user?.email || 'Member'}
+                </p>
+                {isSuperAdmin && (
+                  <div className="px-2 py-0.5 bg-amber-500 text-white text-xs font-bold rounded-full">
+                    SUPER
+                  </div>
+                )}
+              </div>
+              <p className={`text-sm ${
+                isSuperAdmin ? 'text-amber-700 font-medium' : 'text-gray-600'
+              }`}>
+                {isSuperAdmin ? 'Platform Administrator' :
+                 (user as any)?.role === 'ORG_ADMIN' ? 'Church Admin' :
+                 (user as any)?.role === 'ORG_LEADER' ? 'Church Leader' :
+                 (user as any)?.role === 'GROUP_LEADER' ? 'Group Leader' :
+                 'Member'}
               </p>
-              <p className="text-sm text-gray-600">{user?.email}</p>
+              {isSuperAdmin && (
+                <p className="text-xs text-amber-600 mt-1">
+                  Full platform access • All organizations
+                </p>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Navigation Items */}
+        {/* Main Navigation Items */}
         <div className="p-4 space-y-2">
-          {drawerItems.map(({ path, icon: Icon, label, description }) => {
+          {mainNavigationItems.map(({ path, icon: Icon, label, description, color }) => {
             const isActive = location === path;
             
             return (
               <button
                 key={path}
                 onClick={() => handleNavigation(path)}
-                data-testid={`drawer-${label.toLowerCase()}`}
+                data-testid={`drawer-${label.toLowerCase().replace(' ', '-')}`}
                 className={cn(
                   "w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left",
                   isActive 
-                    ? "bg-spiritual-blue/10 text-spiritual-blue" 
+                    ? `bg-${color}/10 text-${color}` 
                     : "text-gray-700 hover:bg-gray-50"
                 )}
               >
                 <Icon className={cn(
                   "h-5 w-5",
-                  isActive ? "text-spiritual-blue" : "text-gray-500"
+                  isActive ? `text-${color}` : "text-gray-500"
                 )} />
                 <div>
                   <p className={cn(
                     "font-medium",
-                    isActive ? "text-spiritual-blue" : "text-charcoal"
+                    isActive ? `text-${color}` : "text-charcoal"
                   )}>
                     {label}
                   </p>
@@ -112,10 +165,178 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           })}
         </div>
 
+        {/* Super Admin Section */}
+        {isSuperAdmin && (
+          <>
+            <div className="px-4 py-2">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold text-amber-600 uppercase tracking-wide flex items-center">
+                  <Zap className="h-3 w-3 mr-1" />
+                  Super Admin
+                </p>
+                <div className="px-2 py-1 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-full">
+                  <Crown className="h-3 w-3 text-amber-600" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="px-4 space-y-2 mb-4">
+              {superAdminItems.map(({ path, icon: Icon, label, description, color }) => {
+                const isActive = location === path;
+                
+                return (
+                  <button
+                    key={path}
+                    onClick={() => handleNavigation(path)}
+                    data-testid={`drawer-super-${label.toLowerCase().replace(/\s+/g, '-')}`}
+                    className={cn(
+                      "w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left",
+                      isActive 
+                        ? `bg-${color}/10 text-${color}` 
+                        : "text-gray-700 hover:bg-gray-50"
+                    )}
+                  >
+                    <Icon className={cn(
+                      "h-5 w-5",
+                      isActive ? `text-${color}` : "text-gray-500"
+                    )} />
+                    <div>
+                      <p className={cn(
+                        "font-medium",
+                        isActive ? `text-${color}` : "text-charcoal"
+                      )}>
+                        {label}
+                      </p>
+                      <p className="text-sm text-gray-500">{description}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            
+            {/* Current Organization Section */}
+            <div className="px-4 mb-4">
+              <div className="border-t border-amber-100 pt-3">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center">
+                  <Eye className="h-3 w-3 mr-1" />
+                  Current Church View
+                </p>
+                <button
+                  onClick={() => handleNavigation('/dashboard')}
+                  data-testid="drawer-current-church"
+                  className={cn(
+                    "w-full flex items-center space-x-3 p-3 rounded-lg transition-colors text-left",
+                    location === '/dashboard' 
+                      ? "bg-spiritual-blue/10 text-spiritual-blue" 
+                      : "text-gray-700 hover:bg-gray-50"
+                  )}
+                >
+                  <BarChart3 className={cn(
+                    "h-4 w-4",
+                    location === '/dashboard' ? "text-spiritual-blue" : "text-gray-500"
+                  )} />
+                  <div>
+                    <p className={cn(
+                      "text-sm font-medium",
+                      location === '/dashboard' ? "text-spiritual-blue" : "text-charcoal"
+                    )}>
+                      Church Dashboard
+                    </p>
+                    <p className="text-xs text-gray-500">Default Organization</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Regular Admin Section */}
+        {isAdmin && !isSuperAdmin && (
+          <>
+            <div className="px-4 py-2 border-t border-gray-200">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Church Administration</p>
+            </div>
+            
+            <div className="px-4 space-y-2 mb-4">
+              {adminItems.map(({ path, icon: Icon, label, description, color }) => {
+                const isActive = location === path;
+                
+                return (
+                  <button
+                    key={path}
+                    onClick={() => handleNavigation(path)}
+                    data-testid={`drawer-admin-${label.toLowerCase().replace(/\s+/g, '-')}`}
+                    className={cn(
+                      "w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left",
+                      isActive 
+                        ? `bg-${color}/10 text-${color}` 
+                        : "text-gray-700 hover:bg-gray-50"
+                    )}
+                  >
+                    <Icon className={cn(
+                      "h-5 w-5",
+                      isActive ? `text-${color}` : "text-gray-500"
+                    )} />
+                    <div>
+                      <p className={cn(
+                        "font-medium",
+                        isActive ? `text-${color}` : "text-charcoal"
+                      )}>
+                        {label}
+                      </p>
+                      <p className="text-sm text-gray-500">{description}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Account Actions */}
+        <div className="px-4 space-y-2 border-t border-gray-200 pt-4">
+          <button
+            onClick={() => handleNavigation('/profile')}
+            data-testid="drawer-profile-settings"
+            className={cn(
+              "w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left",
+              location === '/profile' 
+                ? "bg-gray-100 text-charcoal" 
+                : "text-gray-700 hover:bg-gray-50"
+            )}
+          >
+            <Settings className={cn(
+              "h-5 w-5",
+              location === '/profile' ? "text-charcoal" : "text-gray-500"
+            )} />
+            <div>
+              <p className={cn(
+                "font-medium",
+                location === '/profile' ? "text-charcoal" : "text-charcoal"
+              )}>
+                Profile Settings
+              </p>
+              <p className="text-sm text-gray-500">Manage your account</p>
+            </div>
+          </button>
+          
+          <button
+            onClick={handleLogout}
+            data-testid="drawer-logout"
+            className="w-full flex items-center space-x-3 p-4 rounded-lg transition-colors text-left text-red-600 hover:bg-red-50"
+          >
+            <LogOut className="h-5 w-5" />
+            <div>
+              <p className="font-medium">Sign Out</p>
+              <p className="text-sm text-red-500">Leave KingdomOps</p>
+            </div>
+          </button>
+        </div>
+
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100">
+        <div className="mt-8 p-6 border-t border-gray-100">
           <p className="text-xs text-gray-500 text-center">
-            KingdomOps Connect Platform
+            KingdomOps Platform
             <br />
             Empowering churches for Kingdom impact
           </p>
