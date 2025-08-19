@@ -72,35 +72,35 @@ export default function AuthPage() {
   if (user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 flex relative">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-purple-50/30 flex flex-col lg:flex-row relative">
       {/* Back to Home Link */}
       <div className="absolute top-4 right-4 z-50">
         <a 
           href="/" 
-          className="text-sm text-white hover:text-warm-gold underline"
+          className="text-sm text-spiritual-blue lg:text-white hover:text-warm-gold underline"
         >
           Back to Home
         </a>
       </div>
       {/* Left side - Auth forms */}
-      <div className="flex-1 flex items-center justify-center p-8" style={{ flexBasis: '44%' }}>
+      <div className="flex-1 flex items-center justify-center p-4 lg:p-8 min-h-screen lg:min-h-0">
         <div className="w-full max-w-lg">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 lg:mb-8">
             <div className="flex items-center justify-center mb-2">
-              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
-              <h1 className="text-3xl font-bold text-charcoal">KingdomOps</h1>
+              <Crown className="text-spiritual-blue h-6 lg:h-8 w-6 lg:w-8 mr-3" />
+              <h1 className="text-2xl lg:text-3xl font-bold text-charcoal">KingdomOps</h1>
             </div>
-            <p className="text-charcoal/70">Access your church management and spiritual gifts platform</p>
+            <p className="text-sm lg:text-base text-charcoal/70">Access your church management and spiritual gifts platform</p>
           </div>
 
-          <Card className="bg-white/90 backdrop-blur-sm shadow-2xl border border-spiritual-blue/20 rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-charcoal">Welcome back</CardTitle>
-              <CardDescription className="text-charcoal/70">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg lg:shadow-2xl border border-spiritual-blue/20 rounded-xl lg:rounded-2xl">
+            <CardHeader className="p-4 lg:p-6">
+              <CardTitle className="text-lg lg:text-xl text-charcoal">Welcome back</CardTitle>
+              <CardDescription className="text-sm lg:text-base text-charcoal/70">
                 Sign in to access your church dashboard and assessments
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 lg:p-6">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div>
                   <Label htmlFor="signin-email" className="text-gray-900 font-medium">Email</Label>
@@ -181,8 +181,8 @@ export default function AuthPage() {
         </div>
       </div>
 
-      {/* Right side - Hero section */}
-      <div className="flex-1 bg-gradient-to-br from-spiritual-blue to-purple-700 p-8 pt-16 flex items-center justify-center text-white relative overflow-hidden" style={{ flexBasis: '56%' }}>
+      {/* Right side - Hero section - Hidden on mobile */}
+      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-spiritual-blue to-purple-700 p-8 pt-16 items-center justify-center text-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-white/5 bg-[radial-gradient(circle_at_50%_50%,_transparent_0%,_rgba(255,255,255,0.1)_100%)]" />
         

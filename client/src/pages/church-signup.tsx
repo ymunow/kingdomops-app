@@ -472,7 +472,7 @@ export default function ChurchSignup() {
                         </div>
                       ) : (
                         <div className="flex items-center justify-center">
-                          <span>Apply for Inner Circle Access</span>
+                          <span>Submit</span>
                           <ArrowRight className="ml-3 h-6 w-6" />
                         </div>
                       )}
