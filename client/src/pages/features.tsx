@@ -324,7 +324,10 @@ export default function FeaturesPage() {
             From spiritual growth to communication and community, KingdomOps brings everything your church needs into one place.
           </p>
           <Button
-            onClick={() => setLocation("/church-signup")}
+            onClick={() => {
+              setLocation("/church-signup");
+              window.scrollTo(0, 0);
+            }}
             className="bg-warm-gold text-spiritual-blue px-8 py-4 text-lg font-semibold hover:bg-yellow-400 transition-colors inline-flex items-center space-x-2"
             data-testid="button-apply-access"
           >
