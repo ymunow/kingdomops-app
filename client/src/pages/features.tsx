@@ -19,7 +19,9 @@ import {
   ArrowRight,
   Sparkles,
   Clock,
-  Zap
+  Zap,
+  Crown,
+  Church
 } from "lucide-react";
 
 export default function FeaturesPage() {

@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Crown, CheckCircle, Sparkles, Clock, Users, Shield, ArrowRight, Rocket, TrendingUp, Star, AlertCircle } from "lucide-react";
+import { Crown, CheckCircle, Sparkles, Clock, Users, Shield, ArrowRight, Rocket, TrendingUp, Star, AlertCircle, Church } from "lucide-react";
 
 export default function Pricing() {
   const [, setLocation] = useLocation();
