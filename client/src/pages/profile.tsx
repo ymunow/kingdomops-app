@@ -29,11 +29,10 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('about');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
 
-  // Force refresh user data on component mount to ensure we have latest data
+  // Only refresh user data when component first mounts
   React.useEffect(() => {
-    queryClient.removeQueries({ queryKey: ["/api/auth/user"] });
     queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-  }, [queryClient]);
+  }, []); // Empty dependency array to run only once
 
   const form = useForm<ProfileCompletionData>({
     resolver: zodResolver(profileCompletionSchema),
@@ -47,7 +46,7 @@ export default function Profile() {
 
   // Reset form values when user data changes, but only when not editing
   React.useEffect(() => {
-    if (user && !isEditing) {
+    if (user && !isEditing && !isEditingProfile) {
       form.reset({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
@@ -55,7 +54,7 @@ export default function Profile() {
         ageRange: user.ageRange || undefined,
       });
     }
-  }, [user, isEditing]);
+  }, [user, isEditing, isEditingProfile, form]);
 
   const updateMutation = useMutation({
     mutationFn: async (data: ProfileCompletionData) => {
@@ -67,12 +66,10 @@ export default function Profile() {
         title: "Profile updated!",
         description: "Your profile information has been successfully updated.",
       });
-      // Clear cache and force fresh fetch
-      queryClient.removeQueries({ queryKey: ["/api/auth/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      // Then update cache with fresh data
+      // Update cache with fresh data
       queryClient.setQueryData(["/api/auth/user"], updatedUser);
       setIsEditing(false);
+      setIsEditingProfile(false);
     },
     onError: (error) => {
       toast({
