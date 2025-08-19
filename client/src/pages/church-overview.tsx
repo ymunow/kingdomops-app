@@ -32,6 +32,7 @@ import { Link, useLocation } from "wouter";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
 import { viewAsStorage } from "@/lib/view-as-storage";
 import { useOrganization } from "@/hooks/use-organization";
+import { MainLayout } from "@/components/navigation/main-layout";
 
 interface ChurchMetrics {
   // Overview Stats
@@ -183,7 +184,8 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
+    <MainLayout>
+      <div className="bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -628,6 +630,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
           </Card>
         </div>
       </main>
-    </div>
+      </div>
+    </MainLayout>
   );
 }
