@@ -372,10 +372,17 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8">
+      <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-gray-300 text-sm">
+            <div className="flex items-center justify-center mb-4">
+              <Sparkles className="h-8 w-8 text-warm-gold mr-3" />
+              <h3 className="text-2xl font-bold">KingdomOps</h3>
+            </div>
+            <p className="text-gray-400 mb-6">
+              Empowering churches to discover, deploy, and develop spiritual gifts for Kingdom impact.
+            </p>
+            <p className="text-gray-500 text-sm">
               Powered by{" "}
               <a 
                 href="https://www.graymusicmedia.com" 

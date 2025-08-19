@@ -494,28 +494,6 @@ export default function ChurchSignup() {
         </div>
       </section>
 
-      {/* Social Proof Section */}
-      <section className="py-16 bg-white/50 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            Join Forward-Thinking Church Leaders
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6">
-              <div className="text-4xl font-bold text-spiritual-blue mb-2">500+</div>
-              <p className="text-gray-600">Churches expressing interest</p>
-            </div>
-            <div className="p-6">
-              <div className="text-4xl font-bold text-purple-600 mb-2">12</div>
-              <p className="text-gray-600">Spiritual gift categories</p>
-            </div>
-            <div className="p-6">
-              <div className="text-4xl font-bold text-warm-gold mb-2">60</div>
-              <p className="text-gray-600">Assessment questions</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
