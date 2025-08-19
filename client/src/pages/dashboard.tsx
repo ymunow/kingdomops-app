@@ -373,19 +373,11 @@ export default function Dashboard() {
             {/* Connect Teaser */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+                <CardTitle>
                   <div className="flex items-center gap-2">
                     <MessageSquare className="h-5 w-5 text-spiritual-blue" />
                     KingdomOps Connect
                   </div>
-                  <Button 
-                    onClick={() => setLocation("/connect")}
-                    className="bg-gradient-to-r from-spiritual-blue to-purple-700 text-white hover:from-spiritual-blue/90 hover:to-purple-700/90"
-                    data-testid="go-to-connect"
-                  >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Go to KingdomOps Connect
-                  </Button>
                 </CardTitle>
                 <CardDescription>
                   What's happening in your community
@@ -448,6 +440,18 @@ export default function Dashboard() {
                     </Button>
                   </div>
                 )}
+                
+                {/* Centered Connect Button */}
+                <div className="flex justify-center pt-4 border-t border-gray-100">
+                  <Button 
+                    onClick={() => setLocation("/connect")}
+                    className="bg-gradient-to-r from-spiritual-blue to-purple-700 text-white hover:from-spiritual-blue/90 hover:to-purple-700/90"
+                    data-testid="go-to-connect"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Go to KingdomOps Connect
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
