@@ -96,6 +96,9 @@ export default function Landing() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left side - Main content */}
             <div>
+              <div className="flex items-center mb-4">
+                <span className="bg-spiritual-blue text-white px-3 py-1 rounded-full text-sm font-medium">BETA</span>
+              </div>
               <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl text-gray-900 mb-6">
                 The operating system for{" "}
                 <span className="text-spiritual-blue">your church</span>
