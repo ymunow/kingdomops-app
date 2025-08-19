@@ -42,7 +42,7 @@ export default function AuthPage() {
           </CardHeader>
           <CardContent>
             <Button 
-              className="w-full bg-gradient-to-r from-spiritual-blue to-warm-gold hover:from-spiritual-blue/90 hover:to-warm-gold/90 text-white" 
+              className="w-full bg-spiritual-blue text-white hover:bg-purple-800" 
               onClick={() => {
                 setShowConfirmation(false);
                 window.history.replaceState({}, '', '/auth');
@@ -142,7 +142,7 @@ export default function AuthPage() {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full bg-gradient-to-r from-spiritual-blue to-warm-gold hover:from-spiritual-blue/90 hover:to-warm-gold/90 text-white shadow-lg"
+                      className="w-full bg-spiritual-blue text-white hover:bg-purple-800"
                       disabled={signInMutation.isPending}
                       data-testid="button-signin"
                     >
@@ -220,7 +220,7 @@ export default function AuthPage() {
                     </div>
                     <Button 
                       type="submit" 
-                      className="w-full bg-gradient-to-r from-spiritual-blue to-warm-gold hover:from-spiritual-blue/90 hover:to-warm-gold/90 text-white shadow-lg"
+                      className="w-full bg-spiritual-blue text-white hover:bg-purple-800"
                       disabled={signUpMutation.isPending || signUpData.password !== signUpData.confirmPassword}
                       data-testid="button-signup"
                     >
