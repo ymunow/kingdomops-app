@@ -45,7 +45,10 @@ export default function Pricing() {
           <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
             Join our exclusive beta program and help shape the future of church management technology
           </p>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 inline-block">
+          <div 
+            className="bg-white/10 backdrop-blur-sm rounded-lg p-4 inline-block cursor-pointer hover:bg-white/20 transition-colors"
+            onClick={() => setLocation("/church-signup")}
+          >
             <span className="bg-warm-gold text-spiritual-blue px-4 py-2 rounded-full text-lg font-bold">Apply for Inner Circle Access</span>
           </div>
         </div>
