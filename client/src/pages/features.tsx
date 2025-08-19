@@ -28,36 +28,35 @@ export default function FeaturesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-spiritual-blue rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">K</span>
+            <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
+              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
+              <div>
+                <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
+                <p className="text-sm text-gray-600">Church Management Platform</p>
               </div>
-              <span className="text-xl font-bold text-gray-900">KingdomOps</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                onClick={() => setLocation("/")}
-                className="text-gray-600 hover:text-spiritual-blue"
-              >
-                Home
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => setLocation("/pricing")}
-                className="text-gray-600 hover:text-spiritual-blue"
-              >
-                Pricing
-              </Button>
-              <Button
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" onClick={() => setLocation("/features")}>Features</Button>
+              <Button variant="ghost" onClick={() => setLocation("/pricing")}>Pricing</Button>
+              <Button variant="ghost">Contact</Button>
+              <Button 
                 variant="outline"
                 onClick={() => setLocation("/church-signup")}
                 className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
+                data-testid="button-church-signup"
               >
+                <Church className="mr-2 h-4 w-4" />
                 Apply for Beta
+              </Button>
+              <Button 
+                className="bg-spiritual-blue text-white hover:bg-purple-800" 
+                onClick={() => setLocation("/auth")}
+                data-testid="button-signin"
+              >
+                Sign up
               </Button>
             </div>
           </div>
