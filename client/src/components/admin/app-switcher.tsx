@@ -29,49 +29,130 @@ interface AppSwitcherProps {
   className?: string;
 }
 
+interface ThemeConfig {
+  buttonClass: string;
+  dropdownClass: string;
+  iconClass: string;
+  badgeClass: string;
+  recentHeaderClass: string;
+  pillarHeaderClass: string;
+}
+
 export function AppSwitcher({ user, className }: AppSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [, setLocation] = useLocation();
   const isMobile = useIsMobile();
 
-  // Define all available modules
-  const allModules: AppModule[] = [
-    // Community Pillar
-    {
-      id: 'overview',
-      name: 'Overview',
-      description: 'Church insights and analytics',
-      icon: BarChart3,
-      path: '/admin/overview',
-      pillar: 'Community',
-      permissions: ['ORG_ADMIN', 'ORG_LEADER', 'SUPER_ADMIN'],
-      badgeCount: 0
-    },
-    
-    // Assessment Pillar  
-    {
-      id: 'assessment',
-      name: 'Spiritual Gifts',
-      description: 'Assessment management and results',
-      icon: Target,
-      path: '/admin/assessment',
-      pillar: 'Assessment',
-      permissions: ['ORG_ADMIN', 'ORG_LEADER', 'SUPER_ADMIN'],
-      badgeCount: 0
-    },
-    
-    // Admin Pillar
-    {
-      id: 'admin',
-      name: 'Administration',
-      description: 'Platform and organization settings',
-      icon: Settings,
-      path: '/admin/admin',
-      pillar: 'Admin',
-      permissions: ['SUPER_ADMIN'],
-      badgeCount: 0
-    },
-  ];
+  // Determine visual theme based on user role
+  const isSuperAdmin = user.role === 'SUPER_ADMIN';
+  const isChurchAdmin = user.role === 'ORG_ADMIN' || user.role === 'ORG_LEADER';
+  
+  const getThemeConfig = (): ThemeConfig => {
+    if (isSuperAdmin) {
+      // Super Admin: Dark "control center" theme
+      return {
+        buttonClass: "bg-gradient-to-r from-slate-800 to-slate-900 border-slate-700 text-white hover:from-slate-700 hover:to-slate-800 shadow-lg hover:shadow-slate-500/25 transition-all duration-200",
+        dropdownClass: "bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 text-white",
+        iconClass: "text-amber-400",
+        badgeClass: "bg-amber-500 text-slate-900",
+        recentHeaderClass: "text-slate-300",
+        pillarHeaderClass: "text-amber-400 font-semibold"
+      };
+    } else if (isChurchAdmin) {
+      // Church Admin: Warm community theme
+      return {
+        buttonClass: "bg-gradient-to-r from-spiritual-blue to-purple-600 border-spiritual-blue/20 text-white hover:from-spiritual-blue/90 hover:to-purple-600/90 shadow-lg hover:shadow-spiritual-blue/25 transition-all duration-200",
+        dropdownClass: "bg-gradient-to-br from-white to-purple-50/50 border-spiritual-blue/20",
+        iconClass: "text-spiritual-blue",
+        badgeClass: "bg-warm-gold text-white",
+        recentHeaderClass: "text-purple-600",
+        pillarHeaderClass: "text-spiritual-blue font-semibold"
+      };
+    } else {
+      // Default theme
+      return {
+        buttonClass: "bg-white border-gray-200 text-gray-700 hover:bg-gray-50",
+        dropdownClass: "bg-white border-gray-200",
+        iconClass: "text-spiritual-blue",
+        badgeClass: "bg-red-500 text-white",
+        recentHeaderClass: "text-gray-600",
+        pillarHeaderClass: "text-gray-900"
+      };
+    }
+  };
+
+  const theme = getThemeConfig();
+
+  // Define all available modules with persona-specific descriptions
+  const getModulesForRole = (): AppModule[] => {
+    if (isSuperAdmin) {
+      return [
+        // Community Pillar - Super Admin view
+        {
+          id: 'overview',
+          name: 'Platform Analytics',
+          description: 'Cross-church metrics and system health',
+          icon: BarChart3,
+          path: '/admin/overview',
+          pillar: 'Control Center',
+          permissions: ['SUPER_ADMIN'],
+          badgeCount: 0
+        },
+        
+        // Assessment Pillar - Super Admin view
+        {
+          id: 'assessment',
+          name: 'Global Assessments',
+          description: 'Platform-wide spiritual gifts insights',
+          icon: Target,
+          path: '/admin/assessment',
+          pillar: 'Control Center',
+          permissions: ['SUPER_ADMIN'],
+          badgeCount: 0
+        },
+        
+        // Admin Pillar - Super Admin view
+        {
+          id: 'admin',
+          name: 'System Administration',
+          description: 'Churches, users, and system configuration',
+          icon: Settings,
+          path: '/admin/admin',
+          pillar: 'Platform Management',
+          permissions: ['SUPER_ADMIN'],
+          badgeCount: 0
+        },
+      ];
+    } else {
+      return [
+        // Community Pillar - Church Admin view
+        {
+          id: 'overview',
+          name: 'Church Overview',
+          description: 'Member growth and congregation insights',
+          icon: BarChart3,
+          path: '/admin/overview',
+          pillar: 'Church Operations',
+          permissions: ['ORG_ADMIN', 'ORG_LEADER', 'SUPER_ADMIN'],
+          badgeCount: 0
+        },
+        
+        // Assessment Pillar - Church Admin view
+        {
+          id: 'assessment',
+          name: 'Spiritual Gifts',
+          description: 'Assessment management and member results',
+          icon: Target,
+          path: '/admin/assessment',
+          pillar: 'Discipleship',
+          permissions: ['ORG_ADMIN', 'ORG_LEADER', 'SUPER_ADMIN'],
+          badgeCount: 0
+        }
+      ];
+    }
+  };
+
+  const allModules = getModulesForRole();
 
   // Get recent items (mock for Phase 1A)
   const recentItems = [
@@ -121,8 +202,8 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
       {recentItems.length > 0 && (
         <div>
           <div className="flex items-center space-x-2 mb-3">
-            <Clock className="h-4 w-4 text-gray-500" />
-            <h3 className="font-medium text-gray-900">Recent</h3>
+            <Clock className={`h-4 w-4 ${isSuperAdmin ? 'text-slate-400' : 'text-gray-500'}`} />
+            <h3 className={`font-medium ${theme.recentHeaderClass}`}>Recent</h3>
           </div>
           <div className="space-y-2">
             {recentItems.map((item) => {
@@ -266,16 +347,16 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
           <Button
             variant="outline"
             size="sm"
-            className={cn("flex-shrink-0", className)}
+            className={cn("flex-shrink-0 border-0", theme.buttonClass, className)}
             data-testid="button-app-switcher"
           >
-            <Grid3X3 className="h-4 w-4 mr-2" />
+            <Grid3X3 className={`h-4 w-4 mr-2 ${isSuperAdmin ? 'text-amber-300' : 'text-current'}`} />
             Apps
           </Button>
         </SheetTrigger>
-        <SheetContent side="bottom" className="h-[80vh]">
+        <SheetContent side="bottom" className={cn("h-[80vh]", theme.dropdownClass)}>
           <SheetHeader>
-            <SheetTitle>KingdomOps Apps</SheetTitle>
+            <SheetTitle className={isSuperAdmin ? 'text-slate-100' : 'text-gray-900'}>KingdomOps Apps</SheetTitle>
           </SheetHeader>
           <MobileContent />
         </SheetContent>
@@ -290,15 +371,15 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
         <Button
           variant="outline"
           size="sm"
-          className={cn("flex-shrink-0", className)}
+          className={cn("flex-shrink-0 border-0", theme.buttonClass, className)}
           data-testid="button-app-switcher"
         >
-          <Grid3X3 className="h-4 w-4 mr-2" />
+          <Grid3X3 className={`h-4 w-4 mr-2 ${isSuperAdmin ? 'text-amber-300' : 'text-current'}`} />
           Apps
-          <ChevronDown className="h-4 w-4 ml-2" />
+          <ChevronDown className={`h-4 w-4 ml-2 ${isSuperAdmin ? 'text-amber-300' : 'text-current'}`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0" align="start">
+      <PopoverContent className={cn("p-0 border-0", theme.dropdownClass)} align="start">
         <DesktopContent />
       </PopoverContent>
     </Popover>
