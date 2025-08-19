@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock } from 'lucide-react';
+import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
 import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,10 @@ import { formatDistanceToNow } from 'date-fns';
 
 export default function Connect() {
   const [activeComposer, setActiveComposer] = useState<string | null>(null);
+  const [urgentCarouselIndex, setUrgentCarouselIndex] = useState(0);
+  const [savedOpportunities, setSavedOpportunities] = useState<string[]>([]);
+  const [appliedOpportunities, setAppliedOpportunities] = useState<string[]>([]);
+  const [showCelebration, setShowCelebration] = useState<string | null>(null);
   
   const posts = [
     {
@@ -122,7 +126,14 @@ export default function Connect() {
       accentColor: 'text-yellow-700',
       image: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=200&fit=crop&crop=center',
       matchingGifts: ['Helps', 'Teaching'],
-      description: 'Help create a fun, safe environment where kids encounter Jesus'
+      description: 'Help create a fun, safe environment where kids encounter Jesus',
+      currentVolunteers: 8,
+      needsTotal: 12,
+      details: {
+        expectations: 'Assist with activities, help manage classroom behavior, support lead teacher',
+        timeCommitment: '2-3 hours on Sunday mornings, 1-2 Sundays per month',
+        training: 'Background check required, 2-hour orientation session'
+      }
     },
     {
       id: '2', 
@@ -137,7 +148,14 @@ export default function Connect() {
       accentColor: 'text-blue-700',
       image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=200&fit=crop&crop=center',
       matchingGifts: ['Administration', 'Helps'],
-      description: 'Support our worship team with excellent sound production'
+      description: 'Support our worship team with excellent sound production',
+      currentVolunteers: 3,
+      needsTotal: 6,
+      details: {
+        expectations: 'Operate sound board, manage microphones, troubleshoot audio issues',
+        timeCommitment: '3-4 hours for weekend services, 1-2 weekends per month',
+        training: 'Technical training provided, no prior experience required'
+      }
     },
     {
       id: '3',
@@ -152,7 +170,14 @@ export default function Connect() {
       accentColor: 'text-green-700',
       image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=200&fit=crop&crop=center',
       matchingGifts: ['Hospitality', 'Helps'],
-      description: 'Welcome guests and make everyone feel at home'
+      description: 'Welcome guests and make everyone feel at home',
+      currentVolunteers: 15,
+      needsTotal: 18,
+      details: {
+        expectations: 'Greet guests, serve coffee, answer questions, guide newcomers',
+        timeCommitment: '2 hours before and during service, 1-2 Sundays per month',
+        training: 'Brief orientation on hospitality best practices'
+      }
     }
   ];
 
@@ -163,6 +188,32 @@ export default function Connect() {
   ];
 
   const filterChips = ['All', 'Kids', 'Worship', 'Hospitality', 'Tech', 'Prayer'];
+
+  const urgentOpportunities = serveOpportunities.filter(op => op.urgent);
+
+  const handleSaveOpportunity = (id: string) => {
+    setSavedOpportunities(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleApplyToServe = (id: string) => {
+    setAppliedOpportunities(prev => [...prev, id]);
+    setShowCelebration(id);
+    setTimeout(() => setShowCelebration(null), 3000);
+  };
+
+  const nextUrgentSlide = () => {
+    setUrgentCarouselIndex((prev) => 
+      prev === urgentOpportunities.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevUrgentSlide = () => {
+    setUrgentCarouselIndex((prev) => 
+      prev === 0 ? urgentOpportunities.length - 1 : prev - 1
+    );
+  };
 
   const getPostIcon = (type: string) => {
     switch (type) {
@@ -258,7 +309,98 @@ export default function Connect() {
           <TabsContent value="feed" className="mt-0">
             <ComposerBar />
             
-            {/* Serve Opportunities Discovery Card */}
+            {/* Urgent Opportunities Carousel */}
+            {urgentOpportunities.length > 0 && (
+              <Card className="mb-6 border-2 border-red-200 bg-gradient-to-r from-red-50 to-orange-50 shadow-lg">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
+                        <span className="text-white text-xs font-bold">!</span>
+                      </div>
+                      <span className="font-semibold text-charcoal">Urgent Needs</span>
+                      <Badge className="text-xs bg-red-100 text-red-700">Swipe to see {urgentOpportunities.length}</Badge>
+                    </div>
+                    <div className="flex space-x-1">
+                      <Button variant="ghost" size="sm" onClick={prevUrgentSlide} data-testid="urgent-prev">
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={nextUrgentSlide} data-testid="urgent-next">
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="overflow-hidden rounded-lg">
+                    <div 
+                      className="flex transition-transform duration-300 ease-in-out"
+                      style={{ transform: `translateX(-${urgentCarouselIndex * 100}%)` }}
+                    >
+                      {urgentOpportunities.map((opportunity) => (
+                        <div key={opportunity.id} className="w-full flex-shrink-0">
+                          <div className={`relative overflow-hidden rounded-lg border-2 ${opportunity.borderColor} ${opportunity.bgColor} transition-all duration-300 hover:shadow-md hover:scale-[1.02]`}>
+                            <div className="flex items-start p-4">
+                              <div className="w-12 h-12 rounded-lg bg-white/80 flex items-center justify-center mr-3 shadow-sm">
+                                <span className="text-2xl">{opportunity.icon}</span>
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <p className="font-semibold text-sm text-charcoal">{opportunity.title}</p>
+                                  <Badge className="text-xs bg-red-500 text-white animate-pulse shadow-sm">
+                                    Urgent
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center space-x-3 text-xs text-gray-600 mb-2">
+                                  <span className="flex items-center space-x-1">
+                                    <MapPin className="h-3 w-3" />
+                                    <span>{opportunity.ministry}</span>
+                                  </span>
+                                  <span className="flex items-center space-x-1">
+                                    <TrendingUp className="h-3 w-3" />
+                                    <span>{opportunity.currentVolunteers}/{opportunity.needsTotal} volunteers</span>
+                                  </span>
+                                </div>
+                                <div className="mb-3">
+                                  <div className="flex items-center justify-between text-xs mb-1">
+                                    <span className="text-green-700 font-medium">{opportunity.match}% match</span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-700"
+                                      style={{ width: `${opportunity.match}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                                <div className="flex space-x-2">
+                                  <Button 
+                                    size="sm" 
+                                    className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white font-medium shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
+                                    onClick={() => handleApplyToServe(opportunity.id)}
+                                    disabled={appliedOpportunities.includes(opportunity.id)}
+                                    data-testid={`apply-urgent-${opportunity.id}`}
+                                  >
+                                    {appliedOpportunities.includes(opportunity.id) ? '✅ Applied' : '🙋 Apply Now'}
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => handleSaveOpportunity(opportunity.id)}
+                                    data-testid={`save-urgent-${opportunity.id}`}
+                                  >
+                                    <Bookmark className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current text-spiritual-blue' : ''}`} />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Perfect Matches Discovery Card */}
             <Card className="mb-6 border border-warm-gold/20 bg-gradient-to-r from-warm-gold/5 to-spiritual-blue/5 shadow-lg">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
@@ -271,7 +413,7 @@ export default function Connect() {
                   </Button>
                 </div>
                 <div className="space-y-3">
-                  {serveOpportunities.slice(0, 2).map((opportunity) => (
+                  {serveOpportunities.filter(op => !op.urgent).slice(0, 2).map((opportunity) => (
                     <div key={opportunity.id} className={`relative overflow-hidden rounded-lg border-2 ${opportunity.borderColor} ${opportunity.bgColor} transition-all duration-300 hover:shadow-md hover:scale-[1.02]`}>
                       <div className="flex items-start p-4">
                         <div className="w-12 h-12 rounded-lg bg-white/80 flex items-center justify-center mr-3 shadow-sm">
@@ -280,11 +422,6 @@ export default function Connect() {
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
                             <p className="font-semibold text-sm text-charcoal">{opportunity.title}</p>
-                            {opportunity.urgent && (
-                              <Badge className="text-xs bg-red-500 text-white animate-pulse shadow-sm">
-                                Urgent
-                              </Badge>
-                            )}
                           </div>
                           <div className="flex items-center space-x-3 text-xs text-gray-600 mb-2">
                             <span className="flex items-center space-x-1">
@@ -292,8 +429,8 @@ export default function Connect() {
                               <span>{opportunity.ministry}</span>
                             </span>
                             <span className="flex items-center space-x-1">
-                              <Clock className="h-3 w-3" />
-                              <span>{opportunity.time}</span>
+                              <TrendingUp className="h-3 w-3" />
+                              <span>{opportunity.currentVolunteers}/{opportunity.needsTotal} volunteers</span>
                             </span>
                           </div>
                           <div className="flex items-center space-x-2 mb-2">
@@ -316,13 +453,25 @@ export default function Connect() {
                               ></div>
                             </div>
                           </div>
-                          <Button 
-                            size="sm" 
-                            className="w-full bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white font-medium shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
-                            data-testid={`apply-${opportunity.id}`}
-                          >
-                            🙋 Apply to Serve
-                          </Button>
+                          <div className="flex space-x-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white font-medium shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
+                              onClick={() => handleApplyToServe(opportunity.id)}
+                              disabled={appliedOpportunities.includes(opportunity.id)}
+                              data-testid={`apply-${opportunity.id}`}
+                            >
+                              {appliedOpportunities.includes(opportunity.id) ? '✅ Applied' : '🙋 Apply to Serve'}
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleSaveOpportunity(opportunity.id)}
+                              data-testid={`save-${opportunity.id}`}
+                            >
+                              <Bookmark className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current text-spiritual-blue' : ''}`} />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -597,13 +746,59 @@ export default function Connect() {
                           </div>
                         </div>
                         
-                        {/* Apply Button */}
-                        <Button 
-                          className="w-full bg-gradient-to-r from-spiritual-blue via-purple-600 to-warm-gold hover:from-spiritual-blue/90 hover:via-purple-600/90 hover:to-warm-gold/90 text-white font-bold py-3 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
-                          data-testid={`apply-serve-${opportunity.id}`}
-                        >
-                          🙋 Apply to Serve
-                        </Button>
+                        {/* Impact Stats */}
+                        <div className="mb-4 p-3 bg-white/60 rounded-lg border">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="flex items-center space-x-2">
+                              <TrendingUp className="h-4 w-4 text-spiritual-blue" />
+                              <span className="text-gray-700">Impact Stats</span>
+                            </span>
+                            <span className="font-semibold text-spiritual-blue">
+                              {opportunity.currentVolunteers}/{opportunity.needsTotal} volunteers serving
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Expandable Details */}
+                        <div className="mb-4 p-3 bg-white/40 rounded-lg border text-sm">
+                          <div className="space-y-2">
+                            <div>
+                              <span className="font-medium text-gray-700">Role:</span>
+                              <p className="text-gray-600 text-xs mt-1">{opportunity.details.expectations}</p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Time:</span>
+                              <p className="text-gray-600 text-xs mt-1">{opportunity.details.timeCommitment}</p>
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-700">Training:</span>
+                              <p className="text-gray-600 text-xs mt-1">{opportunity.details.training}</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex space-x-2">
+                          <Button 
+                            className="flex-1 bg-gradient-to-r from-spiritual-blue via-purple-600 to-warm-gold hover:from-spiritual-blue/90 hover:via-purple-600/90 hover:to-warm-gold/90 text-white font-bold py-3 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+                            onClick={() => handleApplyToServe(opportunity.id)}
+                            disabled={appliedOpportunities.includes(opportunity.id)}
+                            data-testid={`apply-serve-${opportunity.id}`}
+                          >
+                            {appliedOpportunities.includes(opportunity.id) ? '✅ Applied!' : '🙋 Apply to Serve'}
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            className="px-4 hover:bg-spiritual-blue/10"
+                            onClick={() => handleSaveOpportunity(opportunity.id)}
+                            data-testid={`save-serve-${opportunity.id}`}
+                          >
+                            <Bookmark className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current text-spiritual-blue' : ''}`} />
+                            <span className="ml-2 text-sm">
+                              {savedOpportunities.includes(opportunity.id) ? 'Saved' : 'Save'}
+                            </span>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -613,6 +808,20 @@ export default function Connect() {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Celebration Toast */}
+      {showCelebration && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
+          <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 shadow-xl">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl mb-2">🎉</div>
+              <p className="font-semibold text-green-800">Thanks for stepping up!</p>
+              <p className="text-sm text-green-600">We'll be in touch soon with next steps.</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      
     </MainLayout>
   );
 }
