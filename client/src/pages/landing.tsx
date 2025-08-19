@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
-import { Crown, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings, Heart, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { Crown, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings, Heart, BookOpen, ChevronDown, ChevronUp, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 export default function Landing() {
@@ -12,6 +12,7 @@ export default function Landing() {
   const isAuthenticated = !!user;
   const { organization } = useOrganization();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogin = () => {
     setLocation("/auth");
@@ -31,6 +32,7 @@ export default function Landing() {
       <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
+            {/* Logo */}
             <div className="flex items-center">
               <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
               <div>
@@ -39,10 +41,12 @@ export default function Landing() {
                 </h1>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-4">
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
-                  <span className="text-charcoal hidden md:block" data-testid="text-username">
+                  <span className="text-charcoal hidden xl:block" data-testid="text-username">
                     {(user as any)?.displayName || (user as any)?.email || "User"}
                   </span>
                   <Button variant="outline" onClick={() => setLocation("/profile")} data-testid="button-my-profile">
@@ -85,29 +89,173 @@ export default function Landing() {
                 </div>
               )}
             </div>
+            
+            {/* Mobile Menu Button */}
+            <div className="lg:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                data-testid="mobile-menu-button"
+                className="p-2"
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
           </div>
+          
+          {/* Mobile Navigation Menu */}
+          {isMobileMenuOpen && (
+            <div className="lg:hidden border-t border-gray-100 py-4 bg-white">
+              <div className="space-y-3">
+                {isAuthenticated ? (
+                  <>
+                    {/* User Info */}
+                    <div className="px-4 py-2 bg-gray-50 rounded-lg mx-2">
+                      <span className="text-sm text-charcoal font-medium" data-testid="mobile-username">
+                        {(user as any)?.displayName || (user as any)?.email || "User"}
+                      </span>
+                    </div>
+                    
+                    {/* Navigation Items */}
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => {
+                        setLocation("/profile");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      data-testid="mobile-features"
+                    >
+                      Features
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => {
+                        setLocation("/my-results");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      data-testid="mobile-pricing"
+                    >
+                      Pricing
+                    </Button>
+                    {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start" 
+                        onClick={() => {
+                          setLocation("/admin-dashboard");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        data-testid="mobile-admin"
+                      >
+                        Admin Dashboard
+                      </Button>
+                    )}
+                    
+                    {/* View As Switcher */}
+                    <div className="px-2">
+                      <ViewAsSwitcher user={user} />
+                    </div>
+                    
+                    {/* Sign Out */}
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50" 
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      data-testid="mobile-logout"
+                    >
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => {
+                        setLocation("/features");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      data-testid="mobile-features"
+                    >
+                      Features
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => {
+                        setLocation("/pricing");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      data-testid="mobile-pricing"
+                    >
+                      Pricing
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      data-testid="mobile-contact"
+                    >
+                      Contact
+                    </Button>
+                    
+                    <div className="px-2 pt-2 border-t border-gray-100 space-y-3">
+                      <Button 
+                        variant="outline"
+                        className="w-full border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
+                        onClick={() => {
+                          setLocation("/church-signup");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        data-testid="mobile-church-signup"
+                      >
+                        <Church className="mr-2 h-4 w-4" />
+                        Apply for Beta
+                      </Button>
+                      <Button 
+                        className="w-full bg-spiritual-blue text-white hover:bg-purple-800" 
+                        onClick={() => {
+                          handleLogin();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        data-testid="mobile-signin"
+                      >
+                        Sign In
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-16 pb-32 overflow-hidden bg-gradient-to-br from-gray-50 to-white">
+      <section className="relative pt-8 md:pt-16 pb-16 md:pb-32 overflow-hidden bg-gradient-to-br from-gray-50 to-white">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left side - Main content */}
-            <div>
-              <div className="flex items-center mb-4">
+            <div className="text-center lg:text-left">
+              <div className="flex items-center justify-center lg:justify-start mb-4">
                 <span className="bg-spiritual-blue text-white px-3 py-1 rounded-full text-sm font-medium">BETA</span>
               </div>
-              <h1 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl text-gray-900 mb-6">
+              <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-900 mb-6 leading-tight">
                 The operating system for{" "}
                 <span className="text-spiritual-blue">your church</span>
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                 A suite of tools to help churches with communication, organization, and discipleship.
               </p>
               <Button
                 onClick={() => setLocation("/church-signup")}
-                className="bg-spiritual-blue text-white px-8 py-4 text-lg font-semibold hover:bg-purple-800 transition-colors"
+                className="bg-spiritual-blue text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold hover:bg-purple-800 transition-colors w-full sm:w-auto"
                 data-testid="button-get-started"
               >
                 Get Started
@@ -115,16 +263,16 @@ export default function Landing() {
             </div>
             
             {/* Right side - Assessment card */}
-            <div className="bg-gradient-to-br from-spiritual-blue to-purple-700 rounded-2xl p-8 text-white">
-              <h2 className="text-2xl font-bold mb-4">
+            <div className="bg-gradient-to-br from-spiritual-blue to-purple-700 rounded-2xl p-6 sm:p-8 text-white mt-8 lg:mt-0">
+              <h2 className="text-xl sm:text-2xl font-bold mb-4 text-center lg:text-left">
                 Discover Your Spiritual Gifts
               </h2>
-              <p className="text-purple-100 mb-6">
+              <p className="text-purple-100 mb-6 text-center lg:text-left">
                 Uncover how God has uniquely equipped you through our comprehensive assessment.
               </p>
               <Button
                 onClick={isAuthenticated ? startAssessment : () => setLocation("/join")}
-                className="bg-warm-gold text-spiritual-blue px-6 py-3 font-semibold hover:bg-yellow-400 transition-colors"
+                className="bg-warm-gold text-spiritual-blue px-6 py-3 font-semibold hover:bg-yellow-400 transition-colors w-full sm:w-auto"
                 data-testid="button-start-assessment"
               >
                 Start Assessment
@@ -135,17 +283,17 @@ export default function Landing() {
       </section>
 
       {/* One Platform Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             One platform for your ministry
           </h2>
-          <p className="text-xl text-gray-600 mb-16 max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-600 mb-12 sm:mb-16 max-w-3xl mx-auto">
             Streamline your church's operations with an integrated set of powerful tools.
           </p>
 
           {/* Feature Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 sm:gap-8">
             {/* Spiritual Gifts */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 transform hover:scale-105 transition-all duration-300 hover:shadow-lg hover:border-spiritual-blue/30 group">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 group-hover:shadow-spiritual-blue/20 transition-shadow duration-300">
@@ -216,12 +364,12 @@ export default function Landing() {
       </section>
 
       {/* Why KingdomOps Section */}
-      <section className="py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">
             Why KingdomOps?
           </h2>
-          <p className="text-lg text-purple-100 mb-8 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg text-purple-100 mb-8 max-w-3xl mx-auto">
             Equip your church with the resources it needs to better communicate, organize and disciple its members - all from a single platform.
           </p>
         </div>
@@ -248,20 +396,20 @@ export default function Landing() {
       </section>
 
       {/* KingdomOps Inner Circle Section */}
-      <section className="py-20 bg-gradient-to-br from-purple-100 to-purple-200 text-gray-900">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-purple-100 to-purple-200 text-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="w-20 h-20 bg-white/60 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Crown className="h-10 w-10 text-spiritual-blue" />
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/60 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Crown className="h-8 w-8 sm:h-10 sm:w-10 text-spiritual-blue" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-gray-900">
             The KingdomOps Inner Circle
           </h2>
-          <p className="text-lg text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
             KingdomOps is currently being piloted by churches across the United States. Inner Circle members are pioneers investing early to shape the tools that will disciple, equip, and connect churches worldwide. Limited spots are available. Apply today to secure your church's place and lifetime pricing when KingdomOps fully launches, including all future upgrades and add-ons.
           </p>
           <Button
             onClick={() => setLocation("/church-signup")}
-            className="bg-spiritual-blue text-white px-8 py-4 text-lg font-semibold hover:bg-purple-800 transition-colors"
+            className="bg-spiritual-blue text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold hover:bg-purple-800 transition-colors w-full sm:w-auto"
             data-testid="button-apply-beta"
           >
             Apply for Beta Access
@@ -278,7 +426,7 @@ export default function Landing() {
           <p className="text-lg text-gray-600 mb-12">
             Our vision is to see churches more connected, leaders better equipped, and members discipled with tools designed for Kingdom impact.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mb-4">
                 <Users className="h-8 w-8 text-spiritual-blue" />
@@ -360,10 +508,10 @@ export default function Landing() {
             <input
               type="email"
               placeholder="Email address"
-              className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-warm-gold"
+              className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-warm-gold text-base"
             />
             <Button
-              className="bg-warm-gold text-spiritual-blue px-6 py-3 font-semibold hover:bg-yellow-400 transition-colors whitespace-nowrap"
+              className="bg-warm-gold text-spiritual-blue px-6 py-3 font-semibold hover:bg-yellow-400 transition-colors whitespace-nowrap text-base"
             >
               Subscribe
             </Button>
