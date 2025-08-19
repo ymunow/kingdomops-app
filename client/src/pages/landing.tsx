@@ -43,25 +43,24 @@ export default function Landing() {
             </div>
             
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-4">
+            <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
               {isAuthenticated ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-charcoal hidden xl:block" data-testid="text-username">
+                <div className="flex items-center space-x-2 xl:space-x-4">
+                  <span className="text-charcoal hidden xl:block text-sm" data-testid="text-username">
                     {(user as any)?.displayName || (user as any)?.email || "User"}
                   </span>
-                  <Button variant="outline" onClick={() => setLocation("/profile")} data-testid="button-my-profile">
-                    Features
-                  </Button>
-                  <Button variant="outline" onClick={() => setLocation("/my-results")} data-testid="button-my-results">
-                    Pricing
+                  <Button variant="outline" size="sm" onClick={() => setLocation("/profile")} data-testid="button-my-profile">
+                    Profile
                   </Button>
                   {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
-                    <Button variant="outline" onClick={() => setLocation("/admin-dashboard")} data-testid="button-admin">
-                      Contact
+                    <Button variant="outline" size="sm" onClick={() => setLocation("/admin-dashboard")} data-testid="button-admin">
+                      Admin
                     </Button>
                   )}
-                  <ViewAsSwitcher user={user} />
-                  <Button variant="outline" onClick={handleLogout} data-testid="button-logout">
+                  <div className="hidden xl:block">
+                    <ViewAsSwitcher user={user} />
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleLogout} data-testid="button-logout">
                     Sign Out
                   </Button>
                 </div>
@@ -90,8 +89,33 @@ export default function Landing() {
               )}
             </div>
             
-            {/* Mobile Menu Button */}
-            <div className="lg:hidden">
+            {/* Mobile Menu Button and Quick Actions */}
+            <div className="lg:hidden flex items-center space-x-2">
+              {isAuthenticated && (
+                <div className="flex items-center space-x-1">
+                  <div className="hidden sm:block">
+                    <ViewAsSwitcher user={user} />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setLocation("/profile")}
+                    data-testid="mobile-profile-quick"
+                    className="p-2"
+                  >
+                    <User className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleLogout}
+                    data-testid="mobile-logout-quick"
+                    className="p-2 text-red-600"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                </div>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
