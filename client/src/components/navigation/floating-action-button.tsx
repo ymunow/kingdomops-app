@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, PenTool, Heart, Megaphone, Calendar, Users } from 'lucide-react';
+import { Edit3, PenTool, Heart, Megaphone, Calendar, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useSupabaseAuth';
@@ -117,7 +117,7 @@ export function FloatingActionButton({ isVisible }: FloatingActionButtonProps) {
           isMenuOpen && "rotate-45"
         )}
       >
-        <Plus className="h-6 w-6 text-white" />
+        <Edit3 className="h-6 w-6 text-white" />
       </Button>
     </div>
   );
