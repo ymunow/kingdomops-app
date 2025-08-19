@@ -1,0 +1,66 @@
+Recommended design
+Top bar (right side): “Apps” dropdown (or grid launcher icon).
+Shows modules you’re allowed to access with short labels + icons.
+Groups modules under pillars to reduce clutter.
+App switcher sections (example)
+Community
+Connect (feed moderation)
+Groups (manage, approvals)
+Prayer (moderation, reports)
+Growth
+New Visitor Assimilation (pipeline, follow‑ups)
+Groups Analytics
+Assessment
+Spiritual Gifts (questions, versions, results)
+Serve Central
+Opportunities (CRUD, approvals)
+Applications (review/assign)
+Events
+Church‑wide Calendar
+Event Requests/Approvals
+Facilities & Recurring Schedules
+Giving & Finance (only FINANCE_ADMIN / CHURCH_SUPER_ADMIN)
+Giving Dashboard
+Budgets & Approvals
+Admin
+Users & Roles
+Theme & Branding
+Feature Flags / Modules
+Integrations (Zoom/Meet/Teams)
+Show a tiny badge for pending approvals (e.g., Events • 3, Serve • 2).
+Permission logic (who sees what)
+CHURCH_SUPER_ADMIN: sees all church modules.
+PASTORAL_STAFF: Community, Growth, Events, Prayer, limited Admin (roles in their ministry).
+MINISTRY_LEADER: Groups they own, Serve Central (their ministry), Event requests, Prayer moderation for their groups.
+ASSIMILATION_DIRECTOR/MEMBER: Growth (pipeline) only.
+FINANCE_ADMIN: Finance & facilities approvals + Events (budget/facility approvals).
+VOLUNTEER/CHURCH_MEMBER: no admin app‑switcher.
+Navigation details
+Global search (⌘K / Ctrl+K): jump to any module, person, group, event.
+Breadcrumbs inside each module: e.g., Events ▸ Approvals ▸ “Youth Night”.
+Quick actions row under the dropdown (“+ Event”, “+ Opportunity”) shown if permitted.
+Responsive: on mobile, the app switcher opens a full‑screen sheet.
+Consistent with member UI: bottom nav for members remains; admins get top app‑switcher when in admin views.
+Implementation sketch
+Table: modules (id, name, pillar, icon, feature_flag)
+Map roles→permissions in code or role_permissions table.
+Build menu items from: enabled modules ∩ user’s permissions.
+Feature flags let you hide unfinished areas without deploys.
+Deep links: each item routes to /admin/{module}; preserve last subpage per user.
+Approvals surfacing
+Include notification dots in the app switcher and a unified “Approvals” view aggregating:
+Event promotions (Leader → Admin)
+Group creation requests (Member → Leader/Admin)
+Serve applications (Member → Leader)
+Prayer reports (for moderators)
+Budget/facility requests
+Polishing touches
+Icons: use a steady set (e.g., lucide-react).
+Descriptions in the dropdown: one line under each app.
+Recent section: last 3 admin pages visited.
+Acceptance checklist
+App switcher shows only modules the user can access.
+Badges reflect pending approvals user can act on.
+Global search jumps across modules with permissions enforced.
+Feature flags can hide any module church‑by‑church.
+Works great on mobile (sheet), desktop (dropdown grid), and keyboard (⌘K).
