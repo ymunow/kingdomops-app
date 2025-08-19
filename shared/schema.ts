@@ -15,26 +15,77 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Enums
-export const roleEnum = pgEnum("role", ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ORG_VIEWER", "PARTICIPANT"]);
+export const roleEnum = pgEnum("role", [
+  "SUPER_ADMIN", 
+  "CHURCH_SUPER_ADMIN", 
+  "PASTORAL_STAFF", 
+  "FINANCE_ADMIN", 
+  "ASSIMILATION_DIRECTOR", 
+  "MINISTRY_LEADER", 
+  "ASSIMILATION_MEMBER", 
+  "VOLUNTEER", 
+  "CHURCH_MEMBER"
+]);
 
 // Role hierarchy for permission checking
 export const ROLE_HIERARCHY = {
-  SUPER_ADMIN: 100,
-  ORG_OWNER: 80,
-  ORG_ADMIN: 60,
-  ORG_LEADER: 40,
-  ORG_VIEWER: 20,
-  PARTICIPANT: 10,
+  SUPER_ADMIN: 100,           // Platform admin (KingdomOps admin)
+  CHURCH_SUPER_ADMIN: 90,     // Senior Pastor, Executive Pastor, Operations Director
+  PASTORAL_STAFF: 80,         // Pastors with shepherding responsibilities
+  FINANCE_ADMIN: 70,          // Financial oversight and facilities management
+  ASSIMILATION_DIRECTOR: 60,  // Visitor pipeline oversight
+  MINISTRY_LEADER: 50,        // Department heads, ministry leaders
+  ASSIMILATION_MEMBER: 30,    // Follow-up team members
+  VOLUNTEER: 20,              // Team members with scheduling access
+  CHURCH_MEMBER: 10,          // General attendees
 } as const;
 
 // Permission sets for different roles
 export const ROLE_PERMISSIONS = {
   SUPER_ADMIN: ['all'],
-  ORG_OWNER: ['org_manage', 'org_view', 'users_manage', 'results_manage', 'placements_manage', 'export_data'],
-  ORG_ADMIN: ['users_manage', 'results_manage', 'placements_manage', 'export_data'],
-  ORG_LEADER: ['results_view', 'placements_view', 'placements_manage'],
-  ORG_VIEWER: ['results_view'],
-  PARTICIPANT: ['assessment_take'],
+  CHURCH_SUPER_ADMIN: [
+    'kingdom_health_dashboard', 'approve_budgets', 'customize_assessments', 
+    'manage_workflows', 'full_access', 'org_manage', 'users_manage', 
+    'results_manage', 'placements_manage', 'export_data'
+  ],
+  PASTORAL_STAFF: [
+    'assimilation_overview', 'discipleship_tracking', 'spiritual_gifts_reports', 
+    'prayer_care_tracking', 'event_oversight', 'results_manage', 'placements_view'
+  ],
+  FINANCE_ADMIN: [
+    'giving_dashboard', 'budget_tools', 'donor_reports', 'facilities_scheduling', 
+    'hr_admin_tools', 'approve_budgets'
+  ],
+  ASSIMILATION_DIRECTOR: [
+    'assimilation_dashboard', 'assign_tasks', 'track_metrics', 'event_planning', 
+    'oversee_newcomer_events', 'progress_reports'
+  ],
+  MINISTRY_LEADER: [
+    'event_planning', 'team_management', 'member_insights', 'event_dashboard', 
+    'resource_uploads', 'volunteer_schedule', 'team_resources', 'internal_chat',
+    'results_view', 'placements_view', 'placements_manage'
+  ],
+  ASSIMILATION_MEMBER: [
+    'task_list', 'log_notes', 'limited_event_tools', 'communication_tools'
+  ],
+  VOLUNTEER: [
+    'volunteer_schedule', 'team_resources', 'internal_chat', 'personal_profile', 
+    'spiritual_gifts_personal', 'serving_opportunities', 'events_view', 'giving_personal'
+  ],
+  CHURCH_MEMBER: [
+    'personal_profile', 'spiritual_gifts_personal', 'serving_opportunities', 
+    'events_view', 'giving_personal', 'content_hub', 'groups_community', 'assessment_take'
+  ],
+} as const;
+
+// Legacy role mappings for backward compatibility
+export const LEGACY_ROLES = {
+  ADMIN: 'FINANCE_ADMIN',
+  ORG_ADMIN: 'FINANCE_ADMIN',
+  ORG_LEADER: 'MINISTRY_LEADER',
+  ORG_VIEWER: 'VOLUNTEER',
+  ORG_OWNER: 'CHURCH_SUPER_ADMIN',
+  PARTICIPANT: 'CHURCH_MEMBER',
 } as const;
 
 export const organizationStatusEnum = pgEnum("organization_status", ["ACTIVE", "INACTIVE", "TRIAL"]);
@@ -161,13 +212,15 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   organizationId: varchar("organization_id").references(() => organizations.id),
   email: varchar("email").unique(),
+  password: varchar("password"), // Supabase compatibility
+  emailVerified: boolean("email_verified"), // Supabase compatibility
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   displayName: varchar("display_name"),
   ageRange: ageRangeEnum("age_range"),
   profileImageUrl: varchar("profile_image_url"),
   profileCompleted: boolean("profile_completed").default(false),
-  role: roleEnum("role").default("PARTICIPANT"),
+  role: roleEnum("role").default("CHURCH_MEMBER"),
   lastActiveAt: timestamp("last_active_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -439,7 +492,7 @@ export type ScoreResult = {
 };
 
 // Admin dashboard types
-export type OrganizationRole = "SUPER_ADMIN" | "ORG_OWNER" | "ORG_ADMIN" | "ORG_LEADER" | "ORG_VIEWER" | "PARTICIPANT";
+export type OrganizationRole = "SUPER_ADMIN" | "CHURCH_SUPER_ADMIN" | "PASTORAL_STAFF" | "FINANCE_ADMIN" | "ASSIMILATION_DIRECTOR" | "MINISTRY_LEADER" | "ASSIMILATION_MEMBER" | "VOLUNTEER" | "CHURCH_MEMBER";
 
 export type DashboardMetrics = {
   totalCompletions: number;
