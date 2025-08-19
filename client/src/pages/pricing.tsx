@@ -59,8 +59,7 @@ export default function Pricing() {
               Why Join the Inner Circle?
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              As a beta member, you'll get exclusive access to KingdomOps at no cost during development, 
-              plus lifetime pricing when we launch publicly.
+              We believe technology should serve the Kingdom, not the other way around. That's why KingdomOps was built by ministry leaders who understand the real challenges churches face in communication, discipleship, and administration. It's $99 each month.
             </p>
           </div>
 
@@ -210,7 +209,7 @@ export default function Pricing() {
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
           <p className="text-purple-200 mt-4 text-sm">
-            $99 beta access • Lifetime pricing guaranteed
+            $99/month • Lifetime pricing guaranteed
           </p>
         </div>
       </section>
