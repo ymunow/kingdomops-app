@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
+import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp, HandHeart, Filter, CheckCircle, Sparkles } from 'lucide-react';
 import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +14,8 @@ export default function Connect() {
   const [savedOpportunities, setSavedOpportunities] = useState<string[]>([]);
   const [appliedOpportunities, setAppliedOpportunities] = useState<string[]>([]);
   const [showCelebration, setShowCelebration] = useState<string | null>(null);
+  const [prayedForPosts, setPrayedForPosts] = useState<string[]>([]);
+  const [prayerFilter, setPrayerFilter] = useState<string>('all');
   
   const posts = [
     {
@@ -30,7 +32,9 @@ export default function Connect() {
         heart: 12,
         pray: 5
       },
-      commentCount: 3
+      commentCount: 3,
+      prayedCount: 8,
+      isAnswered: false
     },
     {
       id: '2',
@@ -46,7 +50,9 @@ export default function Connect() {
         pray: 23,
         heart: 8
       },
-      commentCount: 7
+      commentCount: 7,
+      prayedCount: 47,
+      isAnswered: false
     },
     {
       id: '3',
@@ -62,7 +68,9 @@ export default function Connect() {
         heart: 28,
         pray: 4
       },
-      commentCount: 12
+      commentCount: 12,
+      prayedCount: 15,
+      isAnswered: false
     },
     {
       id: '4',
@@ -78,7 +86,9 @@ export default function Connect() {
         heart: 15,
         pray: 2
       },
-      commentCount: 5
+      commentCount: 5,
+      prayedCount: 3,
+      isAnswered: false
     }
   ];
 
@@ -215,6 +225,27 @@ export default function Connect() {
     );
   };
 
+  const handlePrayForPost = (postId: string) => {
+    setPrayedForPosts(prev => 
+      prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]
+    );
+  };
+
+  const prayerPosts = posts.filter(post => post.type === 'prayer');
+  const answeredPrayers = prayerPosts.filter(post => post.isAnswered);
+  const activePrayers = prayerPosts.filter(post => !post.isAnswered);
+
+  const filteredPrayers = () => {
+    switch (prayerFilter) {
+      case 'urgent':
+        return activePrayers.filter(post => post.reactionCounts.pray > 20);
+      case 'answered':
+        return answeredPrayers;
+      default:
+        return activePrayers;
+    }
+  };
+
   const getPostIcon = (type: string) => {
     switch (type) {
       case 'testimony': return '✍️';
@@ -300,10 +331,11 @@ export default function Connect() {
     <MainLayout>
       <div className="max-w-2xl mx-auto px-4 py-6">
         <Tabs defaultValue="feed" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="feed" data-testid="feed-tab">Feed</TabsTrigger>
             <TabsTrigger value="groups" data-testid="groups-tab">Groups</TabsTrigger>
             <TabsTrigger value="serve" data-testid="serve-tab">Serve</TabsTrigger>
+            <TabsTrigger value="prayer" data-testid="prayer-tab">Prayer</TabsTrigger>
           </TabsList>
 
           <TabsContent value="feed" className="mt-0">
@@ -805,6 +837,228 @@ export default function Connect() {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="prayer" className="mt-0 space-y-6">
+            {/* Prayer Wall Header */}
+            <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+              <CardContent className="p-6 text-center">
+                <div className="mb-3">
+                  <HandHeart className="h-8 w-8 mx-auto text-purple-600 mb-2" />
+                  <h2 className="text-xl font-bold text-charcoal">Prayer Wall</h2>
+                </div>
+                <p className="text-gray-700 italic mb-2">
+                  "The prayer of a righteous person is powerful and effective."
+                </p>
+                <p className="text-sm text-gray-600">— James 5:16</p>
+                <div className="flex items-center justify-center space-x-6 mt-4 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                    <span>{activePrayers.length} active prayers</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span>{answeredPrayers.length} answered this month</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Prayer Filters */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Filter className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">Filter prayers:</span>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant={prayerFilter === 'all' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPrayerFilter('all')}
+                      className="rounded-full text-xs"
+                      data-testid="filter-all-prayers"
+                    >
+                      All ({activePrayers.length})
+                    </Button>
+                    <Button
+                      variant={prayerFilter === 'urgent' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPrayerFilter('urgent')}
+                      className="rounded-full text-xs"
+                      data-testid="filter-urgent-prayers"
+                    >
+                      Urgent ({activePrayers.filter(p => p.reactionCounts.pray > 20).length})
+                    </Button>
+                    <Button
+                      variant={prayerFilter === 'answered' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPrayerFilter('answered')}
+                      className="rounded-full text-xs"
+                      data-testid="filter-answered-prayers"
+                    >
+                      Answered ({answeredPrayers.length})
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Prayer Requests */}
+            <div className="space-y-4">
+              {filteredPrayers().length > 0 ? (
+                filteredPrayers().map((post) => (
+                  <Card key={post.id} className={`shadow-sm hover:shadow-md transition-shadow ${
+                    post.isAnswered ? 'border-2 border-green-200 bg-green-50/30' : 'border border-purple-100'
+                  }`}>
+                    <CardContent className="p-4">
+                      {/* Prayer Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback className="bg-purple-100 text-purple-600 font-semibold">
+                              {post.author.name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="flex items-center space-x-2 mb-1">
+                              <p className="font-semibold text-charcoal text-sm">{post.author.name}</p>
+                              {post.isAnswered ? (
+                                <Badge className="text-xs bg-green-500 text-white">
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Answered
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="text-xs border border-purple-200 bg-purple-50 text-purple-700">
+                                  🙏 Prayer Request
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                            </p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      {/* Prayer Content */}
+                      <div className="mb-4">
+                        <p className="text-gray-700 text-sm leading-relaxed">{post.body}</p>
+                      </div>
+
+                      {/* Prayer Stats */}
+                      <div className="mb-4 p-3 bg-purple-50/50 rounded-lg border border-purple-100">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4 text-sm">
+                            <span className="flex items-center space-x-1">
+                              <HandHeart className="h-4 w-4 text-purple-500" />
+                              <span className="font-medium text-purple-700">
+                                {post.reactionCounts.pray + (prayedForPosts.includes(post.id) ? 1 : 0)} people prayed
+                              </span>
+                            </span>
+                            <span className="flex items-center space-x-1">
+                              <MessageSquare className="h-4 w-4 text-gray-400" />
+                              <span className="text-gray-600">{post.commentCount} comments</span>
+                            </span>
+                          </div>
+                          {post.reactionCounts.pray > 20 && (
+                            <Badge className="text-xs bg-orange-100 text-orange-700">
+                              <Sparkles className="h-3 w-3 mr-1" />
+                              High Priority
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Prayer Actions */}
+                      {!post.isAnswered && (
+                        <div className="flex items-center space-x-2">
+                          <Button 
+                            className={`flex-1 transition-all duration-200 ${
+                              prayedForPosts.includes(post.id)
+                                ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                                : 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white'
+                            }`}
+                            onClick={() => handlePrayForPost(post.id)}
+                            data-testid={`pray-for-${post.id}`}
+                          >
+                            {prayedForPosts.includes(post.id) ? (
+                              <>
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Prayed ✓
+                              </>
+                            ) : (
+                              <>
+                                <HandHeart className="h-4 w-4 mr-2" />
+                                I'll Pray for This
+                              </>
+                            )}
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <MessageSquare className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Share className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Answered Prayer Celebration */}
+                      {post.isAnswered && (
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-200">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Sparkles className="h-5 w-5 text-green-600" />
+                            <span className="font-semibold text-green-800">Prayer Answered!</span>
+                          </div>
+                          <p className="text-sm text-green-700">Praise God for His faithfulness! This prayer has been marked as answered.</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <HandHeart className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <p className="text-gray-500 mb-2">
+                      {prayerFilter === 'answered' ? 'No answered prayers yet' : 'No prayer requests in this category'}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {prayerFilter === 'answered' 
+                        ? 'When prayers are answered, they\'ll appear here as testimonies of God\'s faithfulness.' 
+                        : 'Be the first to share a prayer request and invite the community to pray with you.'}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Community Prayer Stats */}
+            <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <h3 className="font-semibold text-charcoal mb-3">Community Prayer Impact</h3>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="text-2xl font-bold text-purple-600">
+                        {prayerPosts.reduce((sum, post) => sum + post.reactionCounts.pray + (prayedForPosts.includes(post.id) ? 1 : 0), 0)}
+                      </div>
+                      <div className="text-gray-600">Total Prayers</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-green-600">{answeredPrayers.length}</div>
+                      <div className="text-gray-600">Answered</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-indigo-600">{activePrayers.length}</div>
+                      <div className="text-gray-600">Active Requests</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

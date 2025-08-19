@@ -1,0 +1,30 @@
+adding Prayer as its own tab alongside Feed / Groups / Serve could make the prayer experience much stronger. Right now prayer requests are “just posts,” but with a Prayer tab you’d be elevating it into a dedicated spiritual rhythm, not just another post type.
+✝️ How It Would Work
+1. Tabs: Feed | Groups | Serve | Prayer
+Feed → general posts (testimonies, announcements, highlights).
+Groups → sub-community spaces (young adults, men’s, women’s, etc.).
+Serve → ministry opportunities (Serve Central hub).
+Prayer → prayer wall, where all prayer posts are collected.
+2. Posting Flow
+When someone posts a prayer request in the Feed:
+It shows in the Feed like normal (so the whole community can engage).
+It’s automatically filtered into the Prayer tab, creating a permanent, scrollable Prayer Wall.
+3. Prayer Wall Features
+List of all current prayer requests (latest first).
+Prayed button 🙏 → increments a counter (“23 people prayed”).
+Filter options → by ministry, group, or “urgent.”
+Answered prayers → request can be marked as answered, moving to an “Answered” section (celebration feed 🎉).
+Notifications → if you post a prayer, you get notified when someone prays for it.
+4. Benefits of Adding Prayer Tab
+✅ Spiritual centrality → reminds members that prayer is core, not just a side feature.
+✅ Encourages engagement → people who may not post testimonies or serve yet can still participate by clicking “I prayed.”
+✅ Creates momentum → seeing 50+ people prayed motivates others to add requests.
+✅ Historical encouragement → answered prayers archive becomes a testimony bank.
+💡 Big Picture
+The top nav would then look like this:
+Feed | Groups | Serve | Prayer
+Feed = the heartbeat (daily activity).
+Groups = belonging (specific communities).
+Serve = action (step into opportunities).
+Prayer = spiritual engine (intercession + celebration).
+👉 I think adding Prayer as a top-level tab is a powerful move — it makes KingdomOps more than just a management tool, it makes it a true discipleship + spiritual community platform.
