@@ -200,8 +200,14 @@ export default function Pricing() {
                   <Rocket className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="font-bold text-xl text-spiritual-blue mb-2">Inner Circle Launch</h3>
-                <p className="text-sm text-gray-500 mb-3">Now - Q1 2026</p>
-                <p className="text-gray-600 text-sm">Core features, onboarding, and assessments</p>
+                <p className="text-sm text-gray-500 mb-4">Now – Q1 2026</p>
+                <ul className="text-gray-600 text-sm space-y-2">
+                  <li>• Core features released</li>
+                  <li>• Church onboarding & assessments</li>
+                  <li>• Member management basics</li>
+                  <li>• Administrative dashboard</li>
+                  <li>• Professional church subdomain</li>
+                </ul>
                 <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 hidden md:block">
                   <ArrowRight className="h-6 w-6 text-warm-gold" />
                 </div>
@@ -212,8 +218,14 @@ export default function Pricing() {
                   <TrendingUp className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="font-bold text-xl text-warm-gold mb-2">Growth & Expansion</h3>
-                <p className="text-sm text-gray-500 mb-3">Q2 2026</p>
-                <p className="text-gray-600 text-sm">Advanced communication, events, integrations</p>
+                <p className="text-sm text-gray-500 mb-4">Q2 2026</p>
+                <ul className="text-gray-600 text-sm space-y-2">
+                  <li>• Advanced communication tools</li>
+                  <li>• Online Community (groups, discussions)</li>
+                  <li>• Event planning & coordination</li>
+                  <li>• Multi-role user management</li>
+                  <li>• Integrations</li>
+                </ul>
                 <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 hidden md:block">
                   <ArrowRight className="h-6 w-6 text-green-500" />
                 </div>
@@ -224,8 +236,14 @@ export default function Pricing() {
                   <Star className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="font-bold text-xl text-green-600 mb-2">Public Launch</h3>
-                <p className="text-sm text-gray-500 mb-3">Q3 2026</p>
-                <p className="text-gray-600 text-sm">Full platform + locked lifetime pricing</p>
+                <p className="text-sm text-gray-500 mb-4">Q3 2026</p>
+                <ul className="text-gray-600 text-sm space-y-2">
+                  <li>• Locked lifetime pricing for Inner Circle</li>
+                  <li>• Email integration & automation</li>
+                  <li>• Advanced analytics & reporting</li>
+                  <li>• Priority support & feature requests</li>
+                  <li>• Custom Discipleship & Ministry LMS</li>
+                </ul>
               </div>
             </div>
           </div>
