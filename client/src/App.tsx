@@ -172,6 +172,7 @@ function Router() {
             <Route path="/gifts" component={Gifts} />
             <Route path="/give" component={Give} />
             <Route path="/connect" component={Connect} />
+            <Route path="/dashboard" component={Dashboard} />
             <Route path="/settings" component={Settings} />
             
             {/* Admin routes - only for admin-level roles */}
