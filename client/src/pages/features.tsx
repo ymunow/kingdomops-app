@@ -20,7 +20,6 @@ import {
   Sparkles,
   Clock,
   Zap,
-  Sparkles as Crown,
   Church
 } from "lucide-react";
 
@@ -34,7 +33,7 @@ export default function FeaturesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
+              <Sparkles className="text-spiritual-blue h-8 w-8 mr-3" />
               <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
             </div>
             <div className="flex items-center space-x-3">
