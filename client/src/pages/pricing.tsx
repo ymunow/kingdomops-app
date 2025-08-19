@@ -210,7 +210,7 @@ export default function Pricing() {
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
           <p className="text-purple-200 mt-4 text-sm">
-            No cost during beta • Lifetime pricing guaranteed
+            $99 beta access • Lifetime pricing guaranteed
           </p>
         </div>
       </section>
