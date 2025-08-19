@@ -87,7 +87,7 @@ export default function FeaturesPage() {
               <span>Available Now</span>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Core Features Available Now
+              Core Tools for Today
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Start building stronger connections and better organization in your church today with these foundational tools.
@@ -118,7 +118,7 @@ export default function FeaturesPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-center">
-                  Easily onboard and organize your church family with profiles, roles, and invitations that make connection simple.
+                  Keep your church connected with easy profiles, roles, and invitations that make organization simple.
                 </p>
               </CardContent>
             </Card>
@@ -160,7 +160,7 @@ export default function FeaturesPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-center">
-                  Give your church a home online with a dedicated subdomain (yourchurch.kingdomops.app) for a professional, branded experience.
+                  A branded, secure subdomain for your church (yourchurch.kingdomops.app) creates a professional online home for your members.
                 </p>
               </CardContent>
             </Card>
@@ -194,7 +194,7 @@ export default function FeaturesPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-center">
-                  Foster connection beyond Sunday. Create groups, spark discussions, and build a thriving online community where members grow together throughout the week.
+                  Foster discipleship and connection beyond Sunday with groups, discussions, and online community tools designed to bring people together throughout the week.
                 </p>
               </CardContent>
             </Card>
@@ -208,7 +208,7 @@ export default function FeaturesPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-center">
-                  Keep your church informed with announcements, direct messaging, and streamlined communication across ministries.
+                  Reach your church instantly with announcements, messaging, and ministry-wide communication tools that cut through the noise.
                 </p>
               </CardContent>
             </Card>
@@ -253,69 +253,73 @@ export default function FeaturesPage() {
               <span>Future Vision - Phase 3 Launch</span>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Complete Ministry Ecosystem
+              A Complete Ministry Ecosystem
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Phase 3 completes the vision with advanced automation, deep insights, and comprehensive discipleship tools.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+          <div className="grid grid-cols-1 gap-8">
+            {/* Featured: Custom Discipleship & Ministry LMS */}
+            <Card className="border-2 border-purple-300 hover:border-purple-400 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group bg-gradient-to-br from-purple-50/50 to-white">
               <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
-                  <Mail className="h-8 w-8 text-purple-600" />
+                <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
+                  <BookOpen className="h-10 w-10 text-purple-600" />
                 </div>
-                <CardTitle className="text-xl text-gray-900">Email Integration & Automation</CardTitle>
+                <CardTitle className="text-2xl text-gray-900">Custom Discipleship & Ministry LMS</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-center">
-                  Send automated reminders, follow-ups, and newsletters to keep members engaged without adding to your workload.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
-                  <TrendingUp className="h-8 w-8 text-purple-600" />
-                </div>
-                <CardTitle className="text-xl text-gray-900">Advanced Analytics & Reporting</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-center">
-                  Get deeper insights into discipleship, engagement, and ministry growth with advanced reporting tools.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
-                  <HeadphonesIcon className="h-8 w-8 text-purple-600" />
-                </div>
-                <CardTitle className="text-xl text-gray-900">Priority Support & Feature Requests</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-center">
-                  Inner Circle churches receive priority support and influence in shaping future development.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group md:col-span-2 lg:col-span-3">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
-                  <BookOpen className="h-8 w-8 text-purple-600" />
-                </div>
-                <CardTitle className="text-xl text-gray-900">Custom Discipleship & Ministry LMS</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-center max-w-3xl mx-auto">
+                <p className="text-gray-600 text-center max-w-4xl mx-auto text-lg">
                   Go beyond administration into discipleship. With our built-in learning management system, your church can create, host, and deliver its own discipleship and ministry training courses to equip leaders and grow members.
                 </p>
               </CardContent>
             </Card>
+
+            {/* Supporting Features */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+              <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
+                    <Mail className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <CardTitle className="text-xl text-gray-900">Email Integration & Automation</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-center">
+                    Send automated reminders, follow-ups, and newsletters to keep members engaged without adding to your workload.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
+                    <TrendingUp className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <CardTitle className="text-xl text-gray-900">Advanced Analytics & Reporting</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-center">
+                    Get deeper insights into discipleship, engagement, and ministry growth with advanced reporting tools.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
+                    <HeadphonesIcon className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <CardTitle className="text-xl text-gray-900">Priority Support & Feature Requests</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-center">
+                    Inner Circle churches receive priority support and influence in shaping future development.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>
