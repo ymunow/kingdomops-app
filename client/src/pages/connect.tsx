@@ -20,6 +20,7 @@ export default function Connect() {
         avatar: null
       },
       body: 'God showed up in such a powerful way during our small group this week. Grateful for this community! 🙏',
+      image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=400&fit=crop&crop=center',
       createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       reactionCounts: {
         heart: 12,
@@ -35,6 +36,7 @@ export default function Connect() {
         avatar: null
       },
       body: 'Please pray for our upcoming outreach event this Saturday. We are believing for breakthrough and many lives to be touched! Let\'s storm heaven together.',
+      image: null,
       createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
       reactionCounts: {
         pray: 23,
@@ -44,12 +46,29 @@ export default function Connect() {
     },
     {
       id: '3',
+      type: 'post',
+      author: {
+        name: 'Michael Chen',
+        avatar: null
+      },
+      body: 'Beautiful worship service today! The presence of God was so tangible. Here\'s a glimpse of our amazing worship team in action! 🎵✨',
+      image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop&crop=center',
+      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+      reactionCounts: {
+        heart: 28,
+        pray: 4
+      },
+      commentCount: 12
+    },
+    {
+      id: '4',
       type: 'announcement',
       author: {
         name: 'Church Admin',
         avatar: null
       },
       body: '📣 Reminder: Small group signups are now open! Find your group and take your next step in community. Link in bio.',
+      image: null,
       createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
       reactionCounts: {
         heart: 15,
@@ -60,16 +79,34 @@ export default function Connect() {
   ];
 
   const myGroups = [
-    { id: '1', name: 'Young Adults', members: 24, isJoined: true },
-    { id: '2', name: 'Worship Team', members: 18, isJoined: true },
-    { id: '3', name: 'Small Group Leaders', members: 12, isJoined: true }
+    { id: '1', name: 'Young Adults', members: 24, isJoined: true, privacy: 'public', description: 'Ages 18-30 fellowship and Bible study' },
+    { id: '2', name: 'Worship Team', members: 18, isJoined: true, privacy: 'private', description: 'For current worship team members' },
+    { id: '3', name: 'Small Group Leaders', members: 12, isJoined: true, privacy: 'private', description: 'Leadership training and support' }
   ];
 
   const suggestedGroups = [
-    { id: '4', name: 'Men\'s Bible Study', members: 15, isJoined: false },
-    { id: '5', name: 'Parents Connect', members: 32, isJoined: false },
-    { id: '6', name: 'Creative Arts', members: 28, isJoined: false }
+    { id: '4', name: 'Men\'s Bible Study', members: 15, isJoined: false, privacy: 'public', description: 'Weekly men\'s fellowship and study' },
+    { id: '5', name: 'Parents Connect', members: 32, isJoined: false, privacy: 'public', description: 'Support and encouragement for parents' },
+    { id: '6', name: 'Creative Arts', members: 28, isJoined: false, privacy: 'private', description: 'Artists, musicians, and creatives' }
   ];
+
+  const getPrivacyIcon = (privacy: string) => {
+    switch (privacy) {
+      case 'public': return '🌍';
+      case 'private': return '🔒';
+      case 'hidden': return '👁️‍🗨️';
+      default: return '🌍';
+    }
+  };
+
+  const getPrivacyColor = (privacy: string) => {
+    switch (privacy) {
+      case 'public': return 'text-green-600 bg-green-50 border-green-200';
+      case 'private': return 'text-blue-600 bg-blue-50 border-blue-200';
+      case 'hidden': return 'text-gray-600 bg-gray-50 border-gray-200';
+      default: return 'text-green-600 bg-green-50 border-green-200';
+    }
+  };
 
   const serveOpportunities = [
     {
@@ -261,7 +298,17 @@ export default function Connect() {
 
                     {/* Post Content */}
                     <div className="mb-4">
-                      <p className="text-gray-700 text-sm leading-relaxed">{post.body}</p>
+                      <p className="text-gray-700 text-sm leading-relaxed mb-3">{post.body}</p>
+                      {post.image && (
+                        <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                          <img 
+                            src={post.image} 
+                            alt="Post image" 
+                            className="w-full h-64 object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                            data-testid={`post-image-${post.id}`}
+                          />
+                        </div>
+                      )}
                     </div>
 
                     {/* Reactions and Comments */}
@@ -323,13 +370,21 @@ export default function Connect() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {myGroups.map((group) => (
-                    <div key={group.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
-                      <div>
-                        <p className="font-medium text-sm">{group.name}</p>
-                        <p className="text-xs text-gray-500">{group.members} members</p>
+                    <div key={group.id} className="p-4 rounded-lg border border-gray-100 hover:border-spiritual-blue/30 transition-colors bg-white/50">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <p className="font-medium text-sm">{group.name}</p>
+                            <Badge variant="outline" className={`text-xs px-2 py-1 border ${getPrivacyColor(group.privacy)}`}>
+                              {getPrivacyIcon(group.privacy)} {group.privacy}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-1">{group.members} members • Feed access for members only</p>
+                          <p className="text-xs text-gray-600">{group.description}</p>
+                        </div>
                       </div>
-                      <Button size="sm" variant="outline" data-testid={`open-group-${group.id}`}>
-                        Open
+                      <Button size="sm" variant="outline" className="w-full" data-testid={`open-group-${group.id}`}>
+                        Open Group Feed
                       </Button>
                     </div>
                   ))}
@@ -343,13 +398,21 @@ export default function Connect() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {suggestedGroups.map((group) => (
-                    <div key={group.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
-                      <div>
-                        <p className="font-medium text-sm">{group.name}</p>
-                        <p className="text-xs text-gray-500">{group.members} members</p>
+                    <div key={group.id} className="p-4 rounded-lg border border-gray-100 hover:border-spiritual-blue/30 transition-colors bg-white/50">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <p className="font-medium text-sm">{group.name}</p>
+                            <Badge variant="outline" className={`text-xs px-2 py-1 border ${getPrivacyColor(group.privacy)}`}>
+                              {getPrivacyIcon(group.privacy)} {group.privacy}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-1">{group.members} members • Feed access for members only</p>
+                          <p className="text-xs text-gray-600">{group.description}</p>
+                        </div>
                       </div>
-                      <Button size="sm" className="bg-spiritual-blue hover:bg-spiritual-blue/90" data-testid={`join-group-${group.id}`}>
-                        Join
+                      <Button size="sm" className="w-full bg-spiritual-blue hover:bg-spiritual-blue/90" data-testid={`join-group-${group.id}`}>
+                        {group.privacy === 'private' ? 'Request to Join' : 'Join Group'}
                       </Button>
                     </div>
                   ))}
