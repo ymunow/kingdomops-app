@@ -29,7 +29,6 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from "recharts";
 import { Link, useLocation } from "wouter";
-import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
 import { viewAsStorage } from "@/lib/view-as-storage";
 import { useOrganization } from "@/hooks/use-organization";
 import { MainLayout } from "@/components/navigation/main-layout";
@@ -215,7 +214,6 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                     <Shield className="mr-1 h-3 w-3" />
                     {user?.role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}
                   </Badge>
-                  {user?.role === "SUPER_ADMIN" && <ViewAsSwitcher user={user} />}
                 </>
               )}
               
