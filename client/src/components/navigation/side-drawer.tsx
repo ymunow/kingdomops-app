@@ -59,12 +59,12 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
       {/* Drawer */}
       <div 
         className={cn(
-          "fixed top-0 left-0 h-full w-80 bg-white shadow-2xl transform transition-transform duration-300 z-50",
+          "fixed top-0 left-0 h-full w-full sm:w-80 bg-white shadow-2xl transform transition-transform duration-300 z-50",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <Crown className="h-8 w-8 text-spiritual-blue" />
             <div>
@@ -83,7 +83,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         </div>
 
         {/* Enhanced User Info */}
-        <div className={`p-6 border-b border-gray-100 ${
+        <div className={`p-4 sm:p-6 border-b border-gray-100 ${
           isSuperAdmin 
             ? 'bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-100 border-amber-200' 
             : ''
@@ -132,7 +132,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         </div>
 
         {/* Main Navigation Items */}
-        <div className="p-4 space-y-2">
+        <div className="p-3 sm:p-4 space-y-1 sm:space-y-2">
           {mainNavigationItems.map(({ path, icon: Icon, label, description }) => {
             const isActive = location === path;
             
@@ -304,7 +304,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         )}
 
         {/* Account Actions */}
-        <div className="px-4 space-y-2 border-t border-gray-200 pt-4">
+        <div className="px-3 sm:px-4 space-y-1 sm:space-y-2 border-t border-gray-200 pt-4">
           <button
             onClick={() => handleNavigation('/profile')}
             data-testid="drawer-profile-settings"
@@ -344,7 +344,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         </div>
 
         {/* Footer */}
-        <div className="mt-8 p-6 border-t border-gray-100">
+        <div className="mt-6 sm:mt-8 p-4 sm:p-6 border-t border-gray-100">
           <p className="text-xs text-gray-500 text-center">
             KingdomOps Platform
             <br />
