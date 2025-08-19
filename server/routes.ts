@@ -1705,6 +1705,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // Dashboard endpoint for Connect-style personalized dashboard
+  app.get("/api/dashboard", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Get user's assessment results
+      const results = await storage.getUserResults(userId);
+      const hasCompletedAssessment = results.length > 0;
+      const latestResult = results[0];
+
+      // Determine primary CTA
+      let primaryCta;
+      if (!user.profileCompleted) {
+        primaryCta = {
+          type: 'complete_profile',
+          title: 'Complete Your Profile',
+          description: 'Help us personalize your experience with a few details.',
+          action: 'Complete Profile'
+        };
+      } else if (!hasCompletedAssessment) {
+        primaryCta = {
+          type: 'take_assessment',
+          title: 'Discover Your Spiritual Gifts',
+          description: 'Take our comprehensive assessment to unlock personalized ministry opportunities.',
+          action: 'Take Assessment'
+        };
+      } else {
+        primaryCta = {
+          type: 'view_gifts',
+          title: 'Your Spiritual Gifts Profile',
+          description: `Your top gifts: ${latestResult.top1GiftKey}, ${latestResult.top2GiftKey}, ${latestResult.top3GiftKey}`,
+          action: 'Explore Opportunities'
+        };
+      }
+
+      // Get serve highlights (mock data for now - will implement matching algorithm)
+      const serveHighlights = hasCompletedAssessment ? [
+        {
+          id: 'serve-1',
+          title: 'Small Group Leader',
+          ministry: 'Adult Ministries',
+          matchScore: 92,
+          requiredGifts: ['Teaching', 'Shepherding']
+        },
+        {
+          id: 'serve-2', 
+          title: 'Worship Team Vocalist',
+          ministry: 'Worship Arts',
+          matchScore: 87,
+          requiredGifts: ['Faith', 'Service']
+        }
+      ] : [];
+
+      // Get upcoming events (mock data - will implement real events)
+      const upcomingEvents = [
+        {
+          id: 'event-1',
+          title: 'Sunday Worship Service',
+          startsAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
+          location: 'Main Sanctuary',
+          isVirtual: false,
+          rsvpStatus: null,
+          isRegistered: false
+        },
+        {
+          id: 'event-2',
+          title: 'Small Group Training',
+          startsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Next week
+          location: null,
+          isVirtual: true,
+          rsvpStatus: 'interested',
+          isRegistered: true
+        }
+      ];
+
+      // Mock giving data
+      const givingCard = {
+        lastGift: {
+          amount: 50,
+          date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // Last week
+        },
+        recurringSetup: false
+      };
+
+      // Mock Connect teaser posts
+      const connectTeaser = [
+        {
+          id: 'post-1',
+          type: 'testimony',
+          author: {
+            name: 'Sarah Johnson',
+            avatar: null
+          },
+          body: 'God showed up in such a powerful way during our small group this week. Grateful for this community!',
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+          reactionCounts: {
+            heart: 12,
+            pray: 5
+          }
+        },
+        {
+          id: 'post-2',
+          type: 'prayer',
+          author: {
+            name: 'Pastor Smith',
+            avatar: null
+          },
+          body: 'Please pray for our upcoming outreach event this Saturday. We are believing for breakthrough!',
+          createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+          reactionCounts: {
+            pray: 23,
+            heart: 8
+          }
+        }
+      ];
+
+      const dashboardData = {
+        greeting: {
+          name: user.firstName || user.displayName || 'Friend',
+          time: new Date().toLocaleDateString()
+        },
+        primaryCta,
+        serveHighlights,
+        upcomingEvents,
+        givingCard,
+        connectTeaser
+      };
+
+      res.json(dashboardData);
+    } catch (error) {
+      console.error("Dashboard error:", error);
+      res.status(500).json({ message: "Failed to get dashboard data" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

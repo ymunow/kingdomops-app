@@ -26,7 +26,7 @@ import AdminOrganizationSettings from "@/pages/admin-organization-settings";
 import AdminSystem from "@/pages/admin-system";
 import ChurchOverview from "@/pages/church-overview";
 import LeaderOpportunities from "@/pages/leader-opportunities";
-import MemberDashboard from "@/pages/member-dashboard";
+import Dashboard from "@/pages/dashboard";
 import Profile from "@/pages/profile";
 import ChurchSignup from "@/pages/church-signup";
 import ChurchAdminWelcome from "@/pages/church-admin-welcome";
@@ -142,7 +142,7 @@ function Router() {
                   if (userRole === "SUPER_ADMIN") {
                     // If super admin is explicitly viewing as PARTICIPANT, show member dashboard
                     if (currentViewType === "PARTICIPANT") {
-                      return <MemberDashboard />;
+                      return <Dashboard />;
                     }
                     // Default: show platform overview with default organization
                     return <ChurchOverview organizationId="default-org-001" />;
@@ -152,8 +152,8 @@ function Router() {
                   }
                 }
                 
-                // Default to member dashboard for all other cases
-                return <MemberDashboard />;
+                // Default to connect-style dashboard for all other cases
+                return <Dashboard />;
               }}
             </Route>
             

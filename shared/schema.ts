@@ -420,6 +420,40 @@ export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).om
   createdAt: true,
 });
 
+// Add Connect permissions to role permissions
+export const CONNECT_PERMISSIONS = {
+  SUPER_ADMIN: ['all_connect'],
+  CHURCH_SUPER_ADMIN: [
+    'create_church_posts', 'moderate_all', 'manage_groups', 'create_events', 
+    'create_serve_roles', 'feature_toggles', 'view_reports'
+  ],
+  PASTORAL_STAFF: [
+    'create_church_posts', 'moderate_church', 'pin_announcements', 
+    'create_events', 'view_reports'
+  ],
+  FINANCE_ADMIN: [
+    'create_posts', 'comment_react', 'create_events', 'view_groups'
+  ],
+  ASSIMILATION_DIRECTOR: [
+    'create_newcomer_posts', 'moderate_newcomer', 'create_events', 
+    'manage_newcomer_groups'
+  ],
+  MINISTRY_LEADER: [
+    'create_group_posts', 'manage_own_groups', 'create_group_events', 
+    'create_serve_roles', 'moderate_own_groups'
+  ],
+  ASSIMILATION_MEMBER: [
+    'create_posts', 'comment_react', 'view_groups', 'newcomer_groups_only'
+  ],
+  VOLUNTEER: [
+    'create_posts', 'comment_react', 'view_groups', 'apply_serve_roles'
+  ],
+  CHURCH_MEMBER: [
+    'create_posts', 'comment_react', 'view_groups', 'apply_serve_roles', 
+    'create_testimonies', 'create_prayers'
+  ],
+} as const;
+
 // Types
 export type Organization = typeof organizations.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -453,6 +487,327 @@ export type InsertPlacementCandidate = z.infer<typeof insertPlacementCandidateSc
 
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
+
+// KingdomOps Connect Enums
+export const postTypeEnum = pgEnum("post_type", [
+  "announcement",
+  "testimony", 
+  "prayer",
+  "event",
+  "serve_opportunity",
+  "photo",
+  "video",
+  "link",
+  "poll"
+]);
+
+export const postAudienceTypeEnum = pgEnum("post_audience_type", [
+  "church",
+  "group", 
+  "event",
+  "leaders_only",
+  "custom"
+]);
+
+export const reactionTypeEnum = pgEnum("reaction_type", [
+  "like",
+  "heart",
+  "pray"
+]);
+
+export const groupVisibilityEnum = pgEnum("group_visibility", [
+  "public",
+  "private", 
+  "secret"
+]);
+
+export const groupMemberRoleEnum = pgEnum("group_member_role", [
+  "member",
+  "moderator",
+  "admin"
+]);
+
+export const eventRsvpStatusEnum = pgEnum("event_rsvp_status", [
+  "going",
+  "interested",
+  "cant"
+]);
+
+export const reportStatusEnum = pgEnum("report_status", [
+  "pending",
+  "reviewed",
+  "resolved",
+  "dismissed"
+]);
+
+export const reportTargetTypeEnum = pgEnum("report_target_type", [
+  "post",
+  "comment", 
+  "user",
+  "group",
+  "event"
+]);
+
+// KingdomOps Connect Tables
+
+// Posts - Core content system
+export const posts = pgTable("posts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  authorId: varchar("author_id")
+    .notNull()
+    .references(() => users.id),
+  type: postTypeEnum("type").notNull(),
+  
+  // Audience configuration
+  audienceType: postAudienceTypeEnum("audience_type").notNull(),
+  audienceGroupId: varchar("audience_group_id"),
+  audienceEventId: varchar("audience_event_id"),
+  audienceCustomList: json("audience_custom_list").$type<string[]>().default([]),
+  
+  // Content
+  title: varchar("title"),
+  body: text("body"),
+  media: jsonb("media").default({}), // {images: [], videos: [], files: []}
+  poll: jsonb("poll").default({}), // {question: string, options: [], votes: {}}
+  
+  // Metadata
+  isPinned: boolean("is_pinned").default(false),
+  isHidden: boolean("is_hidden").default(false),
+  reactionCounts: jsonb("reaction_counts").default({}), // {like: 0, heart: 0, pray: 0}
+  commentCount: integer("comment_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Post reactions
+export const postReactions = pgTable("post_reactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  postId: varchar("post_id")
+    .notNull()
+    .references(() => posts.id, { onDelete: "cascade" }),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  type: reactionTypeEnum("type").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Post comments (with threading support)
+export const postComments = pgTable("post_comments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  postId: varchar("post_id")
+    .notNull()
+    .references(() => posts.id, { onDelete: "cascade" }),
+  parentId: varchar("parent_id"), // For threading - self-reference
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  body: text("body").notNull(),
+  media: jsonb("media").default({}), // Support for image replies
+  reactionCounts: jsonb("reaction_counts").default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Groups for community organization
+export const groups = pgTable("groups", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  bannerImageUrl: varchar("banner_image_url"),
+  visibility: groupVisibilityEnum("visibility").default("public"),
+  memberCount: integer("member_count").default(0),
+  createdBy: varchar("created_by")
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Group membership
+export const groupMembers = pgTable("group_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  groupId: varchar("group_id")
+    .notNull()
+    .references(() => groups.id, { onDelete: "cascade" }),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  role: groupMemberRoleEnum("role").default("member"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Enhanced events with social features
+export const events = pgTable("events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  groupId: varchar("group_id").references(() => groups.id), // Optional group association
+  title: varchar("title").notNull(),
+  description: text("description"),
+  coverImageUrl: varchar("cover_image_url"),
+  
+  // Timing
+  startsAt: timestamp("starts_at").notNull(),
+  endsAt: timestamp("ends_at"),
+  
+  // Location
+  location: text("location"),
+  isVirtual: boolean("is_virtual").default(false),
+  meetingPlatform: varchar("meeting_platform"), // "zoom", "teams", "google_meet", etc.
+  meetingUrl: text("meeting_url"), // Public join link
+  meetingPasscode: varchar("meeting_passcode"),
+  hostMeetingUrl: text("host_meeting_url"), // Private host link
+  
+  // Registration
+  requiresRegistration: boolean("requires_registration").default(false),
+  maxAttendees: integer("max_attendees"),
+  registrationDeadline: timestamp("registration_deadline"),
+  
+  // Visibility & metadata
+  visibility: varchar("visibility").default("church"), // "church", "group", "public"
+  rsvpCount: jsonb("rsvp_count").default({}), // {going: 0, interested: 0, cant: 0}
+  registrationCount: integer("registration_count").default(0),
+  
+  createdBy: varchar("created_by")
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Event RSVPs
+export const eventRsvps = pgTable("event_rsvps", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventId: varchar("event_id")
+    .notNull()
+    .references(() => events.id, { onDelete: "cascade" }),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  status: eventRsvpStatusEnum("status").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Event registrations (for ticketed/managed events)
+export const eventRegistrations = pgTable("event_registrations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventId: varchar("event_id")
+    .notNull()
+    .references(() => events.id, { onDelete: "cascade" }),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  tickets: integer("tickets").default(1),
+  registrationData: jsonb("registration_data").default({}), // Custom form fields
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Enhanced serving roles (extending existing ministry opportunities)
+export const servingRoles = pgTable("serving_roles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  ministry: varchar("ministry").notNull(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  requiredGifts: json("required_gifts").$type<string[]>().default([]),
+  preferredGifts: json("preferred_gifts").$type<string[]>().default([]),
+  requiredAbilities: json("required_abilities").$type<string[]>().default([]),
+  timeCommitment: varchar("time_commitment"),
+  isOpen: boolean("is_open").default(true),
+  createdBy: varchar("created_by")
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Role applications for serve central
+export const roleApplications = pgTable("role_applications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  roleId: varchar("role_id")
+    .notNull()
+    .references(() => servingRoles.id),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  status: varchar("status").default("pending"), // "pending", "approved", "declined"
+  note: text("note"), // Application message from user
+  adminResponse: text("admin_response"), // Response from ministry leader
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Prayer posts (specialized post tracking)
+export const prayers = pgTable("prayers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  postId: varchar("post_id")
+    .notNull()
+    .references(() => posts.id, { onDelete: "cascade" }),
+  prayedCount: integer("prayed_count").default(0),
+  isSensitive: boolean("is_sensitive").default(false), // Restricts resharing
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Prayer interactions (who prayed)
+export const prayerInteractions = pgTable("prayer_interactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  prayerId: varchar("prayer_id")
+    .notNull()
+    .references(() => prayers.id, { onDelete: "cascade" }),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Content moderation and reports
+export const reports = pgTable("reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  targetType: reportTargetTypeEnum("target_type").notNull(),
+  targetId: varchar("target_id").notNull(), // ID of the reported content
+  reporterId: varchar("reporter_id")
+    .notNull()
+    .references(() => users.id),
+  reason: varchar("reason").notNull(),
+  description: text("description"),
+  status: reportStatusEnum("status").default("pending"),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  action: varchar("action"), // "hide", "delete", "warn", "dismiss"
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Notifications for Connect features
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  organizationId: varchar("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  type: varchar("type").notNull(), // "mention", "reply", "event_reminder", "application_update"
+  title: varchar("title").notNull(),
+  message: text("message"),
+  actionUrl: varchar("action_url"), // Deep link to relevant content
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
 
 // Additional types for frontend
 export type GiftKey =
@@ -524,4 +879,185 @@ export type PlacementMatch = {
   opportunity: MinistryOpportunity;
   matchScore: number;
   reasons: string[];
+};
+
+// Connect insert schemas
+export const insertPostSchema = createInsertSchema(posts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  reactionCounts: true,
+  commentCount: true,
+});
+
+export const insertPostReactionSchema = createInsertSchema(postReactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPostCommentSchema = createInsertSchema(postComments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  reactionCounts: true,
+});
+
+export const insertGroupSchema = createInsertSchema(groups).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  memberCount: true,
+});
+
+export const insertGroupMemberSchema = createInsertSchema(groupMembers).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEventSchema = createInsertSchema(events).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  rsvpCount: true,
+  registrationCount: true,
+});
+
+export const insertEventRsvpSchema = createInsertSchema(eventRsvps).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEventRegistrationSchema = createInsertSchema(eventRegistrations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertServingRoleSchema = createInsertSchema(servingRoles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertRoleApplicationSchema = createInsertSchema(roleApplications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPrayerSchema = createInsertSchema(prayers).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPrayerInteractionSchema = createInsertSchema(prayerInteractions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertReportSchema = createInsertSchema(reports).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Connect types
+export type Post = typeof posts.$inferSelect;
+export type InsertPost = z.infer<typeof insertPostSchema>;
+
+export type PostReaction = typeof postReactions.$inferSelect;
+export type InsertPostReaction = z.infer<typeof insertPostReactionSchema>;
+
+export type PostComment = typeof postComments.$inferSelect;
+export type InsertPostComment = z.infer<typeof insertPostCommentSchema>;
+
+export type Group = typeof groups.$inferSelect;
+export type InsertGroup = z.infer<typeof insertGroupSchema>;
+
+export type GroupMember = typeof groupMembers.$inferSelect;
+export type InsertGroupMember = z.infer<typeof insertGroupMemberSchema>;
+
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = z.infer<typeof insertEventSchema>;
+
+export type EventRsvp = typeof eventRsvps.$inferSelect;
+export type InsertEventRsvp = z.infer<typeof insertEventRsvpSchema>;
+
+export type EventRegistration = typeof eventRegistrations.$inferSelect;
+export type InsertEventRegistration = z.infer<typeof insertEventRegistrationSchema>;
+
+export type ServingRole = typeof servingRoles.$inferSelect;
+export type InsertServingRole = z.infer<typeof insertServingRoleSchema>;
+
+export type RoleApplication = typeof roleApplications.$inferSelect;
+export type InsertRoleApplication = z.infer<typeof insertRoleApplicationSchema>;
+
+export type Prayer = typeof prayers.$inferSelect;
+export type InsertPrayer = z.infer<typeof insertPrayerSchema>;
+
+export type PrayerInteraction = typeof prayerInteractions.$inferSelect;
+export type InsertPrayerInteraction = z.infer<typeof insertPrayerInteractionSchema>;
+
+export type Report = typeof reports.$inferSelect;
+export type InsertReport = z.infer<typeof insertReportSchema>;
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+// Extended types for Connect features
+export type PostType = "announcement" | "testimony" | "prayer" | "event" | "serve_opportunity" | "photo" | "video" | "link" | "poll";
+export type PostAudienceType = "church" | "group" | "event" | "leaders_only" | "custom";
+export type ReactionType = "like" | "heart" | "pray";
+export type GroupVisibility = "public" | "private" | "secret";
+export type GroupMemberRole = "member" | "moderator" | "admin";
+export type EventRsvpStatus = "going" | "interested" | "cant";
+export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
+export type ReportTargetType = "post" | "comment" | "user" | "group" | "event";
+
+// Feed and dashboard types
+export type FeedPost = Post & {
+  author: Pick<User, 'id' | 'firstName' | 'lastName' | 'displayName' | 'profileImageUrl' | 'role'>;
+  group?: Pick<Group, 'id' | 'name'>;
+  event?: Pick<Event, 'id' | 'title'>;
+  prayer?: Prayer;
+  userReaction?: PostReaction;
+  topComments?: (PostComment & {
+    author: Pick<User, 'id' | 'firstName' | 'lastName' | 'displayName' | 'profileImageUrl'>;
+  })[];
+};
+
+export type DashboardData = {
+  greeting: {
+    name: string;
+    time: string;
+  };
+  primaryCta: {
+    type: 'take_assessment' | 'view_gifts' | 'complete_profile';
+    title: string;
+    description: string;
+    action: string;
+  };
+  serveHighlights: {
+    id: string;
+    title: string;
+    ministry: string;
+    matchScore: number;
+    requiredGifts: string[];
+  }[];
+  upcomingEvents: (Event & {
+    rsvpStatus?: EventRsvpStatus;
+    isRegistered?: boolean;
+  })[];
+  givingCard: {
+    lastGift?: {
+      amount: number;
+      date: string;
+    };
+    recurringSetup: boolean;
+  };
+  connectTeaser: FeedPost[];
 };

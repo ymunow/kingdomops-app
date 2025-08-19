@@ -1,0 +1,180 @@
+build the Dashboard‑first app with a Facebook‑style community (KingdomOps Connect). It covers IA, features, data, APIs, and acceptance tests.
+0) Product stance
+Login landing: Dashboard (Home)
+Community (“KingdomOps Connect”): a main tab like Events/Serve/Gifts/Give
+Hybrid nav: side drawer and bottom tab bar
+Multi‑tenant + roles: use the role set we finalized (incl. CHURCH_SUPER_ADMIN, SUPER_ADMIN)
+1) Information architecture
+Bottom tabs (mobile): Home · Events · Serve · Gifts · Give
+Side drawer (same items + extras): Home, Events, Serve Central, Gifts, Give, Connect (Community), Profile, Settings
+Global UI:
+Auto‑hide bottom nav on scroll down, show on scroll up (12–16px threshold).
+“+” Action button (top bar or FAB) opens context menu:
+Member: Post/Testimony, Prayer Request, Upload Media, Register for Event (shortcut)
+Group/Ministry Leader: + Group Event, Announcement, Prayer, Media
+Pastoral/Admin: + Church‑wide Event, Announcement, Media
+2) Dashboard (Home) – requirements
+Purpose: drive next steps (discipleship + participation).
+Sections (stacked, card style):
+Greeting + Church brand
+Primary CTA
+If no results → Take Gifts Assessment
+Else → View My Gifts + “Find Where to Serve”
+Serve Central highlights (2–4 recommended roles matched to gifts)
+Upcoming events (registered + featured; RSVP/Register buttons)
+Giving quick card (one‑tap give / set recurring)
+(Optional) Connect teaser: “What’s happening in Connect” (last 2 posts)
+Behavior: personalized via gifts/registrations; cards are deep links to full modules.
+3) KingdomOps Connect (Community) – full feature set
+3.1 Feed
+Post types:
+announcement | testimony | prayer | event | serve_opportunity | photo | video | link | poll
+Audience scopes:
+church (all), group:{id}, event:{id}, leaders_only, custom:list
+Ranking (priorities):
+Posts from groups I’m in
+Events I RSVP’d/registered for
+Mentions/replies to me
+Church‑wide announcements
+Suggested serve roles (gift match)
+Card elements: author, time, audience chip, text, media, actions (like, comment, share, save), Report menu (see moderation).
+3.2 Create (the “+” menu)
+Sheet with actions based on role + current context (if viewing a group, default target = that group).
+Composer supports text, images, video, files, polls.
+For event posts: date/time/location, RSVP, optional meeting_link + passcode.
+For prayer posts: special reaction “I prayed” counter.
+3.3 Comments & reactions
+Reactions: like/heart/pray.
+Threaded comments (1 level deep).
+Rich text (basic), @mentions, #tags (church controlled), image replies.
+Edit/delete own content; leaders/admins can pin within group/church.
+3.4 Groups
+Each group has: banner, description, tabs: Feed | Events | Files | Members | Chat (optional later)
+Visibility: public (visible) / private (request to join) / secret (invite only).
+Events inside groups: full social event page + RSVP/Register + meeting link support.
+Leaders manage membership and create events/opportunities scoped to the group.
+3.5 Events (social‑first)
+Event page with Community (attendees list, comments, photos) + Details (time, map, register/join).
+RSVP: Going / Interested / Can’t.
+Registration/tickets (optional).
+Virtual: single meeting_link field renders a Join button; host link visible to leaders only.
+Post‑event: upload highlights; auto‑prompt attendees to share photos/testimony.
+3.6 Serve Central integration
+Serve Central = dedicated marketplace (listings: ministry, title, description, time commitment, required_gifts[], apply/inquire).
+In Connect feed, surface recommended opportunities based on gifts.
+Apply flow creates role_application and notifies the ministry leader.
+3.7 Gifts integration
+Feed cards:
+“You completed Gifts Assessment — view matches”
+“New opportunities match Teaching”
+Gifts tab holds: results, scriptures, retake, matches.
+3.8 Moderation & safety
+Report content → queue for Pastoral Staff / CHURCH_SUPER_ADMIN.
+Actions: hide, delete, mute user (group‑scoped), ban from group, church‑wide suspend (admins).
+Profanity filter (configurable list), image size/type limits.
+Privacy: prayer posts can be marked sensitive (no resharing outside scope).
+3.9 Notifications
+In‑app + push: replies/mentions, group posts, event reminders (T‑24h/T‑1h/T‑10m), serve application updates, assessment prompts.
+Quiet hours setting per user; daily digest email option.
+3.10 Search & discovery
+Global search: Posts, Events, Groups, People, Opportunities.
+Filters: my groups, date range, ministry, has:video/photo/prayer/event.
+4) Roles & permissions in Connect (summary)
+CHURCH_MEMBER: create posts (church/group if member), comment/react, see group/event posts, create prayer/testimony, apply for serve roles.
+VOLUNTEER: same as member + team resources access (outside Connect scope).
+MINISTRY_LEADER: create/manage group posts, group events, serve listings; moderate their group.
+ASSIMILATION_MEMBER: comment/post in assigned newcomer group/threads only.
+ASSIMILATION_DIRECTOR: church‑wide newcomer posts, moderate newcomer spaces.
+PASTORAL_STAFF: pin announcements, moderate church‑wide, view reports.
+FINANCE_ADMIN: not special in Connect (finance elsewhere).
+CHURCH_SUPER_ADMIN: full moderation, feature toggles.
+SUPER_ADMIN: platform‑level tools.
+5) Data model (core tables)
+-- Feed / Posts
+posts(id, church_id, author_id, audience jsonb, type text, body text,
+      media jsonb, poll jsonb, created_at, updated_at, is_pinned boolean)
+
+post_reactions(id, post_id, user_id, kind text, created_at)
+post_comments(id, post_id, parent_id null, user_id, body text, created_at)
+
+-- Prayer (optional specialization)
+prayers(id, post_id, prayed_count int default 0)
+
+-- Groups
+groups(id, church_id, name, description, visibility, created_by, created_at)
+group_members(group_id, user_id, role text, created_at)
+
+-- Events
+events(id, church_id, group_id null, title, description, starts_at, ends_at,
+       location, is_virtual, meeting_platform, meeting_url, meeting_passcode,
+       created_by, visibility, cover_image_url)
+event_rsvps(event_id, user_id, status)      -- going/interested/cant
+event_registrations(id, event_id, user_id, tickets int, created_at)
+
+-- Serve Central
+serving_roles(id, church_id, ministry, title, description, required_gifts text[], is_open boolean, created_by)
+role_applications(id, role_id, user_id, status, note, created_at)
+
+-- Gifts (existing)
+gift_results(id, user_id, church_id, assessment_id, submitted_at, top_gifts jsonb, scores jsonb)
+
+-- Moderation
+reports(id, church_id, target_type, target_id, reporter_id, reason, created_at, status)
+RLS: every table filtered by church_id = jwt_church(). Add role‑gated write policies (leaders on their group, admins church‑wide).
+6) API contracts (minimal)
+GET  /v1/feed?scope=church|group:{id}&after={cursor}
+POST /v1/posts              // {type, audience, body, media, poll}
+POST /v1/posts/{id}/react   // {kind}
+POST /v1/posts/{id}/comment // {body, parent_id?}
+
+GET  /v1/groups
+POST /v1/groups/{id}/posts
+GET  /v1/groups/{id}/events
+POST /v1/groups/{id}/events // includes meeting_url
+
+GET  /v1/events
+POST /v1/events/{id}/rsvp   // {status}
+POST /v1/events/{id}/register // {tickets}
+
+GET  /v1/serve/opportunities?filter=...
+POST /v1/serve/opportunities
+POST /v1/serve/applications
+
+GET  /v1/gifts/me
+GET  /v1/gifts/recommendations
+
+POST /v1/reports            // {target_type, target_id, reason}
+Pagination: cursor‑based (after = created_at,id). Media: upload to storage then attach URLs in media.
+7) UX micro‑details
+Auto‑hide bottom nav on scroll; reappear on slight scroll up.
+“+” action is visible on all main screens; opens role‑aware menu.
+Events = social (single page with community + logistics); RSVP/Join inline.
+Meeting link renders Join; host link visible to leaders.
+Prayer posts show “I prayed” button (increments counter; also logs who prayed privately).
+Connect tab name: “Connect” (display “KingdomOps Connect” in header).
+8) Analytics & KPIs
+DAU/WAU/MAU (Connect visits).
+Post creation rate, comments per post, prayer “I prayed” actions.
+Event RSVP/registration funnel; meeting join clicks.
+Serve Central: views → applies → approved.
+Gifts completion rate; % with at least one serving match.
+9) Accessibility & perf
+Semantic roles (<nav>, <article>, <section>), ARIA labels, focus traps in modals.
+Large tap targets (44px).
+Skeleton loaders and pagination; CDN for images; WebP; lazy‑load media.
+Dark/light theme support via tenant theme JSON.
+10) Acceptance criteria (ship list)
+Dashboard
+On login, land on Dashboard; shows correct primary CTA (Take Gifts OR View Gifts).
+Shows recommended Serve roles and upcoming events.
+Connect teaser opens Connect.
+Connect
+User can create post, react, comment; prayer posts support “I prayed”.
+Group creation (leaders only) and group feed.
+Group event with meeting link; RSVP and Join work.
+Serve opportunity appears in feed and opens Apply flow.
+Moderation: report, hide, delete by proper roles.
+Notifications fire for mentions, replies, RSVPs, approvals.
+Security
+RLS prevents cross‑church access.
+Role actions match permissions.
