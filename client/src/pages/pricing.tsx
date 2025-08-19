@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Crown, CheckCircle, Sparkles, Clock, Users, Shield, ArrowRight } from "lucide-react";
+import { Crown, CheckCircle, Sparkles, Clock, Users, Shield, ArrowRight, Rocket, TrendingUp, Star, AlertCircle } from "lucide-react";
 
 export default function Pricing() {
   const [, setLocation] = useLocation();
@@ -46,7 +46,7 @@ export default function Pricing() {
             Join our exclusive beta program and help shape the future of church management technology
           </p>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 inline-block">
-            <span className="bg-warm-gold text-spiritual-blue px-4 py-2 rounded-full text-lg font-bold">BETA PROGRAM</span>
+            <span className="bg-warm-gold text-spiritual-blue px-4 py-2 rounded-full text-lg font-bold">Apply for Inner Circle Access</span>
           </div>
         </div>
       </section>
@@ -164,26 +164,51 @@ export default function Pricing() {
 
       {/* Timeline */}
       <section className="py-16 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Clock className="h-8 w-8 text-spiritual-blue" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            Beta Program Timeline
+          <h2 className="text-3xl font-bold text-gray-900 mb-12">
+            Your Journey with KingdomOps
           </h2>
-          <div className="bg-spiritual-blue/5 rounded-xl p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-              <div>
-                <h3 className="font-semibold text-spiritual-blue mb-2">Phase 1: Now - Q1 2026</h3>
-                <p className="text-gray-600 text-sm">Core features, church onboarding, and member assessment tools</p>
+          
+          {/* Timeline with Progress Flow */}
+          <div className="relative">
+            {/* Progress Line */}
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-spiritual-blue via-warm-gold to-green-500 transform -translate-y-1/2 z-0"></div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+              <div className="bg-white rounded-xl shadow-lg border-2 border-spiritual-blue/20 p-6 relative">
+                <div className="w-16 h-16 bg-spiritual-blue rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Rocket className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-xl text-spiritual-blue mb-2">Inner Circle Launch</h3>
+                <p className="text-sm text-gray-500 mb-3">Now - Q1 2026</p>
+                <p className="text-gray-600 text-sm">Core features, onboarding, and assessments</p>
+                <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 hidden md:block">
+                  <ArrowRight className="h-6 w-6 text-warm-gold" />
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-spiritual-blue mb-2">Phase 2: Q2 2026</h3>
-                <p className="text-gray-600 text-sm">Advanced communication tools, event management, and integrations</p>
+              
+              <div className="bg-white rounded-xl shadow-lg border-2 border-warm-gold/30 p-6 relative">
+                <div className="w-16 h-16 bg-warm-gold rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <TrendingUp className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-xl text-warm-gold mb-2">Growth & Expansion</h3>
+                <p className="text-sm text-gray-500 mb-3">Q2 2026</p>
+                <p className="text-gray-600 text-sm">Advanced communication, events, integrations</p>
+                <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 hidden md:block">
+                  <ArrowRight className="h-6 w-6 text-green-500" />
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-spiritual-blue mb-2">Phase 3: Q3 2026</h3>
-                <p className="text-gray-600 text-sm">Public launch with full platform and lifetime pricing activated</p>
+              
+              <div className="bg-white rounded-xl shadow-lg border-2 border-green-500/30 p-6 relative">
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Star className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="font-bold text-xl text-green-600 mb-2">Public Launch</h3>
+                <p className="text-sm text-gray-500 mb-3">Q3 2026</p>
+                <p className="text-gray-600 text-sm">Full platform + locked lifetime pricing</p>
               </div>
             </div>
           </div>
@@ -191,26 +216,36 @@ export default function Pricing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-20 h-20 border-2 border-white rounded-full"></div>
+          <div className="absolute bottom-10 right-10 w-32 h-32 border-2 border-white rounded-full"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-white rounded-full"></div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          {/* Limited Spots Badge */}
+          <div className="inline-flex items-center bg-warm-gold/20 border border-warm-gold/30 rounded-full px-4 py-2 mb-6">
+            <AlertCircle className="h-4 w-4 text-warm-gold mr-2" />
+            <span className="text-warm-gold font-medium text-sm">Limited to first 50 churches</span>
+          </div>
+          
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             Ready to Join the Inner Circle?
           </h2>
           <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-            Limited spots available. Apply today to secure your church's place in the future of church management.
+            Apply today to secure your church's place in the future of church management — with lifetime pricing locked in when we launch.
           </p>
           <Button
             onClick={() => setLocation("/church-signup")}
             size="lg"
-            className="bg-white text-spiritual-blue hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
+            className="bg-white text-spiritual-blue hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl"
             data-testid="button-apply-inner-circle"
           >
             Apply for Inner Circle Access
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
-          <p className="text-purple-200 mt-4 text-sm">
-            $99/month • Lifetime pricing guaranteed
-          </p>
         </div>
       </section>
     </div>
