@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
-import { Crown, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings, Heart, BookOpen, ChevronDown, ChevronUp, Menu, X } from "lucide-react";
+import { Crown, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings, Heart, BookOpen, ChevronDown, ChevronUp, Menu, X, User, LogOut, Star, BarChart3 } from "lucide-react";
 import { useState } from "react";
 
 export default function Landing() {
@@ -110,67 +110,157 @@ export default function Landing() {
               <div className="space-y-3">
                 {isAuthenticated ? (
                   <>
-                    {/* User Info */}
-                    <div className="px-4 py-2 bg-gray-50 rounded-lg mx-2">
-                      <span className="text-sm text-charcoal font-medium" data-testid="mobile-username">
-                        {(user as any)?.displayName || (user as any)?.email || "User"}
-                      </span>
+                    {/* Enhanced User Profile Section */}
+                    <div className="px-4 py-4 bg-gradient-to-r from-spiritual-blue/10 to-purple-100 rounded-xl mx-2 mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-spiritual-blue rounded-full flex items-center justify-center">
+                          <User className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-charcoal" data-testid="mobile-username">
+                            {(user as any)?.firstName && (user as any)?.lastName 
+                              ? `${(user as any).firstName} ${(user as any).lastName}`
+                              : (user as any)?.displayName || (user as any)?.email || "User"}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            {(user as any)?.role === 'SUPER_ADMIN' ? 'Super Admin' :
+                             (user as any)?.role === 'ORG_ADMIN' ? 'Church Admin' :
+                             (user as any)?.role === 'ORG_LEADER' ? 'Church Leader' :
+                             (user as any)?.role === 'GROUP_LEADER' ? 'Group Leader' :
+                             'Member'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     
-                    {/* Navigation Items */}
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start" 
-                      onClick={() => {
-                        setLocation("/profile");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      data-testid="mobile-features"
-                    >
-                      Features
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start" 
-                      onClick={() => {
-                        setLocation("/my-results");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      data-testid="mobile-pricing"
-                    >
-                      Pricing
-                    </Button>
-                    {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
+                    {/* Main Navigation Items */}
+                    <div className="space-y-2 mb-4">
                       <Button 
                         variant="ghost" 
-                        className="w-full justify-start" 
+                        className="w-full justify-start py-3 h-auto text-left hover:bg-spiritual-blue/10" 
                         onClick={() => {
-                          setLocation("/admin-dashboard");
+                          setLocation("/dashboard");
                           setIsMobileMenuOpen(false);
                         }}
-                        data-testid="mobile-admin"
+                        data-testid="mobile-dashboard"
                       >
-                        Admin Dashboard
+                        <BarChart3 className="h-5 w-5 mr-3 text-spiritual-blue" />
+                        <div>
+                          <p className="font-medium">Dashboard</p>
+                          <p className="text-xs text-gray-500">Your church overview</p>
+                        </div>
                       </Button>
-                    )}
-                    
-                    {/* View As Switcher */}
-                    <div className="px-2">
-                      <ViewAsSwitcher user={user} />
+                      
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start py-3 h-auto text-left hover:bg-blue-50" 
+                        onClick={() => {
+                          setLocation("/events");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        data-testid="mobile-events"
+                      >
+                        <Calendar className="h-5 w-5 mr-3 text-blue-600" />
+                        <div>
+                          <p className="font-medium">Events</p>
+                          <p className="text-xs text-gray-500">Church gatherings</p>
+                        </div>
+                      </Button>
+                      
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start py-3 h-auto text-left hover:bg-green-50" 
+                        onClick={() => {
+                          setLocation("/connect");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        data-testid="mobile-connect"
+                      >
+                        <Users className="h-5 w-5 mr-3 text-green-600" />
+                        <div>
+                          <p className="font-medium">Serve</p>
+                          <p className="text-xs text-gray-500">Ministry opportunities</p>
+                        </div>
+                      </Button>
+                      
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start py-3 h-auto text-left hover:bg-purple-50" 
+                        onClick={() => {
+                          setLocation("/gifts");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        data-testid="mobile-gifts"
+                      >
+                        <Gift className="h-5 w-5 mr-3 text-purple-600" />
+                        <div>
+                          <p className="font-medium">Spiritual Gifts</p>
+                          <p className="text-xs text-gray-500">Your assessment results</p>
+                        </div>
+                      </Button>
                     </div>
                     
-                    {/* Sign Out */}
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50" 
-                      onClick={() => {
-                        handleLogout();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      data-testid="mobile-logout"
-                    >
-                      Sign Out
-                    </Button>
+                    {/* Admin Section */}
+                    {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
+                      <div className="border-t border-gray-200 pt-4 mb-4">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">Administration</p>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full justify-start py-3 h-auto text-left hover:bg-amber-50" 
+                          onClick={() => {
+                            setLocation("/admin-dashboard");
+                            setIsMobileMenuOpen(false);
+                          }}
+                          data-testid="mobile-admin"
+                        >
+                          <Crown className="h-5 w-5 mr-3 text-amber-600" />
+                          <div>
+                            <p className="font-medium">Admin Dashboard</p>
+                            <p className="text-xs text-gray-500">Church management</p>
+                          </div>
+                        </Button>
+                        
+                        {/* View As Switcher */}
+                        <div className="px-2 mt-3">
+                          <ViewAsSwitcher user={user} />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Account Actions */}
+                    <div className="border-t border-gray-200 pt-4 space-y-2">
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start py-3 h-auto text-left hover:bg-gray-50" 
+                        onClick={() => {
+                          setLocation("/profile");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        data-testid="mobile-profile"
+                      >
+                        <Settings className="h-5 w-5 mr-3 text-gray-600" />
+                        <div>
+                          <p className="font-medium">Profile Settings</p>
+                          <p className="text-xs text-gray-500">Manage your account</p>
+                        </div>
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start py-3 h-auto text-left border-red-200 text-red-600 hover:bg-red-50" 
+                        onClick={() => {
+                          handleLogout();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        data-testid="mobile-logout"
+                      >
+                        <LogOut className="h-5 w-5 mr-3" />
+                        <div>
+                          <p className="font-medium">Sign Out</p>
+                          <p className="text-xs text-red-500">Leave KingdomOps</p>
+                        </div>
+                      </Button>
+                    </div>
                   </>
                 ) : (
                   <>
