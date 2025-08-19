@@ -16,6 +16,8 @@ export default function Connect() {
   const [showCelebration, setShowCelebration] = useState<string | null>(null);
   const [prayedForPosts, setPrayedForPosts] = useState<string[]>([]);
   const [prayerFilter, setPrayerFilter] = useState<string>('all');
+  const [prayerNotifications, setPrayerNotifications] = useState<Record<string, number>>({});
+  const [prayerGlow, setPrayerGlow] = useState<string | null>(null);
   
   const posts = [
     {
@@ -34,7 +36,8 @@ export default function Connect() {
       },
       commentCount: 3,
       prayedCount: 8,
-      isAnswered: false
+      isAnswered: false,
+      isAnonymous: false
     },
     {
       id: '2',
@@ -52,7 +55,9 @@ export default function Connect() {
       },
       commentCount: 7,
       prayedCount: 47,
-      isAnswered: false
+      isAnswered: true,
+      isAnonymous: false,
+      answeredDate: '2025-08-18T10:30:00Z'
     },
     {
       id: '3',
@@ -69,8 +74,10 @@ export default function Connect() {
         pray: 4
       },
       commentCount: 12,
-      prayedCount: 15,
-      isAnswered: false
+      prayedCount: 25,
+      isAnswered: false,
+      isAnonymous: true,
+      isUrgent: true
     },
     {
       id: '4',
@@ -88,7 +95,8 @@ export default function Connect() {
       },
       commentCount: 5,
       prayedCount: 3,
-      isAnswered: false
+      isAnswered: false,
+      isAnonymous: false
     }
   ];
 
@@ -226,9 +234,24 @@ export default function Connect() {
   };
 
   const handlePrayForPost = (postId: string) => {
-    setPrayedForPosts(prev => 
-      prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]
-    );
+    setPrayedForPosts(prev => {
+      const wasPrayingBefore = prev.includes(postId);
+      if (wasPrayingBefore) {
+        return prev.filter(id => id !== postId);
+      } else {
+        // Add prayer and trigger notification
+        setPrayerNotifications(notifications => ({
+          ...notifications,
+          [postId]: (notifications[postId] || 0) + 1
+        }));
+        
+        // Trigger glow effect
+        setPrayerGlow(postId);
+        setTimeout(() => setPrayerGlow(null), 600);
+        
+        return [...prev, postId];
+      }
+    });
   };
 
   const prayerPosts = posts.filter(post => post.type === 'prayer');
@@ -839,9 +862,60 @@ export default function Connect() {
             </div>
           </TabsContent>
 
-          <TabsContent value="prayer" className="mt-0 space-y-6">
+          <TabsContent value="prayer" className="mt-0 space-y-6 relative min-h-screen bg-gradient-to-b from-purple-50/30 via-indigo-50/20 to-blue-50/30">
+            {/* Spiritual Background Overlay */}
+            <div className="absolute inset-0 opacity-5 bg-gradient-to-br from-purple-200 via-transparent to-blue-200 pointer-events-none" 
+                 style={{
+                   backgroundImage: `radial-gradient(circle at 20% 80%, rgba(147, 51, 234, 0.1) 0%, transparent 50%), 
+                                     radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)`
+                 }}>
+            </div>
+
+            {/* Urgent Prayer Banner */}
+            {activePrayers.some(p => p.isUrgent || p.reactionCounts.pray > 20) && (
+              <Card className="border-2 border-red-200 bg-gradient-to-r from-red-50 to-orange-50 shadow-lg sticky top-4 z-10">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-red-800 mb-1">🚨 Urgent Prayer Needs</p>
+                      <p className="text-sm text-red-700">
+                        {activePrayers.filter(p => p.isUrgent || p.reactionCounts.pray > 20).length} prayer(s) need immediate attention from our community
+                      </p>
+                    </div>
+                    <Button 
+                      size="sm"
+                      className="bg-red-500 hover:bg-red-600 text-white"
+                      onClick={() => setPrayerFilter('urgent')}
+                      data-testid="view-urgent-prayers"
+                    >
+                      View Urgent 🙏
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Prayer Notifications */}
+            {Object.entries(prayerNotifications).map(([postId, count]) => {
+              const post = posts.find(p => p.id === postId);
+              if (!post || count === 0) return null;
+              return (
+                <Card key={`notification-${postId}`} className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50 animate-fade-in">
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl mb-2">🙏✨</div>
+                    <p className="font-semibold text-purple-800 mb-1">Prayer Encouragement</p>
+                    <p className="text-sm text-purple-700">
+                      {count} {count === 1 ? 'person' : 'people'} prayed for your request today!
+                    </p>
+                    <p className="text-xs text-purple-600 mt-1">You are covered in prayer and not alone.</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+
             {/* Prayer Wall Header */}
-            <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+            <Card className="border-2 border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50 relative overflow-hidden">
               <CardContent className="p-6 text-center">
                 <div className="mb-3">
                   <HandHeart className="h-8 w-8 mx-auto text-purple-600 mb-2" />
@@ -915,17 +989,31 @@ export default function Connect() {
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-purple-100 text-purple-600 font-semibold">
-                              {post.author.name.charAt(0)}
+                            <AvatarFallback className={`font-semibold ${
+                              post.isAnonymous 
+                                ? 'bg-gray-100 text-gray-500' 
+                                : 'bg-purple-100 text-purple-600'
+                            }`}>
+                              {post.isAnonymous ? '?' : post.author.name.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
                             <div className="flex items-center space-x-2 mb-1">
-                              <p className="font-semibold text-charcoal text-sm">{post.author.name}</p>
+                              <p className="font-semibold text-charcoal text-sm">
+                                {post.isAnonymous ? 'Anonymous Church Member' : post.author.name}
+                              </p>
                               {post.isAnswered ? (
-                                <Badge className="text-xs bg-green-500 text-white">
+                                <Badge className="text-xs bg-green-500 text-white animate-pulse">
                                   <CheckCircle className="h-3 w-3 mr-1" />
-                                  Answered
+                                  ✨ Answered!
+                                </Badge>
+                              ) : post.isUrgent ? (
+                                <Badge className="text-xs bg-red-500 text-white animate-pulse">
+                                  🚨 Urgent Prayer
+                                </Badge>
+                              ) : post.isAnonymous ? (
+                                <Badge variant="outline" className="text-xs border border-gray-300 bg-gray-50 text-gray-600">
+                                  🤐 Anonymous Request
                                 </Badge>
                               ) : (
                                 <Badge variant="outline" className="text-xs border border-purple-200 bg-purple-50 text-purple-700">
@@ -976,10 +1064,12 @@ export default function Connect() {
                       {!post.isAnswered && (
                         <div className="flex items-center space-x-2">
                           <Button 
-                            className={`flex-1 transition-all duration-200 ${
+                            className={`flex-1 transition-all duration-300 relative overflow-hidden ${
                               prayedForPosts.includes(post.id)
-                                ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                                : 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white'
+                                ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-lg transform scale-105'
+                                : 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white hover:shadow-lg hover:scale-105'
+                            } ${
+                              prayerGlow === post.id ? 'animate-pulse shadow-lg shadow-purple-300 ring-2 ring-purple-300' : ''
                             }`}
                             onClick={() => handlePrayForPost(post.id)}
                             data-testid={`pray-for-${post.id}`}
@@ -1007,12 +1097,42 @@ export default function Connect() {
 
                       {/* Answered Prayer Celebration */}
                       {post.isAnswered && (
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-200">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <Sparkles className="h-5 w-5 text-green-600" />
-                            <span className="font-semibold text-green-800">Prayer Answered!</span>
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border-2 border-green-200 relative overflow-hidden">
+                          {/* Celebration Confetti Effect */}
+                          <div className="absolute inset-0 opacity-20">
+                            <div className="absolute top-2 left-2 w-2 h-2 bg-yellow-400 rounded-full animate-bounce"></div>
+                            <div className="absolute top-4 right-4 w-1 h-1 bg-green-400 rounded-full animate-ping"></div>
+                            <div className="absolute bottom-3 left-1/3 w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
+                            <div className="absolute bottom-2 right-1/4 w-1 h-1 bg-purple-400 rounded-full animate-bounce"></div>
                           </div>
-                          <p className="text-sm text-green-700">Praise God for His faithfulness! This prayer has been marked as answered.</p>
+                          
+                          <div className="relative z-10">
+                            <div className="flex items-center space-x-2 mb-3">
+                              <div className="flex space-x-1">
+                                <Sparkles className="h-5 w-5 text-green-600 animate-pulse" />
+                                <span className="text-2xl animate-bounce">🎉</span>
+                              </div>
+                              <span className="font-bold text-green-800 text-lg">PRAISE REPORT!</span>
+                            </div>
+                            <p className="text-sm text-green-700 font-medium mb-2">
+                              🙌 God answered this prayer! Praise His faithfulness!
+                            </p>
+                            <p className="text-xs text-green-600 italic">
+                              Answered on {formatDistanceToNow(new Date(post.answeredDate || post.createdAt), { addSuffix: true })}
+                            </p>
+                            <div className="mt-3 flex items-center space-x-2">
+                              <Button 
+                                size="sm" 
+                                className="bg-green-600 hover:bg-green-700 text-white text-xs"
+                                data-testid={`praise-${post.id}`}
+                              >
+                                🙌 Praise God! ({(post.reactionCounts.heart || 0) + 15})
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-xs">
+                                💬 Share Testimony
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </CardContent>
