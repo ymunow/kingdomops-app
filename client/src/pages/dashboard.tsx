@@ -378,8 +378,13 @@ export default function Dashboard() {
                     <MessageSquare className="h-5 w-5 text-spiritual-blue" />
                     KingdomOps Connect
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setLocation("/connect")}>
-                    View All
+                  <Button 
+                    onClick={() => setLocation("/connect")}
+                    className="bg-gradient-to-r from-spiritual-blue to-purple-700 text-white hover:from-spiritual-blue/90 hover:to-purple-700/90"
+                    data-testid="go-to-connect"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Go to KingdomOps Connect
                   </Button>
                 </CardTitle>
                 <CardDescription>
