@@ -271,15 +271,21 @@ export default function Landing() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col items-center">
-              <div className="text-4xl mb-4">🤝</div>
+              <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mb-4">
+                <Users className="h-8 w-8 text-spiritual-blue" />
+              </div>
               <h3 className="text-lg font-semibold text-gray-900">Connected</h3>
             </div>
             <div className="flex flex-col items-center">
-              <div className="text-4xl mb-4">🛠️</div>
+              <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mb-4">
+                <Settings className="h-8 w-8 text-spiritual-blue" />
+              </div>
               <h3 className="text-lg font-semibold text-gray-900">Equipped</h3>
             </div>
             <div className="flex flex-col items-center">
-              <div className="text-4xl mb-4">✝️</div>
+              <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mb-4">
+                <BookOpen className="h-8 w-8 text-spiritual-blue" />
+              </div>
               <h3 className="text-lg font-semibold text-gray-900">Discipled</h3>
             </div>
           </div>
