@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useSupabaseAuth";
 import { useOrganization } from "@/hooks/use-organization";
 import { Button } from "@/components/ui/button";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
-import { Crown, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings, Heart, BookOpen, ChevronDown, ChevronUp, Menu, X, User, LogOut, Star, BarChart3 } from "lucide-react";
+import { Crown, Users, BellRing, Gift, Shield, Church, Calendar, MessageSquare, Settings, Heart, BookOpen, ChevronDown, ChevronUp, Menu, X, User, LogOut, Star, BarChart3, Database, Eye, UserCog, Building, Globe, Zap, Lock } from "lucide-react";
 import { useState } from "react";
 
 export default function Landing() {
@@ -111,24 +111,50 @@ export default function Landing() {
                 {isAuthenticated ? (
                   <>
                     {/* Enhanced User Profile Section */}
-                    <div className="px-4 py-4 bg-gradient-to-r from-spiritual-blue/10 to-purple-100 rounded-xl mx-2 mb-4">
+                    <div className={`px-4 py-4 rounded-xl mx-2 mb-4 ${
+                      (user as any)?.role === 'SUPER_ADMIN' 
+                        ? 'bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-200 border border-amber-300' 
+                        : 'bg-gradient-to-r from-spiritual-blue/10 to-purple-100'
+                    }`}>
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-spiritual-blue rounded-full flex items-center justify-center">
-                          <User className="h-6 w-6 text-white" />
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          (user as any)?.role === 'SUPER_ADMIN' 
+                            ? 'bg-gradient-to-r from-amber-500 to-yellow-600' 
+                            : 'bg-spiritual-blue'
+                        }`}>
+                          {(user as any)?.role === 'SUPER_ADMIN' ? (
+                            <Crown className="h-6 w-6 text-white" />
+                          ) : (
+                            <User className="h-6 w-6 text-white" />
+                          )}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-charcoal" data-testid="mobile-username">
-                            {(user as any)?.firstName && (user as any)?.lastName 
-                              ? `${(user as any).firstName} ${(user as any).lastName}`
-                              : (user as any)?.displayName || (user as any)?.email || "User"}
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            {(user as any)?.role === 'SUPER_ADMIN' ? 'Super Admin' :
+                          <div className="flex items-center space-x-2">
+                            <p className="text-sm font-semibold text-charcoal" data-testid="mobile-username">
+                              {(user as any)?.firstName && (user as any)?.lastName 
+                                ? `${(user as any).firstName} ${(user as any).lastName}`
+                                : (user as any)?.displayName || (user as any)?.email || "User"}
+                            </p>
+                            {(user as any)?.role === 'SUPER_ADMIN' && (
+                              <div className="px-2 py-0.5 bg-amber-500 text-white text-xs font-bold rounded-full">
+                                SUPER
+                              </div>
+                            )}
+                          </div>
+                          <p className={`text-xs ${
+                            (user as any)?.role === 'SUPER_ADMIN' ? 'text-amber-700 font-medium' : 'text-gray-600'
+                          }`}>
+                            {(user as any)?.role === 'SUPER_ADMIN' ? 'Platform Administrator' :
                              (user as any)?.role === 'ORG_ADMIN' ? 'Church Admin' :
                              (user as any)?.role === 'ORG_LEADER' ? 'Church Leader' :
                              (user as any)?.role === 'GROUP_LEADER' ? 'Group Leader' :
                              'Member'}
                           </p>
+                          {(user as any)?.role === 'SUPER_ADMIN' && (
+                            <p className="text-xs text-amber-600 mt-1">
+                              Full platform access • All organizations
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -200,10 +226,124 @@ export default function Landing() {
                       </Button>
                     </div>
                     
-                    {/* Admin Section */}
-                    {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
+                    {/* Super Admin Section */}
+                    {(user as any)?.role === 'SUPER_ADMIN' && (
                       <div className="border-t border-gray-200 pt-4 mb-4">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">Administration</p>
+                        <div className="flex items-center justify-between mb-3 px-2">
+                          <p className="text-xs font-bold text-amber-600 uppercase tracking-wide flex items-center">
+                            <Zap className="h-3 w-3 mr-1" />
+                            Super Admin
+                          </p>
+                          <div className="px-2 py-1 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-full">
+                            <Crown className="h-3 w-3 text-amber-600" />
+                          </div>
+                        </div>
+                        
+                        {/* Platform Management */}
+                        <div className="space-y-2 mb-4">
+                          <Button 
+                            variant="ghost" 
+                            className="w-full justify-start py-3 h-auto text-left hover:bg-amber-50" 
+                            onClick={() => {
+                              setLocation("/admin-dashboard");
+                              setIsMobileMenuOpen(false);
+                            }}
+                            data-testid="mobile-platform-admin"
+                          >
+                            <Database className="h-5 w-5 mr-3 text-amber-600" />
+                            <div>
+                              <p className="font-medium">Platform Admin</p>
+                              <p className="text-xs text-gray-500">System-wide management</p>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            variant="ghost" 
+                            className="w-full justify-start py-3 h-auto text-left hover:bg-blue-50" 
+                            onClick={() => {
+                              setLocation("/organizations");
+                              setIsMobileMenuOpen(false);
+                            }}
+                            data-testid="mobile-organizations"
+                          >
+                            <Building className="h-5 w-5 mr-3 text-blue-600" />
+                            <div>
+                              <p className="font-medium">All Organizations</p>
+                              <p className="text-xs text-gray-500">Manage all churches</p>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            variant="ghost" 
+                            className="w-full justify-start py-3 h-auto text-left hover:bg-green-50" 
+                            onClick={() => {
+                              setLocation("/super-admin/users");
+                              setIsMobileMenuOpen(false);
+                            }}
+                            data-testid="mobile-all-users"
+                          >
+                            <UserCog className="h-5 w-5 mr-3 text-green-600" />
+                            <div>
+                              <p className="font-medium">User Management</p>
+                              <p className="text-xs text-gray-500">Platform-wide users</p>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            variant="ghost" 
+                            className="w-full justify-start py-3 h-auto text-left hover:bg-purple-50" 
+                            onClick={() => {
+                              setLocation("/super-admin/analytics");
+                              setIsMobileMenuOpen(false);
+                            }}
+                            data-testid="mobile-platform-analytics"
+                          >
+                            <Globe className="h-5 w-5 mr-3 text-purple-600" />
+                            <div>
+                              <p className="font-medium">Platform Analytics</p>
+                              <p className="text-xs text-gray-500">Usage & insights</p>
+                            </div>
+                          </Button>
+                        </div>
+                        
+                        {/* Current Organization Section */}
+                        <div className="border-t border-amber-100 pt-3 mb-4">
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2 flex items-center">
+                            <Eye className="h-3 w-3 mr-1" />
+                            Current Church View
+                          </p>
+                          <Button 
+                            variant="ghost" 
+                            className="w-full justify-start py-3 h-auto text-left hover:bg-spiritual-blue/10" 
+                            onClick={() => {
+                              setLocation("/dashboard");
+                              setIsMobileMenuOpen(false);
+                            }}
+                            data-testid="mobile-church-dashboard"
+                          >
+                            <BarChart3 className="h-5 w-5 mr-3 text-spiritual-blue" />
+                            <div>
+                              <p className="font-medium">Church Dashboard</p>
+                              <p className="text-xs text-gray-500">{organization?.name || 'Current church'}</p>
+                            </div>
+                          </Button>
+                        </div>
+                        
+                        {/* View As Switcher */}
+                        <div className="px-2 bg-amber-50/50 rounded-lg p-3">
+                          <p className="text-xs font-medium text-amber-700 mb-2 flex items-center">
+                            <Lock className="h-3 w-3 mr-1" />
+                            View As Different User
+                          </p>
+                          <ViewAsSwitcher user={user} />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Regular Admin Section */}
+                    {(user as any)?.role && ["ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (user as any)?.role !== 'SUPER_ADMIN' && (
+                      <div className="border-t border-gray-200 pt-4 mb-4">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">Church Administration</p>
                         <Button 
                           variant="ghost" 
                           className="w-full justify-start py-3 h-auto text-left hover:bg-amber-50" 
