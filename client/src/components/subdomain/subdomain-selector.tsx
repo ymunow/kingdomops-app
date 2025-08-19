@@ -84,10 +84,10 @@ export function SubdomainSelector({ value, onChange, error, disabled }: Subdomai
               onChange={handleInputChange}
               disabled={disabled}
               placeholder="yourchurch"
-              className="rounded-r-none border-r-0"
+              className="rounded-r-none border-r-0 font-medium text-lg tracking-wide font-sans border-gray-200 focus:border-spiritual-blue focus:ring-spiritual-blue"
               data-testid="input-subdomain"
             />
-            <div className="flex items-center px-3 bg-gray-50 border border-l-0 rounded-r-md text-sm text-gray-500">
+            <div className="flex items-center px-3 bg-gray-50 border border-l-0 rounded-r-md text-lg font-medium text-gray-600 tracking-wide">
               .kingdomops.app
             </div>
           </div>
@@ -111,7 +111,7 @@ export function SubdomainSelector({ value, onChange, error, disabled }: Subdomai
             <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5" />
             <div className="text-sm text-blue-800">
               <p className="font-medium mb-1">Your church will be accessible at:</p>
-              <p className="font-mono bg-white px-2 py-1 rounded text-blue-900">
+              <p className="font-sans font-semibold text-lg bg-white px-3 py-2 rounded text-blue-900 tracking-wide">
                 {value || 'yourchurch'}.kingdomops.app
               </p>
             </div>
