@@ -60,16 +60,26 @@ export default function Pricing() {
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Inner Circle Pricing
           </h2>
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 max-w-md mx-auto">
-            <div className="text-center mb-6">
-              <div className="text-6xl font-bold text-spiritual-blue mb-2">$99</div>
-              <div className="text-gray-600 text-lg">/month</div>
-              <div className="bg-warm-gold/10 text-warm-gold px-3 py-1 rounded-full text-sm font-medium mt-4">
-                Beta Pricing
+          <div className="bg-gradient-to-br from-white to-purple-50/30 rounded-2xl shadow-xl border-2 border-spiritual-blue/20 p-8 max-w-md mx-auto relative overflow-hidden">
+            {/* Elegant corner accent */}
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-spiritual-blue/10 to-purple-200/20 rounded-bl-full"></div>
+            
+            <div className="text-center mb-6 relative z-10">
+              <div className="flex items-baseline justify-center mb-2">
+                <span className="text-6xl font-bold text-spiritual-blue">$99</span>
+                <span className="text-gray-600 text-lg ml-2">/month</span>
+              </div>
+              
+              {/* Elegant lifetime guarantee badge */}
+              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-spiritual-blue/5 to-purple-100/50 border border-spiritual-blue/20 px-4 py-2 rounded-full mt-4">
+                <Crown className="h-4 w-4 text-spiritual-blue" />
+                <span className="text-spiritual-blue font-medium text-sm">Lifetime Pricing Guarantee</span>
               </div>
             </div>
-            <div className="text-sm text-gray-500 mb-6">
-              Lock in lifetime pricing when we launch publicly in Q3 2026
+            
+            <div className="text-center text-gray-600 mb-6 relative z-10">
+              <p className="font-medium mb-1">Inner Circle Exclusive</p>
+              <p className="text-sm">Lock in this rate for life when we launch publicly in Q3 2026</p>
             </div>
           </div>
         </div>
