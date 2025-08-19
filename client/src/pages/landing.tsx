@@ -203,13 +203,7 @@ export default function Landing() {
                 Equip your church with the resources it needs to better communicate, organize and disciple its members - all from a single platform.
               </p>
               
-              {/* Church Logos */}
-              <div className="flex items-center space-x-8 opacity-80">
-                <div className="text-white font-semibold">🏛️ FairHaven</div>
-                <div className="text-white font-semibold">🏛️ RJCC</div>
-                <div className="text-white font-semibold">🏛️ HOPE</div>
-                <div className="text-white font-semibold">🏛️ ALLEGRO</div>
-              </div>
+
             </div>
             
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
