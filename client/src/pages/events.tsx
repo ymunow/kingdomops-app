@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, MapPin, Users, Video, Heart, Clock, Share, CalendarPlus, MessageCircle, Bell } from 'lucide-react';
+import { Calendar, MapPin, Users, Video, Heart, Clock, Share, CalendarPlus, MessageCircle, Bell, Grid3x3, List, ChevronLeft, ChevronRight } from 'lucide-react';
 import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 
 export default function Events() {
   const [rsvpStatuses, setRsvpStatuses] = useState<Record<string, string | null>>({});
   const [interestedEvents, setInterestedEvents] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'cards' | 'calendar'>('cards');
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   
   const upcomingEvents = [
     {
@@ -127,23 +129,61 @@ export default function Events() {
     <MainLayout>
       <div className="p-6 max-w-2xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-charcoal mb-2">Events</h1>
-          <p className="text-gray-600">Discover upcoming gatherings and connect with your community</p>
-          
-          {/* Personalized Recommendations */}
-          <div className="mt-4 p-4 bg-gradient-to-r from-spiritual-blue/5 to-purple-50 rounded-lg border border-spiritual-blue/20">
-            <div className="flex items-center space-x-2 mb-2">
-              <Bell className="h-5 w-5 text-spiritual-blue" />
-              <span className="font-medium text-spiritual-blue">Recommended for you</span>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-charcoal mb-2">Events</h1>
+              <p className="text-gray-600">Discover upcoming gatherings and connect with your community</p>
             </div>
-            <p className="text-sm text-gray-700">
-              Based on your spiritual gifts and interests, we think you'll love the <span className="font-medium">Small Group Leader Training</span> and <span className="font-medium">Community Outreach Day</span>.
-            </p>
+            
+            {/* View Toggle */}
+            <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <Button
+                variant={viewMode === 'cards' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('cards')}
+                className={`${
+                  viewMode === 'cards' 
+                    ? 'bg-white shadow-sm text-spiritual-blue' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+                data-testid="view-cards"
+              >
+                <List className="h-4 w-4 mr-2" />
+                Cards
+              </Button>
+              <Button
+                variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('calendar')}
+                className={`${
+                  viewMode === 'calendar' 
+                    ? 'bg-white shadow-sm text-spiritual-blue' 
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+                data-testid="view-calendar"
+              >
+                <Grid3x3 className="h-4 w-4 mr-2" />
+                Calendar
+              </Button>
+            </div>
           </div>
+          
+          {/* Personalized Recommendations - Only show in cards view */}
+          {viewMode === 'cards' && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-spiritual-blue/5 to-purple-50 rounded-lg border border-spiritual-blue/20">
+              <div className="flex items-center space-x-2 mb-2">
+                <Bell className="h-5 w-5 text-spiritual-blue" />
+                <span className="font-medium text-spiritual-blue">Recommended for you</span>
+              </div>
+              <p className="text-sm text-gray-700">
+                Based on your spiritual gifts and interests, we think you'll love the <span className="font-medium">Small Group Leader Training</span> and <span className="font-medium">Community Outreach Day</span>.
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Featured Event Banner */}
-        {upcomingEvents.some(event => event.isFeatured) && (
+        {/* Featured Event Banner - Only show in cards view */}
+        {viewMode === 'cards' && upcomingEvents.some(event => event.isFeatured) && (
           <div className="mb-6 p-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl text-white shadow-lg">
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-2xl">🔥</span>
@@ -155,7 +195,116 @@ export default function Events() {
           </div>
         )}
 
-        <div className="space-y-6">
+        {/* Calendar View */}
+        {viewMode === 'calendar' && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            {/* Calendar Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-spiritual-blue/5 to-purple-50">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                data-testid="prev-month"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <h2 className="text-xl font-bold text-charcoal">
+                {format(currentMonth, 'MMMM yyyy')}
+              </h2>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                data-testid="next-month"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {/* Calendar Grid */}
+            <div className="p-4">
+              {/* Days of Week Header */}
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                  <div key={day} className="p-3 text-center text-sm font-medium text-gray-600">
+                    {day}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Calendar Days */}
+              <div className="grid grid-cols-7 gap-1">
+                {(() => {
+                  const monthStart = startOfMonth(currentMonth);
+                  const monthEnd = endOfMonth(monthStart);
+                  const startDate = startOfWeek(monthStart);
+                  const endDate = endOfWeek(monthEnd);
+                  
+                  const days = [];
+                  let day = startDate;
+                  
+                  while (day <= endDate) {
+                    const currentDay = day;
+                    const dayEvents = upcomingEvents.filter(event => 
+                      isSameDay(new Date(event.date), currentDay)
+                    );
+                    
+                    days.push(
+                      <div
+                        key={day.toString()}
+                        className={`min-h-[100px] p-2 border border-gray-100 rounded-lg ${
+                          !isSameMonth(day, currentMonth) 
+                            ? 'bg-gray-50 text-gray-400'
+                            : 'bg-white hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className={`text-sm font-medium mb-1 ${
+                          isSameDay(day, new Date()) 
+                            ? 'text-spiritual-blue font-bold'
+                            : 'text-gray-700'
+                        }`}>
+                          {format(day, 'd')}
+                        </div>
+                        
+                        {/* Events for this day */}
+                        <div className="space-y-1">
+                          {dayEvents.slice(0, 2).map((event) => {
+                            const category = categoryConfig[event.category as keyof typeof categoryConfig];
+                            return (
+                              <div
+                                key={event.id}
+                                className={`text-xs p-1 rounded text-white truncate cursor-pointer hover:opacity-80 ${category.color}`}
+                                title={event.title}
+                                data-testid={`calendar-event-${event.id}`}
+                              >
+                                {event.title}
+                              </div>
+                            );
+                          })}
+                          {dayEvents.length > 2 && (
+                            <div className="text-xs text-gray-500 font-medium">
+                              +{dayEvents.length - 2} more
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                    
+                    day = addDays(day, 1);
+                  }
+                  
+                  return days;
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Cards View */}
+        {viewMode === 'cards' && (
+          <div className="space-y-6">
           {upcomingEvents.map((event) => {
             const category = categoryConfig[event.category as keyof typeof categoryConfig];
             const isAttending = rsvpStatuses[event.id] === 'attending';
@@ -415,7 +564,8 @@ export default function Events() {
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
