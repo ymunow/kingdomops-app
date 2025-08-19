@@ -15,7 +15,8 @@ import {
   Share2,
   Settings,
   Eye,
-  QrCode
+  QrCode,
+  Key
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -99,17 +100,64 @@ export function SubdomainManagement({ organization }: SubdomainManagementProps) 
 
   return (
     <div className="space-y-6">
-      {/* Current Subdomain Display */}
-      <Card className="border-spiritual-blue/20">
-        <CardHeader>
-          <CardTitle className="flex items-center text-charcoal">
-            <Globe className="h-5 w-5 mr-2 text-spiritual-blue" />
-            Church Web Address
-          </CardTitle>
-          <CardDescription className="text-charcoal/70">
-            Your church's unique web address for easy sharing and professional branding
-          </CardDescription>
-        </CardHeader>
+      {/* Dual Access Methods Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-charcoal mb-2">Church Access Methods</h2>
+        <p className="text-charcoal/70">Your church has two ways for members to connect: professional subdomain for external sharing and simple church code for easy invitations.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Church Code Card */}
+        <Card className="border-warm-gold/20">
+          <CardHeader>
+            <CardTitle className="flex items-center text-charcoal">
+              <Key className="h-5 w-5 mr-2 text-warm-gold" />
+              Church Code
+            </CardTitle>
+            <CardDescription className="text-charcoal/70">
+              Simple code for Sunday announcements and personal invitations
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="font-bold text-2xl bg-warm-gold/10 text-warm-gold px-4 py-3 rounded-md tracking-wider">
+                  {organization.inviteCode}
+                </div>
+                <Badge variant="secondary" className="flex items-center bg-sage-green/20 text-sage-green border-sage-green/30">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Active
+                </Badge>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => copyToClipboard(organization.inviteCode)}
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copy Code
+              </Button>
+            </div>
+            <div className="text-xs text-gray-600 space-y-1">
+              <p><strong>Perfect for:</strong></p>
+              <p>• Sunday announcements: "Use code {organization.inviteCode} to join"</p>
+              <p>• Personal invitations and text messages</p>
+              <p>• Quick verbal sharing</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Current Subdomain Display */}
+        <Card className="border-spiritual-blue/20">
+          <CardHeader>
+            <CardTitle className="flex items-center text-charcoal">
+              <Globe className="h-5 w-5 mr-2 text-spiritual-blue" />
+              Professional Web Address
+            </CardTitle>
+            <CardDescription className="text-charcoal/70">
+              Professional subdomain for business cards, websites, and external marketing
+            </CardDescription>
+          </CardHeader>
         <CardContent className="space-y-4">
           {!isEditing ? (
             <>
@@ -177,8 +225,15 @@ export function SubdomainManagement({ organization }: SubdomainManagementProps) 
               </div>
             </div>
           )}
+            <div className="text-xs text-gray-600 space-y-1 mt-4">
+              <p><strong>Perfect for:</strong></p>
+              <p>• Business cards and website listings</p>
+              <p>• Social media profiles and marketing materials</p>
+              <p>• Professional church correspondence</p>
+            </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
 
       {/* Quick Share Links */}
       <Card className="border-sage-green/20">

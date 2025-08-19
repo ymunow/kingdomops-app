@@ -232,7 +232,7 @@ export default function JoinCongregation() {
             </CardContent>
           </Card>
 
-          <div className="text-center mt-6">
+          <div className="text-center mt-6 space-y-3">
             <p className="text-sm text-gray-600">
               Don't have a church code?{" "}
               <button 
@@ -242,6 +242,10 @@ export default function JoinCongregation() {
                 Apply for Inner Circle beta
               </button>
             </p>
+            <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
+              <p>You can also visit your church's direct link:</p>
+              <p className="font-medium">yourchurch.kingdomops.app</p>
+            </div>
           </div>
         </div>
       </div>
