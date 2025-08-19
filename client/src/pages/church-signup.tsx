@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +54,11 @@ export default function ChurchSignup() {
       specificNeeds: ""
     }
   });
+
+  // Scroll to top when component mounts to ensure proper navigation
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const onSubmit = (data: BetaApplicationData) => {
     setIsSubmitting(true);
