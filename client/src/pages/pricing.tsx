@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Crown, CheckCircle, Sparkles, Clock, Users, Shield, ArrowRight, Rocket, TrendingUp, Star, AlertCircle, Church } from "lucide-react";
+import { Crown, CheckCircle, Sparkles, Clock, Users, Shield, ArrowRight, Rocket, TrendingUp, Star, AlertCircle, Church, Zap, Settings, BarChart3, Globe, UserCheck, MessageCircle, Calendar, Heart, BookOpen, DollarSign } from "lucide-react";
 
 export default function Pricing() {
   const [, setLocation] = useLocation();
@@ -147,46 +147,243 @@ export default function Pricing() {
       <section className="py-16 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
+            <div className="inline-flex items-center space-x-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <Zap className="h-4 w-4" />
+              <span>Beta Available Now</span>
+            </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Everything Your Church Needs
+              Core Tools (Phase 1)
             </h2>
             <p className="text-lg text-gray-600">
-              The complete KingdomOps platform, available now in beta
+              Essential foundation tools to organize, connect, and understand your church family.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Spiritual gifts assessment & ministry matching</span>
-              </div>
-              <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Core member management (basic profiles + invitations)</span>
-              </div>
-              <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Church onboarding tools</span>
-              </div>
-              <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Administrative dashboard (basic analytics)</span>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="border-2 border-green-200 hover:border-green-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-green-200 transition-shadow duration-300">
+                  <Users className="h-8 w-8 text-green-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-900">Member Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center text-sm">
+                  Keep your church connected with easy profiles, roles, and invitations.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-green-200 hover:border-green-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-green-200 transition-shadow duration-300">
+                  <Settings className="h-8 w-8 text-green-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-900">Church Onboarding Tools</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center text-sm">
+                  Guided onboarding for smooth launch with your leaders and members.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-green-200 hover:border-green-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-green-200 transition-shadow duration-300">
+                  <BarChart3 className="h-8 w-8 text-green-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-900">Administrative Dashboard</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center text-sm">
+                  Clear analytics and insights designed for leaders at a glance.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-green-200 hover:border-green-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-green-200 transition-shadow duration-300">
+                  <Globe className="h-8 w-8 text-green-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-900">Professional Subdomain</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center text-sm">
+                  Branded subdomain (yourchurch.kingdomops.app) for your members.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Phase 2: Building Connections */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <Clock className="h-4 w-4" />
+              <span>Coming Soon</span>
             </div>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Professional church subdomain (yourchurch.kingdomops.app)</span>
-              </div>
-              <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Multi-role user management system</span>
-              </div>
-              <div className="flex items-center">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                <span className="text-gray-700">Priority support & feature requests</span>
-              </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Building Connections (Phase 2)
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Advanced tools to track, engage, and connect with your members through every step of their journey.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-blue-200 transition-shadow duration-300">
+                  <UserCheck className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-900">Visitor Tracking & Follow-Up</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center text-sm">
+                  Automated follow-up systems and personalized welcome processes.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-blue-200 transition-shadow duration-300">
+                  <BarChart3 className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-900">Check-In & Attendance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center text-sm">
+                  Digital check-in systems and comprehensive attendance tracking.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-blue-200 transition-shadow duration-300">
+                  <MessageCircle className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-900">Online Community</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center text-sm">
+                  Foster discipleship with groups, discussions, and connection tools.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-blue-200 transition-shadow duration-300">
+                  <Calendar className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-900">Event Registration & Calendars</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center text-sm">
+                  Integrated calendars, registration, and automated reminders.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group md:col-span-2 lg:col-span-1">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-blue-200 transition-shadow duration-300">
+                  <Heart className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-lg text-gray-900">Volunteer Scheduling</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center text-sm">
+                  Connect members to serving opportunities and coordinate volunteers.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Phase 3: Growth & Equipping */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center space-x-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <Sparkles className="h-4 w-4" />
+              <span>Future Vision</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Growth & Equipping (Phase 3)
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              The ultimate ministry toolkit with discipleship courses, financial management, and deep insights to grow your church's impact.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8">
+            {/* Featured: Custom Discipleship & Ministry LMS */}
+            <Card className="border-2 border-purple-300 hover:border-purple-400 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group bg-gradient-to-br from-purple-50/50 to-white">
+              <CardHeader className="text-center">
+                <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
+                  <BookOpen className="h-10 w-10 text-purple-600" />
+                </div>
+                <CardTitle className="text-2xl text-gray-900">Custom Discipleship & Ministry Courses</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center max-w-4xl mx-auto text-lg">
+                  Transform how your church disciples with a built-in learning management system. Create, host, and deliver custom courses to equip leaders and grow members in their faith journey.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Supporting Features */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+              <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
+                    <DollarSign className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <CardTitle className="text-lg text-gray-900">Financial Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-center text-sm">
+                    Complete stewardship tools for donations, budgets, and reporting.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
+                    <TrendingUp className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <CardTitle className="text-lg text-gray-900">Advanced Analytics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-center text-sm">
+                    Deep insights into growth patterns, engagement, and impact.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+                <CardHeader className="text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-purple-200 transition-shadow duration-300">
+                    <Globe className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <CardTitle className="text-lg text-gray-900">Multi-Site Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-center text-sm">
+                    Coordinate multiple locations with centralized oversight.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
