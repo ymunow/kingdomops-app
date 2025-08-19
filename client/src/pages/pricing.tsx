@@ -39,17 +39,17 @@ export default function Pricing() {
           <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Crown className="h-10 w-10 text-white" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
             KingdomOps Inner Circle
           </h1>
-          <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-purple-100 mb-8 max-w-2xl mx-auto px-4">
             Join our exclusive beta program and help shape the future of church management technology
           </p>
           <div 
-            className="bg-white/10 backdrop-blur-sm rounded-lg p-4 inline-block cursor-pointer hover:bg-white/20 transition-colors"
+            className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 inline-block cursor-pointer hover:bg-white/20 transition-colors"
             onClick={() => setLocation("/church-signup")}
           >
-            <span className="bg-warm-gold text-spiritual-blue px-4 py-2 rounded-full text-lg font-bold">Apply for Inner Circle Access</span>
+            <span className="bg-warm-gold text-spiritual-blue px-3 sm:px-4 py-2 rounded-full text-sm sm:text-lg font-bold whitespace-nowrap">Apply for Inner Circle</span>
           </div>
         </div>
       </section>
@@ -476,20 +476,21 @@ export default function Pricing() {
             <span className="text-warm-gold font-medium text-sm">Limited to first 50 churches</span>
           </div>
           
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">
             Ready to Join the Inner Circle?
           </h2>
-          <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-purple-100 mb-8 max-w-2xl mx-auto px-4">
             Apply today to secure your church's place in the future of church management — with lifetime pricing locked in when we launch.
           </p>
           <Button
             onClick={() => setLocation("/church-signup")}
             size="lg"
-            className="bg-white text-spiritual-blue hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl"
+            className="bg-white text-spiritual-blue hover:bg-gray-100 px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-xl"
             data-testid="button-apply-inner-circle"
           >
-            Apply for Inner Circle Access
-            <ArrowRight className="ml-2 h-5 w-5" />
+            <span className="hidden sm:inline">Apply for Inner Circle Access</span>
+            <span className="sm:hidden">Apply for Inner Circle</span>
+            <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         </div>
       </section>
