@@ -20,6 +20,29 @@ import { profileCompletionSchema, type ProfileCompletionData } from "@shared/sch
 import { MainLayout } from '@/components/navigation/main-layout';
 
 export default function Profile() {
+  // Mock data for demonstration - would come from API in real app
+  const mockProfileData = {
+    coverPhoto: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=400&fit=crop',
+    bio: "Passionate about worship and discipleship. Walking with Jesus for 8 years and loving every step of the journey!",
+    location: "Charlotte, NC",
+    memberSince: "2020",
+    spiritualGifts: ['Teaching', 'Encouragement', 'Leadership'],
+    servingAreas: ['Worship Team', 'Youth Ministry'],
+    favoriteVerse: "For I know the plans I have for you, declares the Lord... - Jeremiah 29:11",
+    groups: ['Young Adults', 'Worship Team', 'Small Group Alpha'],
+    recentActivity: [
+      { type: 'rsvp', text: 'RSVP\'d to Sunday Worship Service', time: '2 hours ago' },
+      { type: 'group', text: 'Joined Men\'s Discipleship Group', time: '1 day ago' },
+      { type: 'prayer', text: 'Shared a testimony in Worship Group', time: '3 days ago' }
+    ],
+    stats: {
+      connections: 47,
+      groups: 3,
+      eventsAttended: 12,
+      prayersShared: 8
+    }
+  };
+
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const { organization } = useOrganization();
@@ -116,29 +139,6 @@ export default function Profile() {
     e.preventDefault();
     e.stopPropagation();
     setIsEditing(true);
-  };
-
-  // Mock data for demonstration - would come from API in real app
-  const mockProfileData = {
-    coverPhoto: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=400&fit=crop',
-    bio: "Passionate about worship and discipleship. Walking with Jesus for 8 years and loving every step of the journey!",
-    location: "Charlotte, NC",
-    memberSince: "2020",
-    spiritualGifts: ['Teaching', 'Encouragement', 'Leadership'],
-    servingAreas: ['Worship Team', 'Youth Ministry'],
-    favoriteVerse: "For I know the plans I have for you, declares the Lord... - Jeremiah 29:11",
-    groups: ['Young Adults', 'Worship Team', 'Small Group Alpha'],
-    recentActivity: [
-      { type: 'rsvp', text: 'RSVP\'d to Sunday Worship Service', time: '2 hours ago' },
-      { type: 'group', text: 'Joined Men\'s Discipleship Group', time: '1 day ago' },
-      { type: 'prayer', text: 'Shared a testimony in Worship Group', time: '3 days ago' }
-    ],
-    stats: {
-      connections: 47,
-      groups: 3,
-      eventsAttended: 12,
-      prayersShared: 8
-    }
   };
 
   const tabs = [
