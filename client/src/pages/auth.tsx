@@ -77,7 +77,7 @@ export default function AuthPage() {
       <div className="absolute top-4 right-4 z-50">
         <a 
           href="/" 
-          className="text-sm text-spiritual-blue hover:text-purple-800 underline"
+          className="text-sm text-white hover:text-warm-gold underline"
         >
           Back to Home
         </a>
@@ -197,22 +197,30 @@ export default function AuthPage() {
             </p>
           </div>
           
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <div className="w-6 h-6 bg-warm-gold rounded-full flex-shrink-0"></div>
-              <span>Spiritual gifts assessment & ministry matching</span>
+          <div className="space-y-3">
+            <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/5 border border-white/10">
+              <div className="w-8 h-8 bg-gradient-to-br from-white/20 to-white/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+              <span className="leading-relaxed">Spiritual gifts assessment & ministry matching</span>
             </div>
-            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <div className="w-6 h-6 bg-warm-gold rounded-full flex-shrink-0"></div>
-              <span>Member management (beta)</span>
+            <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/5 border border-white/10">
+              <div className="w-8 h-8 bg-gradient-to-br from-white/20 to-white/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+              <span className="leading-relaxed">Member management (beta)</span>
             </div>
-            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <div className="w-6 h-6 bg-warm-gold rounded-full flex-shrink-0"></div>
-              <span>Administrative dashboard (basic analytics)</span>
+            <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/5 border border-white/10">
+              <div className="w-8 h-8 bg-gradient-to-br from-white/20 to-white/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+              <span className="leading-relaxed">Administrative dashboard (basic analytics)</span>
             </div>
-            <div className="flex items-center space-x-3 bg-white/10 backdrop-blur-sm rounded-lg p-3">
-              <div className="w-6 h-6 bg-warm-gold rounded-full flex-shrink-0"></div>
-              <span>Professional church subdomain (yourchurch.kingdomops.org)</span>
+            <div className="flex items-start space-x-4 p-4 rounded-xl bg-white/5 border border-white/10">
+              <div className="w-8 h-8 bg-gradient-to-br from-white/20 to-white/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+              <span className="leading-relaxed">Professional church subdomain (yourchurch.kingdomops.org)</span>
             </div>
           </div>
         </div>
