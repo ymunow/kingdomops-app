@@ -82,6 +82,13 @@ This is a full-stack web application for conducting spiritual gifts assessments.
 
 Preferred communication style: Simple, everyday language.
 
+### Design Preferences (August 2025)
+- **Color Scheme**: Primary #250A34 (deep purple/spiritual-blue), Secondary #EEBC4C (golden yellow/warm-gold), light purple backgrounds (#purple-100 to #purple-200)
+- **Icon Style**: Modern Lucide icons preferred over emojis for professional appearance, housed in rounded containers with light backgrounds
+- **Layout Style**: Clean, modern design with glass-morphism effects, gradient backgrounds, and consistent spacing
+- **Typography**: Professional serif fonts for scripture quotes, clean sans-serif for body text
+- **Visual Hierarchy**: Integrated content sections rather than heavily separated blocks, subtle dividers and elegant spacing
+
 ## System Architecture
 
 ### Frontend Architecture
