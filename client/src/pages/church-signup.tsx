@@ -109,68 +109,71 @@ export default function ChurchSignup() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
               <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
-              <div>
-                <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
-                <p className="text-sm text-gray-600">Church Management Platform</p>
-              </div>
+              <h1 className="font-display font-bold text-xl text-charcoal">KingdomOps</h1>
             </div>
             <div className="flex items-center space-x-3">
+              <Button variant="ghost" onClick={() => setLocation("/features")}>Features</Button>
+              <Button variant="ghost" onClick={() => setLocation("/pricing")}>Pricing</Button>
               <Button variant="ghost" onClick={() => setLocation("/")}>Back to Home</Button>
-              <Button 
-                variant="outline"
-                onClick={() => setLocation("/api/login")}
-                className="border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white"
-              >
-                Sign In
-              </Button>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-16 pb-20 overflow-hidden bg-gradient-to-br from-gray-50 to-white">
+      <section className="relative pt-16 pb-20 overflow-hidden bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left side - Benefits */}
             <div>
+              <div className="w-16 h-16 bg-spiritual-blue/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6">
+                <Church className="h-8 w-8 text-spiritual-blue" />
+              </div>
               <h1 className="font-display font-bold text-4xl md:text-5xl text-gray-900 mb-6">
-                Set up your church on{" "}
-                <span className="text-spiritual-blue">KingdomOps</span>
+                Join the Kingdom{" "}
+                <span className="text-spiritual-blue">Revolution</span>
               </h1>
               <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
-                Join hundreds of churches using KingdomOps to discover spiritual gifts, coordinate ministries, and build stronger communities.
+                Empower your church with divine tools to discover spiritual gifts, equip disciples, and build His Kingdom through strategic ministry placement.
               </p>
               
               {/* Benefits List */}
               <div className="space-y-4 mb-8">
                 <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                  <span className="text-gray-700">Complete spiritual gifts assessment platform</span>
+                  <div className="w-8 h-8 bg-spiritual-blue/10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <CheckCircle className="h-4 w-4 text-spiritual-blue" />
+                  </div>
+                  <span className="text-gray-700">Discover & deploy spiritual gifts through biblical assessment</span>
                 </div>
                 <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                  <span className="text-gray-700">Professional subdomain: yourchurch.kingdomops.app</span>
+                  <div className="w-8 h-8 bg-warm-gold/10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <Globe className="h-4 w-4 text-warm-gold" />
+                  </div>
+                  <span className="text-gray-700">Professional Kingdom presence: yourchurch.kingdomops.app</span>
                 </div>
                 <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                  <span className="text-gray-700">Member management and ministry matching</span>
+                  <div className="w-8 h-8 bg-spiritual-blue/10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <Users className="h-4 w-4 text-spiritual-blue" />
+                  </div>
+                  <span className="text-gray-700">Divine matching system for ministry placement</span>
                 </div>
                 <div className="flex items-center">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                  <span className="text-gray-700">Comprehensive admin dashboard and analytics</span>
+                  <div className="w-8 h-8 bg-warm-gold/10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <Shield className="h-4 w-4 text-warm-gold" />
+                  </div>
+                  <span className="text-gray-700">Comprehensive stewardship dashboard & Kingdom analytics</span>
                 </div>
               </div>
 
-              {/* Beta Badge */}
+              {/* Inner Circle Badge */}
               <div className="pt-8 border-t border-gray-200">
-                <div className="bg-spiritual-blue/10 border border-spiritual-blue/20 rounded-lg p-4">
-                  <div className="flex items-center justify-center">
-                    <span className="bg-spiritual-blue text-white px-3 py-1 rounded-full text-sm font-medium mr-3">BETA</span>
-                    <span className="text-spiritual-blue font-medium">Join our beta program</span>
+                <div className="bg-gradient-to-r from-spiritual-blue/10 to-warm-gold/10 border border-spiritual-blue/20 rounded-lg p-6">
+                  <div className="flex items-center justify-center mb-3">
+                    <Crown className="h-5 w-5 text-spiritual-blue mr-2" />
+                    <span className="bg-gradient-to-r from-spiritual-blue to-purple-600 bg-clip-text text-transparent font-bold text-lg">Inner Circle Founding Member</span>
                   </div>
-                  <p className="text-center text-sm text-gray-600 mt-2">
-                    Be among the first churches to experience KingdomOps and help shape the future of church management.
+                  <p className="text-center text-sm text-gray-700 leading-relaxed">
+                    Join the exclusive founding circle of Kingdom-minded churches pioneering the future of digital discipleship and spiritual gift stewardship.
                   </p>
                 </div>
               </div>
