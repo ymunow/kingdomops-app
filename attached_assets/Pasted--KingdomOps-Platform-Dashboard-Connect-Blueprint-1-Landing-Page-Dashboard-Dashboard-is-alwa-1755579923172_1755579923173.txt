@@ -1,0 +1,75 @@
+📋 KingdomOps Platform – Dashboard + Connect Blueprint
+1. Landing Page = Dashboard
+Dashboard is always the login landing page.
+Purpose: show personal next steps in discipleship.
+Dashboard Sections (card layout):
+Greeting Banner – personalized (“Good morning, Travis!”).
+Spiritual Gifts Assessment CTA
+If no results → big “Take Assessment” card.
+If completed → show “Your Top Gifts” with “Find Where to Serve.”
+Perfect Matches for You – serving opportunities that align with gifts (from Serve Central).
+Generosity Card – last gift, quick “Give Now,” recurring giving.
+Upcoming Events – next 2–3 events with RSVP buttons.
+KingdomOps Connect Teaser – show 2–3 latest community posts; “View All” opens Connect.
+2. Connect (Community Module)
+Connect is a full social feed, not just a dashboard card.
+Accessible via bottom nav + side drawer as “Connect.”
+Features in Connect:
+Feed (Facebook-style): posts, testimonies, prayer requests, announcements, serve opportunities, events.
+Post Types:
+Testimony ✍️
+Prayer 🙏 (with “I prayed” reaction)
+Announcement 📣
+Event 📅 (with RSVP/Register)
+Serve Opportunity 🙋 (from Serve Central)
+Groups – ministries/small groups have their own feeds + events.
+Engagement – like, comment, share, report.
+Events Integration – group events + church-wide events show in feed.
+Serve Central Integration – recommended roles surface inside feed.
+Notifications – mentions, replies, event reminders, serve applications.
+3. Serve Central (Volunteer Hub)
+Dedicated tab for all ministry opportunities.
+Looks like a marketplace board (listings with role, description, required gifts, apply button).
+Matches to Gifts appear on Dashboard and in Connect.
+4. Events
+Full events tab + integration into Dashboard and Connect.
+Event page includes:
+Details (time, place, RSVP/Register)
+Attendees list + comments
+“Join Meeting” button if virtual (meeting link).
+5. Gifts (Assessment & Results)
+Tab with:
+Take Assessment
+View Results (top gifts, scriptures)
+Recommended serving matches.
+Dashboard surfaces the CTA or results summary.
+Connect occasionally reminds members (“🎉 You completed your gifts assessment! See serving matches.”).
+6. Giving
+Tab for generosity/giving history.
+Quick card on Dashboard for last gift + Give Now button.
+7. Roles & Permissions (simplified)
+Member: post, comment, prayer requests, RSVP, apply to serve.
+Volunteer: same as member + see team schedule (future).
+Ministry Leader: manage group, post serve opportunities, create group events.
+Pastoral Staff: post church-wide announcements, moderate.
+Finance Admin: manage giving/budgets (outside Connect).
+Church Super Admin: full church control.
+Super Admin: platform owner.
+8. Navigation
+Bottom nav: Home · Events · Serve · Gifts · Give
+Side drawer: adds Connect, Profile, Settings.
+“+” Button (top or FAB): opens role-based create menu (post, prayer, event, serve opportunity).
+Bottom nav auto-hides when scrolling down; reappears when scrolling up.
+✅ Acceptance Criteria
+On login → Dashboard loads (not Connect).
+Dashboard cards show correctly based on user state (assessment taken/not taken).
+“View All” on Connect card → opens full Connect feed.
+Members can post prayer/testimony in Connect.
+Leaders can post opportunities/events.
+Serve Central matches show in Dashboard + Connect.
+Giving, Gifts, Events all accessible via tabs.
+Role permissions respected (members can’t access finance, etc.).
+👉 This keeps things simple but comprehensive. The screenshot you shared already shows the Dashboard layout. This blueprint just locks down the rules + flows so the AI agent knows:
+Dashboard = home
+Connect = full community module
+Serve, Gifts, Events, Give = standalone tabs feeding into Dashboard/Connect.

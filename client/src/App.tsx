@@ -28,6 +28,12 @@ import ChurchOverview from "@/pages/church-overview";
 import LeaderOpportunities from "@/pages/leader-opportunities";
 import Dashboard from "@/pages/dashboard";
 import Profile from "@/pages/profile";
+import Events from "@/pages/events";
+import Serve from "@/pages/serve";
+import Gifts from "@/pages/gifts";
+import Give from "@/pages/give";
+import Connect from "@/pages/connect";
+import Settings from "@/pages/settings";
 import ChurchSignup from "@/pages/church-signup";
 import ChurchAdminWelcome from "@/pages/church-admin-welcome";
 import CongregationSignup from "@/pages/congregation-signup";
@@ -161,6 +167,12 @@ function Router() {
             <Route path="/assessment" component={Assessment} />
             <Route path="/my-results" component={MyResults} />
             <Route path="/profile" component={Profile} />
+            <Route path="/events" component={Events} />
+            <Route path="/serve" component={Serve} />
+            <Route path="/gifts" component={Gifts} />
+            <Route path="/give" component={Give} />
+            <Route path="/connect" component={Connect} />
+            <Route path="/settings" component={Settings} />
             
             {/* Admin routes - only for admin-level roles */}
             {(user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
