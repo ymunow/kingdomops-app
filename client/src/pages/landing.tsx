@@ -260,7 +260,7 @@ export default function Landing() {
             The KingdomOps Inner Circle
           </h2>
           <p className="text-lg text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
-            KingdomOps is currently being piloted by churches across the United States. Inner Circle members are the pioneers — investing early to shape the tools that will disciple, equip, and connect churches worldwide. Limited spots available. Apply today to secure your church's place and lifetime pricing when KingdomOps fully launches — including all future upgrades and add-ons.
+            KingdomOps is currently being piloted by churches across the United States. Inner Circle members are the pioneers investing early to shape the tools that will disciple, equip, and connect churches worldwide. Limited spots available. Apply today to secure your church's place and lifetime pricing when KingdomOps fully launches including all future upgrades and add-ons.
           </p>
           <Button
             onClick={() => setLocation("/church-signup")}
