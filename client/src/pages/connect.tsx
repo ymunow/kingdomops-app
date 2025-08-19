@@ -115,7 +115,14 @@ export default function Connect() {
       ministry: 'Kids Kingdom',
       time: 'Sunday mornings',
       match: 92,
-      urgent: true
+      urgent: true,
+      icon: '🧒',
+      bgColor: 'bg-yellow-50',
+      borderColor: 'border-yellow-200',
+      accentColor: 'text-yellow-700',
+      image: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=200&fit=crop&crop=center',
+      matchingGifts: ['Helps', 'Teaching'],
+      description: 'Help create a fun, safe environment where kids encounter Jesus'
     },
     {
       id: '2', 
@@ -123,9 +130,39 @@ export default function Connect() {
       ministry: 'Worship Ministry',
       time: 'Weekend services',
       match: 87,
-      urgent: false
+      urgent: false,
+      icon: '🎤',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200', 
+      accentColor: 'text-blue-700',
+      image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=200&fit=crop&crop=center',
+      matchingGifts: ['Administration', 'Helps'],
+      description: 'Support our worship team with excellent sound production'
+    },
+    {
+      id: '3',
+      title: 'Hospitality Team',
+      ministry: 'Guest Services',
+      time: 'Sunday services',
+      match: 78,
+      urgent: false,
+      icon: '☕',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
+      accentColor: 'text-green-700',
+      image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=200&fit=crop&crop=center',
+      matchingGifts: ['Hospitality', 'Helps'],
+      description: 'Welcome guests and make everyone feel at home'
     }
   ];
+
+  const testimonials = [
+    { text: 'Serving in Worship has helped me grow in faith!', author: 'Sarah J.' },
+    { text: 'Working with kids brings me so much joy every week.', author: 'Mike T.' },
+    { text: 'Our hospitality team is like a second family to me.', author: 'Lisa M.' }
+  ];
+
+  const filterChips = ['All', 'Kids', 'Worship', 'Hospitality', 'Tech', 'Prayer'];
 
   const getPostIcon = (type: string) => {
     switch (type) {
@@ -222,7 +259,7 @@ export default function Connect() {
             <ComposerBar />
             
             {/* Serve Opportunities Discovery Card */}
-            <Card className="mb-6 border border-warm-gold/20 bg-gradient-to-r from-warm-gold/5 to-spiritual-blue/5">
+            <Card className="mb-6 border border-warm-gold/20 bg-gradient-to-r from-warm-gold/5 to-spiritual-blue/5 shadow-lg">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-2">
@@ -233,32 +270,60 @@ export default function Connect() {
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {serveOpportunities.slice(0, 2).map((opportunity) => (
-                    <div key={opportunity.id} className="flex items-center justify-between p-3 bg-white/70 rounded-lg border">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <p className="font-medium text-sm">{opportunity.title}</p>
-                          {opportunity.urgent && (
-                            <Badge variant="secondary" className="text-xs bg-red-100 text-red-700">Urgent</Badge>
-                          )}
+                    <div key={opportunity.id} className={`relative overflow-hidden rounded-lg border-2 ${opportunity.borderColor} ${opportunity.bgColor} transition-all duration-300 hover:shadow-md hover:scale-[1.02]`}>
+                      <div className="flex items-start p-4">
+                        <div className="w-12 h-12 rounded-lg bg-white/80 flex items-center justify-center mr-3 shadow-sm">
+                          <span className="text-2xl">{opportunity.icon}</span>
                         </div>
-                        <div className="flex items-center space-x-3 text-xs text-gray-600">
-                          <span className="flex items-center space-x-1">
-                            <MapPin className="h-3 w-3" />
-                            <span>{opportunity.ministry}</span>
-                          </span>
-                          <span className="flex items-center space-x-1">
-                            <Clock className="h-3 w-3" />
-                            <span>{opportunity.time}</span>
-                          </span>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <p className="font-semibold text-sm text-charcoal">{opportunity.title}</p>
+                            {opportunity.urgent && (
+                              <Badge className="text-xs bg-red-500 text-white animate-pulse shadow-sm">
+                                Urgent
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-3 text-xs text-gray-600 mb-2">
+                            <span className="flex items-center space-x-1">
+                              <MapPin className="h-3 w-3" />
+                              <span>{opportunity.ministry}</span>
+                            </span>
+                            <span className="flex items-center space-x-1">
+                              <Clock className="h-3 w-3" />
+                              <span>{opportunity.time}</span>
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="flex items-center space-x-1">
+                              {opportunity.matchingGifts.map((gift, index) => (
+                                <Badge key={index} variant="outline" className="text-xs px-2 py-0.5 bg-white/60">
+                                  🎁 {gift}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="mb-3">
+                            <div className="flex items-center justify-between text-xs mb-1">
+                              <span className="text-green-700 font-medium">{opportunity.match}% match</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-700"
+                                style={{ width: `${opportunity.match}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            className="w-full bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white font-medium shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
+                            data-testid={`apply-${opportunity.id}`}
+                          >
+                            🙋 Apply to Serve
+                          </Button>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-green-600 font-medium mb-1">{opportunity.match}% match</div>
-                        <Button size="sm" variant="outline" className="text-xs" data-testid={`apply-${opportunity.id}`}>
-                          Apply Now
-                        </Button>
                       </div>
                     </div>
                   ))}
@@ -421,47 +486,130 @@ export default function Connect() {
             </div>
           </TabsContent>
 
-          <TabsContent value="serve" className="mt-0">
+          <TabsContent value="serve" className="mt-0 space-y-6">
+            {/* Why Serve Banner */}
+            <Card className="border-2 border-warm-gold/30 bg-gradient-to-r from-warm-gold/10 to-spiritual-blue/10">
+              <CardContent className="p-6 text-center">
+                <div className="mb-3">
+                  <Crown className="h-8 w-8 mx-auto text-warm-gold mb-2" />
+                  <h2 className="text-xl font-bold text-charcoal">Why Serve?</h2>
+                </div>
+                <p className="text-gray-700 italic mb-2">
+                  "Each of you should use whatever gift you have received to serve others."
+                </p>
+                <p className="text-sm text-gray-600">— 1 Peter 4:10</p>
+              </CardContent>
+            </Card>
+
+            {/* Testimonial Carousel */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Crown className="h-5 w-5 text-warm-gold" />
-                  <span>Serve Central</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {serveOpportunities.map((opportunity) => (
-                  <div key={opportunity.id} className="p-4 rounded-lg border border-gray-200 hover:border-spiritual-blue transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="font-semibold text-charcoal">{opportunity.title}</h3>
-                          {opportunity.urgent && (
-                            <Badge variant="secondary" className="bg-red-100 text-red-700">Urgent</Badge>
-                          )}
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="mb-2">
+                    <p className="text-sm italic text-gray-700">"Serving in Worship has helped me grow in faith!"</p>
+                    <p className="text-xs text-gray-500">— Sarah J.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Filter Chips */}
+            <div className="flex flex-wrap gap-2">
+              {filterChips.map((filter) => (
+                <Button
+                  key={filter}
+                  variant={filter === 'All' ? 'default' : 'outline'}
+                  size="sm"
+                  className="rounded-full"
+                  data-testid={`filter-${filter.toLowerCase()}`}
+                >
+                  {filter}
+                </Button>
+              ))}
+            </div>
+
+            {/* Enhanced Serve Opportunities */}
+            <div className="space-y-4">
+              {serveOpportunities.map((opportunity) => (
+                <Card key={opportunity.id} className={`overflow-hidden border-2 ${opportunity.borderColor} ${opportunity.bgColor} hover:shadow-lg transition-all duration-300 hover:scale-[1.02]`}>
+                  <CardContent className="p-0">
+                    {/* Image Header */}
+                    <div className="h-32 bg-gray-200 relative overflow-hidden">
+                      <img 
+                        src={opportunity.image} 
+                        alt={opportunity.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-3 left-3">
+                        <div className="w-10 h-10 rounded-lg bg-white/90 flex items-center justify-center shadow-sm">
+                          <span className="text-xl">{opportunity.icon}</span>
                         </div>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
+                      </div>
+                      {opportunity.urgent && (
+                        <div className="absolute top-3 right-3">
+                          <Badge className="bg-red-500 text-white animate-pulse shadow-sm">
+                            Urgent
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="p-4">
+                      <div className="mb-3">
+                        <h3 className="font-bold text-charcoal text-lg mb-1">{opportunity.title}</h3>
+                        <p className="text-sm text-gray-600 mb-3">{opportunity.description}</p>
+                        
+                        <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
                           <span className="flex items-center space-x-1">
-                            <MapPin className="h-4 w-4" />
-                            <span>{opportunity.ministry}</span>
+                            <MapPin className="h-4 w-4 text-spiritual-blue" />
+                            <span className={opportunity.accentColor}>{opportunity.ministry}</span>
                           </span>
                           <span className="flex items-center space-x-1">
-                            <Clock className="h-4 w-4" />
+                            <Clock className="h-4 w-4 text-spiritual-blue" />
                             <span>{opportunity.time}</span>
                           </span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <div className="text-sm text-green-600 font-medium">{opportunity.match}% match with your gifts</div>
+                        
+                        {/* Matching Gifts */}
+                        <div className="flex items-center space-x-2 mb-3">
+                          <span className="text-sm font-medium text-gray-700">Matching Gifts:</span>
+                          <div className="flex space-x-1">
+                            {opportunity.matchingGifts.map((gift, index) => (
+                              <Badge key={index} variant="outline" className="text-xs px-2 py-1 bg-white/80">
+                                🎁 {gift}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="mb-4">
+                          <div className="flex items-center justify-between text-sm mb-2">
+                            <span className="font-medium text-gray-700">Gift Match</span>
+                            <span className="font-bold text-green-600">{opportunity.match}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div 
+                              className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-700 shadow-sm"
+                              style={{ width: `${opportunity.match}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        {/* Apply Button */}
+                        <Button 
+                          className="w-full bg-gradient-to-r from-spiritual-blue via-purple-600 to-warm-gold hover:from-spiritual-blue/90 hover:via-purple-600/90 hover:to-warm-gold/90 text-white font-bold py-3 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+                          data-testid={`apply-serve-${opportunity.id}`}
+                        >
+                          🙋 Apply to Serve
+                        </Button>
                       </div>
                     </div>
-                    <Button className="w-full bg-spiritual-blue hover:bg-spiritual-blue/90" data-testid={`apply-serve-${opportunity.id}`}>
-                      Apply to Serve
-                    </Button>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
