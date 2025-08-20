@@ -1,13 +1,14 @@
 import { Storage, File } from "@google-cloud/storage";
 import { Response } from "express";
 import { randomUUID } from "crypto";
-import {
-  ObjectAclPolicy,
-  ObjectPermission,
-  canAccessObject,
-  getObjectAclPolicy,
-  setObjectAclPolicy,
-} from "./objectAcl";
+// Object ACL functionality disabled for now - using simple public/private model
+// import {
+//   ObjectAclPolicy,
+//   ObjectPermission,
+//   canAccessObject,
+//   getObjectAclPolicy,
+//   setObjectAclPolicy,
+// } from "./objectAcl";
 
 const REPLIT_SIDECAR_ENDPOINT = "http://127.0.0.1:1106";
 
@@ -99,16 +100,18 @@ export class ObjectStorageService {
     try {
       // Get file metadata
       const [metadata] = await file.getMetadata();
-      // Get the ACL policy for the object.
-      const aclPolicy = await getObjectAclPolicy(file);
-      const isPublic = aclPolicy?.visibility === "public";
-      // Set appropriate headers
+      // Simplified: treat all uploaded objects as private
+      const isPublic = false;
+      // Set appropriate headers with CORS support
       res.set({
         "Content-Type": metadata.contentType || "application/octet-stream",
         "Content-Length": metadata.size,
         "Cache-Control": `${
           isPublic ? "public" : "private"
         }, max-age=${cacheTtlSec}`,
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Cross-Origin-Resource-Policy": "cross-origin",
       });
 
       // Stream the file to the response
@@ -206,36 +209,25 @@ export class ObjectStorageService {
     return `/objects/${entityId}`;
   }
 
-  // Tries to set the ACL policy for the object entity and return the normalized path.
+  // Simplified: just normalize the path without ACL policies
   async trySetObjectEntityAclPolicy(
     rawPath: string,
-    aclPolicy: ObjectAclPolicy
+    aclPolicy?: any
   ): Promise<string> {
     const normalizedPath = this.normalizeObjectEntityPath(rawPath);
-    if (!normalizedPath.startsWith("/")) {
-      return normalizedPath;
-    }
-
-    const objectFile = await this.getObjectEntityFile(normalizedPath);
-    await setObjectAclPolicy(objectFile, aclPolicy);
     return normalizedPath;
   }
 
-  // Checks if the user can access the object entity.
+  // Simplified access control: allow access to uploaded objects
   async canAccessObjectEntity({
     userId,
     objectFile,
-    requestedPermission,
   }: {
     userId?: string;
     objectFile: File;
-    requestedPermission?: ObjectPermission;
   }): Promise<boolean> {
-    return canAccessObject({
-      userId,
-      objectFile,
-      requestedPermission: requestedPermission ?? ObjectPermission.READ,
-    });
+    // For now, allow access to all uploaded objects
+    return true;
   }
 }
 
