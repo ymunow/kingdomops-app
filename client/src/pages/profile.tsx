@@ -75,6 +75,30 @@ export default function Profile() {
     }
   };
 
+  // Cover photo upload
+  const handleCoverPhotoUploadComplete = async (result: any) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      const coverPhotoUrl = uploadedFile.uploadURL;
+      
+      try {
+        await apiRequest('PUT', '/api/profile/cover', { coverPhotoUrl });
+        
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+        toast({
+          title: 'Success',
+          description: 'Cover photo updated successfully!',
+        });
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to update cover photo',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
   // Profile update
   const profileUpdateMutation = useMutation({
     mutationFn: async (profileData: { firstName: string; lastName: string; bio: string }) => {
@@ -118,33 +142,40 @@ export default function Profile() {
         {/* Cover Photo Section - Facebook Style */}
         <div className="relative">
           {/* Cover Photo */}
-          <div className="relative h-96 overflow-hidden bg-gray-300 group cursor-pointer rounded-b-lg">
+          <div className="relative h-96 overflow-hidden bg-gray-300 rounded-b-lg">
             <img 
               src={mockProfileData.coverPhoto} 
               alt="Cover"
-              className="w-full h-full object-cover transition-all duration-200 group-hover:brightness-90"
+              className="w-full h-full object-cover"
             />
             
-            {/* Hover Overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+            {/* Cover Photo Upload Overlay */}
+            <ObjectUploader
+              maxNumberOfFiles={1}
+              maxFileSize={10485760} // 10MB
+              onGetUploadParameters={handleGetUploadParameters}
+              onComplete={handleCoverPhotoUploadComplete}
+              buttonClassName="absolute inset-0 bg-black/0 hover:bg-black/20 transition-all duration-200 flex items-center justify-center group border-none p-0"
+            >
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-3">
                 <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center space-x-2">
                   <Camera className="h-5 w-5 text-gray-700" />
                   <span className="text-gray-700 font-medium">Edit cover photo</span>
                 </div>
               </div>
-            </div>
+            </ObjectUploader>
             
-            {/* Cover Photo Edit Button */}
-            <Button
-              variant="secondary"
-              size="sm"
-              className="absolute bottom-4 right-4 bg-white/95 hover:bg-white text-gray-800 font-medium shadow-md border border-gray-200"
-              data-testid="edit-cover-photo"
+            {/* Alternative Cover Photo Edit Button */}
+            <ObjectUploader
+              maxNumberOfFiles={1}
+              maxFileSize={10485760} // 10MB
+              onGetUploadParameters={handleGetUploadParameters}
+              onComplete={handleCoverPhotoUploadComplete}
+              buttonClassName="absolute bottom-4 right-4 bg-white/95 hover:bg-white text-gray-800 font-medium shadow-md border border-gray-200 px-3 py-2 rounded-md text-sm flex items-center"
             >
               <Camera className="h-4 w-4 mr-2" />
               Edit cover photo
-            </Button>
+            </ObjectUploader>
           </div>
 
           {/* Profile Picture - Overlapping Facebook Style */}
