@@ -573,176 +573,240 @@ export default function Connect() {
           <TabsContent value="feed" className="mt-0">
             <ComposerBar />
             
-            {/* Urgent Opportunities Carousel */}
-            {urgentOpportunities.length > 0 && (
-              <Card className="mb-6 border-2 border-red-200 bg-gradient-to-r from-red-50 to-orange-50 shadow-lg">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center animate-pulse">
-                        <span className="text-white text-xs font-bold">!</span>
-                      </div>
-                      <span className="font-semibold text-charcoal">Urgent Needs</span>
-                      <Badge className="text-xs bg-red-100 text-red-700">Swipe to see {urgentOpportunities.length}</Badge>
-                    </div>
-                    <div className="flex space-x-1">
-                      <Button variant="ghost" size="sm" onClick={prevUrgentSlide} data-testid="urgent-prev">
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={nextUrgentSlide} data-testid="urgent-next">
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="overflow-hidden rounded-lg">
-                    <div 
-                      className="flex transition-transform duration-300 ease-in-out"
-                      style={{ transform: `translateX(-${urgentCarouselIndex * 100}%)` }}
-                    >
-                      {urgentOpportunities.map((opportunity) => (
-                        <div key={opportunity.id} className="w-full flex-shrink-0">
-                          <div className={`relative overflow-hidden rounded-lg border-2 ${opportunity.borderColor} ${opportunity.bgColor} transition-all duration-300 hover:shadow-md hover:scale-[1.02]`}>
-                            <div className="flex items-start p-4">
-                              <div className="w-12 h-12 rounded-lg bg-white/80 flex items-center justify-center mr-3 shadow-sm">
-                                <span className="text-2xl">{opportunity.icon}</span>
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center space-x-2 mb-1">
-                                  <p className="font-semibold text-sm text-charcoal">{opportunity.title}</p>
-                                  <Badge className="text-xs bg-red-500 text-white animate-pulse shadow-sm">
-                                    Urgent
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center space-x-3 text-xs text-gray-600 mb-2">
-                                  <span className="flex items-center space-x-1">
-                                    <MapPin className="h-3 w-3" />
-                                    <span>{opportunity.ministry}</span>
-                                  </span>
-                                  <span className="flex items-center space-x-1">
-                                    <TrendingUp className="h-3 w-3" />
-                                    <span>{opportunity.currentVolunteers}/{opportunity.needsTotal} volunteers</span>
-                                  </span>
-                                </div>
-                                <div className="mb-3">
-                                  <div className="flex items-center justify-between text-xs mb-1">
-                                    <span className="text-green-700 font-medium">{opportunity.match}% match</span>
-                                  </div>
-                                  <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div 
-                                      className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-700"
-                                      style={{ width: `${opportunity.match}%` }}
-                                    ></div>
-                                  </div>
-                                </div>
-                                <div className="flex space-x-2">
-                                  <Button 
-                                    size="sm" 
-                                    className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white font-medium shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
-                                    onClick={() => handleApplyToServe(opportunity.id)}
-                                    disabled={appliedOpportunities.includes(opportunity.id)}
-                                    data-testid={`apply-urgent-${opportunity.id}`}
-                                  >
-                                    {appliedOpportunities.includes(opportunity.id) ? '✅ Applied' : '🙋 Apply Now'}
-                                  </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    onClick={() => handleSaveOpportunity(opportunity.id)}
-                                    data-testid={`save-urgent-${opportunity.id}`}
-                                  >
-                                    <Bookmark className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current text-spiritual-blue' : ''}`} />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+            {/* Urgent Opportunities as Feed Posts */}
+            {urgentOpportunities.map((opportunity, index) => {
+              const getMatchColor = (match: number) => {
+                if (match >= 90) return { dot: 'bg-green-500', text: 'text-green-700' };
+                if (match >= 75) return { dot: 'bg-orange-500', text: 'text-orange-700' };
+                return { dot: 'bg-red-500', text: 'text-red-700' };
+              };
+              const matchColors = getMatchColor(opportunity.match);
+              
+              return (
+                <Card key={opportunity.id} className="mb-4 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-red-500">
+                  <CardContent className="p-4">
+                    {/* Post Header - Ministry as Author */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center border-2 border-red-200">
+                          <span className="text-lg">{opportunity.icon}</span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Perfect Matches Discovery Card */}
-            <Card className="mb-6 border border-warm-gold/20 bg-gradient-to-r from-warm-gold/5 to-spiritual-blue/5 shadow-lg">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <Crown className="h-5 w-5 text-warm-gold" />
-                    <span className="font-semibold text-charcoal">Perfect Matches for You</span>
-                  </div>
-                  <Button variant="ghost" size="sm" data-testid="view-all-serve">
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="space-y-3">
-                  {serveOpportunities.filter(op => !op.urgent).slice(0, 2).map((opportunity) => (
-                    <div key={opportunity.id} className={`relative overflow-hidden rounded-lg border-2 ${opportunity.borderColor} ${opportunity.bgColor} transition-all duration-300 hover:shadow-md hover:scale-[1.02]`}>
-                      <div className="flex items-start p-4">
-                        <div className="w-12 h-12 rounded-lg bg-white/80 flex items-center justify-center mr-3 shadow-sm">
-                          <span className="text-2xl">{opportunity.icon}</span>
-                        </div>
-                        <div className="flex-1">
+                        <div>
                           <div className="flex items-center space-x-2 mb-1">
-                            <p className="font-semibold text-sm text-charcoal">{opportunity.title}</p>
+                            <p className="font-semibold text-charcoal text-sm">{opportunity.ministry}</p>
+                            <Badge className="text-xs bg-red-500 text-white animate-pulse">
+                              ❗ Urgent Need
+                            </Badge>
                           </div>
-                          <div className="flex items-center space-x-3 text-xs text-gray-600 mb-2">
-                            <span className="flex items-center space-x-1">
-                              <MapPin className="h-3 w-3" />
-                              <span>{opportunity.ministry}</span>
-                            </span>
-                            <span className="flex items-center space-x-1">
-                              <TrendingUp className="h-3 w-3" />
-                              <span>{opportunity.currentVolunteers}/{opportunity.needsTotal} volunteers</span>
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2 mb-2">
-                            <div className="flex items-center space-x-1">
-                              {opportunity.matchingGifts.map((gift, index) => (
-                                <Badge key={index} variant="outline" className="text-xs px-2 py-0.5 bg-white/60">
-                                  🎁 {gift}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="mb-3">
-                            <div className="flex items-center justify-between text-xs mb-1">
-                              <span className="text-green-700 font-medium">{opportunity.match}% match</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div 
-                                className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-700"
-                                style={{ width: `${opportunity.match}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button 
-                              size="sm" 
-                              className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white font-medium shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200"
-                              onClick={() => handleApplyToServe(opportunity.id)}
-                              disabled={appliedOpportunities.includes(opportunity.id)}
-                              data-testid={`apply-${opportunity.id}`}
-                            >
-                              {appliedOpportunities.includes(opportunity.id) ? '✅ Applied' : '🙋 Apply to Serve'}
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleSaveOpportunity(opportunity.id)}
-                              data-testid={`save-${opportunity.id}`}
-                            >
-                              <Bookmark className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current text-spiritual-blue' : ''}`} />
-                            </Button>
-                          </div>
+                          <p className="text-xs text-gray-500">
+                            Just posted • Only {opportunity.needsTotal - opportunity.currentVolunteers} spots left!
+                          </p>
                         </div>
                       </div>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+
+                    {/* Post Content - Urgent Framing */}
+                    <div className="mb-4">
+                      <p className="text-gray-700 text-sm leading-relaxed mb-3">
+                        🚨 <strong>Urgent:</strong> We need help with <strong>{opportunity.title}</strong> this week! 
+                        Your gifts are a perfect match and your church family really needs you. 
+                        Only {opportunity.needsTotal - opportunity.currentVolunteers} volunteers needed.
+                      </p>
+                      
+                      {/* Ministry Image */}
+                      {opportunity.image && (
+                        <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm mb-3">
+                          <img 
+                            src={opportunity.image} 
+                            alt={opportunity.title}
+                            className="w-full h-48 object-cover"
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Match Info - Simplified */}
+                      <div className="flex items-center space-x-4 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-3 h-3 rounded-full ${matchColors.dot}`}></div>
+                          <span className={`font-bold ${matchColors.text}`}>{opportunity.match}% Match</span>
+                        </div>
+                        <div className="flex items-center space-x-1 text-gray-600">
+                          <Clock className="h-3 w-3" />
+                          <span>{opportunity.time}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Matching Gifts */}
+                      <div className="flex items-center space-x-1 mt-2">
+                        <span className="text-xs text-gray-500">Your gifts:</span>
+                        {opportunity.matchingGifts.map((gift, giftIndex) => (
+                          <Badge key={giftIndex} variant="outline" className="text-xs px-2 py-0.5 bg-red-50 border-red-200 text-red-700">
+                            {gift}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Feed-Style Interactions - Urgent */}
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                      <div className="flex items-center space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 px-2 font-medium"
+                          onClick={() => handleApplyToServe(opportunity.id)}
+                          disabled={appliedOpportunities.includes(opportunity.id)}
+                          data-testid={`apply-urgent-${opportunity.id}`}
+                        >
+                          {appliedOpportunities.includes(opportunity.id) ? '✅ Applied' : '🙋 Help Now'}
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-2"
+                        >
+                          💬 Ask Questions
+                        </Button>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleSaveOpportunity(opportunity.id)}
+                          data-testid={`save-urgent-${opportunity.id}`}
+                          className="px-2"
+                        >
+                          <Bookmark className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current text-red-500' : 'text-gray-500'}`} />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="px-2">
+                          <Share className="h-4 w-4 text-gray-500" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+
+            {/* Service Opportunities as Feed Posts */}
+            {serveOpportunities.filter(op => !op.urgent).slice(0, 2).map((opportunity, index) => {
+              const getMatchColor = (match: number) => {
+                if (match >= 90) return { dot: 'bg-green-500', text: 'text-green-700' };
+                if (match >= 75) return { dot: 'bg-orange-500', text: 'text-orange-700' };
+                return { dot: 'bg-red-500', text: 'text-red-700' };
+              };
+              const matchColors = getMatchColor(opportunity.match);
+              
+              return (
+                <Card key={opportunity.id} className="mb-4 shadow-sm hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    {/* Post Header - Ministry as Author */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 rounded-full bg-spiritual-blue/10 flex items-center justify-center">
+                          <span className="text-lg">{opportunity.icon}</span>
+                        </div>
+                        <div>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <p className="font-semibold text-charcoal text-sm">{opportunity.ministry}</p>
+                            <Badge variant="outline" className="text-xs border bg-purple-50 text-purple-700 border-purple-200">
+                              👑 Perfect Match
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            2 minutes ago • Needs {opportunity.needsTotal - opportunity.currentVolunteers} more volunteers
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {/* Post Content - Relational Framing */}
+                    <div className="mb-4">
+                      <p className="text-gray-700 text-sm leading-relaxed mb-3">
+                        Your church needs you in <strong>{opportunity.title}</strong> this week! We're looking for someone with your gifts to help create an amazing experience. 
+                        {opportunity.currentVolunteers} of {opportunity.needsTotal} volunteers have signed up.
+                      </p>
+                      
+                      {/* Ministry Image */}
+                      {opportunity.image && (
+                        <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm mb-3">
+                          <img 
+                            src={opportunity.image} 
+                            alt={opportunity.title}
+                            className="w-full h-48 object-cover"
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Match Info - Simplified */}
+                      <div className="flex items-center space-x-4 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-3 h-3 rounded-full ${matchColors.dot}`}></div>
+                          <span className={`font-bold ${matchColors.text}`}>{opportunity.match}% Match</span>
+                        </div>
+                        <div className="flex items-center space-x-1 text-gray-600">
+                          <MapPin className="h-3 w-3" />
+                          <span>{opportunity.time}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Matching Gifts */}
+                      <div className="flex items-center space-x-1 mt-2">
+                        <span className="text-xs text-gray-500">Perfect for:</span>
+                        {opportunity.matchingGifts.map((gift, giftIndex) => (
+                          <Badge key={giftIndex} variant="outline" className="text-xs px-2 py-0.5">
+                            {gift}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Feed-Style Interactions */}
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                      <div className="flex items-center space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-spiritual-blue hover:text-spiritual-blue/90 hover:bg-spiritual-blue/5 px-2"
+                          onClick={() => handleApplyToServe(opportunity.id)}
+                          disabled={appliedOpportunities.includes(opportunity.id)}
+                          data-testid={`apply-${opportunity.id}`}
+                        >
+                          {appliedOpportunities.includes(opportunity.id) ? '✅ Applied' : '🙋 Apply to Serve'}
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-gray-500 hover:text-gray-700 hover:bg-gray-50 px-2"
+                        >
+                          💬 Ask Questions
+                        </Button>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleSaveOpportunity(opportunity.id)}
+                          data-testid={`save-${opportunity.id}`}
+                          className="px-2"
+                        >
+                          <Bookmark className={`h-4 w-4 ${savedOpportunities.includes(opportunity.id) ? 'fill-current text-spiritual-blue' : 'text-gray-500'}`} />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="px-2">
+                          <Share className="h-4 w-4 text-gray-500" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
 
             {/* Feed Posts */}
             <div className="space-y-4">
