@@ -333,6 +333,63 @@ export class DatabaseStorage implements IStorage {
     return await db.insert(questions).values(insertQuestions).returning();
   }
 
+  // Super Admin question management functions
+  async getAllAssessmentVersions(): Promise<AssessmentVersion[]> {
+    return await db
+      .select()
+      .from(assessmentVersions)
+      .orderBy(desc(assessmentVersions.createdAt));
+  }
+
+  async getAllQuestions(): Promise<Question[]> {
+    return await db
+      .select()
+      .from(questions)
+      .orderBy(questions.versionId, questions.orderIndex);
+  }
+
+  async updateQuestion(id: string, updates: Partial<InsertQuestion>): Promise<Question> {
+    const [question] = await db
+      .update(questions)
+      .set(updates)
+      .where(eq(questions.id, id))
+      .returning();
+    return question;
+  }
+
+  async deactivateQuestion(id: string): Promise<Question> {
+    const [question] = await db
+      .update(questions)
+      .set({ isActive: false })
+      .where(eq(questions.id, id))
+      .returning();
+    return question;
+  }
+
+  async updateAssessmentVersion(id: string, updates: Partial<InsertAssessmentVersion>): Promise<AssessmentVersion> {
+    const [version] = await db
+      .update(assessmentVersions)
+      .set(updates)
+      .where(eq(assessmentVersions.id, id))
+      .returning();
+    return version;
+  }
+
+  async setActiveAssessmentVersion(id: string): Promise<AssessmentVersion> {
+    // First deactivate all versions
+    await db
+      .update(assessmentVersions)
+      .set({ isActive: false });
+    
+    // Then activate the specified version
+    const [version] = await db
+      .update(assessmentVersions)
+      .set({ isActive: true })
+      .where(eq(assessmentVersions.id, id))
+      .returning();
+    return version;
+  }
+
   // Response operations
   async createResponse(insertResponse: InsertResponse): Promise<Response> {
     if (!insertResponse.organizationId) {

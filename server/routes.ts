@@ -1522,6 +1522,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Super Admin Question Bank Management routes
+  app.get("/api/super-admin/assessment-versions", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const versions = await storage.getAllAssessmentVersions();
+      res.json(versions);
+    } catch (error) {
+      console.error("Get assessment versions error:", error);
+      res.status(500).json({ message: "Failed to get assessment versions" });
+    }
+  });
+
+  app.get("/api/super-admin/questions", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const questions = await storage.getAllQuestions();
+      res.json(questions);
+    } catch (error) {
+      console.error("Get all questions error:", error);
+      res.status(500).json({ message: "Failed to get questions" });
+    }
+  });
+
+  app.get("/api/super-admin/questions/:versionId", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { versionId } = req.params;
+      const questions = await storage.getQuestionsByVersion(versionId);
+      res.json(questions);
+    } catch (error) {
+      console.error("Get questions by version error:", error);
+      res.status(500).json({ message: "Failed to get questions for version" });
+    }
+  });
+
+  app.post("/api/super-admin/questions", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const questionData = req.body;
+      const question = await storage.createQuestion(questionData);
+      res.json(question);
+    } catch (error) {
+      console.error("Create question error:", error);
+      res.status(500).json({ message: "Failed to create question" });
+    }
+  });
+
+  app.put("/api/super-admin/questions/:id", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const question = await storage.updateQuestion(id, updates);
+      res.json(question);
+    } catch (error) {
+      console.error("Update question error:", error);
+      res.status(500).json({ message: "Failed to update question" });
+    }
+  });
+
+  app.delete("/api/super-admin/questions/:id", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const question = await storage.deactivateQuestion(id);
+      res.json(question);
+    } catch (error) {
+      console.error("Deactivate question error:", error);
+      res.status(500).json({ message: "Failed to deactivate question" });
+    }
+  });
+
+  app.post("/api/super-admin/assessment-versions", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const versionData = req.body;
+      const version = await storage.createAssessmentVersion(versionData);
+      res.json(version);
+    } catch (error) {
+      console.error("Create assessment version error:", error);
+      res.status(500).json({ message: "Failed to create assessment version" });
+    }
+  });
+
+  app.put("/api/super-admin/assessment-versions/:id", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const version = await storage.updateAssessmentVersion(id, updates);
+      res.json(version);
+    } catch (error) {
+      console.error("Update assessment version error:", error);
+      res.status(500).json({ message: "Failed to update assessment version" });
+    }
+  });
+
+  app.post("/api/super-admin/assessment-versions/:id/activate", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const version = await storage.setActiveAssessmentVersion(id);
+      res.json(version);
+    } catch (error) {
+      console.error("Activate assessment version error:", error);
+      res.status(500).json({ message: "Failed to activate assessment version" });
+    }
+  });
+
   // User Role Management
   app.put("/api/admin/users/:userId/role", isAuthenticated, requireOrgOwner, async (req, res) => {
     try {

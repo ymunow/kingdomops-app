@@ -24,6 +24,7 @@ import AdminOrganizations from "@/pages/admin-organizations";
 import AdminOrganizationDetail from "@/pages/admin-organization-detail";
 import AdminOrganizationSettings from "@/pages/admin-organization-settings";
 import AdminSystem from "@/pages/admin-system";
+import AdminQuestions from "@/pages/admin-questions";
 import ChurchOverview from "@/pages/church-overview";
 import LeaderOpportunities from "@/pages/leader-opportunities";
 import Dashboard from "@/pages/dashboard";
@@ -201,6 +202,7 @@ function Router() {
                 </Route>
                 <Route path="/admin/organizations/:id" component={AdminOrganizationDetail} />
                 <Route path="/admin/system" component={AdminSystem} />
+        <Route path="/admin/questions" component={AdminQuestions} />
                 
                 {/* Super Admin specific routes */}
                 <Route path="/super-admin" component={AdminPlatform} />

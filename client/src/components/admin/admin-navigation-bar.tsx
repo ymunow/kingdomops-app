@@ -104,7 +104,7 @@ export function AdminNavigationBar({ className = "" }: AdminNavigationBarProps) 
                 <ChevronUp className="h-4 w-4" />
               </Button>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -122,6 +122,15 @@ export function AdminNavigationBar({ className = "" }: AdminNavigationBarProps) 
               >
                 <Church className="mr-1 h-3 w-3" />
                 Churches
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLocation('/admin/questions')}
+                className="bg-white hover:bg-purple-50 text-xs"
+              >
+                <Award className="mr-1 h-3 w-3" />
+                Questions
               </Button>
               <Button
                 variant="outline"
