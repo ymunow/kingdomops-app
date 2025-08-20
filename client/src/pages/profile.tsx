@@ -121,17 +121,26 @@ export default function Profile() {
 
   return (
     <MainLayout>
-      <div className="max-w-5xl mx-auto bg-white rounded-lg overflow-hidden shadow-sm">
+      <div className="max-w-5xl mx-auto bg-white overflow-hidden shadow-sm">
         {/* Cover Photo Section - Facebook Style */}
         <div className="relative">
           {/* Cover Photo */}
-          <div className="relative h-96 overflow-hidden bg-gray-300">
+          <div className="relative h-96 overflow-hidden bg-gray-300 group cursor-pointer">
             <img 
               src={mockProfileData.coverPhoto} 
               alt="Cover"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-all duration-200 group-hover:brightness-90"
             />
-            <div className="absolute inset-0 bg-black/5" />
+            
+            {/* Hover Overlay */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-3">
+                <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center space-x-2">
+                  <Camera className="h-5 w-5 text-gray-700" />
+                  <span className="text-gray-700 font-medium">Edit cover photo</span>
+                </div>
+              </div>
+            </div>
             
             {/* Cover Photo Edit Button */}
             <Button
@@ -147,8 +156,8 @@ export default function Profile() {
 
           {/* Profile Picture - Overlapping Facebook Style */}
           <div className="absolute bottom-0 left-8 transform translate-y-1/2">
-            <div className="relative">
-              <Avatar className="w-44 h-44 border-4 border-white shadow-xl bg-white">
+            <div className="relative group cursor-pointer">
+              <Avatar className="w-44 h-44 border-4 border-white shadow-xl bg-white transition-all duration-200 group-hover:brightness-90">
                 {user?.profileImageUrl && (
                   <AvatarImage 
                     src={user.profileImageUrl} 
@@ -160,6 +169,17 @@ export default function Profile() {
                   {user?.displayName?.charAt(0) || user?.firstName?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
+              
+              {/* Profile Picture Hover Overlay */}
+              <div className="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1 flex items-center space-x-1">
+                    <Camera className="h-4 w-4 text-gray-700" />
+                    <span className="text-gray-700 font-medium text-sm">Update</span>
+                  </div>
+                </div>
+              </div>
+              
               <div className="absolute bottom-3 right-3">
                 <ObjectUploader
                   maxNumberOfFiles={1}
@@ -256,7 +276,7 @@ export default function Profile() {
         </div>
 
         {/* Content Area */}
-        <div className="p-6">
+        <div className="p-6 bg-white rounded-b-lg">
           {/* Edit Profile Section */}
           {isEditingProfile && (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
