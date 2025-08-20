@@ -138,6 +138,30 @@ export function MainLayout({ children }: MainLayoutProps) {
               </div>
             )}
             
+            {/* Profile Avatar - For non-admin users */}
+            {!isAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleProfileClick}
+                className="text-white hover:bg-white/10 rounded-full p-2"
+                data-testid="header-profile"
+              >
+                <Avatar className="w-8 h-8">
+                  {user?.profileImageUrl && (
+                    <AvatarImage 
+                      src={user.profileImageUrl} 
+                      alt="Profile" 
+                      className="object-cover" 
+                    />
+                  )}
+                  <AvatarFallback className="bg-white/20 text-white text-sm font-bold">
+                    {user?.displayName?.charAt(0) || user?.firstName?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            )}
+            
             {/* Divider */}
             <div className="hidden sm:block w-px h-6 bg-white/30" />
             {/* Notifications */}

@@ -16,6 +16,7 @@ const mainNavigationItems = [
   { path: '/events', icon: Calendar, label: 'Events', description: 'Church gatherings' },
   { path: '/connect', icon: Users, label: 'Serve', description: 'Ministry opportunities' },
   { path: '/gifts', icon: Gift, label: 'Spiritual Gifts', description: 'Your assessment results' },
+  { path: '/profile', icon: User, label: 'Profile', description: 'Your account & settings' },
 ];
 
 const superAdminItems = [
@@ -297,6 +298,19 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
 
         {/* Footer */}
         <div className="mt-6 sm:mt-8 p-4 sm:p-6 border-t border-gray-100">
+          <div className="mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              disabled={signOutMutation.isPending}
+              className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 flex items-center justify-center"
+              data-testid="drawer-sign-out"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
           <p className="text-xs text-gray-500 text-center">
             KingdomOps Platform
             <br />
