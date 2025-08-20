@@ -29,6 +29,7 @@ import ChurchOverview from "@/pages/church-overview";
 import LeaderOpportunities from "@/pages/leader-opportunities";
 import Dashboard from "@/pages/dashboard";
 import Profile from "@/pages/profile";
+import Feed from "@/pages/feed";
 import Events from "@/pages/events";
 import Serve from "@/pages/serve";
 import Gifts from "@/pages/gifts";
@@ -168,6 +169,7 @@ function Router() {
             <Route path="/assessment" component={Assessment} />
             <Route path="/my-results" component={MyResults} />
             <Route path="/profile" component={Profile} />
+            <Route path="/feed" component={Feed} />
             <Route path="/events" component={Events} />
             <Route path="/serve" component={Serve} />
             <Route path="/gifts" component={Gifts} />
