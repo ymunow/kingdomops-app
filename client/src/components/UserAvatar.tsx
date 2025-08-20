@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 interface UserAvatarProps {
   user?: {
     profileImageUrl?: string | null;
+    profile_image_url?: string | null; // Support snake_case from database
     displayName?: string | null;
     firstName?: string | null;
     lastName?: string | null;
@@ -25,11 +26,14 @@ export function UserAvatar({
     user?.firstName?.charAt(0) || 
     'U';
   
+  // Get profile image URL (support both camelCase and snake_case)
+  const profileImageUrl = user?.profileImageUrl || user?.profile_image_url;
+  
   return (
     <Avatar className={cn("h-10 w-10", className)}>
-      {user?.profileImageUrl && (
+      {profileImageUrl && (
         <AvatarImage 
-          src={user.profileImageUrl} 
+          src={profileImageUrl} 
           alt={`${displayName}'s profile picture`} 
           className="object-cover" 
         />
