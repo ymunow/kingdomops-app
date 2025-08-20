@@ -757,13 +757,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Get user to extract organization ID
-        const user = await storage.getUser(req.user.userId);
+        const user = await storage.getUser(req.user.id);
         if (!user || !user.organizationId) {
           return res.status(400).json({ message: "User organization not found" });
         }
 
         const response = await storage.createResponse({
-          userId: req.user.userId,
+          userId: req.user.id,
           versionId: activeVersion.id,
           organizationId: user.organizationId,
         });
@@ -789,7 +789,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Validate response belongs to user
         const response = await storage.getResponse(responseId);
-        if (!response || response.userId !== req.user.userId) {
+        if (!response || response.userId !== req.user.id) {
           return res.status(404).json({ message: "Response not found" });
         }
 
@@ -827,7 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         expirationDate.setDate(expirationDate.getDate() + 90);
         
         // Get user to extract organization ID for result
-        const user = await storage.getUser(req.user.userId);
+        const user = await storage.getUser(req.user.id);
         if (!user || !user.organizationId) {
           return res.status(400).json({ message: "User organization not found" });
         }
@@ -853,7 +853,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Send email with results
         try {
-          const user = await storage.getUser(req.user.userId);
+          const user = await storage.getUser(req.user.id);
           if (user?.email) {
             await emailService.sendAssessmentResults(
               user.email,
