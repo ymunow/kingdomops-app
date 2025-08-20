@@ -7,7 +7,7 @@ import { giftContent } from "./content/gifts";
 import { emailService } from "./services/email";
 import { sendEmail } from "./services/email-service";
 import { generateChurchWelcomeEmail } from "./services/email-templates";
-import { setupSupabaseAuth, isAuthenticated } from "./supabaseAuth";
+import { setupSupabaseAuth, isAuthenticated, supabase } from "./supabaseAuth";
 import {
   requirePermission,
   requireRole,
@@ -588,7 +588,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         ageRange: req.body.ageRange,
-        role: "PARTICIPANT" as const,
+        role: "CHURCH_MEMBER" as const,
         profileCompleted: true
       };
 
@@ -598,8 +598,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "A user with this email already exists" });
       }
 
-      // Create the user
-      const user = await storage.createUser(userData);
+      // First create the user in Supabase auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: req.body.email,
+        password: req.body.password,
+        options: {
+          data: {
+            first_name: req.body.firstName,
+            last_name: req.body.lastName,
+          },
+          emailRedirectTo: process.env.NODE_ENV === 'production' 
+            ? `https://kingdomops.org/auth?confirmed=true`
+            : `${req.protocol}://${req.get('host')}/auth?confirmed=true`
+        }
+      });
+
+      if (authError) {
+        return res.status(400).json({ message: authError.message });
+      }
+
+      if (!authData.user) {
+        return res.status(400).json({ message: "Failed to create authentication account" });
+      }
+
+      // Then create the user in our database with the Supabase user ID
+      const userDataWithId = {
+        ...userData,
+        id: authData.user.id
+      };
+      const user = await storage.createUser(userDataWithId);
 
       res.json({
         user,

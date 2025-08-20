@@ -33,9 +33,16 @@ const joinCongregationSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain at least one uppercase letter, one lowercase letter, and one number"),
+  confirmPassword: z.string(),
   ageRange: z.enum(["18-25", "26-35", "36-45", "46-55", "56-65", "66+"], {
     required_error: "Please select an age range"
   })
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
 type JoinCongregationData = z.infer<typeof joinCongregationSchema>;
@@ -60,6 +67,8 @@ export default function JoinCongregation() {
       firstName: "",
       lastName: "",
       email: "",
+      password: "",
+      confirmPassword: "",
       ageRange: "26-35"
     }
   });
@@ -423,6 +432,46 @@ export default function JoinCongregation() {
                       </FormItem>
                     )}
                   />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="password" 
+                              placeholder="Create a secure password" 
+                              {...field} 
+                              data-testid="input-password"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="password" 
+                              placeholder="Confirm your password" 
+                              {...field} 
+                              data-testid="input-confirm-password"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <FormField
                     control={form.control}
