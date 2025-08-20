@@ -118,7 +118,7 @@ export default function Profile() {
         {/* Cover Photo Section - Facebook Style */}
         <div className="relative">
           {/* Cover Photo */}
-          <div className="relative h-96 overflow-hidden bg-gray-300 group cursor-pointer">
+          <div className="relative h-96 overflow-hidden bg-gray-300 group cursor-pointer rounded-b-lg">
             <img 
               src={mockProfileData.coverPhoto} 
               alt="Cover"
