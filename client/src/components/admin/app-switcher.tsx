@@ -49,14 +49,14 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
   
   const getThemeConfig = (): ThemeConfig => {
     if (isSuperAdmin) {
-      // Super Admin: Dark "control center" theme
+      // Super Admin: Modern purple glassmorphism theme
       return {
-        buttonClass: "bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/40 shadow-lg hover:shadow-amber-500/25 transition-all duration-200",
-        dropdownClass: "bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700 text-white",
-        iconClass: "text-amber-400",
-        badgeClass: "bg-amber-500 text-slate-900",
-        recentHeaderClass: "text-slate-300",
-        pillarHeaderClass: "text-amber-400 font-semibold"
+        buttonClass: "bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/40 shadow-lg hover:shadow-warm-gold/25 transition-all duration-200",
+        dropdownClass: "bg-gradient-to-br from-spiritual-blue/95 via-purple-900/90 to-purple-800/95 backdrop-blur-xl border-white/20 text-white shadow-2xl",
+        iconClass: "text-warm-gold",
+        badgeClass: "bg-warm-gold text-spiritual-blue",
+        recentHeaderClass: "text-purple-200",
+        pillarHeaderClass: "text-warm-gold font-semibold"
       };
     } else if (isChurchAdmin) {
       // Church Admin: Warm community theme
@@ -282,10 +282,10 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
 
   // Desktop Dropdown Content
   const DesktopContent = () => (
-    <div className={`w-80 p-0 ${theme.dropdownClass} rounded-xl shadow-2xl border`}>
+    <div className={`w-80 p-0 ${theme.dropdownClass} rounded-xl shadow-2xl border ring-1 ring-white/10`}>
       {/* Header */}
-      <div className="p-4 border-b border-opacity-20">
-        <h3 className={`font-semibold text-sm ${isSuperAdmin ? 'text-amber-300' : 'text-spiritual-blue'}`}>KingdomOps Apps</h3>
+      <div className="p-4 border-b border-white/10 bg-gradient-to-r from-white/5 to-transparent">
+        <h3 className={`font-semibold text-sm ${isSuperAdmin ? 'text-warm-gold' : 'text-spiritual-blue'} tracking-wide`}>KingdomOps Apps</h3>
       </div>
       
       {/* Recent Items */}
@@ -302,20 +302,20 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
                 <button
                   key={item.id}
                   onClick={() => handleRecentClick(item)}
-                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all text-left group ${isSuperAdmin ? 'hover:bg-white/10' : 'hover:bg-spiritual-blue/5'}`}
+                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-300 text-left group ${isSuperAdmin ? 'hover:bg-white/10 hover:shadow-lg hover:shadow-warm-gold/10' : 'hover:bg-spiritual-blue/5'}`}
                 >
-                  <div className={`w-8 h-8 rounded-lg ${theme.iconClass} bg-opacity-10 flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                  <div className={`w-8 h-8 rounded-lg ${isSuperAdmin ? 'bg-warm-gold/20' : theme.iconClass + ' bg-opacity-10'} flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300`}>
                     <Icon className={`h-4 w-4 ${theme.iconClass}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`font-medium text-sm ${isSuperAdmin ? 'text-white' : 'text-gray-900'} truncate`}>{item.name}</p>
-                    <p className={`text-xs ${isSuperAdmin ? 'text-slate-400' : 'text-gray-500'}`}>{item.lastVisited}</p>
+                    <p className={`text-xs ${isSuperAdmin ? 'text-purple-300' : 'text-gray-500'}`}>{item.lastVisited}</p>
                   </div>
                 </button>
               );
             })}
           </div>
-          <div className={`border-t my-4 ${isSuperAdmin ? 'border-slate-600' : 'border-gray-100'}`} />
+          <div className={`border-t my-4 ${isSuperAdmin ? 'border-white/10' : 'border-gray-100'}`} />
         </div>
       )}
 
@@ -331,9 +331,9 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
                   <button
                     key={module.id}
                     onClick={() => handleModuleClick(module)}
-                    className={`flex items-center space-x-3 p-3 rounded-lg transition-all text-left group ${isSuperAdmin ? 'hover:bg-white/10' : 'hover:bg-spiritual-blue/5'}`}
+                    className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-300 text-left group ${isSuperAdmin ? 'hover:bg-white/10 hover:shadow-lg hover:shadow-warm-gold/10' : 'hover:bg-spiritual-blue/5'}`}
                   >
-                    <div className={`w-10 h-10 rounded-xl ${isSuperAdmin ? 'bg-amber-500/20' : 'bg-spiritual-blue/10'} flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                    <div className={`w-10 h-10 rounded-xl ${isSuperAdmin ? 'bg-warm-gold/20' : 'bg-spiritual-blue/10'} flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300`}>
                       <Icon className={`h-5 w-5 ${theme.iconClass}`} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -345,14 +345,14 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
                           </Badge>
                         )}
                       </div>
-                      <p className={`text-xs ${isSuperAdmin ? 'text-slate-400' : 'text-gray-600'} truncate`}>{module.description}</p>
+                      <p className={`text-xs ${isSuperAdmin ? 'text-purple-300' : 'text-gray-600'} truncate`}>{module.description}</p>
                     </div>
                   </button>
                 );
               })}
             </div>
             {pillar !== Object.keys(groupedModules)[Object.keys(groupedModules).length - 1] && (
-              <div className={`border-t my-4 ${isSuperAdmin ? 'border-slate-600' : 'border-gray-100'}`} />
+              <div className={`border-t my-4 ${isSuperAdmin ? 'border-white/10' : 'border-gray-100'}`} />
             )}
           </div>
         ))}
