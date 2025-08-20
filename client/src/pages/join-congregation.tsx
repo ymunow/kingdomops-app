@@ -58,7 +58,7 @@ export default function JoinCongregation() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'invite' | 'details'>('invite');
+  const [currentStep, setCurrentStep] = useState<'invite' | 'details' | 'success'>('invite');
 
   const form = useForm<JoinCongregationData>({
     resolver: zodResolver(joinCongregationSchema),
@@ -108,14 +108,7 @@ export default function JoinCongregation() {
     },
     onSuccess: (data) => {
       setIsSubmitting(false);
-      toast({
-        title: "Account created successfully!",
-        description: `Please check your email and click the confirmation link before signing in to ${organization?.name}.`
-      });
-      // Redirect to login for authentication
-      setTimeout(() => {
-        window.location.href = "/auth?message=check-email";
-      }, 3000);
+      setCurrentStep('success');
     },
     onError: (error) => {
       setIsSubmitting(false);
@@ -283,6 +276,120 @@ export default function JoinCongregation() {
               <div className="text-xs text-gray-500 pt-2 border-t border-gray-200">
                 <p>You can also visit your church's direct link:</p>
                 <p className="font-medium">yourchurch.kingdomops.org</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 3: Success Page
+  if (currentStep === 'success') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100">
+        <nav className="bg-white/80 backdrop-blur-md shadow-sm border-b border-green-100/50 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
+                <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
+                <div>
+                  <h1 className="font-display font-bold text-xl text-charcoal">
+                    KingdomOps
+                  </h1>
+                </div>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <div className="flex items-center justify-center p-4 pt-16">
+          <div className="w-full max-w-2xl text-center">
+            {/* Success Icon */}
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-8 shadow-2xl">
+              <CheckCircle className="h-12 w-12 text-white" />
+            </div>
+
+            {/* Success Message */}
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text text-transparent mb-6">
+              Welcome to {organization?.name}!
+            </h1>
+            
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-green-200/50 mb-8">
+              <div className="flex items-center justify-center mb-4">
+                <div className="p-3 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full">
+                  <Church className="h-8 w-8 text-green-600" />
+                </div>
+              </div>
+              
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Account Created Successfully!</h2>
+              
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-200/50">
+                <div className="flex items-start space-x-3">
+                  <div className="p-2 bg-blue-500 rounded-full mt-1">
+                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 7.89a4 4 0 005.66 0L21 11M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-900 mb-2">Check Your Email</p>
+                    <p className="text-gray-700 text-sm">
+                      We've sent a confirmation link to your email address. Please click the link to verify your account before signing in.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-left space-y-4">
+                <h3 className="font-semibold text-gray-900 text-lg">What's Next?</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-gradient-to-r from-spiritual-blue to-purple-700 rounded-full flex items-center justify-center mt-0.5">
+                      <span className="text-white text-xs font-bold">1</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Verify your email address</p>
+                      <p className="text-gray-600 text-sm">Click the confirmation link we just sent you</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-gradient-to-r from-spiritual-blue to-purple-700 rounded-full flex items-center justify-center mt-0.5">
+                      <span className="text-white text-xs font-bold">2</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Sign in and take your spiritual gifts assessment</p>
+                      <p className="text-gray-600 text-sm">Discover your God-given gifts and connect with ministry opportunities</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-gradient-to-r from-spiritual-blue to-purple-700 rounded-full flex items-center justify-center mt-0.5">
+                      <span className="text-white text-xs font-bold">3</span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Get matched with serving opportunities</p>
+                      <p className="text-gray-600 text-sm">Connect with ministries that align with your gifts and interests</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-4">
+              <Button
+                onClick={() => setLocation("/auth")}
+                className="bg-gradient-to-r from-spiritual-blue to-purple-700 hover:from-purple-700 hover:to-spiritual-blue text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4 text-lg rounded-xl w-full md:w-auto"
+                data-testid="button-go-to-signin"
+              >
+                Go to Sign In
+                <ArrowRight className="ml-3 h-5 w-5" />
+              </Button>
+              
+              <div className="text-gray-600 text-sm">
+                <p>Didn't receive the email? Check your spam folder or </p>
+                <button className="text-spiritual-blue hover:underline font-medium">
+                  contact your church administrator
+                </button>
               </div>
             </div>
           </div>
