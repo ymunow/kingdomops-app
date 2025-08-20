@@ -197,10 +197,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const resetPasswordMutation = useMutation({
     mutationFn: async ({ email }: { email: string }) => {
+      // Use the current window origin which will be the Replit URL in development
+      const redirectUrl = `${window.location.origin}/auth?reset=true`;
+      console.log('Password reset redirect URL:', redirectUrl);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: process.env.NODE_ENV === 'production' 
-          ? 'https://kingdomops.org/auth?reset=true'
-          : `${window.location.origin}/auth?reset=true`
+        redirectTo: redirectUrl
       });
       if (error) throw error;
     },

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "@/hooks/useSupabaseAuth";
+import { useAuth, useSupabase } from "@/hooks/useSupabaseAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { Crown, Eye, EyeOff, Check } from "lucide-react";
 
 export default function AuthPage() {
   const { user, signInMutation, resetPasswordMutation } = useAuth();
+  const supabase = useSupabase();
   const [, setLocation] = useLocation();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showEmailCheck, setShowEmailCheck] = useState(false);
@@ -19,8 +20,11 @@ export default function AuthPage() {
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
-  // Check for confirmation and email check parameters
+  // Check for confirmation, email check, and password reset parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('confirmed') === 'true') {
@@ -28,6 +32,9 @@ export default function AuthPage() {
     }
     if (urlParams.get('message') === 'check-email') {
       setShowEmailCheck(true);
+    }
+    if (urlParams.get('reset') === 'true') {
+      setShowPasswordReset(true);
     }
   }, []);
 
@@ -37,6 +44,86 @@ export default function AuthPage() {
       setLocation('/');
     }
   }, [user, setLocation]);
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmNewPassword) {
+      setErrors({ confirmPassword: "Passwords don't match" });
+      return;
+    }
+    
+    if (newPassword.length < 8) {
+      setErrors({ password: "Password must be at least 8 characters" });
+      return;
+    }
+    
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      
+      // Clear form and redirect
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setShowPasswordReset(false);
+      window.history.replaceState({}, '', '/auth');
+      
+      // Show success message
+      alert('Password updated successfully! You can now sign in with your new password.');
+    } catch (error: any) {
+      setErrors({ general: error.message });
+    }
+  };
+
+  if (showPasswordReset) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-purple-50/30">
+        <Card className="w-full max-w-md shadow-xl border border-spiritual-blue/20 bg-white/90 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center mb-4">
+              <Crown className="text-warm-gold h-8 w-8 mr-3" />
+              <CardTitle className="text-spiritual-blue text-2xl">Reset Password</CardTitle>
+            </div>
+            <CardDescription>Enter your new password below</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handlePasswordReset} className="space-y-4">
+              <div>
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  required
+                  className="mt-1"
+                />
+                {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password}</p>}
+              </div>
+              <div>
+                <Label htmlFor="confirm-new-password">Confirm New Password</Label>
+                <Input
+                  id="confirm-new-password"
+                  type="password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                  required
+                  className="mt-1"
+                />
+                {errors.confirmPassword && <p className="text-red-600 text-sm mt-1">{errors.confirmPassword}</p>}
+              </div>
+              {errors.general && <p className="text-red-600 text-sm">{errors.general}</p>}
+              <Button type="submit" className="w-full bg-spiritual-blue text-white hover:bg-purple-800">
+                Update Password
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (showEmailCheck) {
     return (
