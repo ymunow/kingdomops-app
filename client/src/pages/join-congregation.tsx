@@ -105,7 +105,7 @@ export default function JoinCongregation() {
       });
       // Redirect to login for authentication
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/auth";
       }, 2000);
     },
     onError: (error) => {

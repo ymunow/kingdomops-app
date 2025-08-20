@@ -91,7 +91,7 @@ export default function ChurchAdminWelcome() {
               Please sign in to access your admin dashboard and complete the setup.
             </p>
             <Button 
-              onClick={() => window.location.href = "/api/login"}
+              onClick={() => window.location.href = "/auth"}
               className="w-full bg-spiritual-blue hover:bg-purple-800"
               data-testid="button-admin-login"
             >
