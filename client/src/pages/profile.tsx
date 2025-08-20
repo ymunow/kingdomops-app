@@ -27,7 +27,7 @@ export default function Profile() {
 
   const mockProfileData = {
     name: user?.displayName || 'Your Name',
-    coverPhoto: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=400&fit=crop',
+    coverPhoto: user?.coverPhotoUrl || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=400&fit=crop',
     location: 'San Francisco, CA',
     bio: 'Passionate about serving God and building community. Love worship music and youth ministry.',
     spiritualGifts: ['Leadership', 'Teaching', 'Encouragement'],

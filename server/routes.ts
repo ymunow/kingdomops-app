@@ -129,8 +129,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Update profile picture
   app.put("/api/profile/picture", isAuthenticated, async (req: any, res) => {
-    if (!req.body.profileImageURL) {
-      return res.status(400).json({ error: "profileImageURL is required" });
+    if (!req.body.profileImageUrl) {
+      return res.status(400).json({ error: "profileImageUrl is required" });
     }
 
     const userId = req.user.id;
@@ -138,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const objectStorageService = new ObjectStorageService();
       const objectPath = objectStorageService.normalizeObjectEntityPath(
-        req.body.profileImageURL
+        req.body.profileImageUrl
       );
 
       // Update user profile with image URL
@@ -149,6 +149,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json(updatedUser);
     } catch (error) {
       console.error("Error setting profile picture:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Update cover photo
+  app.put("/api/profile/cover", isAuthenticated, async (req: any, res) => {
+    if (!req.body.coverPhotoUrl) {
+      return res.status(400).json({ error: "coverPhotoUrl is required" });
+    }
+
+    const userId = req.user.id;
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(
+        req.body.coverPhotoUrl
+      );
+
+      // Update user profile with cover photo URL
+      const updatedUser = await storage.completeUserProfile(userId, {
+        coverPhotoUrl: objectPath
+      } as any);
+
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      console.error("Error setting cover photo:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

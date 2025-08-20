@@ -219,6 +219,7 @@ export const users = pgTable("users", {
   displayName: varchar("display_name"),
   ageRange: ageRangeEnum("age_range"),
   profileImageUrl: varchar("profile_image_url"),
+  coverPhotoUrl: varchar("cover_photo_url"),
   profileCompleted: boolean("profile_completed").default(false),
   role: roleEnum("role").default("CHURCH_MEMBER"),
   lastActiveAt: timestamp("last_active_at").defaultNow(),
