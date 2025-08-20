@@ -501,7 +501,7 @@ export default function Landing() {
                 <span className="bg-spiritual-blue text-white px-3 py-1 rounded-full text-sm font-medium">BETA</span>
               </div>
               <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-900 mb-6 leading-tight">
-                The operating system for{" "}
+                The Kingdom Operating System for{" "}
                 <span className="text-spiritual-blue">your church</span>
               </h1>
               <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
