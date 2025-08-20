@@ -522,7 +522,7 @@ export default function Landing() {
                 Discover Your Spiritual Gifts
               </h2>
               <p className="text-purple-100 mb-6 text-center lg:text-left">
-                Uncover how God has uniquely equipped you through our comprehensive assessment.
+                Take our assessment to uncover your God-given gifts and connect with ministry opportunities in your church.
               </p>
               <Button
                 onClick={isAuthenticated ? startAssessment : () => setLocation("/join")}
