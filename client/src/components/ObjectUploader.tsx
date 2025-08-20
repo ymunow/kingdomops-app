@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 import Uppy from "@uppy/core";
 import { DashboardModal } from "@uppy/react";
@@ -59,31 +59,47 @@ export function ObjectUploader({
   children,
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
-  const [uppy] = useState(() =>
-    new Uppy({
+  const [uppy] = useState(() => {
+    const uppyInstance = new Uppy({
       restrictions: {
         maxNumberOfFiles,
         maxFileSize,
         allowedFileTypes: ['image/*'],
       },
       autoProceed: false,
-    })
-      .use(AwsS3, {
-        shouldUseMultipart: false,
-        getUploadParameters: onGetUploadParameters,
-      })
-      .on("complete", (result) => {
-        setShowModal(false);
-        onComplete?.(result);
-      })
-  );
+    });
+
+    uppyInstance.use(AwsS3, {
+      shouldUseMultipart: false,
+      getUploadParameters: onGetUploadParameters,
+    });
+
+    uppyInstance.on("complete", (result) => {
+      setShowModal(false);
+      onComplete?.(result);
+    });
+
+    return uppyInstance;
+  });
+
+  const handleButtonClick = useCallback(() => {
+    console.log('Upload button clicked'); // Debug log
+    setShowModal(true);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      uppy.close();
+    };
+  }, [uppy]);
 
   return (
     <div>
       <Button 
-        onClick={() => setShowModal(true)} 
+        onClick={handleButtonClick}
         className={buttonClassName}
-        variant="outline"
+        variant="ghost"
+        type="button"
       >
         {children}
       </Button>
@@ -93,7 +109,6 @@ export function ObjectUploader({
         open={showModal}
         onRequestClose={() => setShowModal(false)}
         proudlyDisplayPoweredByUppy={false}
-        plugins={["ImageEditor"]}
         note="Upload your profile picture to make your feed more personal!"
       />
     </div>
