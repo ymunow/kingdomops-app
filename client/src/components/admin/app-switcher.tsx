@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid3X3, BarChart3, Target, Settings, Crown, ChevronDown, Clock, User, Users, Shield, TrendingUp, Calendar, MessageSquare, Zap } from 'lucide-react';
+import { Grid3X3, BarChart3, Target, Settings, Crown, ChevronDown, Clock, User, Users, Shield, TrendingUp, Calendar, MessageSquare, Zap, Sparkles, Cog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
@@ -49,14 +49,14 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
   
   const getThemeConfig = (): ThemeConfig => {
     if (isSuperAdmin) {
-      // Super Admin: Modern purple glassmorphism theme
+      // Super Admin: Premium glassmorphism theme
       return {
-        buttonClass: "bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/40 shadow-lg hover:shadow-warm-gold/25 transition-all duration-200",
-        dropdownClass: "bg-gradient-to-br from-spiritual-blue/95 via-purple-900/90 to-purple-800/95 backdrop-blur-xl border-white/20 text-white shadow-2xl",
+        buttonClass: "bg-white/20 border-white/30 text-white hover:bg-white/30 hover:border-white/40 shadow-lg hover:shadow-warm-gold/30 transition-all duration-300",
+        dropdownClass: "bg-gradient-to-br from-spiritual-blue/80 via-purple-900/85 to-purple-800/80 backdrop-blur-2xl border-white/10 text-white shadow-2xl ring-1 ring-white/5",
         iconClass: "text-warm-gold",
-        badgeClass: "bg-warm-gold text-spiritual-blue",
-        recentHeaderClass: "text-purple-200",
-        pillarHeaderClass: "text-warm-gold font-semibold"
+        badgeClass: "bg-warm-gold text-spiritual-blue font-semibold",
+        recentHeaderClass: "text-purple-100",
+        pillarHeaderClass: "text-warm-gold font-bold tracking-wide"
       };
     } else if (isChurchAdmin) {
       // Church Admin: Warm community theme
@@ -280,20 +280,36 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
     </div>
   );
 
+  // Get pillar icon
+  const getPillarIcon = (pillar: string) => {
+    switch (pillar) {
+      case 'Insights':
+        return TrendingUp;
+      case 'Management':
+        return Cog;
+      case 'Growth':
+        return Sparkles;
+      case 'Engagement':
+        return Users;
+      default:
+        return Settings;
+    }
+  };
+
   // Desktop Dropdown Content
   const DesktopContent = () => (
-    <div className={`w-80 p-0 ${theme.dropdownClass} rounded-xl shadow-2xl border ring-1 ring-white/10`}>
+    <div className={`w-80 p-0 ${theme.dropdownClass} rounded-2xl shadow-2xl border animate-in slide-in-from-top-2 fade-in-0 duration-300`}>
       {/* Header */}
-      <div className="p-4 border-b border-white/10 bg-gradient-to-r from-white/5 to-transparent">
-        <h3 className={`font-semibold text-sm ${isSuperAdmin ? 'text-warm-gold' : 'text-spiritual-blue'} tracking-wide`}>KingdomOps Apps</h3>
+      <div className="p-5 border-b border-white/5 bg-gradient-to-r from-white/10 via-white/5 to-transparent backdrop-blur-sm">
+        <h3 className={`font-bold text-sm ${isSuperAdmin ? 'text-warm-gold' : 'text-spiritual-blue'} tracking-wide uppercase`}>KingdomOps Apps</h3>
       </div>
       
       {/* Recent Items */}
       {recentItems.length > 0 && (
-        <div className="p-4">
-          <div className="flex items-center space-x-2 mb-3">
+        <div className="p-5 pb-3">
+          <div className="flex items-center space-x-2 mb-4">
             <Clock className={`h-4 w-4 ${theme.recentHeaderClass}`} />
-            <h3 className={`font-medium text-sm ${theme.recentHeaderClass}`}>Recent</h3>
+            <h3 className={`font-semibold text-sm ${theme.recentHeaderClass} tracking-wide uppercase`}>Recent</h3>
           </div>
           <div className="grid gap-1">
             {recentItems.map((item) => {
@@ -302,28 +318,33 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
                 <button
                   key={item.id}
                   onClick={() => handleRecentClick(item)}
-                  className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-300 text-left group ${isSuperAdmin ? 'hover:bg-white/10 hover:shadow-lg hover:shadow-warm-gold/10' : 'hover:bg-spiritual-blue/5'}`}
+                  className={`flex items-center space-x-3 p-3 rounded-xl transition-all duration-300 text-left group ${isSuperAdmin ? 'hover:bg-white/10 hover:shadow-lg hover:shadow-warm-gold/20 hover:ring-1 hover:ring-warm-gold/30' : 'hover:bg-spiritual-blue/5'}`}
                 >
-                  <div className={`w-8 h-8 rounded-lg ${isSuperAdmin ? 'bg-warm-gold/20' : theme.iconClass + ' bg-opacity-10'} flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300`}>
-                    <Icon className={`h-4 w-4 ${theme.iconClass}`} />
+                  <div className={`w-9 h-9 rounded-xl ${isSuperAdmin ? 'bg-warm-gold/20 group-hover:bg-warm-gold/30' : theme.iconClass + ' bg-opacity-10'} flex items-center justify-center group-hover:scale-110 group-hover:shadow-lg transition-all duration-300`}>
+                    <Icon className={`h-4 w-4 ${theme.iconClass} group-hover:drop-shadow-sm`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`font-medium text-sm ${isSuperAdmin ? 'text-white' : 'text-gray-900'} truncate`}>{item.name}</p>
-                    <p className={`text-xs ${isSuperAdmin ? 'text-purple-300' : 'text-gray-500'}`}>{item.lastVisited}</p>
+                    <p className={`font-semibold text-sm ${isSuperAdmin ? 'text-white group-hover:text-warm-gold/90' : 'text-gray-900'} truncate transition-colors duration-300`}>{item.name}</p>
+                    <p className={`text-xs ${isSuperAdmin ? 'text-purple-200' : 'text-gray-500'} transition-colors duration-300`}>{item.lastVisited}</p>
                   </div>
                 </button>
               );
             })}
           </div>
-          <div className={`border-t my-4 ${isSuperAdmin ? 'border-white/10' : 'border-gray-100'}`} />
+          <div className={`border-t my-6 ${isSuperAdmin ? 'border-white/5' : 'border-gray-100'}`} />
         </div>
       )}
 
       {/* Modules by Pillar */}
-      <div className="px-4 pb-4">
-        {Object.entries(groupedModules).map(([pillar, modules]) => (
-          <div key={pillar} className="mb-4 last:mb-0">
-            <h3 className={`font-semibold text-xs uppercase tracking-wide mb-3 ${theme.pillarHeaderClass}`}>{pillar}</h3>
+      <div className="px-5 pb-5">
+        {Object.entries(groupedModules).map(([pillar, modules]) => {
+          const PillarIcon = getPillarIcon(pillar);
+          return (
+          <div key={pillar} className="mb-6 last:mb-0">
+            <div className="flex items-center space-x-2 mb-4">
+              <PillarIcon className={`h-4 w-4 ${theme.pillarHeaderClass}`} />
+              <h3 className={`font-bold text-xs uppercase tracking-wider ${theme.pillarHeaderClass}`}>{pillar}</h3>
+            </div>
             <div className="grid gap-1">
               {modules.map((module) => {
                 const Icon = module.icon;
@@ -331,31 +352,31 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
                   <button
                     key={module.id}
                     onClick={() => handleModuleClick(module)}
-                    className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-300 text-left group ${isSuperAdmin ? 'hover:bg-white/10 hover:shadow-lg hover:shadow-warm-gold/10' : 'hover:bg-spiritual-blue/5'}`}
+                    className={`flex items-center space-x-4 p-4 rounded-xl transition-all duration-300 text-left group ${isSuperAdmin ? 'hover:bg-white/10 hover:shadow-xl hover:shadow-warm-gold/20 hover:ring-1 hover:ring-warm-gold/30 hover:scale-[1.02]' : 'hover:bg-spiritual-blue/5'}`}
                   >
-                    <div className={`w-10 h-10 rounded-xl ${isSuperAdmin ? 'bg-warm-gold/20' : 'bg-spiritual-blue/10'} flex items-center justify-center group-hover:scale-105 group-hover:shadow-md transition-all duration-300`}>
-                      <Icon className={`h-5 w-5 ${theme.iconClass}`} />
+                    <div className={`w-12 h-12 rounded-2xl ${isSuperAdmin ? 'bg-warm-gold/20 group-hover:bg-warm-gold/30 group-hover:shadow-lg' : 'bg-spiritual-blue/10'} flex items-center justify-center group-hover:scale-110 transition-all duration-300`}>
+                      <Icon className={`h-6 w-6 ${theme.iconClass} group-hover:drop-shadow-md`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className={`font-semibold text-sm ${isSuperAdmin ? 'text-white' : 'text-gray-900'}`}>{module.name}</p>
+                        <p className={`font-bold text-sm ${isSuperAdmin ? 'text-white group-hover:text-warm-gold/90' : 'text-gray-900'} transition-colors duration-300`}>{module.name}</p>
                         {module.badgeCount && module.badgeCount > 0 && (
-                          <Badge className={`text-xs ${theme.badgeClass} border-0`}>
+                          <Badge className={`text-xs ${theme.badgeClass} border-0 px-2 py-1 font-bold`}>
                             {module.badgeCount}
                           </Badge>
                         )}
                       </div>
-                      <p className={`text-xs ${isSuperAdmin ? 'text-purple-300' : 'text-gray-600'} truncate`}>{module.description}</p>
+                      <p className={`text-xs ${isSuperAdmin ? 'text-purple-200' : 'text-gray-600'} truncate mt-0.5 transition-colors duration-300`}>{module.description}</p>
                     </div>
                   </button>
                 );
               })}
             </div>
             {pillar !== Object.keys(groupedModules)[Object.keys(groupedModules).length - 1] && (
-              <div className={`border-t my-4 ${isSuperAdmin ? 'border-white/10' : 'border-gray-100'}`} />
+              <div className={`border-t my-6 ${isSuperAdmin ? 'border-white/5' : 'border-gray-100'}`} />
             )}
           </div>
-        ))}
+        )})}
       </div>
     </div>
   );
@@ -404,7 +425,11 @@ export function AppSwitcher({ user, className }: AppSwitcherProps) {
           <ChevronDown className={`h-4 w-4 ml-2 ${isSuperAdmin ? 'text-amber-300' : 'text-current'}`} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className={cn("p-0 border-0", theme.dropdownClass)} align="start">
+      <PopoverContent 
+        className={cn("p-0 border-0", theme.dropdownClass)} 
+        align="start"
+        sideOffset={8}
+      >
         <DesktopContent />
       </PopoverContent>
     </Popover>
