@@ -213,17 +213,28 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async completeUserProfile(userId: string, profileData: ProfileCompletionData): Promise<User> {
+  async completeUserProfile(userId: string, profileData: ProfileCompletionData & { profileImageUrl?: string }): Promise<User> {
+    const updateData: any = {
+      firstName: profileData.firstName,
+      lastName: profileData.lastName,
+      displayName: profileData.displayName,
+      ageRange: profileData.ageRange,
+      updatedAt: new Date(),
+    };
+
+    // Only set profileCompleted to true if we have all required profile fields
+    if (profileData.firstName && profileData.lastName && profileData.displayName && profileData.ageRange) {
+      updateData.profileCompleted = true;
+    }
+
+    // Include profile image URL if provided
+    if (profileData.profileImageUrl !== undefined) {
+      updateData.profileImageUrl = profileData.profileImageUrl;
+    }
+
     const [user] = await db
       .update(users)
-      .set({
-        firstName: profileData.firstName,
-        lastName: profileData.lastName,
-        displayName: profileData.displayName,
-        ageRange: profileData.ageRange,
-        profileCompleted: true,
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(eq(users.id, userId))
       .returning();
     return user;

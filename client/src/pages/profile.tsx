@@ -13,11 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Crown, User, Users, Calendar, ArrowLeft, Save, MessageCircle, Heart, MapPin, Gift, Settings, Camera, Edit3, UserPlus, ChevronDown, Eye, EyeOff, Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { profileCompletionSchema, type ProfileCompletionData } from "@shared/schema";
 import { MainLayout } from '@/components/navigation/main-layout';
+import { ObjectUploader } from '@/components/ObjectUploader';
+import type { UploadResult } from '@uppy/core';
 
 export default function Profile() {
   // Mock data for demonstration - would come from API in real app
@@ -136,6 +138,48 @@ export default function Profile() {
     },
   });
 
+  // Profile picture upload mutation
+  const profilePictureMutation = useMutation({
+    mutationFn: async (profileImageURL: string) => {
+      const response = await apiRequest("PUT", "/api/profile/picture", { profileImageURL });
+      return response.json();
+    },
+    onSuccess: (updatedUser) => {
+      toast({
+        title: "Profile picture updated!",
+        description: "Your profile picture has been successfully updated.",
+      });
+      queryClient.setQueryData(["/api/auth/user"], updatedUser);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update profile picture. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Profile picture update failed:", error);
+    },
+  });
+
+  const handleGetUploadParameters = async () => {
+    const response = await apiRequest("POST", "/api/objects/upload");
+    const data = await response.json();
+    return {
+      method: "PUT" as const,
+      url: data.uploadURL,
+    };
+  };
+
+  const handleUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      const uploadURL = uploadedFile.uploadURL;
+      if (uploadURL) {
+        profilePictureMutation.mutate(uploadURL);
+      }
+    }
+  };
+
   const onSubmit = (data: ProfileCompletionData) => {
     updateMutation.mutate(data);
   };
@@ -194,18 +238,26 @@ export default function Profile() {
             {/* Profile Picture */}
             <div className="relative">
               <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
+                {user?.profileImageUrl && (
+                  <AvatarImage 
+                    src={user.profileImageUrl} 
+                    alt="Profile picture" 
+                    className="object-cover" 
+                  />
+                )}
                 <AvatarFallback className="bg-spiritual-blue text-white text-2xl font-bold">
                   {user?.displayName?.charAt(0) || user?.firstName?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 p-0"
-                data-testid="edit-profile-picture"
+              <ObjectUploader
+                maxNumberOfFiles={1}
+                maxFileSize={5242880} // 5MB
+                onGetUploadParameters={handleGetUploadParameters}
+                onComplete={handleUploadComplete}
+                buttonClassName="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 p-0"
               >
                 <Camera className="h-4 w-4" />
-              </Button>
+              </ObjectUploader>
             </div>
 
             {/* Profile Info */}

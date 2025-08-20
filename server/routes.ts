@@ -9,6 +9,10 @@ import { sendEmail } from "./services/email-service";
 import { generateChurchWelcomeEmail } from "./services/email-templates";
 import { setupSupabaseAuth, isAuthenticated, supabase } from "./supabaseAuth";
 import {
+  ObjectStorageService,
+  ObjectNotFoundError,
+} from "./objectStorage";
+import {
   requirePermission,
   requireRole,
   requireOwnOrganization,
@@ -111,6 +115,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Auth routes
+  // Profile picture upload routes
+  app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  // Update profile picture
+  app.put("/api/profile/picture", isAuthenticated, async (req: any, res) => {
+    if (!req.body.profileImageURL) {
+      return res.status(400).json({ error: "profileImageURL is required" });
+    }
+
+    const userId = req.user.id;
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(
+        req.body.profileImageURL
+      );
+
+      // Update user profile with image URL
+      const updatedUser = await storage.completeUserProfile(userId, {
+        profileImageUrl: objectPath
+      } as any);
+
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      console.error("Error setting profile picture:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Serve profile pictures
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(
+        req.path,
+      );
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error serving object:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
   // Get organization for authenticated user
   app.get('/api/auth/organization', isAuthenticated, async (req: any, res) => {
     try {
