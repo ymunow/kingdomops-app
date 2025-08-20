@@ -109,13 +109,13 @@ export default function JoinCongregation() {
     onSuccess: (data) => {
       setIsSubmitting(false);
       toast({
-        title: "Welcome to the congregation!",
-        description: `You've successfully joined ${organization?.name}. Please sign in to start your spiritual gifts assessment.`
+        title: "Account created successfully!",
+        description: `Please check your email and click the confirmation link before signing in to ${organization?.name}.`
       });
       // Redirect to login for authentication
       setTimeout(() => {
-        window.location.href = "/auth";
-      }, 2000);
+        window.location.href = "/auth?message=check-email";
+      }, 3000);
     },
     onError: (error) => {
       setIsSubmitting(false);

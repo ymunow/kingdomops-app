@@ -13,17 +13,21 @@ export default function AuthPage() {
   const { user, signInMutation, resetPasswordMutation } = useAuth();
   const [, setLocation] = useLocation();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showEmailCheck, setShowEmailCheck] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
 
-  // Check for confirmation parameter
+  // Check for confirmation and email check parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('confirmed') === 'true') {
       setShowConfirmation(true);
+    }
+    if (urlParams.get('message') === 'check-email') {
+      setShowEmailCheck(true);
     }
   }, []);
 
@@ -33,6 +37,38 @@ export default function AuthPage() {
       setLocation('/');
     }
   }, [user, setLocation]);
+
+  if (showEmailCheck) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-purple-50/30">
+        <Card className="w-full max-w-md shadow-xl border border-spiritual-blue/20 bg-white/90 backdrop-blur-sm">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center mb-4">
+              <Crown className="text-warm-gold h-8 w-8 mr-3" />
+              <CardTitle className="text-spiritual-blue text-2xl">Check Your Email!</CardTitle>
+            </div>
+            <CardDescription>
+              We've sent a confirmation link to your email address. Please click the link to verify your account before signing in.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full bg-spiritual-blue text-white hover:bg-purple-800" 
+              onClick={() => {
+                setShowEmailCheck(false);
+                window.history.replaceState({}, '', '/auth');
+              }}
+            >
+              Continue to Sign In
+            </Button>
+            <p className="text-xs text-center text-gray-500 mt-3">
+              Didn't receive an email? Check your spam folder or contact support.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (showConfirmation) {
     return (
