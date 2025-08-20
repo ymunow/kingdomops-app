@@ -609,7 +609,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           emailRedirectTo: process.env.NODE_ENV === 'production' 
             ? `https://kingdomops.org/auth?confirmed=true`
-            : `https://${process.env.REPLIT_DOMAIN || req.get('host')}/auth?confirmed=true`
+            : `https://${process.env.REPLIT_DEV_DOMAIN || req.get('host')}/auth?confirmed=true`
         }
       });
 

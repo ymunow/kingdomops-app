@@ -94,7 +94,7 @@ export async function setupSupabaseAuth(app: Express) {
         },
         emailRedirectTo: process.env.NODE_ENV === 'production' 
           ? `https://kingdomops.org/auth?confirmed=true`
-          : `https://${process.env.REPLIT_DOMAIN || req.get('host')}/auth?confirmed=true`
+          : `https://${process.env.REPLIT_DEV_DOMAIN || req.get('host')}/auth?confirmed=true`
       }
     });
 
