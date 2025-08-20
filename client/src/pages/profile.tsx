@@ -44,12 +44,11 @@ export default function Profile() {
 
   // Profile picture upload
   const handleGetUploadParameters = async () => {
-    const response = await apiRequest('/api/objects/upload', {
-      method: 'POST',
-    });
+    const response = await apiRequest('POST', '/api/objects/upload');
+    const data = await response.json();
     return {
       method: 'PUT' as const,
-      url: response.uploadURL,
+      url: data.uploadURL,
     };
   };
 
@@ -59,10 +58,7 @@ export default function Profile() {
       const profileImageUrl = uploadedFile.uploadURL;
       
       try {
-        await apiRequest('/api/profile/picture', {
-          method: 'PUT',
-          body: JSON.stringify({ profileImageUrl }),
-        });
+        await apiRequest('PUT', '/api/profile/picture', { profileImageUrl });
         
         queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
         toast({
@@ -82,10 +78,7 @@ export default function Profile() {
   // Profile update
   const profileUpdateMutation = useMutation({
     mutationFn: async (profileData: { firstName: string; lastName: string; bio: string }) => {
-      return apiRequest('/api/profile', {
-        method: 'PUT',
-        body: JSON.stringify(profileData),
-      });
+      return apiRequest('PUT', '/api/profile', profileData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
@@ -114,7 +107,7 @@ export default function Profile() {
       setEditingProfile({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        bio: user.bio || '',
+        bio: '', // Bio will be added later
       });
     }
   }, [isEditingProfile, user]);

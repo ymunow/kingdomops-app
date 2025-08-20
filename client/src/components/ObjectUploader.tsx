@@ -89,7 +89,7 @@ export function ObjectUploader({
 
   useEffect(() => {
     return () => {
-      uppy.close();
+      uppy.destroy();
     };
   }, [uppy]);
 
