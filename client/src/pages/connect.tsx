@@ -654,9 +654,8 @@ export default function Connect() {
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <div className="flex items-center space-x-1">
                         <Button 
-                          variant="ghost" 
                           size="sm" 
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 px-2 font-medium"
+                          className="bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white font-medium shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200 px-4"
                           onClick={() => handleApplyToServe(opportunity.id)}
                           disabled={appliedOpportunities.includes(opportunity.id)}
                           data-testid={`apply-urgent-${opportunity.id}`}
@@ -771,9 +770,8 @@ export default function Connect() {
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <div className="flex items-center space-x-1">
                         <Button 
-                          variant="ghost" 
                           size="sm" 
-                          className="text-spiritual-blue hover:text-spiritual-blue/90 hover:bg-spiritual-blue/5 px-2"
+                          className="bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white font-medium shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200 px-4"
                           onClick={() => handleApplyToServe(opportunity.id)}
                           disabled={appliedOpportunities.includes(opportunity.id)}
                           data-testid={`apply-${opportunity.id}`}
