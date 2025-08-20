@@ -32,6 +32,7 @@ type AuthContextType = {
   signInMutation: UseMutationResult<any, Error, SignInData>;
   signUpMutation: UseMutationResult<any, Error, SignUpData>;
   signOutMutation: UseMutationResult<void, Error, void>;
+  resetPasswordMutation: UseMutationResult<void, Error, { email: string }>;
 };
 
 type SignInData = {
@@ -194,6 +195,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ email }: { email: string }) => {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: process.env.NODE_ENV === 'production' 
+          ? 'https://kingdomops.org/auth?reset=true'
+          : `${window.location.origin}/auth?reset=true`
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Password reset email sent",
+        description: "Please check your email for password reset instructions.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Reset failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <AuthContext.Provider
       value={{
@@ -204,6 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInMutation,
         signUpMutation,
         signOutMutation,
+        resetPasswordMutation,
       }}
     >
       {children}

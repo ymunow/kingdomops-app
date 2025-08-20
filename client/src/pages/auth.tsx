@@ -10,12 +10,14 @@ import { useEffect } from "react";
 import { Crown, Eye, EyeOff, Check } from "lucide-react";
 
 export default function AuthPage() {
-  const { user, signInMutation } = useAuth();
+  const { user, signInMutation, resetPasswordMutation } = useAuth();
   const [, setLocation] = useLocation();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
 
   // Check for confirmation parameter
   useEffect(() => {
@@ -148,7 +150,7 @@ export default function AuthPage() {
                     <button
                       type="button"
                       className="text-sm text-spiritual-blue hover:text-purple-800"
-                      onClick={() => {/* TODO: Forgot password flow */}}
+                      onClick={() => setShowForgotPassword(true)}
                     >
                       Forgot password?
                     </button>
@@ -172,6 +174,53 @@ export default function AuthPage() {
                 >
                   {signInMutation.isPending ? 'Signing in...' : 'Sign in'}
                 </Button>
+                {showForgotPassword && (
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
+                    <div className="mb-3">
+                      <h3 className="text-sm font-medium text-gray-900">Reset your password</h3>
+                      <p className="text-xs text-gray-600 mt-1">Enter your email to receive reset instructions</p>
+                    </div>
+                    <div className="space-y-3">
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        value={forgotPasswordEmail}
+                        onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                        className="text-sm"
+                        data-testid="input-forgot-password-email"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            if (forgotPasswordEmail) {
+                              resetPasswordMutation.mutate({ email: forgotPasswordEmail });
+                              setShowForgotPassword(false);
+                              setForgotPasswordEmail('');
+                            }
+                          }}
+                          disabled={resetPasswordMutation.isPending || !forgotPasswordEmail}
+                          className="flex-1 bg-spiritual-blue hover:bg-purple-800 text-sm h-9"
+                          data-testid="button-send-reset"
+                        >
+                          {resetPasswordMutation.isPending ? 'Sending...' : 'Send Reset Email'}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setShowForgotPassword(false);
+                            setForgotPasswordEmail('');
+                          }}
+                          className="text-sm h-9"
+                          data-testid="button-cancel-reset"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <p className="text-xs text-center text-gray-500 mt-3">
                   Secure sign in • By continuing, you agree to our Terms and Privacy Policy.
                 </p>
