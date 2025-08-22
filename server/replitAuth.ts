@@ -27,7 +27,7 @@ export function getSession() {
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
+    createTableIfMissing: true, // Allow auto-creation of sessions table
     ttl: sessionTtl,
     tableName: "sessions",
   });
@@ -130,11 +130,12 @@ export async function setupAuth(app: Express) {
       const userId = (req.user as any)?.claims?.sub as string;
       if (userId) {
         storage.getUser(userId).then(user => {
-          if (user && ['SUPER_ADMIN', 'ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER'].includes(user.role)) {
+          if (user?.role && ['SUPER_ADMIN', 'ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER'].includes(user.role)) {
             return res.redirect('/admin-dashboard');
           }
           return res.redirect('/');
-        }).catch(() => {
+        }).catch((err) => {
+          console.error('Error getting user for redirect:', err);
           return res.redirect('/');
         });
       } else {

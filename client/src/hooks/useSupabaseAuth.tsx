@@ -81,15 +81,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state change:', event, session?.user?.email || 'no user');
-        setSession(session);
-        
-        if (session) {
-          // Set the auth token for API requests
-          queryClient.setQueryData(['authToken'], session.access_token);
-          console.log('Set auth token:', session.access_token?.substring(0, 20) + '...');
-        } else {
-          queryClient.clear();
+        try {
+          console.log('Auth state change:', event, session?.user?.email || 'no user');
+          setSession(session);
+          
+          if (session) {
+            // Set the auth token for API requests
+            queryClient.setQueryData(['authToken'], session.access_token);
+            console.log('Set auth token:', session.access_token?.substring(0, 20) + '...');
+          } else {
+            queryClient.clear();
+          }
+        } catch (error) {
+          console.error('Auth state change error:', error);
         }
       }
     );
