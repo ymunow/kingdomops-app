@@ -1379,36 +1379,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allOrganizations = await storage.getOrganizations();
       const totalChurches = allOrganizations.length;
       
-      // Optimize: Get all data in batch operations instead of loops
-      const [allUsers, allResponses] = await Promise.all([
-        storage.getAllUsers(),
-        storage.getAllResponses()
-      ]);
+      // Get platform-wide user metrics (optimized approach without getAllUsers)
+      let totalMembers = 0;
+      let activeUsers = 0;
+      let globalAssessments = 0;
+      let globalCompletions = 0;
+      let recentActivity: any[] = [];
       
-      // Calculate metrics from batched data
-      const totalMembers = allUsers.length;
-      const activeUsers = allUsers.filter((u: any) => u.totalAssessments > 0).length;
-      const globalAssessments = allResponses.length;
-      const globalCompletions = allResponses.filter((r: any) => r.submittedAt).length;
+      // Use existing efficient methods instead of problematic getAllUsers
+      for (const org of allOrganizations) {
+        const orgUsers = await storage.getUsersByOrganization(org.id);
+        const orgMetrics = await storage.getDashboardMetrics(org.id);
+        const orgResponses = await storage.getResponsesByOrganization(org.id);
+        
+        totalMembers += orgUsers.length;
+        activeUsers += orgUsers.filter((u: any) => u.totalAssessments > 0).length;
+        globalAssessments += orgResponses.length;
+        globalCompletions += orgMetrics.totalCompletions;
+        
+        // Add recent activity from this org (limit to 3 per org for performance)
+        const orgActivity = orgResponses
+          .filter((r: any) => r.submittedAt)
+          .sort((a: any, b: any) => new Date(b.submittedAt!).getTime() - new Date(a.submittedAt!).getTime())
+          .slice(0, 3)
+          .map((response: any) => {
+            const user = orgUsers.find((u: any) => u.id === response.userId);
+            return {
+              type: 'Assessment Completed',
+              description: user 
+                ? `${user.firstName} ${user.lastName} completed assessment at ${org.name}`
+                : `Member completed assessment at ${org.name}`,
+              timestamp: response.submittedAt!,
+              userName: user ? `${user.firstName} ${user.lastName}` : undefined,
+              organizationName: org.name
+            };
+          });
+        recentActivity.push(...orgActivity);
+      }
       
-      // Process recent activity efficiently
-      let recentActivity = allResponses
-        .filter((r: any) => r.submittedAt)
-        .sort((a: any, b: any) => new Date(b.submittedAt!).getTime() - new Date(a.submittedAt!).getTime())
-        .slice(0, 20) // Get top 20 directly
-        .map((response: any) => {
-          const user = allUsers.find((u: any) => u.id === response.userId);
-          const org = allOrganizations.find(o => o.id === user?.organizationId);
-          return {
-            type: 'Assessment Completed',
-            description: user && org
-              ? `${user.firstName} ${user.lastName} completed assessment at ${org.name}`
-              : `Member completed assessment`,
-            timestamp: response.submittedAt!,
-            userName: user ? `${user.firstName} ${user.lastName}` : undefined,
-            organizationName: org?.name || 'Unknown'
-          };
-        });
+      // Sort and limit recent activity
+      recentActivity = recentActivity
+        .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 20);
       
       // Calculate growth metrics (mock for now - would need historical data)
       const churchGrowthRate = 8; // Mock 8% growth
