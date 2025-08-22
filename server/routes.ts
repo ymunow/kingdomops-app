@@ -1372,9 +1372,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Platform Overview API endpoint for Super Admin
+  // Platform Overview API endpoint for Super Admin (with caching for performance)
+  let platformOverviewCache: any = null;
+  let cacheTimestamp: number = 0;
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
   app.get("/api/platform-overview", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {
+      // Return cached data if still valid
+      const now = Date.now();
+      if (platformOverviewCache && (now - cacheTimestamp) < CACHE_DURATION) {
+        console.log('Returning cached platform overview data');
+        return res.json(platformOverviewCache);
+      }
       // Get all organizations
       const allOrganizations = await storage.getOrganizations();
       const totalChurches = allOrganizations.length;
@@ -1486,6 +1496,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .slice(0, 5)
       };
       
+      // Cache the computed data
+      platformOverviewCache = platformMetrics;
+      cacheTimestamp = now;
+      console.log('Platform overview data computed and cached');
+
       res.json(platformMetrics);
     } catch (error) {
       console.error("Platform overview error:", error);
