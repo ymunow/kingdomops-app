@@ -67,6 +67,7 @@ export default function Profile() {
       console.log('Profile image URL:', profileImageUrl);
       
       try {
+        console.log('About to send PUT request with data:', { profileImageUrl });
         const response = await apiRequest('PUT', '/api/profile/picture', { profileImageUrl });
         console.log('Profile update response:', response);
         
