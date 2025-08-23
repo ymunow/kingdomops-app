@@ -129,16 +129,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Update profile picture
   console.log('Registering PUT /api/profile/picture route');
-  app.put("/api/profile/picture", async (req: any, res) => {
-    console.log('PUT /api/profile/picture route handler called - RAW REQUEST!');
-    console.log('Headers:', req.headers);
-    console.log('Body:', req.body);
+  app.put("/api/profile/picture", isAuthenticated, async (req: any, res) => {
+    console.log('PUT /api/profile/picture route handler called!');
     
-    // Now check authentication manually
-    if (!req.user) {
-      console.log('No user found in request');
-      return res.status(401).json({ message: "Unauthorized" });
-    }
     if (!req.body.profileImageUrl) {
       return res.status(400).json({ error: "profileImageUrl is required" });
     }
