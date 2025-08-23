@@ -1118,10 +1118,21 @@ class MemStorage implements IStorage {
     return userData;
   }
 
-  async completeUserProfile(userId: string, profileData: ProfileCompletionData): Promise<User> {
+  async completeUserProfile(userId: string, profileData: ProfileCompletionData & { profileImageUrl?: string; coverPhotoUrl?: string }): Promise<User> {
     const user = this.users.get(userId);
     if (!user) throw new Error('User not found');
     const updated = { ...user, ...profileData, updatedAt: new Date() };
+    
+    // Handle profile image URL updates
+    if (profileData.profileImageUrl !== undefined) {
+      updated.profileImageUrl = profileData.profileImageUrl;
+    }
+    
+    // Handle cover photo URL updates  
+    if (profileData.coverPhotoUrl !== undefined) {
+      updated.coverPhotoUrl = profileData.coverPhotoUrl;
+    }
+    
     this.users.set(userId, updated);
     return updated;
   }
