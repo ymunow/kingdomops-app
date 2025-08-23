@@ -1021,6 +1021,7 @@ class MemStorage implements IStorage {
   private ministryOpportunities = new Map<string, MinistryOpportunity>();
   private placementCandidates = new Map<string, PlacementCandidate>();
   private analyticsEvents = new Map<string, AnalyticsEvent>();
+  private profileCompletionSteps = new Map<string, Set<string>>();
   private activeAssessmentVersionId: string | null = null;
 
   constructor() {
@@ -1310,20 +1311,41 @@ class MemStorage implements IStorage {
   async getRecentActivity(organizationId: string, limit: number): Promise<any[]> { return []; }
   async getWeeklyActivity(organizationId: string): Promise<number[]> { return []; }
   async getProfileCompletion(userId: string, organizationId: string): Promise<any> { return { percentage: 0, completedSteps: [], steps: [] }; }
-  async getProfileProgress(userId: string): Promise<any> { 
+  async getProfileProgress(userId: string): Promise<any> {
+    // Get completed steps for this user (or create storage if not exists)
+    if (!this.profileCompletionSteps.has(userId)) {
+      this.profileCompletionSteps.set(userId, new Set());
+    }
+    
+    const completedSteps = Array.from(this.profileCompletionSteps.get(userId) || []);
+    const steps = [
+      { key: 'basic_info', label: 'Basic Information', completed: completedSteps.includes('basic_info'), weight: 20, order: 1 },
+      { key: 'profile_photo', label: 'Profile Photo', completed: completedSteps.includes('profile_photo'), weight: 20, order: 2 },
+      { key: 'gifts_assessment', label: 'Gifts Assessment', completed: completedSteps.includes('gifts_assessment'), weight: 20, order: 3 },
+      { key: 'life_verse', label: 'Life Verse', completed: completedSteps.includes('life_verse'), weight: 20, order: 4 },
+      { key: 'join_group', label: 'Join Group', completed: completedSteps.includes('join_group'), weight: 20, order: 5 }
+    ];
+    
+    // Calculate percentage
+    const completedCount = steps.filter(step => step.completed).length;
+    const percentage = Math.round((completedCount / steps.length) * 100);
+    
     return { 
-      percentage: 0, 
-      completedSteps: [], 
-      steps: [
-        { key: 'basic_info', label: 'Basic Information', completed: false, weight: 20, order: 1 },
-        { key: 'profile_photo', label: 'Profile Photo', completed: false, weight: 20, order: 2 },
-        { key: 'gifts_assessment', label: 'Gifts Assessment', completed: false, weight: 20, order: 3 },
-        { key: 'life_verse', label: 'Life Verse', completed: false, weight: 20, order: 4 },
-        { key: 'join_group', label: 'Join Group', completed: false, weight: 20, order: 5 }
-      ]
+      percentage, 
+      completedSteps,
+      steps
     }; 
   }
-  async markStepComplete(userId: string, stepKey: string): Promise<void> {}
+  async markStepComplete(userId: string, stepKey: string): Promise<void> {
+    // Initialize user's completed steps if not exists
+    if (!this.profileCompletionSteps.has(userId)) {
+      this.profileCompletionSteps.set(userId, new Set());
+    }
+    
+    // Mark the step as complete
+    this.profileCompletionSteps.get(userId)!.add(stepKey);
+    console.log(`Marked step ${stepKey} as complete for user ${userId}`);
+  }
   async initializeProfileSteps(userId: string, organizationId: string): Promise<void> {}
   async getProfileStepConfigurations(organizationId: string): Promise<Array<{stepKey: string; label: string; weight: number; enabled: boolean; order: number;}>> { return []; }
   async updateProfileStepConfigurations(organizationId: string, configs: Array<{stepKey: string; label: string; weight: number; enabled: boolean; order: number;}>): Promise<void> {}
