@@ -67,6 +67,7 @@ export function ObjectUploader({
         allowedFileTypes: ['image/*'],
       },
       autoProceed: false,
+      allowMultipleUploadBatches: false,
     });
 
     uppyInstance.use(AwsS3, {
@@ -110,6 +111,13 @@ export function ObjectUploader({
         onRequestClose={() => setShowModal(false)}
         proudlyDisplayPoweredByUppy={false}
         note="Upload your profile picture to make your feed more personal!"
+        showProgressDetails={true}
+        hideUploadButton={false}
+        hideRetryButton={false}
+        hidePauseResumeButton={false}
+        hideCancelButton={false}
+        showRemoveButtonAfterComplete={true}
+        disableLocalFiles={false}
       />
     </div>
   );
