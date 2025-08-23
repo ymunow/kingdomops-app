@@ -70,11 +70,19 @@ export default function Profile() {
         const response = await apiRequest('PUT', '/api/profile/picture', { profileImageUrl });
         console.log('Profile update response:', response);
         
-        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+        // Aggressive cache refresh
+        await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+        await queryClient.refetchQueries({ queryKey: ['/api/auth/user'] });
+        
         toast({
           title: 'Success',
           description: 'Profile picture updated successfully!',
         });
+
+        // Force page refresh after a short delay to ensure image loads
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } catch (error) {
         console.error('Profile picture update error:', error);
         toast({
