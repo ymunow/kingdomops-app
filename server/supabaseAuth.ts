@@ -17,7 +17,7 @@ export async function setupSupabaseAuth(app: Express) {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      console.log('Auth middleware - Processing token:', token.substring(0, 20) + '...');
+      console.log(`Auth middleware - Processing ${req.method} ${req.path} with token:`, token.substring(0, 20) + "...");
       
       try {
         const { data: { user }, error } = await supabase.auth.getUser(token);
