@@ -85,6 +85,7 @@ export function ObjectUploader({
 
   const handleButtonClick = useCallback(() => {
     console.log('Upload button clicked'); // Debug log
+    console.log('Setting showModal to true');
     setShowModal(true);
   }, []);
 
@@ -105,20 +106,28 @@ export function ObjectUploader({
         {children}
       </Button>
 
-      <DashboardModal
-        uppy={uppy}
-        open={showModal}
-        onRequestClose={() => setShowModal(false)}
-        proudlyDisplayPoweredByUppy={false}
-        note="Upload your profile picture to make your feed more personal!"
-        showProgressDetails={true}
-        hideUploadButton={false}
-        hideRetryButton={false}
-        hidePauseResumeButton={false}
-        hideCancelButton={false}
-        showRemoveButtonAfterComplete={true}
-        disableLocalFiles={false}
-      />
+      <div 
+        className={`fixed inset-0 z-[9999] ${showModal ? 'block' : 'hidden'}`}
+        style={{ zIndex: 9999 }}
+      >
+        <DashboardModal
+          uppy={uppy}
+          open={showModal}
+          onRequestClose={() => {
+            console.log('Closing modal');
+            setShowModal(false);
+          }}
+          proudlyDisplayPoweredByUppy={false}
+          note="Upload your profile picture to make your feed more personal!"
+          showProgressDetails={true}
+          hideUploadButton={false}
+          hideRetryButton={false}
+          hidePauseResumeButton={false}
+          hideCancelButton={false}
+          showRemoveButtonAfterComplete={true}
+          disableLocalFiles={false}
+        />
+      </div>
     </div>
   );
 }
