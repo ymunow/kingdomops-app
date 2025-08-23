@@ -346,7 +346,7 @@ export default function Profile() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">About Me</label>
                   <textarea
                     value={editingProfile?.bio || ''}
                     onChange={(e) => setEditingProfile(prev => prev ? {...prev, bio: e.target.value} : null)}
