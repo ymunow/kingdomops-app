@@ -131,7 +131,7 @@ export default function Profile() {
       setEditingProfile({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        bio: user.bio || '', // User's actual bio
+        bio: user.bio || mockProfileData.bio, // Use current displayed bio or fallback
       });
     }
   }, [isEditingProfile, user]);
