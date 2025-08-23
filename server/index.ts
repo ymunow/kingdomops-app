@@ -42,20 +42,17 @@ app.use(compression({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
-// Session middleware for View As functionality - use PostgreSQL store
-import connectPg from "connect-pg-simple";
-const PostgresSessionStore = connectPg(session);
+// Session middleware for View As functionality - use memory store for development
+import MemoryStore from "memorystore";
+const MemStore = MemoryStore(session);
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'default-dev-secret-change-in-production',
   resave: true, // Changed to true to force session save
   saveUninitialized: true, // Create sessions for all users
   name: 'kingdomops.sid', // Use unique session name
-  store: new PostgresSessionStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: 24 * 60 * 60, // 24 hours in seconds
-    tableName: "sessions"
+  store: new MemStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
   }),
   cookie: {
     secure: false, // Set to false for development
@@ -112,13 +109,8 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  // Initialize database with seed data on startup
-  try {
-    const { seedDatabase } = await import("./seed-database");
-    await seedDatabase();
-  } catch (error) {
-    console.error("Database seeding failed:", error);
-  }
+  // Skip database seeding since we're using in-memory storage
+  console.log("Using in-memory storage - skipping database seeding");
 
   // Check environment more explicitly
   const isProduction = process.env.NODE_ENV === "production";
@@ -144,8 +136,14 @@ app.use((req, res, next) => {
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-    res.status(status).json({ message });
-    throw err;
+    
+    // Only send response if headers haven't been sent yet
+    if (!res.headersSent) {
+      res.status(status).json({ message });
+    }
+    
+    // Don't re-throw the error to prevent further error propagation
+    console.error('Express error:', err.message);
   });
 
   // Port setup

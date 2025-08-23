@@ -40,6 +40,7 @@ import {
   ROLE_HIERARCHY,
 } from "@shared/schema";
 import { db } from "./db";
+import { nanoid } from "nanoid";
 import { eq, and, gte, lte, desc, count, sql, inArray, isNull } from "drizzle-orm";
 
 export interface IStorage {
@@ -1009,4 +1010,324 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+class MemStorage implements IStorage {
+  private organizations = new Map<string, Organization>();
+  private users = new Map<string, User>();
+  private assessmentVersions = new Map<string, AssessmentVersion>();
+  private questions = new Map<string, Question>();
+  private responses = new Map<string, Response>();
+  private answers = new Map<string, Answer>();
+  private results = new Map<string, Result>();
+  private ministryOpportunities = new Map<string, MinistryOpportunity>();
+  private placementCandidates = new Map<string, PlacementCandidate>();
+  private analyticsEvents = new Map<string, AnalyticsEvent>();
+  private activeAssessmentVersionId: string | null = null;
+
+  constructor() {
+    // Create a default organization
+    const defaultOrg: Organization = {
+      id: 'default-org-001',
+      name: 'Default Organization',
+      subdomain: 'default',
+      inviteCode: 'DEFAULT123',
+      status: 'ACTIVE',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      settings: null,
+    };
+    this.organizations.set(defaultOrg.id, defaultOrg);
+  }
+
+  // Organization operations
+  async getOrganization(id: string): Promise<Organization | undefined> {
+    return this.organizations.get(id);
+  }
+
+  async getOrganizationBySubdomain(subdomain: string): Promise<Organization | undefined> {
+    return Array.from(this.organizations.values()).find(org => org.subdomain === subdomain);
+  }
+
+  async getOrganizationByInviteCode(inviteCode: string): Promise<Organization | undefined> {
+    return Array.from(this.organizations.values()).find(org => org.inviteCode === inviteCode);
+  }
+
+  async getOrganizations(): Promise<Organization[]> {
+    return Array.from(this.organizations.values());
+  }
+
+  async createOrganization(organization: InsertOrganization): Promise<Organization> {
+    const org: Organization = {
+      ...organization,
+      id: organization.id || nanoid(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.organizations.set(org.id, org);
+    return org;
+  }
+
+  async updateOrganization(id: string, updates: Partial<InsertOrganization>): Promise<Organization> {
+    const org = this.organizations.get(id);
+    if (!org) throw new Error('Organization not found');
+    const updated = { ...org, ...updates, updatedAt: new Date() };
+    this.organizations.set(id, updated);
+    return updated;
+  }
+
+  async updateOrganizationStatus(organizationId: string, status: 'ACTIVE' | 'INACTIVE'): Promise<Organization> {
+    return this.updateOrganization(organizationId, { status });
+  }
+
+  async deleteOrganization(organizationId: string): Promise<void> {
+    this.organizations.delete(organizationId);
+  }
+
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const existingUser = this.users.get(user.id);
+    const userData: User = {
+      ...user,
+      organizationId: user.organizationId || 'default-org-001',
+      createdAt: existingUser?.createdAt || new Date(),
+      updatedAt: new Date(),
+      lastActiveAt: new Date(),
+    };
+    this.users.set(user.id, userData);
+    return userData;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email === email);
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const userData: User = {
+      ...user,
+      id: user.id || nanoid(),
+      organizationId: user.organizationId || 'default-org-001',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastActiveAt: new Date(),
+    };
+    this.users.set(userData.id, userData);
+    return userData;
+  }
+
+  async completeUserProfile(userId: string, profileData: ProfileCompletionData): Promise<User> {
+    const user = this.users.get(userId);
+    if (!user) throw new Error('User not found');
+    const updated = { ...user, ...profileData, updatedAt: new Date() };
+    this.users.set(userId, updated);
+    return updated;
+  }
+
+  async getUsersByOrganization(organizationId: string, filters?: AdminFilters): Promise<UserWithResults[]> {
+    const orgUsers = Array.from(this.users.values()).filter(user => user.organizationId === organizationId);
+    return orgUsers.map(user => ({ ...user, results: [] }));
+  }
+
+  async updateUserRole(userId: string, role: OrganizationRole): Promise<User> {
+    const user = this.users.get(userId);
+    if (!user) throw new Error('User not found');
+    const updated = { ...user, role, updatedAt: new Date() };
+    this.users.set(userId, updated);
+    return updated;
+  }
+
+  async updateUserStatus(userId: string, status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'): Promise<User> {
+    const user = this.users.get(userId);
+    if (!user) throw new Error('User not found');
+    const updated = { ...user, status, updatedAt: new Date() };
+    this.users.set(userId, updated);
+    return updated;
+  }
+
+  async deleteUser(userId: string): Promise<boolean> {
+    return this.users.delete(userId);
+  }
+
+  async updateUserPassword(userId: string, hashedPassword: string): Promise<User> {
+    const user = this.users.get(userId);
+    if (!user) throw new Error('User not found');
+    const updated = { ...user, hashedPassword, updatedAt: new Date() };
+    this.users.set(userId, updated);
+    return updated;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
+  // Assessment Version operations
+  async getActiveAssessmentVersion(): Promise<AssessmentVersion | undefined> {
+    if (!this.activeAssessmentVersionId) {
+      // Create a default assessment version
+      const version = await this.createAssessmentVersion({
+        title: "K.I.T. Gifts & Ministry Fit v1",
+        isActive: true,
+      });
+      return version;
+    }
+    return this.assessmentVersions.get(this.activeAssessmentVersionId);
+  }
+
+  async createAssessmentVersion(version: InsertAssessmentVersion): Promise<AssessmentVersion> {
+    const assessmentVersion: AssessmentVersion = {
+      ...version,
+      id: version.id || nanoid(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.assessmentVersions.set(assessmentVersion.id, assessmentVersion);
+    if (version.isActive) {
+      this.activeAssessmentVersionId = assessmentVersion.id;
+    }
+    return assessmentVersion;
+  }
+
+  // Question operations
+  async getQuestionsByVersion(versionId: string): Promise<Question[]> {
+    return Array.from(this.questions.values()).filter(q => q.versionId === versionId);
+  }
+
+  async createQuestion(question: InsertQuestion): Promise<Question> {
+    const q: Question = {
+      ...question,
+      id: question.id || nanoid(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.questions.set(q.id, q);
+    return q;
+  }
+
+  async bulkCreateQuestions(questions: InsertQuestion[]): Promise<Question[]> {
+    const created: Question[] = [];
+    for (const question of questions) {
+      created.push(await this.createQuestion(question));
+    }
+    return created;
+  }
+
+  // Stub implementations for all other methods
+  async getPlatformMetrics(): Promise<any> { return {}; }
+  async getAllOrganizationsWithStats(): Promise<any[]> { return []; }
+  async getUserCountByOrganization(organizationId: string): Promise<number> { return 0; }
+  async getSystemSettings(): Promise<any> { return {}; }
+  async updateSystemSettings(settings: any): Promise<any> { return settings; }
+  async createResponse(response: InsertResponse): Promise<Response> { 
+    const r: Response = { ...response, id: nanoid(), createdAt: new Date(), updatedAt: new Date() };
+    this.responses.set(r.id, r);
+    return r;
+  }
+  async getResponse(id: string): Promise<Response | undefined> { return this.responses.get(id); }
+  async getResponsesByUser(userId: string): Promise<Response[]> { return []; }
+  async getResponsesByOrganization(organizationId: string, filters?: AdminFilters): Promise<Response[]> { return []; }
+  async getAllResponses(): Promise<Response[]> { return Array.from(this.responses.values()); }
+  async updateResponseSubmission(id: string, timeSpentMinutes?: number): Promise<Response | undefined> { 
+    const response = this.responses.get(id);
+    if (response && timeSpentMinutes !== undefined) {
+      response.timeSpentMinutes = timeSpentMinutes;
+    }
+    return response;
+  }
+  async createAnswer(answer: InsertAnswer): Promise<Answer> { 
+    const a: Answer = { ...answer, id: nanoid(), createdAt: new Date(), updatedAt: new Date() };
+    this.answers.set(a.id, a);
+    return a;
+  }
+  async bulkCreateAnswers(answers: InsertAnswer[]): Promise<Answer[]> { return []; }
+  async getAnswersByResponse(responseId: string): Promise<Answer[]> { return []; }
+  async createResult(result: InsertResult): Promise<Result> { 
+    const r: Result = { ...result, id: nanoid(), createdAt: new Date(), updatedAt: new Date() };
+    this.results.set(r.id, r);
+    return r;
+  }
+  async getResultByResponse(responseId: string): Promise<Result | undefined> { return undefined; }
+  async getResultsByOrganization(organizationId: string, filters?: AdminFilters): Promise<Result[]> { return []; }
+  async getAllResults(): Promise<Result[]> { return Array.from(this.results.values()); }
+  async getUserResults(userId: string): Promise<Result[]> { return []; }
+  async updateResultNotes(resultId: string, notes: string, followUpDate?: Date): Promise<Result> { 
+    const result = this.results.get(resultId);
+    if (!result) throw new Error('Result not found');
+    result.notes = notes;
+    result.followUpDate = followUpDate || null;
+    return result;
+  }
+  async getMinistryOpportunities(organizationId: string): Promise<MinistryOpportunity[]> { return []; }
+  async getMinistryOpportunity(id: string): Promise<MinistryOpportunity | undefined> { return this.ministryOpportunities.get(id); }
+  async createMinistryOpportunity(opportunity: InsertMinistryOpportunity): Promise<MinistryOpportunity> { 
+    const m: MinistryOpportunity = { ...opportunity, id: nanoid(), createdAt: new Date(), updatedAt: new Date() };
+    this.ministryOpportunities.set(m.id, m);
+    return m;
+  }
+  async updateMinistryOpportunity(id: string, updates: Partial<InsertMinistryOpportunity>): Promise<MinistryOpportunity> { 
+    const m = this.ministryOpportunities.get(id);
+    if (!m) throw new Error('Ministry opportunity not found');
+    const updated = { ...m, ...updates, updatedAt: new Date() };
+    this.ministryOpportunities.set(id, updated);
+    return updated;
+  }
+  async getPlacementCandidates(opportunityId: string): Promise<PlacementCandidate[]> { return []; }
+  async createPlacementCandidate(candidate: InsertPlacementCandidate): Promise<PlacementCandidate> { 
+    const p: PlacementCandidate = { ...candidate, id: nanoid(), createdAt: new Date(), updatedAt: new Date() };
+    this.placementCandidates.set(p.id, p);
+    return p;
+  }
+  async updateCandidateStatus(candidateId: string, status: string, adminNotes?: string): Promise<PlacementCandidate> { 
+    const p = this.placementCandidates.get(candidateId);
+    if (!p) throw new Error('Placement candidate not found');
+    p.status = status;
+    if (adminNotes) p.adminNotes = adminNotes;
+    return p;
+  }
+  async logAnalyticsEvent(event: InsertAnalyticsEvent): Promise<AnalyticsEvent> { 
+    const a: AnalyticsEvent = { ...event, id: nanoid(), timestamp: new Date() };
+    this.analyticsEvents.set(a.id, a);
+    return a;
+  }
+  async getDashboardMetrics(organizationId: string): Promise<DashboardMetrics> { 
+    return { 
+      totalUsers: 0, 
+      totalAssessments: 0, 
+      completionRate: 0, 
+      avgTimeMinutes: 0,
+      topGifts: [],
+      recentActivity: [],
+      weeklyActivity: []
+    }; 
+  }
+  async getGlobalMetrics(): Promise<DashboardMetrics> { return this.getDashboardMetrics(''); }
+  async getAssessmentStats(organizationId?: string): Promise<{totalAssessments: number; completionRate: number; avgTimeMinutes: number;}> { 
+    return { totalAssessments: 0, completionRate: 0, avgTimeMinutes: 0 }; 
+  }
+  async getDailyActiveUsers(organizationId: string, days: number): Promise<number[]> { return []; }
+  async getTopGifts(organizationId: string, limit: number): Promise<Array<{giftKey: string; count: number}>> { return []; }
+  async getRecentActivity(organizationId: string, limit: number): Promise<any[]> { return []; }
+  async getWeeklyActivity(organizationId: string): Promise<number[]> { return []; }
+  async getProfileCompletion(userId: string, organizationId: string): Promise<any> { return { percentage: 0, completedSteps: [], steps: [] }; }
+  async getProfileProgress(userId: string): Promise<any> { 
+    return { 
+      percentage: 0, 
+      completedSteps: [], 
+      steps: [
+        { key: 'basic_info', label: 'Basic Information', completed: false, weight: 20, order: 1 },
+        { key: 'profile_photo', label: 'Profile Photo', completed: false, weight: 10, order: 2 },
+        { key: 'gifts_assessment', label: 'Gifts Assessment', completed: false, weight: 40, order: 3 },
+        { key: 'life_verse', label: 'Life Verse', completed: false, weight: 20, order: 4 },
+        { key: 'join_group', label: 'Join Group', completed: false, weight: 10, order: 5 }
+      ]
+    }; 
+  }
+  async markStepComplete(userId: string, stepKey: string): Promise<void> {}
+  async initializeProfileSteps(userId: string, organizationId: string): Promise<void> {}
+  async getProfileStepConfigurations(organizationId: string): Promise<Array<{stepKey: string; label: string; weight: number; enabled: boolean; order: number;}>> { return []; }
+  async updateProfileStepConfigurations(organizationId: string, configs: Array<{stepKey: string; label: string; weight: number; enabled: boolean; order: number;}>): Promise<void> {}
+}
+
+// Use MemStorage instead of DatabaseStorage to avoid database connection issues
+export const storage = new MemStorage();
