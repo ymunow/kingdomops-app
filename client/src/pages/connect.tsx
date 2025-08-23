@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp, HandHeart, Filter, CheckCircle, Sparkles, Plus, Shield, Lock, Globe, Eye, UserCheck, AlertCircle, X, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 import { MainLayout } from '@/components/navigation/main-layout';
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function Connect() {
+  const [activeTab, setActiveTab] = useState('feed');
   const [activeComposer, setActiveComposer] = useState<string | null>(null);
   const [urgentCarouselIndex, setUrgentCarouselIndex] = useState(0);
   const [savedOpportunities, setSavedOpportunities] = useState<string[]>([]);
@@ -39,6 +40,15 @@ export default function Connect() {
   ]);
   
   const { user } = useAuth();
+
+  // Check URL parameter for initial tab
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam && ['feed', 'groups', 'serve', 'prayer'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, []);
   
   const posts = [
     {
@@ -722,7 +732,7 @@ export default function Connect() {
   return (
     <MainLayout>
       <div className="max-w-2xl mx-auto px-4 py-6">
-        <Tabs defaultValue="feed" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="feed" data-testid="feed-tab">Feed</TabsTrigger>
             <TabsTrigger value="groups" data-testid="groups-tab">Groups</TabsTrigger>
