@@ -109,21 +109,63 @@ export function ProfileCompletionCard() {
   };
 
   return (
-    <Card className="bg-gray-50 border-gray-200 shadow-sm">
+    <Card className="bg-gray-50 border-gray-200 shadow-sm relative">
       {showConfetti && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-r from-spiritual-blue/10 to-warm-gold/10 backdrop-blur-sm z-10">
-          <div className="text-center space-y-4 animate-pulse">
-            <div className="flex items-center justify-center">
-              <Sparkles className="h-12 w-12 text-warm-gold animate-bounce" />
-              <Crown className="h-8 w-8 text-spiritual-blue -ml-2" />
+        <div className="fixed inset-0 flex items-center justify-center bg-white/95 backdrop-blur-sm z-50">
+          <div className="text-center space-y-8 max-w-md mx-auto px-6">
+            {/* Confetti emoji */}
+            <div className="text-6xl animate-bounce">🎉</div>
+            
+            {/* Main heading */}
+            <div className="space-y-4">
+              <h2 className="text-4xl font-bold text-gray-900">Congratulations!</h2>
+              <p className="text-lg text-gray-600">
+                You've completed your profile and unlocked the{" "}
+                <span className="font-semibold">Connected Member</span> badge.
+              </p>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-spiritual-blue">You're all set!</h3>
-              <p className="text-lg text-gray-700">Welcome to the KingdomOps family!</p>
-              <Badge className="bg-warm-gold text-spiritual-blue font-semibold px-4 py-1">
-                Connected Member
-              </Badge>
+            
+            {/* Progress bar */}
+            <div className="space-y-3">
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="bg-gray-900 h-3 rounded-full w-full transition-all duration-1000" />
+              </div>
+              <p className="text-lg font-semibold text-green-600">100% Complete</p>
             </div>
+            
+            {/* Connected Member badge */}
+            <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-6 py-3 rounded-full">
+              <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-4 w-4 text-white" />
+              </div>
+              <span className="font-semibold">Connected Member</span>
+            </div>
+            
+            {/* Action button */}
+            <Button 
+              onClick={() => setShowConfetti(false)}
+              className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 text-lg"
+            >
+              Discover Serving Opportunities
+            </Button>
+          </div>
+          
+          {/* Animated confetti particles */}
+          <div className="absolute inset-0 pointer-events-none">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute animate-pulse"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 2}s`,
+                  fontSize: '24px'
+                }}
+              >
+                {['🎊', '✨', '🎉', '⭐'][Math.floor(Math.random() * 4)]}
+              </div>
+            ))}
           </div>
         </div>
       )}
