@@ -130,6 +130,35 @@ export interface IStorage {
   // Permission helpers
   hasPermission(userId: string, permission: string, organizationId?: string): Promise<boolean>;
   canAccessOrganization(userId: string, organizationId: string): Promise<boolean>;
+
+  // Profile completion operations
+  getProfileProgress(userId: string): Promise<{
+    percentage: number;
+    completedSteps: string[];
+    steps: Array<{
+      key: string;
+      label: string;
+      completed: boolean;
+      weight: number;
+      order: number;
+    }>;
+  }>;
+  markStepComplete(userId: string, stepKey: string): Promise<void>;
+  initializeProfileSteps(userId: string, organizationId: string): Promise<void>;
+  getProfileStepConfigurations(organizationId: string): Promise<Array<{
+    stepKey: string;
+    label: string;
+    weight: number;
+    enabled: boolean;
+    order: number;
+  }>>;
+  updateProfileStepConfigurations(organizationId: string, configs: Array<{
+    stepKey: string;
+    label: string;
+    weight: number;
+    enabled: boolean;
+    order: number;
+  }>): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -810,6 +839,173 @@ export class DatabaseStorage implements IStorage {
     
     // User can access their own organization
     return user.organizationId === organizationId;
+  }
+
+  // Profile completion operations
+  async getProfileProgress(userId: string): Promise<{
+    percentage: number;
+    completedSteps: string[];
+    steps: Array<{
+      key: string;
+      label: string;
+      completed: boolean;
+      weight: number;
+      order: number;
+    }>;
+  }> {
+    const user = await this.getUser(userId);
+    if (!user?.organizationId) {
+      throw new Error('User organization not found');
+    }
+
+    // Get step configurations for the user's organization
+    const configsResult = await db.execute(sql`
+      SELECT step_key, label, weight, enabled, "order"
+      FROM profile_step_configurations 
+      WHERE organization_id = ${user.organizationId} AND enabled = true
+      ORDER BY "order"
+    `);
+
+    const configs = configsResult.rows;
+
+    // Get user's completed steps
+    const stepsResult = await db.execute(sql`
+      SELECT step_key, completed, completed_at
+      FROM profile_completion_steps
+      WHERE user_id = ${userId}
+    `);
+
+    const userSteps = stepsResult.rows.reduce((acc: any, row: any) => {
+      acc[row.step_key] = {
+        completed: row.completed,
+        completedAt: row.completed_at
+      };
+      return acc;
+    }, {});
+
+    // Check completion status for each step
+    const steps = configs.map((config: any) => {
+      const stepKey = config.step_key;
+      let completed = userSteps[stepKey]?.completed || false;
+
+      // Auto-detect completion for certain steps
+      if (!completed) {
+        switch (stepKey) {
+          case 'profile_photo':
+            completed = !!user.profileImageUrl;
+            break;
+          case 'basic_info':
+            completed = !!(user.firstName && user.lastName && user.ageRange);
+            break;
+          case 'gifts_assessment':
+            // Check if user has completed assessment
+            completed = false; // TODO: Check results table
+            break;
+          case 'life_verse':
+            completed = !!user.lifeVerse;
+            break;
+          case 'join_group':
+            completed = false; // TODO: Check group membership
+            break;
+        }
+      }
+
+      return {
+        key: stepKey,
+        label: config.label,
+        completed,
+        weight: parseInt(config.weight),
+        order: parseInt(config.order)
+      };
+    });
+
+    // Calculate percentage
+    const totalWeight = steps.reduce((sum, step) => sum + step.weight, 0);
+    const completedWeight = steps
+      .filter(step => step.completed)
+      .reduce((sum, step) => sum + step.weight, 0);
+    
+    const percentage = totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
+    const completedSteps = steps.filter(step => step.completed).map(step => step.key);
+
+    return {
+      percentage,
+      completedSteps,
+      steps
+    };
+  }
+
+  async markStepComplete(userId: string, stepKey: string): Promise<void> {
+    await db.execute(sql`
+      INSERT INTO profile_completion_steps (user_id, step_key, completed, completed_at)
+      VALUES (${userId}, ${stepKey}, true, NOW())
+      ON CONFLICT (user_id, step_key) DO UPDATE SET
+        completed = true,
+        completed_at = NOW(),
+        updated_at = NOW()
+    `);
+  }
+
+  async initializeProfileSteps(userId: string, organizationId: string): Promise<void> {
+    const configsResult = await db.execute(sql`
+      SELECT step_key
+      FROM profile_step_configurations 
+      WHERE organization_id = ${organizationId} AND enabled = true
+    `);
+
+    const configs = configsResult.rows;
+
+    for (const config of configs) {
+      await db.execute(sql`
+        INSERT INTO profile_completion_steps (user_id, step_key, completed)
+        VALUES (${userId}, ${config.step_key}, false)
+        ON CONFLICT (user_id, step_key) DO NOTHING
+      `);
+    }
+  }
+
+  async getProfileStepConfigurations(organizationId: string): Promise<Array<{
+    stepKey: string;
+    label: string;
+    weight: number;
+    enabled: boolean;
+    order: number;
+  }>> {
+    const result = await db.execute(sql`
+      SELECT step_key, label, weight, enabled, "order"
+      FROM profile_step_configurations
+      WHERE organization_id = ${organizationId}
+      ORDER BY "order"
+    `);
+
+    return result.rows.map((row: any) => ({
+      stepKey: row.step_key,
+      label: row.label,
+      weight: parseInt(row.weight),
+      enabled: row.enabled,
+      order: parseInt(row.order)
+    }));
+  }
+
+  async updateProfileStepConfigurations(organizationId: string, configs: Array<{
+    stepKey: string;
+    label: string;
+    weight: number;
+    enabled: boolean;
+    order: number;
+  }>): Promise<void> {
+    // Update existing configurations
+    for (const config of configs) {
+      await db.execute(sql`
+        UPDATE profile_step_configurations 
+        SET label = ${config.label}, 
+            weight = ${config.weight}, 
+            enabled = ${config.enabled}, 
+            "order" = ${config.order},
+            updated_at = NOW()
+        WHERE organization_id = ${organizationId} AND step_key = ${config.stepKey}
+      `);
+    }
   }
 }
 

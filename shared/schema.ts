@@ -94,6 +94,14 @@ export const placementStatusEnum = pgEnum("placement_status", ["OPEN", "FILLED",
 
 export const candidateStatusEnum = pgEnum("candidate_status", ["PENDING", "INVITED", "PLACED", "DECLINED"]);
 
+export const profileStepEnum = pgEnum("profile_step", [
+  "profile_photo", 
+  "basic_info", 
+  "gifts_assessment", 
+  "life_verse", 
+  "join_group"
+]);
+
 export const giftKeyEnum = pgEnum("gift_key", [
   "LEADERSHIP_ORG",
   "TEACHING",
@@ -221,11 +229,45 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   coverPhotoUrl: varchar("cover_photo_url"),
   profileCompleted: boolean("profile_completed").default(false),
+  lifeVerse: text("life_verse"), // User's favorite scripture
   role: roleEnum("role").default("CHURCH_MEMBER"),
   lastActiveAt: timestamp("last_active_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Profile completion steps tracking
+export const profileCompletionSteps = pgTable("profile_completion_steps", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  stepKey: profileStepEnum("step_key").notNull(),
+  completed: boolean("completed").default(false),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_profile_steps_user").on(table.userId),
+  index("idx_profile_steps_user_step").on(table.userId, table.stepKey),
+]);
+
+// Profile completion configuration for admin
+export const profileStepConfigurations = pgTable("profile_step_configurations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: varchar("organization_id")
+    .notNull()
+    .references(() => organizations.id),
+  stepKey: profileStepEnum("step_key").notNull(),
+  label: varchar("label").notNull(),
+  weight: integer("weight").notNull().default(20), // Percentage weight (total must equal 100)
+  enabled: boolean("enabled").default(true),
+  order: integer("order").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_step_config_org").on(table.organizationId),
+]);
 
 export const assessmentVersions = pgTable("assessment_versions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -1029,6 +1071,25 @@ export type FeedPost = Post & {
   topComments?: (PostComment & {
     author: Pick<User, 'id' | 'firstName' | 'lastName' | 'displayName' | 'profileImageUrl'>;
   })[];
+};
+
+// Profile completion types
+export type ProfileCompletionStep = typeof profileCompletionSteps.$inferSelect;
+export type InsertProfileCompletionStep = typeof profileCompletionSteps.$inferInsert;
+export type ProfileStepConfiguration = typeof profileStepConfigurations.$inferSelect;
+export type InsertProfileStepConfiguration = typeof profileStepConfigurations.$inferInsert;
+
+// Profile completion progress data structure
+export type ProfileProgress = {
+  percentage: number;
+  completedSteps: string[];
+  steps: {
+    key: string;
+    label: string;
+    completed: boolean;
+    weight: number;
+    order: number;
+  }[];
 };
 
 export type DashboardData = {

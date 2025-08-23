@@ -1,0 +1,59 @@
+KingdomOps Profile Completion (Phase 1 Launch)
+Goal
+Encourage members to engage quickly by completing 5 core steps. Display progress as a meter on the dashboard with a clear finish line at 100%. Keep it expandable for Phase 2.
+🎯 The 5 Core Steps (Phase 1)
+Add Profile Photo
+Action: Upload profile picture
+Weight: 20%
+Complete Basic Info
+Action: Fill name, birthday, contact info
+Weight: 20%
+Take Spiritual Gifts Assessment
+Action: Complete assessment module
+Weight: 20%
+Share Life Verse
+Action: Add favorite scripture / anchor verse
+Weight: 20%
+Join a Group or Small Group
+Action: Register or join any group/community
+Weight: 20%
+Total = 100%
+🧩 Future (Phase 2 – Optional Steps)
+(not visible in Phase 1, but system should allow toggling later)
+Add Cover Photo
+Write a Short Testimony
+Select Ministry Interests
+Register for an Event
+Submit a Prayer Request
+(Later) Enable Online Giving
+UX Requirements
+Dashboard Card
+Header: Complete Your Profile
+Circular progress meter with %
+Checklist of the 5 steps (show check when done)
+Each step has a CTA button that deep-links to the exact place to finish it.
+Success state: “You’re all set! Welcome to the KingdomOps family.” + confetti animation + Connected Member badge
+Mobile
+Single column, collapsible checklist.
+Data Model
+Canonical Step Keys (Phase 1):
+profile_photo, basic_info, gifts_assessment, life_verse, join_group
+API
+GET /v1/profile/progress → returns % + step status
+POST /v1/profile/steps/:key/complete → mark complete (idempotent)
+GET /v1/admin/profile/steps → admin list/configure
+PUT /v1/admin/profile/steps → update weights/toggles
+Completion Logic
+Each completed step contributes 20%.
+On completion: toast notification “Step complete! You’re now at X%.”
+At 100%: award Connected Member badge and show success card.
+Admin Console
+Toggle steps on/off
+Edit labels, weights (must total 100%)
+Preview card as member
+Accessibility
+Screen reader friendly: meter announces “Profile 60% complete.”
+Works on desktop + mobile.
+✅ Keep it simple: Only 5 steps in Phase 1
+✅ Expandable: Can add more later without redesign
+✅ Faith-centered: Steps tie directly to discipleship, not just data collection

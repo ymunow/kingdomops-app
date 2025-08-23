@@ -2196,6 +2196,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile completion endpoints
+  app.get("/api/profile/progress", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const progress = await storage.getProfileProgress(userId);
+      res.json(progress);
+    } catch (error) {
+      console.error("Get profile progress error:", error);
+      res.status(500).json({ message: "Failed to get profile progress" });
+    }
+  });
+
+  app.post("/api/profile/steps/:stepKey/complete", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { stepKey } = req.params;
+      
+      await storage.markStepComplete(userId, stepKey);
+      
+      // Get updated progress
+      const progress = await storage.getProfileProgress(userId);
+      
+      res.json({ 
+        success: true, 
+        progress,
+        message: `Step completed! You're now at ${progress.percentage}%.`
+      });
+    } catch (error) {
+      console.error("Mark step complete error:", error);
+      res.status(500).json({ message: "Failed to mark step complete" });
+    }
+  });
+
+  // Life verse update endpoint
+  app.put("/api/profile/life-verse", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { lifeVerse } = req.body;
+      
+      if (!lifeVerse || lifeVerse.trim().length === 0) {
+        return res.status(400).json({ message: "Life verse is required" });
+      }
+      
+      await storage.updateUser(userId, { lifeVerse: lifeVerse.trim() });
+      
+      // Mark the life_verse step as complete
+      await storage.markStepComplete(userId, 'life_verse');
+      
+      // Get updated progress
+      const progress = await storage.getProfileProgress(userId);
+      
+      res.json({ 
+        success: true, 
+        progress,
+        message: `Life verse saved! You're now at ${progress.percentage}%.`
+      });
+    } catch (error) {
+      console.error("Update life verse error:", error);
+      res.status(500).json({ message: "Failed to update life verse" });
+    }
+  });
+
+  // Admin endpoints for profile completion configuration
+  app.get("/api/admin/profile/steps", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user?.organizationId) {
+        return res.status(400).json({ message: "User organization not found" });
+      }
+      
+      const configs = await storage.getProfileStepConfigurations(user.organizationId);
+      res.json(configs);
+    } catch (error) {
+      console.error("Get profile step configs error:", error);
+      res.status(500).json({ message: "Failed to get profile step configurations" });
+    }
+  });
+
+  app.put("/api/admin/profile/steps", isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user?.organizationId) {
+        return res.status(400).json({ message: "User organization not found" });
+      }
+      
+      const { configurations } = req.body;
+      
+      if (!Array.isArray(configurations)) {
+        return res.status(400).json({ message: "Configurations must be an array" });
+      }
+      
+      // Validate that weights total 100
+      const totalWeight = configurations.reduce((sum, config) => sum + config.weight, 0);
+      if (totalWeight !== 100) {
+        return res.status(400).json({ 
+          message: `Step weights must total 100%. Currently: ${totalWeight}%` 
+        });
+      }
+      
+      await storage.updateProfileStepConfigurations(user.organizationId, configurations);
+      
+      res.json({ success: true, message: "Profile step configurations updated" });
+    } catch (error) {
+      console.error("Update profile step configs error:", error);
+      res.status(500).json({ message: "Failed to update profile step configurations" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

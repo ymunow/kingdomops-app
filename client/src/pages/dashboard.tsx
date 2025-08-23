@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
 import { viewAsStorage } from "@/lib/view-as-storage";
+import { ProfileCompletionCard } from "@/components/profile/ProfileCompletionCard";
 import { 
   Crown,
   Gift,
@@ -171,6 +172,9 @@ export default function Dashboard() {
             Share
           </Button>
         </div>
+
+        {/* Profile Completion Card */}
+        <ProfileCompletionCard />
 
         {/* Primary CTA */}
         <Card className="bg-gradient-to-r from-spiritual-blue to-purple-700 text-white shadow-xl">
