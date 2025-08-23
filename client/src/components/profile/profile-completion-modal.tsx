@@ -79,7 +79,7 @@ export default function ProfileCompletionModal({ isOpen, userEmail }: ProfileCom
             Complete Your Profile
           </DialogTitle>
           <p className="text-gray-600 mt-2">
-            We need a few details to personalize your spiritual gifts assessment experience.
+            Complete your profile to unlock your serving matches and community connections.
           </p>
         </DialogHeader>
 

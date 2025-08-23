@@ -156,16 +156,22 @@ export function ProfileCompletionCard() {
               <path
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 fill="none"
-                stroke="#374151"
+                stroke="url(#progress-gradient)"
                 strokeWidth="3"
                 strokeDasharray={`${progress.percentage}, 100`}
                 strokeLinecap="round"
                 className="transition-all duration-1000 ease-out"
               />
+              <defs>
+                <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#250A34" />
+                  <stop offset="100%" stopColor="#EEBC4C" />
+                </linearGradient>
+              </defs>
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-lg font-bold text-gray-900">
+                <div className="text-lg font-bold text-spiritual-blue">
                   {progress.percentage}%
                 </div>
                 <div className="text-xs text-gray-600">Complete</div>

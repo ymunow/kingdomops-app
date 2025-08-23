@@ -1316,10 +1316,10 @@ class MemStorage implements IStorage {
       completedSteps: [], 
       steps: [
         { key: 'basic_info', label: 'Basic Information', completed: false, weight: 20, order: 1 },
-        { key: 'profile_photo', label: 'Profile Photo', completed: false, weight: 10, order: 2 },
-        { key: 'gifts_assessment', label: 'Gifts Assessment', completed: false, weight: 40, order: 3 },
+        { key: 'profile_photo', label: 'Profile Photo', completed: false, weight: 20, order: 2 },
+        { key: 'gifts_assessment', label: 'Gifts Assessment', completed: false, weight: 20, order: 3 },
         { key: 'life_verse', label: 'Life Verse', completed: false, weight: 20, order: 4 },
-        { key: 'join_group', label: 'Join Group', completed: false, weight: 10, order: 5 }
+        { key: 'join_group', label: 'Join Group', completed: false, weight: 20, order: 5 }
       ]
     }; 
   }
