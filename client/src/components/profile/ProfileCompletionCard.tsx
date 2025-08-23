@@ -35,7 +35,7 @@ const STEP_ACTIONS = {
     route: "/profile"
   },
   basic_info: {
-    label: "Complete Info",
+    label: "Complete Info", 
     route: "/profile"
   },
   gifts_assessment: {
@@ -109,7 +109,7 @@ export function ProfileCompletionCard() {
   };
 
   return (
-    <Card className="bg-white border-gray-200 shadow-sm">
+    <Card className="bg-gray-50 border-gray-200 shadow-sm">
       {showConfetti && (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-r from-spiritual-blue/10 to-warm-gold/10 backdrop-blur-sm z-10">
           <div className="text-center space-y-4 animate-pulse">
@@ -128,60 +128,87 @@ export function ProfileCompletionCard() {
         </div>
       )}
 
-      <CardHeader className="pb-6">
-        <CardTitle className="text-2xl font-bold text-gray-900 text-center">
-          Complete Your Profile
-        </CardTitle>
-        
-        {/* Linear Progress Bar */}
-        <div className="mt-6 space-y-2">
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-gray-800 h-2 rounded-full transition-all duration-500" 
-              style={{ width: `${progress.percentage}%` }}
-            />
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between">
+          <CardTitle className="text-xl font-bold text-gray-900">
+            Complete Your Profile
+          </CardTitle>
+          <div className="text-right">
+            <div className="text-xl font-bold text-gray-900">
+              {progress.percentage}%
+            </div>
+            <div className="text-sm text-gray-600">
+              {progress.completedSteps.length} of {progress.steps.length} steps
+            </div>
           </div>
-          <div className="text-center">
-            <span className="text-lg font-medium text-gray-700">{progress.percentage}% Complete</span>
+        </div>
+        
+        {/* Circular Progress Indicator */}
+        <div className="flex items-center justify-center my-8">
+          <div className="relative w-24 h-24">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+              <path
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="#e5e7eb"
+                strokeWidth="3"
+              />
+              <path
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="#374151"
+                strokeWidth="3"
+                strokeDasharray={`${progress.percentage}, 100`}
+                strokeLinecap="round"
+                className="transition-all duration-1000 ease-out"
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-900">
+                  {progress.percentage}%
+                </div>
+                <div className="text-xs text-gray-600">Complete</div>
+              </div>
+            </div>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-3">
         {progress.steps.map((step) => {
+          const Icon = STEP_ICONS[step.key as keyof typeof STEP_ICONS] || Circle;
           const action = STEP_ACTIONS[step.key as keyof typeof STEP_ACTIONS];
           
           return (
             <div
               key={step.key}
-              className="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-white"
+              className="flex items-center justify-between p-4 rounded-lg bg-white border border-gray-200"
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6">
-                  {step.completed ? (
-                    <CheckCircle className="h-6 w-6 text-green-500" />
-                  ) : (
-                    <Circle className="h-6 w-6 text-gray-400" />
-                  )}
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg">
+                  <Icon className="h-5 w-5 text-gray-600" />
                 </div>
-                <div className={cn(
-                  "text-lg",
-                  step.completed ? "text-gray-400 line-through" : "text-gray-900"
-                )}>
-                  {step.label}
+                <div>
+                  <div className="font-medium text-gray-900">
+                    {step.label}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {step.weight}% of your profile
+                  </div>
                 </div>
               </div>
               
               {!step.completed && action && (
                 <Button 
                   size="sm" 
-                  className="bg-gray-900 hover:bg-gray-800 text-white rounded-full px-6"
+                  className="bg-gray-900 hover:bg-gray-800 text-white rounded-full px-4 py-2"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleStepClick(step);
                   }}
                 >
-                  Complete
+                  {action.label}
                 </Button>
               )}
             </div>
