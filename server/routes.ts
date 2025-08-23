@@ -73,6 +73,15 @@ function requireAdmin(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // DEBUG: Log ALL PUT requests to track interception
+  app.use((req, res, next) => {
+    if (req.method === 'PUT') {
+      console.log(`🔥 PUT REQUEST INTERCEPTED: ${req.method} ${req.path} from ${req.ip}`);
+      console.log('🔥 Headers:', JSON.stringify(req.headers, null, 2));
+    }
+    next();
+  });
+
   // Subdomain detection middleware
   app.use(subdomainMiddleware);
   
