@@ -155,8 +155,9 @@ export function ImageCropModal({ imageFile, isOpen, onClose, onCropComplete }: I
               <ReactCrop
                 crop={crop}
                 onChange={(_, percentCrop) => setCrop(percentCrop)}
-                aspect={1} // Force square aspect ratio
-                className="max-w-full"
+                aspect={1} // Force square aspect ratio for circular crop
+                className="max-w-full circular-crop"
+                circularCrop={false} // We handle circular styling with CSS
               >
                 <img
                   ref={imgRef}
@@ -168,6 +169,10 @@ export function ImageCropModal({ imageFile, isOpen, onClose, onCropComplete }: I
               </ReactCrop>
               
               <div className="text-sm text-gray-600 text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-full border-2 border-dashed border-spiritual-blue"></div>
+                  <span>Drag the circle to position your profile picture</span>
+                </div>
                 Your image will be automatically resized to 400×400 pixels for optimal quality.
               </div>
             </div>
