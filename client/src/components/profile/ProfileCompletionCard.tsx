@@ -98,13 +98,9 @@ export function ProfileCompletionCard() {
     
     const action = STEP_ACTIONS[step.key as keyof typeof STEP_ACTIONS];
     if (action?.route) {
-      // For now, just navigate to the route (implement navigation logic)
+      // For testing purposes, mark all steps as complete when clicked
       console.log(`Navigate to: ${action.route}`);
-      
-      // For demonstration, mark some steps as complete
-      if (step.key === 'basic_info' || step.key === 'profile_photo') {
-        markStepMutation.mutate(step.key);
-      }
+      markStepMutation.mutate(step.key);
     }
   };
 
