@@ -117,20 +117,17 @@ export async function setupSupabaseAuth(app: Express) {
     res.json({ message: 'Signed out successfully' });
   });
 
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const user = await storage.getUser(req.user.id);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // User route is defined in routes.ts to avoid conflicts
 }
 
 export const isAuthenticated: RequestHandler = (req: any, res, next) => {
+  console.log("Auth middleware - Processing token:", req.headers.authorization?.substring(0, 20) + "...");
+  
   if (!req.user) {
+    console.log("Auth middleware - No user found");
     return res.status(401).json({ message: "Unauthorized" });
   }
+  
+  console.log("Auth middleware - User authenticated:", req.user.email);
   next();
 };
