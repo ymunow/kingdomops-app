@@ -99,9 +99,9 @@ export function ProfileCompletionCard() {
     
     const action = STEP_ACTIONS[step.key as keyof typeof STEP_ACTIONS];
     if (action?.route) {
-      // For testing purposes, mark all steps as complete when clicked
+      // Navigate to the actual page where user can complete the action
       console.log(`Navigate to: ${action.route}`);
-      markStepMutation.mutate(step.key);
+      window.location.href = action.route;
     }
   };
 
@@ -203,8 +203,9 @@ export function ProfileCompletionCard() {
               />
               <defs>
                 <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#250A34" />
-                  <stop offset="100%" stopColor="#EEBC4C" />
+                  <stop offset="0%" stopColor="#8B5CF6" />
+                  <stop offset="50%" stopColor="#A855F7" />
+                  <stop offset="100%" stopColor="#C084FC" />
                 </linearGradient>
               </defs>
             </svg>
