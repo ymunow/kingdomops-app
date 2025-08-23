@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
 import Uppy from "@uppy/core";
 import { DashboardModal } from "@uppy/react";
@@ -106,10 +107,7 @@ export function ObjectUploader({
         {children}
       </Button>
 
-      <div 
-        className={`fixed inset-0 z-[9999] ${showModal ? 'block' : 'hidden'}`}
-        style={{ zIndex: 9999 }}
-      >
+      {showModal && createPortal(
         <DashboardModal
           uppy={uppy}
           open={showModal}
@@ -126,8 +124,9 @@ export function ObjectUploader({
           hideCancelButton={false}
           showRemoveButtonAfterComplete={true}
           disableLocalFiles={false}
-        />
-      </div>
+        />,
+        document.body
+      )}
     </div>
   );
 }
