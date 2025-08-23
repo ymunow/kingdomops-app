@@ -138,6 +138,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.put("/api/profile/picture", isAuthenticated, async (req: any, res) => {
     console.log('PUT /api/profile/picture route handler called!');
+    console.log('Request body:', req.body);
+    console.log('User ID:', req.user.id);
     
     if (!req.body.profileImageUrl) {
       return res.status(400).json({ error: "profileImageUrl is required" });
@@ -153,12 +155,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("Profile picture update - userId:", userId, "objectPath:", objectPath);
 
+      // Get current user to verify it exists
+      const currentUser = await storage.getUser(userId);
+      console.log("Current user before update:", currentUser?.profileImageUrl);
+
       // Update user profile with image URL
       const updatedUser = await storage.completeUserProfile(userId, {
         profileImageUrl: objectPath
       } as any);
 
-      console.log("Profile picture updated successfully:", updatedUser?.profileImageUrl);
+      console.log("Profile picture updated successfully - new URL:", updatedUser?.profileImageUrl);
+
+      // Double-check by getting user again
+      const verifyUser = await storage.getUser(userId);
+      console.log("User after update verification:", verifyUser?.profileImageUrl);
 
       res.status(200).json(updatedUser);
     } catch (error) {
