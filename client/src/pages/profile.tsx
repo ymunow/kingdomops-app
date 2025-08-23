@@ -131,7 +131,7 @@ export default function Profile() {
       setEditingProfile({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
-        bio: '', // Bio will be added later
+        bio: user.bio || '', // User's actual bio
       });
     }
   }, [isEditingProfile, user]);
@@ -382,7 +382,9 @@ export default function Profile() {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">About Me</h3>
-                  <p className="text-gray-700 leading-relaxed">{mockProfileData.bio}</p>
+                  <p className="text-gray-700 leading-relaxed">
+                    {user?.bio || mockProfileData.bio}
+                  </p>
                 </div>
 
                 <div>
