@@ -68,8 +68,31 @@ export default function Profile() {
       
       try {
         console.log('About to send PUT request with data:', { profileImageUrl });
-        const response = await apiRequest('PUT', '/api/profile/picture', { profileImageUrl });
-        console.log('Profile update response:', response);
+        
+        // Try direct fetch to bypass any potential apiRequest issues
+        let authToken = queryClient.getQueryData(['authToken']) as string;
+        if (!authToken) {
+          const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
+          if (supabaseSession) {
+            const session = JSON.parse(supabaseSession);
+            authToken = session?.access_token;
+          }
+        }
+        
+        console.log('Direct fetch using token:', authToken?.substring(0, 10));
+        
+        const response = await fetch('/api/profile/picture', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({ profileImageUrl }),
+        });
+        
+        console.log('Direct fetch response status:', response.status);
+        const responseData = await response.json();
+        console.log('Direct fetch response data:', responseData);
         
         // Aggressive cache refresh
         await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
