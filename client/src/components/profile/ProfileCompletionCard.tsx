@@ -63,7 +63,8 @@ export function ProfileCompletionCard() {
 
   const markStepMutation = useMutation({
     mutationFn: async (stepKey: string) => {
-      return apiRequest(`/api/profile/steps/${stepKey}/complete`, 'POST');
+      const response = await apiRequest('POST', `/api/profile/steps/${stepKey}/complete`);
+      return response.json();
     },
     onSuccess: (data: any) => {
       toast({
