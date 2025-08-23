@@ -109,7 +109,7 @@ export function ProfileCompletionCard() {
   };
 
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-spiritual-blue/5 via-purple-50 to-warm-gold/10 border-spiritual-blue/20">
+    <Card className="bg-white border-gray-200 shadow-sm">
       {showConfetti && (
         <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-r from-spiritual-blue/10 to-warm-gold/10 backdrop-blur-sm z-10">
           <div className="text-center space-y-4 animate-pulse">
@@ -128,132 +128,65 @@ export function ProfileCompletionCard() {
         </div>
       )}
 
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold text-spiritual-blue">
-            Complete Your Profile
-          </CardTitle>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-spiritual-blue">
-              {progress.percentage}%
-            </div>
-            <div className="text-sm text-gray-600">
-              {progress.completedSteps.length} of {progress.steps.length} steps
-            </div>
-          </div>
-        </div>
+      <CardHeader className="pb-6">
+        <CardTitle className="text-2xl font-bold text-gray-900 text-center">
+          Complete Your Profile
+        </CardTitle>
         
-        {/* Circular Progress Meter */}
-        <div className="flex items-center justify-center my-6">
-          <div className="relative w-32 h-32">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-              <path
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                fill="none"
-                stroke="#e5e7eb"
-                strokeWidth="2"
-              />
-              <path
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                fill="none"
-                stroke="url(#progress-gradient)"
-                strokeWidth="2"
-                strokeDasharray={`${progress.percentage}, 100`}
-                strokeLinecap="round"
-                className="transition-all duration-1000 ease-out"
-              />
-              <defs>
-                <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#250A34" />
-                  <stop offset="100%" stopColor="#EEBC4C" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-spiritual-blue">
-                  {progress.percentage}%
-                </div>
-                <div className="text-xs text-gray-600">Complete</div>
-              </div>
-            </div>
+        {/* Linear Progress Bar */}
+        <div className="mt-6 space-y-2">
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-gray-800 h-2 rounded-full transition-all duration-500" 
+              style={{ width: `${progress.percentage}%` }}
+            />
+          </div>
+          <div className="text-center">
+            <span className="text-lg font-medium text-gray-700">{progress.percentage}% Complete</span>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div className="space-y-3">
-          {progress.steps.map((step) => {
-            const Icon = STEP_ICONS[step.key as keyof typeof STEP_ICONS] || Circle;
-            const action = STEP_ACTIONS[step.key as keyof typeof STEP_ACTIONS];
-            
-            return (
-              <div
-                key={step.key}
-                className={cn(
-                  "flex items-center justify-between p-3 rounded-lg border transition-all duration-200",
-                  step.completed 
-                    ? "bg-green-50 border-green-200 text-green-900" 
-                    : "bg-white border-gray-200 hover:border-spiritual-blue/40 hover:bg-spiritual-blue/5 cursor-pointer"
-                )}
-                onClick={() => handleStepClick(step)}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={cn(
-                    "flex items-center justify-center w-8 h-8 rounded-full",
-                    step.completed 
-                      ? "bg-green-100 text-green-600" 
-                      : "bg-spiritual-blue/10 text-spiritual-blue"
-                  )}>
-                    {step.completed ? (
-                      <CheckCircle className="h-5 w-5" />
-                    ) : (
-                      <Icon className="h-4 w-4" />
-                    )}
-                  </div>
-                  <div>
-                    <div className={cn(
-                      "font-medium",
-                      step.completed ? "line-through text-green-700" : "text-gray-900"
-                    )}>
-                      {step.label}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {step.weight}% of your profile
-                    </div>
-                  </div>
+      <CardContent className="space-y-3">
+        {progress.steps.map((step) => {
+          const action = STEP_ACTIONS[step.key as keyof typeof STEP_ACTIONS];
+          
+          return (
+            <div
+              key={step.key}
+              className="flex items-center justify-between p-4 rounded-lg border border-gray-200 bg-white"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-6 h-6">
+                  {step.completed ? (
+                    <CheckCircle className="h-6 w-6 text-green-500" />
+                  ) : (
+                    <Circle className="h-6 w-6 text-gray-400" />
+                  )}
                 </div>
-                
-                {!step.completed && action && (
-                  <Button 
-                    size="sm" 
-                    className="bg-spiritual-blue hover:bg-spiritual-blue/90 text-white"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleStepClick(step);
-                    }}
-                  >
-                    {action.label}
-                  </Button>
-                )}
+                <div className={cn(
+                  "text-lg",
+                  step.completed ? "text-gray-400 line-through" : "text-gray-900"
+                )}>
+                  {step.label}
+                </div>
               </div>
-            );
-          })}
-        </div>
-
-        {progress.percentage === 100 && (
-          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full">
-                <Crown className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <h4 className="font-semibold text-green-900">You're all set!</h4>
-                <p className="text-sm text-green-700">Welcome to the KingdomOps family.</p>
-              </div>
+              
+              {!step.completed && action && (
+                <Button 
+                  size="sm" 
+                  className="bg-gray-900 hover:bg-gray-800 text-white rounded-full px-6"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStepClick(step);
+                  }}
+                >
+                  Complete
+                </Button>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })}
       </CardContent>
     </Card>
   );

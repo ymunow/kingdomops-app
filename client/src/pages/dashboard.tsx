@@ -173,8 +173,6 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Profile Completion Card */}
-        <ProfileCompletionCard />
 
         {/* Primary CTA */}
         <Card className="bg-gradient-to-r from-spiritual-blue to-purple-700 text-white shadow-xl">
@@ -203,6 +201,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Profile Completion Card */}
+            <ProfileCompletionCard />
+
             {/* Serve Central Highlights */}
             <Card className="shadow-lg">
               <CardHeader>
