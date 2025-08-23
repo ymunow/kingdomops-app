@@ -129,6 +129,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Update profile picture
   console.log('Registering PUT /api/profile/picture route');
+  
+  // Add specific middleware to log PUT requests
+  app.use('/api/profile/picture', (req, res, next) => {
+    console.log(`*** MIDDLEWARE: ${req.method} /api/profile/picture hit ***`);
+    next();
+  });
+  
   app.put("/api/profile/picture", isAuthenticated, async (req: any, res) => {
     console.log('PUT /api/profile/picture route handler called!');
     
