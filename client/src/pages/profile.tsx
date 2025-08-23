@@ -204,7 +204,15 @@ export default function Profile() {
                   <AvatarImage 
                     src={user.profileImageUrl} 
                     alt="Profile picture" 
-                    className="object-cover" 
+                    className="object-cover"
+                    onError={(e) => {
+                      console.error('Profile image failed to load:', user.profileImageUrl);
+                      console.error('Current user data:', user);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                    onLoad={() => {
+                      console.log('Profile image loaded successfully:', user.profileImageUrl);
+                    }}
                   />
                 )}
                 <AvatarFallback className="bg-spiritual-blue text-white text-4xl font-bold">
