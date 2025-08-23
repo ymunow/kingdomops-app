@@ -141,10 +141,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.body.profileImageUrl
       );
 
+      console.log("Profile picture update - userId:", userId, "objectPath:", objectPath);
+
       // Update user profile with image URL
       const updatedUser = await storage.completeUserProfile(userId, {
         profileImageUrl: objectPath
       } as any);
+
+      console.log("Profile picture updated successfully:", updatedUser?.profileImageUrl);
 
       res.status(200).json(updatedUser);
     } catch (error) {
@@ -235,6 +239,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const user = await storage.getUser(userId);
+      
+      console.log("Get user - userId:", userId, "profileImageUrl:", user?.profileImageUrl);
       
       // Check for view-as context but preserve actual user data
       const viewContext = (req.session as any).viewAsContext;

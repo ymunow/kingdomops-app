@@ -82,7 +82,7 @@ export default function Profile() {
         // Force page refresh after a short delay to ensure image loads
         setTimeout(() => {
           window.location.reload();
-        }, 2000);
+        }, 1500);
       } catch (error) {
         console.error('Profile picture update error:', error);
         toast({
