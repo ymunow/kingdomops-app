@@ -128,7 +128,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update profile picture
+  console.log('Registering PUT /api/profile/picture route');
   app.put("/api/profile/picture", isAuthenticated, async (req: any, res) => {
+    console.log('PUT /api/profile/picture route handler called!');
     if (!req.body.profileImageUrl) {
       return res.status(400).json({ error: "profileImageUrl is required" });
     }
