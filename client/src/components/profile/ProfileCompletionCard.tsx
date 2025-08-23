@@ -48,7 +48,7 @@ const STEP_ACTIONS = {
   },
   join_group: {
     label: "Browse Groups",
-    route: "/connect/groups"
+    route: "/connect"
   }
 };
 
