@@ -896,7 +896,7 @@ export class DatabaseStorage implements IStorage {
             completed = !!user.profileImageUrl;
             break;
           case 'basic_info':
-            completed = !!(user.firstName && user.lastName && user.ageRange);
+            completed = !!(user.firstName && user.lastName && user.ageRange && user.bio);
             break;
           case 'gifts_assessment':
             // Check if user has completed assessment

@@ -245,7 +245,11 @@ export function ProfileCompletionCard() {
                 </div>
               </div>
               
-              {!step.completed && action && (
+              {step.completed ? (
+                <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                </div>
+              ) : action && (
                 <Button 
                   size="sm" 
                   className="bg-gray-900 hover:bg-gray-800 text-white rounded-full px-6 py-2 w-[140px]"
