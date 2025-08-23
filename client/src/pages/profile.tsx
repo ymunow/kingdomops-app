@@ -44,21 +44,31 @@ export default function Profile() {
 
   // Profile picture upload
   const handleGetUploadParameters = async () => {
-    const response = await apiRequest('POST', '/api/objects/upload');
-    const data = await response.json();
-    return {
-      method: 'PUT' as const,
-      url: data.uploadURL,
-    };
+    console.log('Getting upload parameters...');
+    try {
+      const response = await apiRequest('POST', '/api/objects/upload');
+      const data = await response.json();
+      console.log('Upload parameters received:', data);
+      return {
+        method: 'PUT' as const,
+        url: data.uploadURL,
+      };
+    } catch (error) {
+      console.error('Failed to get upload parameters:', error);
+      throw error;
+    }
   };
 
   const handleUploadComplete = async (result: any) => {
+    console.log('Upload complete result:', result);
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       const profileImageUrl = uploadedFile.uploadURL;
+      console.log('Profile image URL:', profileImageUrl);
       
       try {
-        await apiRequest('PUT', '/api/profile/picture', { profileImageUrl });
+        const response = await apiRequest('PUT', '/api/profile/picture', { profileImageUrl });
+        console.log('Profile update response:', response);
         
         queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
         toast({
@@ -66,12 +76,20 @@ export default function Profile() {
           description: 'Profile picture updated successfully!',
         });
       } catch (error) {
+        console.error('Profile picture update error:', error);
         toast({
           title: 'Error',
           description: 'Failed to update profile picture',
           variant: 'destructive',
         });
       }
+    } else {
+      console.error('Upload failed or no files:', result);
+      toast({
+        title: 'Upload Failed',
+        description: 'Please try uploading your image again.',
+        variant: 'destructive',
+      });
     }
   };
 
