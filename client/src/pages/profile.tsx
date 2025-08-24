@@ -90,9 +90,21 @@ export default function Profile() {
           },
         });
         
-        console.log('Direct fetch response status:', response.status);
-        const responseData = await response.json();
-        console.log('Direct fetch response data:', responseData);
+        console.log('GET response status:', response.status);
+        
+        // Better error handling for response parsing
+        const responseText = await response.text();
+        console.log('GET response text:', responseText);
+        
+        let responseData;
+        try {
+          responseData = JSON.parse(responseText);
+          console.log('GET response data:', responseData);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          console.error('Response was:', responseText);
+          throw new Error('Invalid response format');
+        }
         
         // Aggressive cache refresh
         await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });

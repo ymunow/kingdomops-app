@@ -133,13 +133,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // COMPLETE BYPASS: Use GET with query params to avoid ALL interception
   app.get("/api/user/update-avatar", isAuthenticated, async (req: any, res) => {
     console.log('🚀 AVATAR UPDATE VIA GET - Request received!');
+    console.log('🚀 Query params:', req.query);
     
     const profileImageUrl = req.query.url as string;
     if (!profileImageUrl) {
+      console.log('❌ Missing URL parameter');
       return res.status(400).json({ error: "url parameter is required" });
     }
 
     const userId = req.user.id;
+    console.log('🚀 User ID:', userId);
 
     try {
       const objectStorageService = new ObjectStorageService();
@@ -152,7 +155,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } as any);
 
       console.log("🚀 Avatar updated successfully via GET!");
-      res.status(200).json(updatedUser);
+      console.log("🚀 Updated user profileImageUrl:", updatedUser.profileImageUrl);
+      
+      res.json(updatedUser);
     } catch (error) {
       console.error("❌ Avatar update via GET failed:", error);
       res.status(500).json({ error: "Internal server error" });
