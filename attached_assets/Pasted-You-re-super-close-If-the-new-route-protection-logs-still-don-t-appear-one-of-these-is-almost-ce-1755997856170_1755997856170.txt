@@ -1,0 +1,139 @@
+You’re super close. If the new “route protection” logs still don’t appear, one of these is almost certainly true:
+You’re still opening the Vite dev server (http://localhost:5173) instead of the Express front door (http://localhost:4000).
+Your /api path doesn’t match what the client is calling (e.g., client posts to /upload but protection only guards /api/*).
+Vite’s catch‑all still wins because of mount order or a greedy app.use("*").
+The request never reaches Express at all (separate processes, wrong origin, SW/proxy).
+Below is a bullet‑proof way to lock this down, plus a 90‑second diagnosis checklist.
+Lock‑in fix (copy/paste)
+1) Single front door
+Only run Express in dev. Do not run vite dev separately. Your browser URL must be http://localhost:4000.
+package.json
+{
+  "scripts": {
+    "dev": "tsx server/vite.ts"         // start EXPRESS (which embeds Vite)
+    // no separate `vite` script during dev
+  }
+}
+2) Correct mount order (API → Vite → SPA GET catch‑all)
+// server/vite.ts
+import express from "express";
+import cors from "cors";
+import fs from "node:fs";
+import path from "node:path";
+import multer from "multer";
+import type { Request, Response, NextFunction } from "express";
+import { createServer as createViteServer } from "vite";
+
+const resolve = (p: string) => path.resolve(process.cwd(), p);
+
+export async function createApp() {
+  const app = express();
+
+  // 🔎 Global request logger — proves what hits Express
+  app.use((req, _res, next) => { console.log("➡️", req.method, req.url); next(); });
+
+  // Parse JSON/urlencoded (safe; multer handles multipart)
+  app.use(express.json({ limit: "2mb" }));
+  app.use(express.urlencoded({ extended: true }));
+
+  // Static /cdn first
+  app.use("/cdn", express.static(resolve("public/cdn")));
+
+  // ✅ API routes FIRST (note the /api prefix)
+  const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
+
+  app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
+  app.post("/api/echo", upload.none(), (req, res) => {
+    console.log("🛡️ API ROUTE PROTECTION");
+    res.json({ ok: true, header: req.headers["x-profile-upload"] ?? null });
+  });
+
+  app.post("/api/upload", upload.single("file"), async (req, res, next) => {
+    try {
+      console.log("🎯 UPLOAD DETECTED", req.headers["x-profile-upload"] || "");
+      if (!req.file) return res.status(400).json({ error: "No file" });
+
+      const userId = String(req.body.userId || "anonymous");
+      const key = `avatars/${userId}.webp`;
+      const out = resolve(`public/cdn/${key}`);
+      await fs.promises.mkdir(path.dirname(out), { recursive: true });
+      await fs.promises.writeFile(out, req.file.buffer);
+
+      return res.json({ ok: true, url: `/cdn/${key}?v=${Date.now()}` });
+    } catch (e) { next(e); }
+  });
+
+  // 🔒 Guard to ensure Vite NEVER handles /api/*
+  app.use("/api", (_req, res) => res.status(404).json({ error: "Not Found" }));
+
+  // Mount Vite AFTER API
+  const vite = await createViteServer({ server: { middlewareMode: true } });
+  app.use(vite.middlewares);
+
+  // SPA catch‑all ONLY for non‑API GETs
+  app.get("*", async (req: Request, res: Response, next: NextFunction) => {
+    if (req.path.startsWith("/api/") || req.path.startsWith("/cdn/")) return next();
+    try {
+      const html = await vite.transformIndexHtml(req.originalUrl, fs.readFileSync(resolve("index.html"), "utf-8"));
+      res.setHeader("Content-Type", "text/html");
+      return res.status(200).end(html);
+    } catch (e: any) { vite.ssrFixStacktrace?.(e); next(e); }
+  });
+
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    console.error("❌", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  });
+
+  const port = Number(process.env.PORT || 4000);
+  app.listen(port, () => console.log(`🚀 Dev app on http://localhost:${port}`));
+}
+
+createApp();
+3) Client must call /api/upload on the same origin (4000)
+const fd = new FormData();
+fd.append("file", croppedBlob, "avatar.webp");
+fd.append("userId", user.id);
+
+const res = await fetch("/api/upload", {
+  method: "POST",
+  // you can drop the custom header for now to isolate the issue
+  // headers: { "x-profile-upload": "true" },
+  body: fd
+});
+const { url } = await res.json();
+setAvatarUrl(url); // will include ?v=timestamp
+Tip: Temporarily remove the custom header to rule out header stripping. You can re‑enable it once the route is definitely running.
+90‑second diagnosis checklist
+Browser URL
+Must be http://localhost:4000 (Express front door).
+If it’s :5173, you’re bypassing Express and nothing above will matter.
+Early request log
+After hitting any page, your terminal should print ➡️ GET / etc.
+When you upload, you should see ➡️ POST /api/upload.
+If you don’t see these, the request never hit Express.
+Direct API test in the browser
+Open http://localhost:4000/api/health → should return { ok: true }.
+If not, the API isn’t mounted first or you’re on the wrong origin.
+curl proves server path
+curl -i -X POST http://localhost:4000/api/echo -F "userId=1"
+curl -i -X POST http://localhost:4000/api/upload -F "file=@./avatar.png" -F "userId=1"
+You should see 🛡️ API ROUTE PROTECTION and/or 🎯 UPLOAD DETECTED in logs.
+Path prefix mismatch
+If your client calls /upload, but server listens on /api/upload, it will miss.
+Standardize on /api/* for all backend routes.
+Greedy catch‑all
+Ensure there is no app.use("*") before APIs.
+Only app.get("*") after mounting Vite.
+One process, not two
+Make sure you aren’t running vite dev separately. Kill it; only run the express script.
+Service Worker
+In dev, unregister any SW:
+navigator.serviceWorker?.getRegistrations().then(rs => rs.forEach(r => r.unregister()))
+If you still want header detection later
+Once /api/upload is definitely running, re‑add:
+Client header: headers: { 'x-profile-upload': 'true' }
+Server: check req.headers['x-profile-upload']
+(Only needed if your upload route handles multiple use‑cases; otherwise you can just save the avatar unconditionally for /api/upload.)
+Follow the checklist in order—especially the origin and the global logger. If ➡️ POST /api/upload doesn’t appear, you’re not hitting Express. Once it does, the avatar will persist and cache‑bust correctly.

@@ -74,6 +74,12 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+// 🔎 Global request logger — proves what hits Express
+app.use((req, res, next) => {
+  console.log("➡️", req.method, req.url);
+  next();
+});
+
 // --- request/response logger for API routes ---
 app.use((req, res, next) => {
   const start = Date.now();
@@ -107,13 +113,19 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
-  
-  // Add explicit API route protection to ensure they run before Vite catch-all  
-  app.use('/api/*', (req, res, next) => {
-    console.log('🛡️ API ROUTE PROTECTION:', req.method, req.url);
+  // 🔒 AGGRESSIVE: Intercept upload route BEFORE anything else can claim it
+  app.post('/api/objects/upload', (req, res, next) => {
+    console.log('🚨 INTERCEPTED UPLOAD ROUTE:', req.method, req.url);
     next();
   });
+  
+  // 🔒 Guard to ensure Vite NEVER handles /api/* - must be BEFORE route registration
+  app.use('/api', (req, res, next) => {
+    console.log('🛡️ API GUARD HIT:', req.method, req.url);
+    next();
+  });
+
+  const server = await registerRoutes(app);
 
   // Skip database seeding since we're using in-memory storage
   console.log("Using in-memory storage - skipping database seeding");
