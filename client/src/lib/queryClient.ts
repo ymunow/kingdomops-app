@@ -39,10 +39,7 @@ export async function apiRequest(
     headers.Authorization = `Bearer ${authToken}`;
   }
   
-  // Add profile upload header for automatic saving
-  if (url.includes('/api/objects/upload')) {
-    headers['x-profile-upload'] = 'true';
-  }
+  // Profile uploads are auto-saved (no header needed)
 
   const fullUrl = url.startsWith('/api') ? url : url;
   

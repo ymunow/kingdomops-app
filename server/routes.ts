@@ -125,10 +125,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       console.log("📤 Upload URL generated:", uploadURL);
       
-      // AUTO-SAVE: If this is a profile upload, save it immediately after providing URL
-      const isProfileUpload = req.headers['x-profile-upload'] === 'true';
-      if (isProfileUpload) {
-        console.log("🎯 PROFILE UPLOAD DETECTED - Will auto-save!");
+      // AUTO-SAVE: Always save as profile picture (since this app only uploads profile pictures)
+      console.log("🎯 UPLOAD DETECTED - Will auto-save as profile picture!");
         
         // Set a timeout to save the profile picture after upload completes
         setTimeout(async () => {
@@ -148,7 +146,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.error("❌ Auto-save failed:", error);
           }
         }, 2000); // Reduced to 2 seconds
-      }
       
       res.json({ uploadURL });
     } catch (error) {
