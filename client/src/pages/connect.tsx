@@ -235,70 +235,64 @@ export default function Connect() {
     }
   ];
 
-  // Enhanced group data with new features
+  // Enhanced group data with cover photos and profile pictures
   const myGroups = [
     { 
       id: '1', 
       name: 'Young Adults', 
       members: 24, 
       isJoined: true, 
-      privacy: 'public', 
+      privacy: 'Public', 
       description: 'Ages 18-30 fellowship and Bible study',
-      category: 'Small Group',
-      nextMeeting: { day: 'Wed', time: '7:00p', location: 'Main Campus' },
+      category: 'Group',
       unreadCount: 3,
-      weeklyActivity: 8,
-      capacity: 30,
-      leaders: [{ name: 'Sarah J.', role: 'Leader' }],
+      leaders: [{ name: 'Sarah J.', role: 'Organizer' }],
       recentPosts: [
         { author: 'Mike', text: 'Great discussion tonight! Looking forward to next week.', time: '2h ago' },
         { author: 'Sarah', text: 'Don\'t forget to bring your Bibles tomorrow!', time: '1d ago' },
         { author: 'Alex', text: 'Prayer request: Job interview Friday', time: '3d ago' }
       ],
       tags: ['Bible Study', 'Fellowship', 'Young Adults'],
-      coverColor: 'from-blue-500 to-purple-600'
+      coverPhoto: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&h=200&fit=crop',
+      profilePhoto: '🙏'
     },
     { 
       id: '2', 
       name: 'Worship Team', 
       members: 18, 
       isJoined: true, 
-      privacy: 'private', 
+      privacy: 'Private', 
       description: 'For current worship team members',
-      category: 'Ministry',
-      nextMeeting: { day: 'Sun', time: '8:00a', location: 'Sanctuary' },
+      category: 'Group',
       unreadCount: 0,
-      weeklyActivity: 12,
-      capacity: 25,
-      leaders: [{ name: 'David P.', role: 'Worship Leader' }],
+      leaders: [{ name: 'David P.', role: 'Organizer' }],
       recentPosts: [
         { author: 'David', text: 'New song for Sunday - "Way Maker". Let\'s practice!', time: '4h ago' },
         { author: 'Emma', text: 'Sound check at 7:30am this Sunday', time: '1d ago' },
         { author: 'Josh', text: 'Thanks for the amazing worship time today!', time: '2d ago' }
       ],
       tags: ['Worship', 'Music', 'Ministry'],
-      coverColor: 'from-purple-500 to-pink-600'
+      coverPhoto: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=200&fit=crop',
+      profilePhoto: '🎵'
     },
     { 
       id: '3', 
       name: 'Small Group Leaders', 
       members: 12, 
       isJoined: true, 
-      privacy: 'private', 
+      privacy: 'Private', 
       description: 'Leadership training and support',
-      category: 'Leadership',
-      nextMeeting: { day: 'Sat', time: '9:00a', location: 'Conference Room' },
+      category: 'Group',
       unreadCount: 1,
-      weeklyActivity: 5,
-      capacity: 15,
-      leaders: [{ name: 'Pastor Mike', role: 'Pastor' }],
+      leaders: [{ name: 'Pastor Mike', role: 'Organizer' }],
       recentPosts: [
         { author: 'Pastor Mike', text: 'Leadership retreat planning meeting this Saturday', time: '6h ago' },
         { author: 'Lisa', text: 'Great leadership book recommendation: "The Serve"', time: '2d ago' },
         { author: 'Tom', text: 'Prayer for wisdom in leading my group', time: '4d ago' }
       ],
       tags: ['Leadership', 'Training', 'Support'],
-      coverColor: 'from-green-500 to-teal-600'
+      coverPhoto: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=200&fit=crop',
+      profilePhoto: '👑'
     }
   ];
 
@@ -308,13 +302,10 @@ export default function Connect() {
       name: 'Men\'s Bible Study', 
       members: 15, 
       isJoined: false, 
-      privacy: 'public', 
+      privacy: 'Public', 
       description: 'Weekly men\'s fellowship and study', 
-      category: 'Small Group',
-      nextMeeting: { day: 'Tue', time: '6:30p', location: 'Fellowship Hall' },
-      weeklyActivity: 6,
-      capacity: 20,
-      leaders: [{ name: 'Steve R.', role: 'Leader' }],
+      category: 'Group',
+      leaders: [{ name: 'Steve R.', role: 'Organizer' }],
       recentPosts: [
         { author: 'Steve', text: 'New study series starting next week: "Biblical Manhood"', time: '1h ago' },
         { author: 'Mark', text: 'Great fellowship time tonight guys!', time: '1d ago' },
@@ -324,20 +315,18 @@ export default function Connect() {
       matchPercentage: 85,
       campus: 'Main Campus',
       format: 'In-person',
-      coverColor: 'from-orange-500 to-red-600'
+      coverPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=200&fit=crop',
+      profilePhoto: '💪'
     },
     { 
       id: '5', 
       name: 'Parents Connect', 
       members: 32, 
       isJoined: false, 
-      privacy: 'public', 
+      privacy: 'Public', 
       description: 'Support and encouragement for parents', 
-      category: 'Support',
-      nextMeeting: { day: 'Thu', time: '7:00p', location: 'Online' },
-      weeklyActivity: 15,
-      capacity: 40,
-      leaders: [{ name: 'Jennifer M.', role: 'Leader' }],
+      category: 'Group',
+      leaders: [{ name: 'Jennifer M.', role: 'Organizer' }],
       recentPosts: [
         { author: 'Jennifer', text: 'Topic this week: Setting healthy boundaries with kids', time: '3h ago' },
         { author: 'Amy', text: 'Thanks for all the prayer for my teenager!', time: '1d ago' },
@@ -347,20 +336,18 @@ export default function Connect() {
       matchPercentage: 72,
       campus: 'Online',
       format: 'Hybrid',
-      coverColor: 'from-teal-500 to-cyan-600'
+      coverPhoto: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400&h=200&fit=crop',
+      profilePhoto: '👨‍👩‍👧‍👦'
     },
     { 
       id: '6', 
       name: 'Creative Arts', 
       members: 28, 
       isJoined: false, 
-      privacy: 'private', 
+      privacy: 'Private', 
       description: 'Artists, musicians, and creatives', 
-      category: 'Interest',
-      nextMeeting: { day: 'Fri', time: '7:30p', location: 'Art Studio' },
-      weeklyActivity: 10,
-      capacity: 35,
-      leaders: [{ name: 'Maria L.', role: 'Coordinator' }],
+      category: 'Group',
+      leaders: [{ name: 'Maria L.', role: 'Organizer' }],
       recentPosts: [
         { author: 'Maria', text: 'Working on Christmas decorations for church!', time: '2h ago' },
         { author: 'Alex', text: 'Art supplies available in the studio', time: '1d ago' },
@@ -370,7 +357,8 @@ export default function Connect() {
       matchPercentage: 68,
       campus: 'Main Campus',
       format: 'In-person',
-      coverColor: 'from-indigo-500 to-purple-600'
+      coverPhoto: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=400&h=200&fit=crop',
+      profilePhoto: '🎨'
     }
   ];
   
@@ -820,7 +808,6 @@ export default function Connect() {
   const filterGroups = (groups: any[]) => {
     return groups.filter(group => {
       const matchesCategory = groupFilters.category === 'All' || group.category === groupFilters.category;
-      const matchesDay = groupFilters.day === 'All' || group.nextMeeting?.day === groupFilters.day;
       const matchesFormat = groupFilters.format === 'All' || group.format === groupFilters.format;
       const matchesCampus = groupFilters.campus === 'All' || group.campus === groupFilters.campus;
       const matchesSearch = groupFilters.search === '' || 
@@ -828,7 +815,7 @@ export default function Connect() {
         group.description.toLowerCase().includes(groupFilters.search.toLowerCase()) ||
         group.tags?.some((tag: string) => tag.toLowerCase().includes(groupFilters.search.toLowerCase()));
       
-      return matchesCategory && matchesDay && matchesFormat && matchesCampus && matchesSearch;
+      return matchesCategory && matchesFormat && matchesCampus && matchesSearch;
     });
   };
 
@@ -948,16 +935,6 @@ export default function Connect() {
               </div>
               
               <p className="text-gray-600 text-sm mb-4">{quickViewGroup.description}</p>
-              
-              {/* Next Meeting */}
-              <div className="flex items-center space-x-2 mb-4">
-                <Clock className="h-4 w-4 text-spiritual-blue" />
-                <span className="text-sm font-medium">Next meeting:</span>
-                <span className="text-sm text-gray-600">
-                  {quickViewGroup.nextMeeting.day} at {quickViewGroup.nextMeeting.time}
-                </span>
-                <span className="text-sm text-gray-500">• {quickViewGroup.nextMeeting.location}</span>
-              </div>
 
               {/* Leaders */}
               <div className="flex items-center space-x-2">
@@ -1380,7 +1357,7 @@ export default function Connect() {
                 </div>
               )}
 
-              {/* My Groups - Enhanced Design */}
+              {/* My Groups - LinkedIn Style Design */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-8 h-8 bg-gradient-to-r from-spiritual-blue to-purple-600 rounded-full flex items-center justify-center">
@@ -1390,95 +1367,67 @@ export default function Connect() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {myGroups.map((group) => {
-                    const activity = getActivityLevel(group.weeklyActivity);
                     return (
                       <div 
                         key={group.id} 
-                        className="min-h-[160px] rounded-xl border border-gray-200/50 hover:border-spiritual-blue/30 transition-all duration-200 bg-gradient-to-r from-white to-gray-50/30 shadow-sm hover:shadow-md overflow-hidden cursor-pointer"
+                        className="rounded-lg border border-gray-200 hover:border-spiritual-blue/30 transition-all duration-200 bg-white shadow-sm hover:shadow-md overflow-hidden cursor-pointer"
                         onClick={() => handleQuickView(group)}
+                        data-testid={`group-card-${group.id}`}
                       >
-                        {/* Cover with gradient */}
-                        <div className={`h-3 bg-gradient-to-r ${group.coverColor} relative`}>
+                        {/* Cover Photo */}
+                        <div className="h-32 relative overflow-hidden">
+                          <img 
+                            src={group.coverPhoto} 
+                            alt={`${group.name} cover`}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Profile Photo Overlay */}
+                          <div className="absolute bottom-4 left-4">
+                            <div className="w-12 h-12 bg-white rounded-lg shadow-md flex items-center justify-center text-xl border-2 border-white">
+                              {group.profilePhoto}
+                            </div>
+                          </div>
+                          {/* Unread Badge */}
                           {group.unreadCount > 0 && (
-                            <div className="absolute -bottom-2 right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                            <div className="absolute top-3 right-3 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
                               {group.unreadCount}
                             </div>
                           )}
                         </div>
                         
                         <div className="p-4">
-                          {/* Header */}
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <h3 className="font-semibold text-charcoal text-sm">{group.name}</h3>
-                                <Badge variant="outline" className={`text-xs px-2 py-0.5 border rounded-full ${getPrivacyColor(group.privacy)}`}>
-                                  {getPrivacyIcon(group.privacy)}
-                                </Badge>
-                              </div>
-                              
-                              {/* Next Meeting Pill */}
-                              <div className="flex items-center space-x-1 mb-2">
-                                <div className="bg-spiritual-blue/10 text-spiritual-blue px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
-                                  <Clock className="h-3 w-3" />
-                                  <span>{group.nextMeeting.day} • {group.nextMeeting.time}</span>
-                                </div>
-                              </div>
-                            </div>
+                          {/* Group Name */}
+                          <h3 className="font-semibold text-charcoal text-base mb-1">{group.name}</h3>
+                          
+                          {/* Privacy and Category */}
+                          <div className="flex items-center space-x-2 mb-3 text-sm text-gray-600">
+                            <span>{group.privacy}</span>
+                            <span>•</span>
+                            <span>{group.category}</span>
                           </div>
 
-                          {/* Member info and activity */}
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-2 text-xs text-gray-500">
+                          {/* Member Avatars and Organizer Badge */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
                               <div className="flex -space-x-1">
-                                {/* Member avatars */}
-                                <div className="w-5 h-5 bg-spiritual-blue/20 rounded-full border border-white flex items-center justify-center">
+                                <div className="w-6 h-6 bg-spiritual-blue/20 rounded-full border border-white flex items-center justify-center">
                                   <span className="text-xs text-spiritual-blue font-medium">S</span>
                                 </div>
-                                <div className="w-5 h-5 bg-purple-200 rounded-full border border-white flex items-center justify-center">
+                                <div className="w-6 h-6 bg-purple-200 rounded-full border border-white flex items-center justify-center">
                                   <span className="text-xs text-purple-700 font-medium">M</span>
                                 </div>
-                                <div className="w-5 h-5 bg-green-200 rounded-full border border-white flex items-center justify-center">
+                                <div className="w-6 h-6 bg-green-200 rounded-full border border-white flex items-center justify-center">
                                   <span className="text-xs text-green-700 font-medium">+</span>
                                 </div>
                               </div>
-                              <span>{group.members}/{group.capacity}</span>
+                              <span className="text-sm text-gray-600">{group.members} members</span>
                             </div>
-                            <div className="flex items-center space-x-1">
-                              <div className={`w-2 h-2 rounded-full ${activity.color}`}></div>
-                              <span className="text-xs text-gray-500">{activity.text}</span>
+                            
+                            {/* Organizer Badge */}
+                            <div className="flex items-center space-x-1 text-xs text-gray-500">
+                              <CheckCircle className="h-3 w-3" />
+                              <span>{group.leaders[0]?.role || 'Member'}</span>
                             </div>
-                          </div>
-
-                          {/* Quick Actions */}
-                          <div className="flex space-x-2">
-                            <Button 
-                              size="sm" 
-                              className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white text-xs h-8"
-                              onClick={(e) => { e.stopPropagation(); /* Navigate to group feed */ }}
-                              data-testid={`open-feed-${group.id}`}
-                            >
-                              <MessageCircle className="h-3 w-3 mr-1" />
-                              Open Feed
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="px-2 h-8"
-                              onClick={(e) => { e.stopPropagation(); /* Message leaders */ }}
-                              data-testid={`message-leaders-${group.id}`}
-                            >
-                              <MessageSquare className="h-3 w-3" />
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="px-2 h-8"
-                              onClick={(e) => { e.stopPropagation(); /* Favorite group */ }}
-                              data-testid={`favorite-${group.id}`}
-                            >
-                              ⭐
-                            </Button>
                           </div>
                         </div>
                       </div>
@@ -1586,83 +1535,76 @@ export default function Connect() {
                 {/* Filtered Groups Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {filteredSuggestedGroups.map((group) => {
-                    const activity = getActivityLevel(group.weeklyActivity);
                     return (
                       <div 
                         key={group.id} 
-                        className="min-h-[160px] rounded-xl border border-gray-200/50 hover:border-spiritual-blue/30 transition-all duration-200 bg-gradient-to-r from-white to-blue-50/20 shadow-sm hover:shadow-md overflow-hidden cursor-pointer"
+                        className="rounded-lg border border-gray-200 hover:border-spiritual-blue/30 transition-all duration-200 bg-white shadow-sm hover:shadow-md overflow-hidden cursor-pointer"
                         onClick={() => handleQuickView(group)}
+                        data-testid={`discover-group-card-${group.id}`}
                       >
-                        {/* Cover with gradient and match percentage */}
-                        <div className={`h-3 bg-gradient-to-r ${group.coverColor} relative`}>
+                        {/* Cover Photo */}
+                        <div className="h-32 relative overflow-hidden">
+                          <img 
+                            src={group.coverPhoto} 
+                            alt={`${group.name} cover`}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Profile Photo Overlay */}
+                          <div className="absolute bottom-4 left-4">
+                            <div className="w-12 h-12 bg-white rounded-lg shadow-md flex items-center justify-center text-xl border-2 border-white">
+                              {group.profilePhoto}
+                            </div>
+                          </div>
+                          {/* Match Percentage Badge */}
                           {group.matchPercentage && (
-                            <div className="absolute -bottom-2 right-2 bg-green-500 text-white text-xs rounded-full px-2 py-1 font-medium">
+                            <div className="absolute top-3 right-3 bg-green-500 text-white text-xs rounded-full px-2 py-1 font-medium">
                               {group.matchPercentage}% match
                             </div>
                           )}
                         </div>
                         
                         <div className="p-4">
-                          {/* Header */}
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <h3 className="font-semibold text-charcoal text-sm">{group.name}</h3>
-                                <Badge variant="outline" className={`text-xs px-2 py-0.5 border rounded-full ${getPrivacyColor(group.privacy)}`}>
-                                  {getPrivacyIcon(group.privacy)}
-                                </Badge>
-                              </div>
-                              
-                              {/* Next Meeting Pill */}
-                              <div className="flex items-center space-x-1 mb-2">
-                                <div className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
-                                  <Clock className="h-3 w-3" />
-                                  <span>{group.nextMeeting.day} • {group.nextMeeting.time}</span>
-                                </div>
-                                <div className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
-                                  {group.format}
-                                </div>
-                              </div>
-                            </div>
+                          {/* Group Name */}
+                          <h3 className="font-semibold text-charcoal text-base mb-1">{group.name}</h3>
+                          
+                          {/* Privacy and Category */}
+                          <div className="flex items-center space-x-2 mb-3 text-sm text-gray-600">
+                            <span>{group.privacy}</span>
+                            <span>•</span>
+                            <span>{group.category}</span>
                           </div>
 
-                          {/* Member info and activity */}
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-2 text-xs text-gray-500">
-                              <Users className="h-3 w-3" />
-                              <span>{group.members}/{group.capacity}</span>
-                              <span>•</span>
-                              <span>{group.campus}</span>
+                          {/* Member Avatars and Organizer Badge */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div className="flex -space-x-1">
+                                <div className="w-6 h-6 bg-spiritual-blue/20 rounded-full border border-white flex items-center justify-center">
+                                  <span className="text-xs text-spiritual-blue font-medium">S</span>
+                                </div>
+                                <div className="w-6 h-6 bg-purple-200 rounded-full border border-white flex items-center justify-center">
+                                  <span className="text-xs text-purple-700 font-medium">M</span>
+                                </div>
+                                <div className="w-6 h-6 bg-green-200 rounded-full border border-white flex items-center justify-center">
+                                  <span className="text-xs text-green-700 font-medium">+</span>
+                                </div>
+                              </div>
+                              <span className="text-sm text-gray-600">{group.members} members</span>
                             </div>
-                            <div className="flex items-center space-x-1">
-                              <div className={`w-2 h-2 rounded-full ${activity.color}`}></div>
-                              <span className="text-xs text-gray-500">{activity.text}</span>
+                            
+                            {/* Join Button or Organizer Badge */}
+                            <div className="flex items-center space-x-1 text-xs">
+                              <Button 
+                                size="sm" 
+                                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-xs h-7 px-3"
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  /* Handle join/request logic */
+                                }}
+                                data-testid={`join-group-${group.id}`}
+                              >
+                                {group.privacy === 'Private' ? 'Request' : 'Join'}
+                              </Button>
                             </div>
-                          </div>
-
-                          {/* Quick Actions */}
-                          <div className="flex space-x-2">
-                            <Button 
-                              size="sm" 
-                              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-xs h-8"
-                              onClick={(e) => { 
-                                e.stopPropagation(); 
-                                /* Handle join/request logic */
-                              }}
-                              data-testid={`join-group-${group.id}`}
-                            >
-                              <UserPlus className="h-3 w-3 mr-1" />
-                              {group.privacy === 'private' ? 'Request' : 'Join'}
-                            </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="px-2 h-8"
-                              onClick={(e) => { e.stopPropagation(); /* Favorite group */ }}
-                              data-testid={`favorite-discover-${group.id}`}
-                            >
-                              ⭐
-                            </Button>
                           </div>
                         </div>
                       </div>
