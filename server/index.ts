@@ -113,19 +113,13 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // 🔒 AGGRESSIVE: Intercept upload route BEFORE anything else can claim it
-  app.post('/api/objects/upload', (req, res, next) => {
-    console.log('🚨 INTERCEPTED UPLOAD ROUTE:', req.method, req.url);
-    next();
-  });
-  
-  // 🔒 Guard to ensure Vite NEVER handles /api/* - must be BEFORE route registration
-  app.use('/api', (req, res, next) => {
-    console.log('🛡️ API GUARD HIT:', req.method, req.url);
-    next();
-  });
-
   const server = await registerRoutes(app);
+  
+  // 🔒 API route priority enforcement - place AFTER routes are registered
+  app.use('/api/*', (req, res, next) => {
+    console.log('🛡️ POST-REGISTRATION API GUARD:', req.method, req.url);
+    next();
+  });
 
   // Skip database seeding since we're using in-memory storage
   console.log("Using in-memory storage - skipping database seeding");
