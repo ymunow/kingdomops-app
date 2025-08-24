@@ -132,6 +132,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // PROFILE PICTURE AUTO-SAVE: Save to profile after upload completes
+  console.log('🔧 REGISTERING /api/objects/profile-save route');
   app.post("/api/objects/profile-save", isAuthenticated, async (req: any, res) => {
     console.log('💾 AUTO-SAVE TO PROFILE CALLED!');
     
