@@ -21,7 +21,11 @@ export function FavoriteVerseModal({ isOpen, onClose, currentVerse = "" }: Favor
 
   const saveVerseMutation = useMutation({
     mutationFn: async (favoriteVerse: string) => {
-      return apiRequest('/api/profile/favorite-verse', 'PUT', { favoriteVerse });
+      console.log('🚀 Frontend: Saving favorite verse:', favoriteVerse);
+      console.log('🚀 Frontend: Making API request to /api/profile/favorite-verse');
+      const response = await apiRequest('/api/profile/favorite-verse', 'PUT', { favoriteVerse });
+      console.log('✅ Frontend: API response received:', response);
+      return response;
     },
     onSuccess: async (response) => {
       const data = await response.json();
@@ -52,6 +56,7 @@ export function FavoriteVerseModal({ isOpen, onClose, currentVerse = "" }: Favor
       return;
     }
     
+    console.log('🎯 Frontend: handleSave called with verse:', verse.trim());
     saveVerseMutation.mutate(verse.trim());
   };
 
