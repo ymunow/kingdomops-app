@@ -1,0 +1,35 @@
+It’s close! To make the Groups page feel world-class, here’s a focused upgrade plan you can implement without rethinking the whole screen.
+High-impact UI upgrades
+Two clear sections:
+My Groups (grid, 2–3 columns) with quick actions.
+Discover Groups (smart recommendations + filters).
+Richer group cards (for both sections):
+Cover image or color + privacy badge (public/private)
+Next meeting pill (e.g., “Wed • 7:00p • Main Campus” or “Online”)
+Activity meter (use the purple bar to indicate weekly post count/unread)
+Member avatars (+ count), roles (Leader), capacity (e.g., 12/15)
+Quick actions: Open Feed, Message Leaders, RSVP, Favorite ★, Bell 🔔
+State-aware CTA: Join, Request to Join, Pending, Leave
+Hover/Quick view: on card hover (or tap), show a 1-screen preview: description, last 3 posts, leaders, and a Join CTA.
+Discoverability (filters + ranking)
+Filter bar above Discover:
+Search, Category (Bible Study/Prayer/Youth/Men/Women/Outreach), Day, Time, Format (In-person/Online/Hybrid), Campus/Location, Childcare, Language, Accessibility.
+Sort: Recommended, Most Active, Newest, Next Meeting Soon.
+Recommendations row (first carousel): “Because of your gifts (Teaching)”, “Near your campus”, “Meets on nights you’re free”.
+Empty/edge states:
+No groups found → show 3 suggested alternatives and a Request a Group button.
+New member → show 3 starter groups with soft join (no long forms).
+Leader & member flows
+Leader quick actions (on their groups): Manage Members, Create Event, Post Announcement.
+Invite links & QR from each card.
+Favorites tab for users who browse a lot before joining.
+Microcopy polish
+“Open Group Feed” → Open Feed
+“18 members • Active feed” → 18 members • Active this week
+Add tooltips to privacy badges (Public = anyone can join, Private = request required).
+Tech notes (easy wins)
+Use the existing gradient bar as activity/next-meeting progress instead of decoration.
+Card layout: grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4, min card height ~140.
+Show unread count badge on cards the user belongs to.
+Preload cover images with loading="lazy" and decoding="async".
+Ensure buttons are consistent width (min-w-[140px]) and 44px tall for a11y.

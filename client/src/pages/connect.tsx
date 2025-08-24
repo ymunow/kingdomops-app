@@ -22,6 +22,15 @@ export default function Connect() {
   const [prayerGlow, setPrayerGlow] = useState<string | null>(null);
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
   const [showRequestGroupModal, setShowRequestGroupModal] = useState(false);
+  const [showQuickViewModal, setShowQuickViewModal] = useState(false);
+  const [quickViewGroup, setQuickViewGroup] = useState<any>(null);
+  const [groupFilters, setGroupFilters] = useState({
+    category: 'All',
+    day: 'All',
+    format: 'All',
+    campus: 'All',
+    search: ''
+  });
   const [newGroupData, setNewGroupData] = useState({
     name: '',
     description: '',
@@ -226,16 +235,143 @@ export default function Connect() {
     }
   ];
 
+  // Enhanced group data with new features
   const myGroups = [
-    { id: '1', name: 'Young Adults', members: 24, isJoined: true, privacy: 'public', description: 'Ages 18-30 fellowship and Bible study' },
-    { id: '2', name: 'Worship Team', members: 18, isJoined: true, privacy: 'private', description: 'For current worship team members' },
-    { id: '3', name: 'Small Group Leaders', members: 12, isJoined: true, privacy: 'private', description: 'Leadership training and support' }
+    { 
+      id: '1', 
+      name: 'Young Adults', 
+      members: 24, 
+      isJoined: true, 
+      privacy: 'public', 
+      description: 'Ages 18-30 fellowship and Bible study',
+      category: 'Small Group',
+      nextMeeting: { day: 'Wed', time: '7:00p', location: 'Main Campus' },
+      unreadCount: 3,
+      weeklyActivity: 8,
+      capacity: 30,
+      leaders: [{ name: 'Sarah J.', role: 'Leader' }],
+      recentPosts: [
+        { author: 'Mike', text: 'Great discussion tonight! Looking forward to next week.', time: '2h ago' },
+        { author: 'Sarah', text: 'Don\'t forget to bring your Bibles tomorrow!', time: '1d ago' },
+        { author: 'Alex', text: 'Prayer request: Job interview Friday', time: '3d ago' }
+      ],
+      tags: ['Bible Study', 'Fellowship', 'Young Adults'],
+      coverColor: 'from-blue-500 to-purple-600'
+    },
+    { 
+      id: '2', 
+      name: 'Worship Team', 
+      members: 18, 
+      isJoined: true, 
+      privacy: 'private', 
+      description: 'For current worship team members',
+      category: 'Ministry',
+      nextMeeting: { day: 'Sun', time: '8:00a', location: 'Sanctuary' },
+      unreadCount: 0,
+      weeklyActivity: 12,
+      capacity: 25,
+      leaders: [{ name: 'David P.', role: 'Worship Leader' }],
+      recentPosts: [
+        { author: 'David', text: 'New song for Sunday - "Way Maker". Let\'s practice!', time: '4h ago' },
+        { author: 'Emma', text: 'Sound check at 7:30am this Sunday', time: '1d ago' },
+        { author: 'Josh', text: 'Thanks for the amazing worship time today!', time: '2d ago' }
+      ],
+      tags: ['Worship', 'Music', 'Ministry'],
+      coverColor: 'from-purple-500 to-pink-600'
+    },
+    { 
+      id: '3', 
+      name: 'Small Group Leaders', 
+      members: 12, 
+      isJoined: true, 
+      privacy: 'private', 
+      description: 'Leadership training and support',
+      category: 'Leadership',
+      nextMeeting: { day: 'Sat', time: '9:00a', location: 'Conference Room' },
+      unreadCount: 1,
+      weeklyActivity: 5,
+      capacity: 15,
+      leaders: [{ name: 'Pastor Mike', role: 'Pastor' }],
+      recentPosts: [
+        { author: 'Pastor Mike', text: 'Leadership retreat planning meeting this Saturday', time: '6h ago' },
+        { author: 'Lisa', text: 'Great leadership book recommendation: "The Serve"', time: '2d ago' },
+        { author: 'Tom', text: 'Prayer for wisdom in leading my group', time: '4d ago' }
+      ],
+      tags: ['Leadership', 'Training', 'Support'],
+      coverColor: 'from-green-500 to-teal-600'
+    }
   ];
 
   const suggestedGroups = [
-    { id: '4', name: 'Men\'s Bible Study', members: 15, isJoined: false, privacy: 'public', description: 'Weekly men\'s fellowship and study', category: 'Ministry' },
-    { id: '5', name: 'Parents Connect', members: 32, isJoined: false, privacy: 'public', description: 'Support and encouragement for parents', category: 'Support' },
-    { id: '6', name: 'Creative Arts', members: 28, isJoined: false, privacy: 'private', description: 'Artists, musicians, and creatives', category: 'Interest' }
+    { 
+      id: '4', 
+      name: 'Men\'s Bible Study', 
+      members: 15, 
+      isJoined: false, 
+      privacy: 'public', 
+      description: 'Weekly men\'s fellowship and study', 
+      category: 'Small Group',
+      nextMeeting: { day: 'Tue', time: '6:30p', location: 'Fellowship Hall' },
+      weeklyActivity: 6,
+      capacity: 20,
+      leaders: [{ name: 'Steve R.', role: 'Leader' }],
+      recentPosts: [
+        { author: 'Steve', text: 'New study series starting next week: "Biblical Manhood"', time: '1h ago' },
+        { author: 'Mark', text: 'Great fellowship time tonight guys!', time: '1d ago' },
+        { author: 'Paul', text: 'Bringing donuts next Tuesday', time: '3d ago' }
+      ],
+      tags: ['Men\'s Ministry', 'Bible Study', 'Fellowship'],
+      matchPercentage: 85,
+      campus: 'Main Campus',
+      format: 'In-person',
+      coverColor: 'from-orange-500 to-red-600'
+    },
+    { 
+      id: '5', 
+      name: 'Parents Connect', 
+      members: 32, 
+      isJoined: false, 
+      privacy: 'public', 
+      description: 'Support and encouragement for parents', 
+      category: 'Support',
+      nextMeeting: { day: 'Thu', time: '7:00p', location: 'Online' },
+      weeklyActivity: 15,
+      capacity: 40,
+      leaders: [{ name: 'Jennifer M.', role: 'Leader' }],
+      recentPosts: [
+        { author: 'Jennifer', text: 'Topic this week: Setting healthy boundaries with kids', time: '3h ago' },
+        { author: 'Amy', text: 'Thanks for all the prayer for my teenager!', time: '1d ago' },
+        { author: 'Carlos', text: 'Great parenting book recommendation', time: '2d ago' }
+      ],
+      tags: ['Parenting', 'Support', 'Family'],
+      matchPercentage: 72,
+      campus: 'Online',
+      format: 'Hybrid',
+      coverColor: 'from-teal-500 to-cyan-600'
+    },
+    { 
+      id: '6', 
+      name: 'Creative Arts', 
+      members: 28, 
+      isJoined: false, 
+      privacy: 'private', 
+      description: 'Artists, musicians, and creatives', 
+      category: 'Interest',
+      nextMeeting: { day: 'Fri', time: '7:30p', location: 'Art Studio' },
+      weeklyActivity: 10,
+      capacity: 35,
+      leaders: [{ name: 'Maria L.', role: 'Coordinator' }],
+      recentPosts: [
+        { author: 'Maria', text: 'Working on Christmas decorations for church!', time: '2h ago' },
+        { author: 'Alex', text: 'Art supplies available in the studio', time: '1d ago' },
+        { author: 'Nina', text: 'Beautiful painting session last week', time: '4d ago' }
+      ],
+      tags: ['Creative', 'Arts', 'Music'],
+      matchPercentage: 68,
+      campus: 'Main Campus',
+      format: 'In-person',
+      coverColor: 'from-indigo-500 to-purple-600'
+    }
   ];
   
   const groupCategories = [
@@ -666,6 +802,44 @@ export default function Connect() {
     }
   };
 
+  // Helper functions for enhanced Groups
+  const getActivityLevel = (weeklyActivity: number) => {
+    if (weeklyActivity >= 10) return { level: 'High', color: 'bg-green-500', text: 'Very Active' };
+    if (weeklyActivity >= 5) return { level: 'Medium', color: 'bg-yellow-500', text: 'Active' };
+    return { level: 'Low', color: 'bg-gray-400', text: 'Quiet' };
+  };
+
+  const getRecommendations = () => {
+    // Simple recommendation logic based on user gifts and campus
+    return suggestedGroups
+      .filter(group => group.matchPercentage && group.matchPercentage > 70)
+      .sort((a, b) => (b.matchPercentage || 0) - (a.matchPercentage || 0))
+      .slice(0, 3);
+  };
+
+  const filterGroups = (groups: any[]) => {
+    return groups.filter(group => {
+      const matchesCategory = groupFilters.category === 'All' || group.category === groupFilters.category;
+      const matchesDay = groupFilters.day === 'All' || group.nextMeeting?.day === groupFilters.day;
+      const matchesFormat = groupFilters.format === 'All' || group.format === groupFilters.format;
+      const matchesCampus = groupFilters.campus === 'All' || group.campus === groupFilters.campus;
+      const matchesSearch = groupFilters.search === '' || 
+        group.name.toLowerCase().includes(groupFilters.search.toLowerCase()) ||
+        group.description.toLowerCase().includes(groupFilters.search.toLowerCase()) ||
+        group.tags?.some((tag: string) => tag.toLowerCase().includes(groupFilters.search.toLowerCase()));
+      
+      return matchesCategory && matchesDay && matchesFormat && matchesCampus && matchesSearch;
+    });
+  };
+
+  const handleQuickView = (group: any) => {
+    setQuickViewGroup(group);
+    setShowQuickViewModal(true);
+  };
+
+  const recommendations = getRecommendations();
+  const filteredSuggestedGroups = filterGroups(suggestedGroups);
+
   const ComposerBar = () => (
     <Card className="mb-6 shadow-sm">
       <CardContent className="p-4">
@@ -728,6 +902,196 @@ export default function Connect() {
       </CardContent>
     </Card>
   );
+
+  // Quick View Modal Component
+  const QuickViewModal = () => {
+    if (!showQuickViewModal || !quickViewGroup) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setShowQuickViewModal(false)}>
+        <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          {/* Header */}
+          <div className={`h-16 bg-gradient-to-r ${quickViewGroup.coverColor} relative`}>
+            <button
+              onClick={() => setShowQuickViewModal(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
+              data-testid="close-quick-view"
+            >
+              <X className="h-4 w-4 text-white" />
+            </button>
+            <div className="absolute bottom-4 left-6">
+              <h3 className="text-white font-bold text-lg">{quickViewGroup.name}</h3>
+              <div className="flex items-center space-x-2 text-white/90 text-sm">
+                <Users className="h-3 w-3" />
+                <span>{quickViewGroup.members}/{quickViewGroup.capacity} members</span>
+                <span>•</span>
+                <span>{quickViewGroup.campus}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6">
+            {/* Group Info */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-2 mb-3">
+                <Badge variant="outline" className={`text-xs px-2 py-1 ${getPrivacyColor(quickViewGroup.privacy)}`}>
+                  {getPrivacyIcon(quickViewGroup.privacy)} {quickViewGroup.privacy}
+                </Badge>
+                <Badge className="bg-gray-100 text-gray-700 text-xs px-2 py-1">
+                  {quickViewGroup.category}
+                </Badge>
+                {quickViewGroup.matchPercentage && (
+                  <Badge className="bg-green-100 text-green-700 text-xs px-2 py-1">
+                    {quickViewGroup.matchPercentage}% match
+                  </Badge>
+                )}
+              </div>
+              
+              <p className="text-gray-600 text-sm mb-4">{quickViewGroup.description}</p>
+              
+              {/* Next Meeting */}
+              <div className="flex items-center space-x-2 mb-4">
+                <Clock className="h-4 w-4 text-spiritual-blue" />
+                <span className="text-sm font-medium">Next meeting:</span>
+                <span className="text-sm text-gray-600">
+                  {quickViewGroup.nextMeeting.day} at {quickViewGroup.nextMeeting.time}
+                </span>
+                <span className="text-sm text-gray-500">• {quickViewGroup.nextMeeting.location}</span>
+              </div>
+
+              {/* Leaders */}
+              <div className="flex items-center space-x-2">
+                <Crown className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-medium">Led by:</span>
+                <span className="text-sm text-gray-600">
+                  {quickViewGroup.leaders.map((leader: any) => leader.name).join(', ')}
+                </span>
+              </div>
+            </div>
+
+            {/* Recent Posts */}
+            <div className="mb-6">
+              <h4 className="font-semibold text-charcoal mb-3 flex items-center">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Recent Activity
+              </h4>
+              <div className="space-y-3">
+                {quickViewGroup.recentPosts.slice(0, 3).map((post: any, index: number) => (
+                  <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <div className="w-6 h-6 bg-spiritual-blue/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-xs text-spiritual-blue font-medium">
+                          {post.author.charAt(0)}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <span className="text-xs font-medium text-charcoal">{post.author}</span>
+                          <span className="text-xs text-gray-500">{post.time}</span>
+                        </div>
+                        <p className="text-xs text-gray-600 line-clamp-2">{post.text}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {quickViewGroup.isJoined ? (
+                <div className="mt-3 text-center">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-xs"
+                    onClick={() => {
+                      setShowQuickViewModal(false);
+                      // Navigate to group feed
+                    }}
+                  >
+                    View All Posts
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-3 p-3 bg-spiritual-blue/5 rounded-lg text-center">
+                  <p className="text-xs text-gray-600 mb-2">
+                    Join to see all group posts and participate in discussions
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Tags */}
+            {quickViewGroup.tags && (
+              <div className="mb-6">
+                <div className="flex flex-wrap gap-2">
+                  {quickViewGroup.tags.map((tag: string, index: number) => (
+                    <span 
+                      key={index}
+                      className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3">
+              {quickViewGroup.isJoined ? (
+                <>
+                  <Button 
+                    className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white"
+                    onClick={() => {
+                      setShowQuickViewModal(false);
+                      // Navigate to group feed
+                    }}
+                    data-testid="open-group-feed"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Open Group Feed
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      setShowQuickViewModal(false);
+                      // Message leaders
+                    }}
+                    data-testid="message-group-leaders"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                    onClick={() => {
+                      setShowQuickViewModal(false);
+                      // Handle join/request logic
+                    }}
+                    data-testid="join-from-quick-view"
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    {quickViewGroup.privacy === 'private' ? 'Request to Join' : 'Join Group'}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      setShowQuickViewModal(false);
+                      // Favorite group
+                    }}
+                    data-testid="favorite-from-quick-view"
+                  >
+                    ⭐
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <MainLayout>
@@ -883,16 +1247,36 @@ export default function Connect() {
                 </div>
               </div>
               
-              {/* Personalized Recommendations */}
-              <div className="p-4 bg-gradient-to-r from-spiritual-blue/5 to-purple-50 rounded-lg border border-spiritual-blue/20">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Users className="h-5 w-5 text-spiritual-blue" />
-                  <span className="font-medium text-spiritual-blue">Recommended for you</span>
+              {/* Smart Recommendations Row */}
+              {recommendations.length > 0 && (
+                <div className="p-6 bg-gradient-to-r from-spiritual-blue/5 to-purple-50 rounded-xl border border-spiritual-blue/20">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <TrendingUp className="h-5 w-5 text-spiritual-blue" />
+                    <span className="font-semibold text-spiritual-blue">Perfect Matches for You</span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {recommendations.map((group) => (
+                      <div 
+                        key={group.id} 
+                        className="p-4 bg-white rounded-lg border border-spiritual-blue/20 hover:border-spiritual-blue/40 transition-all cursor-pointer"
+                        onClick={() => handleQuickView(group)}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-charcoal text-sm">{group.name}</h4>
+                          <Badge className="bg-green-100 text-green-700 text-xs">
+                            {group.matchPercentage}% match
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-2">{group.description}</p>
+                        <div className="flex items-center text-xs text-gray-500">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          <span>{group.campus}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <p className="text-sm text-gray-700">
-                  Based on your spiritual gifts and interests, we think you'll love <span className="font-medium">Men's Bible Study</span> and <span className="font-medium">Creative Arts</span> groups.
-                </p>
-              </div>
+              )}
             </div>
             
             <div className="space-y-6">
@@ -996,7 +1380,7 @@ export default function Connect() {
                 </div>
               )}
 
-              {/* My Groups - Modern Design */}
+              {/* My Groups - Enhanced Design */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-8 h-8 bg-gradient-to-r from-spiritual-blue to-purple-600 rounded-full flex items-center justify-center">
@@ -1004,79 +1388,306 @@ export default function Connect() {
                   </div>
                   <h2 className="text-xl font-bold text-charcoal">My Groups</h2>
                 </div>
-                <div className="grid gap-4">
-                  {myGroups.map((group) => (
-                    <div key={group.id} className="p-6 rounded-xl border border-gray-200/50 hover:border-spiritual-blue/30 transition-all duration-200 bg-gradient-to-r from-white to-gray-50/30 shadow-sm hover:shadow-md">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h3 className="font-semibold text-charcoal">{group.name}</h3>
-                            <Badge variant="outline" className={`text-xs px-3 py-1 border rounded-full ${getPrivacyColor(group.privacy)}`}>
-                              {getPrivacyIcon(group.privacy)} {group.privacy}
-                            </Badge>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {myGroups.map((group) => {
+                    const activity = getActivityLevel(group.weeklyActivity);
+                    return (
+                      <div 
+                        key={group.id} 
+                        className="min-h-[160px] rounded-xl border border-gray-200/50 hover:border-spiritual-blue/30 transition-all duration-200 bg-gradient-to-r from-white to-gray-50/30 shadow-sm hover:shadow-md overflow-hidden cursor-pointer"
+                        onClick={() => handleQuickView(group)}
+                      >
+                        {/* Cover with gradient */}
+                        <div className={`h-3 bg-gradient-to-r ${group.coverColor} relative`}>
+                          {group.unreadCount > 0 && (
+                            <div className="absolute -bottom-2 right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                              {group.unreadCount}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="p-4">
+                          {/* Header */}
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <h3 className="font-semibold text-charcoal text-sm">{group.name}</h3>
+                                <Badge variant="outline" className={`text-xs px-2 py-0.5 border rounded-full ${getPrivacyColor(group.privacy)}`}>
+                                  {getPrivacyIcon(group.privacy)}
+                                </Badge>
+                              </div>
+                              
+                              {/* Next Meeting Pill */}
+                              <div className="flex items-center space-x-1 mb-2">
+                                <div className="bg-spiritual-blue/10 text-spiritual-blue px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{group.nextMeeting.day} • {group.nextMeeting.time}</span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-sm text-gray-500 mb-2 flex items-center space-x-2">
-                            <Users className="h-4 w-4" />
-                            <span>{group.members} members</span>
-                            <span>•</span>
-                            <span>Active feed</span>
-                          </p>
-                          <p className="text-sm text-gray-600 leading-relaxed">{group.description}</p>
+
+                          {/* Member info and activity */}
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center space-x-2 text-xs text-gray-500">
+                              <div className="flex -space-x-1">
+                                {/* Member avatars */}
+                                <div className="w-5 h-5 bg-spiritual-blue/20 rounded-full border border-white flex items-center justify-center">
+                                  <span className="text-xs text-spiritual-blue font-medium">S</span>
+                                </div>
+                                <div className="w-5 h-5 bg-purple-200 rounded-full border border-white flex items-center justify-center">
+                                  <span className="text-xs text-purple-700 font-medium">M</span>
+                                </div>
+                                <div className="w-5 h-5 bg-green-200 rounded-full border border-white flex items-center justify-center">
+                                  <span className="text-xs text-green-700 font-medium">+</span>
+                                </div>
+                              </div>
+                              <span>{group.members}/{group.capacity}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <div className={`w-2 h-2 rounded-full ${activity.color}`}></div>
+                              <span className="text-xs text-gray-500">{activity.text}</span>
+                            </div>
+                          </div>
+
+                          {/* Quick Actions */}
+                          <div className="flex space-x-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white text-xs h-8"
+                              onClick={(e) => { e.stopPropagation(); /* Navigate to group feed */ }}
+                              data-testid={`open-feed-${group.id}`}
+                            >
+                              <MessageCircle className="h-3 w-3 mr-1" />
+                              Open Feed
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="px-2 h-8"
+                              onClick={(e) => { e.stopPropagation(); /* Message leaders */ }}
+                              data-testid={`message-leaders-${group.id}`}
+                            >
+                              <MessageSquare className="h-3 w-3" />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="px-2 h-8"
+                              onClick={(e) => { e.stopPropagation(); /* Favorite group */ }}
+                              data-testid={`favorite-${group.id}`}
+                            >
+                              ⭐
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                      <Button 
-                        size="sm" 
-                        className="w-full bg-gradient-to-r from-spiritual-blue to-purple-600 hover:from-spiritual-blue/90 hover:to-purple-600/90 text-white shadow-lg" 
-                        data-testid={`open-group-${group.id}`}
-                      >
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Open Group Feed
-                      </Button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Suggested Groups - Modern Design */}
-              <div className="space-y-4">
+              {/* Discover Groups - Enhanced with Filter Bar */}
+              <div className="space-y-6">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
                     <Sparkles className="h-4 w-4 text-white" />
                   </div>
                   <h2 className="text-xl font-bold text-charcoal">Discover Groups</h2>
                 </div>
-                <div className="grid gap-4">
-                  {suggestedGroups.map((group) => (
-                    <div key={group.id} className="p-6 rounded-xl border border-gray-200/50 hover:border-spiritual-blue/30 transition-all duration-200 bg-gradient-to-r from-white to-blue-50/20 shadow-sm hover:shadow-md">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h3 className="font-semibold text-charcoal">{group.name}</h3>
-                            <Badge variant="outline" className={`text-xs px-3 py-1 border rounded-full ${getPrivacyColor(group.privacy)}`}>
-                              {getPrivacyIcon(group.privacy)} {group.privacy}
-                            </Badge>
-                            <Badge className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-xs px-3 py-1 rounded-full border border-gray-300">{group.category}</Badge>
+
+                {/* Filter Bar */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                  <div className="flex flex-wrap gap-3">
+                    {/* Search */}
+                    <div className="flex-1 min-w-[200px]">
+                      <input
+                        type="text"
+                        placeholder="Search groups..."
+                        value={groupFilters.search}
+                        onChange={(e) => setGroupFilters({...groupFilters, search: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent text-sm"
+                        data-testid="search-groups"
+                      />
+                    </div>
+                    
+                    {/* Category Filter */}
+                    <select
+                      value={groupFilters.category}
+                      onChange={(e) => setGroupFilters({...groupFilters, category: e.target.value})}
+                      className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent text-sm min-w-[120px]"
+                      data-testid="filter-category"
+                    >
+                      <option value="All">All Categories</option>
+                      <option value="Small Group">Small Groups</option>
+                      <option value="Ministry">Ministry</option>
+                      <option value="Support">Support</option>
+                      <option value="Interest">Interest</option>
+                      <option value="Leadership">Leadership</option>
+                    </select>
+
+                    {/* Day Filter */}
+                    <select
+                      value={groupFilters.day}
+                      onChange={(e) => setGroupFilters({...groupFilters, day: e.target.value})}
+                      className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent text-sm min-w-[100px]"
+                      data-testid="filter-day"
+                    >
+                      <option value="All">Any Day</option>
+                      <option value="Sun">Sunday</option>
+                      <option value="Mon">Monday</option>
+                      <option value="Tue">Tuesday</option>
+                      <option value="Wed">Wednesday</option>
+                      <option value="Thu">Thursday</option>
+                      <option value="Fri">Friday</option>
+                      <option value="Sat">Saturday</option>
+                    </select>
+
+                    {/* Format Filter */}
+                    <select
+                      value={groupFilters.format}
+                      onChange={(e) => setGroupFilters({...groupFilters, format: e.target.value})}
+                      className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent text-sm min-w-[120px]"
+                      data-testid="filter-format"
+                    >
+                      <option value="All">Any Format</option>
+                      <option value="In-person">In-person</option>
+                      <option value="Online">Online</option>
+                      <option value="Hybrid">Hybrid</option>
+                    </select>
+
+                    {/* Campus Filter */}
+                    <select
+                      value={groupFilters.campus}
+                      onChange={(e) => setGroupFilters({...groupFilters, campus: e.target.value})}
+                      className="px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-spiritual-blue focus:border-transparent text-sm min-w-[120px]"
+                      data-testid="filter-campus"
+                    >
+                      <option value="All">Any Campus</option>
+                      <option value="Main Campus">Main Campus</option>
+                      <option value="North Campus">North Campus</option>
+                      <option value="Online">Online</option>
+                    </select>
+
+                    {/* Clear Filters */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setGroupFilters({ category: 'All', day: 'All', format: 'All', campus: 'All', search: '' })}
+                      className="px-3 py-2 text-sm"
+                      data-testid="clear-filters"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Filtered Groups Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {filteredSuggestedGroups.map((group) => {
+                    const activity = getActivityLevel(group.weeklyActivity);
+                    return (
+                      <div 
+                        key={group.id} 
+                        className="min-h-[160px] rounded-xl border border-gray-200/50 hover:border-spiritual-blue/30 transition-all duration-200 bg-gradient-to-r from-white to-blue-50/20 shadow-sm hover:shadow-md overflow-hidden cursor-pointer"
+                        onClick={() => handleQuickView(group)}
+                      >
+                        {/* Cover with gradient and match percentage */}
+                        <div className={`h-3 bg-gradient-to-r ${group.coverColor} relative`}>
+                          {group.matchPercentage && (
+                            <div className="absolute -bottom-2 right-2 bg-green-500 text-white text-xs rounded-full px-2 py-1 font-medium">
+                              {group.matchPercentage}% match
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="p-4">
+                          {/* Header */}
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <h3 className="font-semibold text-charcoal text-sm">{group.name}</h3>
+                                <Badge variant="outline" className={`text-xs px-2 py-0.5 border rounded-full ${getPrivacyColor(group.privacy)}`}>
+                                  {getPrivacyIcon(group.privacy)}
+                                </Badge>
+                              </div>
+                              
+                              {/* Next Meeting Pill */}
+                              <div className="flex items-center space-x-1 mb-2">
+                                <div className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{group.nextMeeting.day} • {group.nextMeeting.time}</span>
+                                </div>
+                                <div className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs">
+                                  {group.format}
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-sm text-gray-500 mb-2 flex items-center space-x-2">
-                            <Users className="h-4 w-4" />
-                            <span>{group.members} members</span>
-                            <span>•</span>
-                            <span>Join to access feed</span>
-                          </p>
-                          <p className="text-sm text-gray-600 leading-relaxed">{group.description}</p>
+
+                          {/* Member info and activity */}
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center space-x-2 text-xs text-gray-500">
+                              <Users className="h-3 w-3" />
+                              <span>{group.members}/{group.capacity}</span>
+                              <span>•</span>
+                              <span>{group.campus}</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <div className={`w-2 h-2 rounded-full ${activity.color}`}></div>
+                              <span className="text-xs text-gray-500">{activity.text}</span>
+                            </div>
+                          </div>
+
+                          {/* Quick Actions */}
+                          <div className="flex space-x-2">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-xs h-8"
+                              onClick={(e) => { 
+                                e.stopPropagation(); 
+                                /* Handle join/request logic */
+                              }}
+                              data-testid={`join-group-${group.id}`}
+                            >
+                              <UserPlus className="h-3 w-3 mr-1" />
+                              {group.privacy === 'private' ? 'Request' : 'Join'}
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="px-2 h-8"
+                              onClick={(e) => { e.stopPropagation(); /* Favorite group */ }}
+                              data-testid={`favorite-discover-${group.id}`}
+                            >
+                              ⭐
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                      <Button 
-                        size="sm" 
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg" 
-                        data-testid={`join-group-${group.id}`}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        {group.privacy === 'private' ? 'Request to Join' : 'Join Group'}
-                      </Button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
+
+                {/* No Results */}
+                {filteredSuggestedGroups.length === 0 && (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 mb-4">
+                      <Users className="h-12 w-12 mx-auto" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">No groups found</h3>
+                    <p className="text-gray-500 mb-4">Try adjusting your filters or search terms</p>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowRequestGroupModal(true)}
+                      data-testid="request-new-group"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Request a Group
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
@@ -1839,6 +2450,9 @@ export default function Connect() {
           </Card>
         </div>
       )}
+      
+      {/* Quick View Modal */}
+      <QuickViewModal />
       
     </MainLayout>
   );
