@@ -53,14 +53,19 @@ export default function Profile() {
     
     try {
       // Update user profile image URL
-      await apiRequest('PUT', '/api/profile', { profileImageUrl: url });
+      const response = await apiRequest('PUT', '/api/profile', { profileImageUrl: url });
+      const data = await response.json();
       
-      // Refresh user data
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      // Refresh user and progress data
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/profile/progress'] }),
+        queryClient.refetchQueries({ queryKey: ['/api/profile/progress'] }),
+      ]);
       
       toast({
         title: 'Success',
-        description: 'Profile picture updated successfully!',
+        description: data.message || 'Profile picture updated successfully!',
       });
     } catch (error) {
       console.error('Profile picture update error:', error);
@@ -78,14 +83,19 @@ export default function Profile() {
     
     try {
       // Update user cover photo URL
-      await apiRequest('PUT', '/api/profile', { coverPhotoUrl: url });
+      const response = await apiRequest('PUT', '/api/profile', { coverPhotoUrl: url });
+      const data = await response.json();
       
-      // Refresh user data
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      // Refresh user and progress data
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/profile/progress'] }),
+        queryClient.refetchQueries({ queryKey: ['/api/profile/progress'] }),
+      ]);
       
       toast({
         title: 'Success',
-        description: 'Cover photo updated successfully!',
+        description: data.message || 'Cover photo updated successfully!',
       });
     } catch (error) {
       console.error('Cover photo update error:', error);

@@ -237,8 +237,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update user profile with any provided fields
       const updatedUser = await storage.completeUserProfile(userId, updates);
       
+      // Check if this was a profile photo update and mark the step complete
+      if (updates.profileImageUrl) {
+        await storage.markStepComplete(userId, 'profile_photo');
+      }
+      
+      // Get updated progress for the message
+      const progress = await storage.getProfileProgress(userId);
+      
+      // Create appropriate success message
+      let message = "Profile updated successfully!";
+      if (updates.profileImageUrl) {
+        message = `Profile picture uploaded! You're now at ${progress.percentage}%.`;
+      } else if (updates.coverPhotoUrl) {
+        message = `Cover photo updated! You're now at ${progress.percentage}%.`;
+      }
+      
       console.log("✅ Profile updated successfully");
-      res.json(updatedUser);
+      res.json({
+        ...updatedUser,
+        progress,
+        message
+      });
     } catch (error) {
       console.error("❌ Profile update failed:", error);
       res.status(500).json({ error: "Profile update failed" });
