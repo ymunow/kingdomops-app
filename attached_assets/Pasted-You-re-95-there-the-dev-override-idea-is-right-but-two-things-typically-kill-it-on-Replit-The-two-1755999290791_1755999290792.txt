@@ -1,0 +1,82 @@
+You’re 95% there—the dev-override idea is right, but two things typically kill it on Replit:
+The two usual blockers on Replit
+Wrong port / origin
+Replit requires you listen on process.env.PORT (not a hardcoded 5000). If you bind to 5000, your server runs but isn’t reachable from the public URL the browser is using.
+Path / origin mismatch
+The client is still posting to a different origin or path (e.g., /api/upload vs /api/objects/upload). If the browser isn’t on the same origin as the server (the dev-override), or the path differs, your route won’t fire.
+Do this now (copy/paste)
+1) Make the dev-override server reachable on Replit
+// server/dev-override.ts
+import express from "express";
+import path from "node:path";
+import fs from "node:fs";
+import multer from "multer";
+
+const app = express();
+const resolve = (p: string) => path.resolve(process.cwd(), p);
+
+// 🔎 prove requests hit Express
+app.use((req, _res, next) => { console.log("➡️", req.method, req.url); next(); });
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// health
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
+// serve static avatars
+app.use("/cdn", express.static(resolve("public/cdn")));
+
+// 🔐 upload route (single canonical path)
+const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
+app.post("/api/objects/upload", upload.single("file"), async (req, res, next) => {
+  try {
+    console.log("🎯 UPLOAD DETECTED");
+    if (!req.file) return res.status(400).json({ error: "No file" });
+
+    const userId = String(req.body.userId || "anonymous");
+    const key = `avatars/${userId}.webp`;
+    const out = resolve(`public/cdn/${key}`);
+    await fs.promises.mkdir(path.dirname(out), { recursive: true });
+    await fs.promises.writeFile(out, req.file.buffer);
+
+    return res.json({ ok: true, url: `/cdn/${key}?v=${Date.now()}` });
+  } catch (e) { next(e); }
+});
+
+// (Optional) serve your built client if you want a single origin:
+// const dist = resolve("dist"); app.use(express.static(dist));
+// app.get("*", (_req, res) => res.sendFile(path.join(dist, "index.html")));
+
+const port = Number(process.env.PORT || 4000);  // ⬅️ CRITICAL ON REPLIT
+app.listen(port, "0.0.0.0", () => console.log(`🚀 Dev override on :${port}`));
+2) Point the client to the same origin & single path
+Make sure your fetch hits the same host the page is loaded from and this exact path /api/objects/upload:
+// client upload call
+const fd = new FormData();
+fd.append("file", croppedBlob, "avatar.webp");
+fd.append("userId", user.id);
+
+const res = await fetch("/api/objects/upload", {  // ⬅️ SAME ORIGIN, SAME PATH
+  method: "POST",
+  body: fd,               // do NOT set Content-Type manually for multipart
+});
+if (!res.ok) throw new Error("Upload failed");
+const { url } = await res.json();
+setAvatarUrl(url); // cache-busted ?v=timestamp
+If your UI is hosted on a different origin, set a base once:
+const API_BASE = window.location.origin; // or your Replit URL
+await fetch(`${API_BASE}/api/objects/upload`, { method: "POST", body: fd });
+and enable CORS on the server (allowed origin = your UI origin).
+3) Quick verification (no guessing)
+Open the Replit-provided URL (not localhost:5000; Replit maps the env PORT).
+Visit /api/health → should return { ok: true }.
+In the terminal, you should see logs like:
+➡️ GET /api/health
+➡️ POST /api/objects/upload
+🎯 UPLOAD DETECTED
+The response JSON should include a /cdn/...?.v=... URL; your avatar updates immediately.
+Common tripwires (fix in seconds)
+Still no logs? You’re not hitting the right origin. Use the same Replit URL your page is served from, or serve the built client from the same Express app (commented lines above).
+404 on upload? Path mismatch. Standardize on /api/objects/upload everywhere.
+CORS error? You’re calling cross‑origin. Either make it same‑origin or add CORS allowlist for your UI origin.
