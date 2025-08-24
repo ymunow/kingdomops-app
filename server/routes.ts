@@ -136,6 +136,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // DEBUG: Test route to see if ANY PUT requests reach our server
+  app.put("/api/test/debug-put", (req, res) => {
+    console.log('🔥🔥🔥 DEBUG PUT ROUTE HIT! Our server CAN receive PUT requests! 🔥🔥🔥');
+    console.log('Body:', req.body);
+    res.json({ success: true, message: "PUT request reached our server!" });
+  });
+
   // Update profile picture
   console.log('Registering PUT /api/profile/picture route');
   
