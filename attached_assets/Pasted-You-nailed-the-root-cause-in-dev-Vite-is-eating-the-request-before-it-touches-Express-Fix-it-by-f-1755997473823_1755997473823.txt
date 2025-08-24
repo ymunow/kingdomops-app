@@ -1,0 +1,81 @@
+You nailed the root cause: in dev, Vite is eating the request before it touches Express. Fix it by forcing all API traffic to bypass Vite (or making Express the front door). Pick one of these—Option A is the quickest.
+Option A — Use a Vite proxy for /api (recommended)
+Goal: All calls to /api/* are forwarded to Express (different port), preserving custom headers.
+vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4000',   // your Express server
+        changeOrigin: true,
+        secure: false,
+        // ensure custom headers (like x-profile-upload) are forwarded
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            const h = req.headers['x-profile-upload']
+            if (h) proxyReq.setHeader('x-profile-upload', h as string)
+          })
+        },
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
+})
+Client upload — call the proxied path:
+const fd = new FormData()
+fd.append('file', blob, 'avatar.webp')
+fd.append('userId', userId)
+
+await fetch('/api/upload', {
+  method: 'POST',
+  headers: { 'x-profile-upload': 'true' },
+  body: fd,
+})
+Express route (unchanged; listens on port 4000):
+app.post('/upload', upload.single('file'), async (req, res) => {
+  console.log('🎯 UPLOAD DETECTED', req.headers['x-profile-upload']) // should appear now
+  // ...save avatar + return cache-busted URL
+})
+CORS (if you hit the API directly in other envs)
+Allow the custom header:
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://yourapp.com'],
+  credentials: true,
+  allowedHeaders: ['Content-Type','Authorization','x-profile-upload']
+}))
+Smoke test
+npm run dev for Vite, start Express on 4000.
+curl test still works:
+curl -i -X POST http://localhost:4000/upload \
+  -H "x-profile-upload: true" \
+  -F "file=@avatar.png"
+In the browser Network tab, the request URL should be /api/upload with Status 200, and you should see 🎯 UPLOAD DETECTED in server logs.
+Option B — Bypass Vite entirely (hard-code API origin)
+Point the client to your API port so Vite never sees it:
+const API = import.meta.env.VITE_API_URL ?? 'http://localhost:4000'
+await fetch(`${API}/upload`, { method:'POST', headers:{'x-profile-upload':'true'}, body: fd })
+Add CORS on the server as above. Fast and simple, but you’ll manage env vars per environment.
+Option C — Make Express the front door (Vite as middleware)
+Let Express host the Vite dev middleware so all requests flow through Express first.
+import express from 'express'
+import { createServer as createViteServer } from 'vite'
+
+async function createApp() {
+  const app = express()
+  const vite = await createViteServer({ server: { middlewareMode: true } })
+  app.use(vite.middlewares) // Vite routes, but Express owns the pipeline
+
+  app.post('/upload', upload.single('file'), handleUpload) // will run
+  app.listen(4000)
+}
+createApp()
+This guarantees your /upload handler runs in dev.
+Quick sanity checklist
+ Requests go to /api/upload (Option A) or to API origin (Option B).
+ Server logs now show 🎯 UPLOAD DETECTED.
+ Access-Control-Allow-Headers includes x-profile-upload.
+ Response returns cache‑busted avatar URL (e.g., ?v=Date.now()), so the new photo appears immediately.

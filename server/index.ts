@@ -108,6 +108,12 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+  
+  // Add explicit API route protection to ensure they run before Vite catch-all  
+  app.use('/api/*', (req, res, next) => {
+    console.log('🛡️ API ROUTE PROTECTION:', req.method, req.url);
+    next();
+  });
 
   // Skip database seeding since we're using in-memory storage
   console.log("Using in-memory storage - skipping database seeding");

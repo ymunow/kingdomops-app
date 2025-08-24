@@ -117,8 +117,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }
 
+  // CRITICAL: Add explicit route priority to bypass Vite interception
+  app.use('/api/objects/upload', (req, res, next) => {
+    if (req.method === 'POST') {
+      console.log('🚨 BYPASSING VITE - API ROUTE HIT:', req.url);
+      next();
+    } else {
+      next();
+    }
+  });
+  
   // Auth routes
-  // Profile picture upload routes
+  // Profile picture upload routes  
   app.post("/api/objects/upload", isAuthenticated, async (req: any, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
