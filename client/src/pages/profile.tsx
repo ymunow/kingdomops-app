@@ -81,30 +81,19 @@ export default function Profile() {
         
         console.log('Direct fetch using token:', authToken?.substring(0, 10));
         
-        // NO API PREFIX: Completely bypass Vite's /api/ interception
-        const encodedUrl = encodeURIComponent(profileImageUrl);  
-        const response = await fetch(`/update-avatar-now?url=${encodedUrl}`, {
-          method: 'GET',
+        // NEW APPROACH: Use working upload-success endpoint
+        const response = await fetch('/api/objects/upload-success', {
+          method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,
           },
+          body: JSON.stringify({ uploadURL: profileImageUrl }),
         });
         
-        console.log('GET response status:', response.status);
-        
-        // Better error handling for response parsing
-        const responseText = await response.text();
-        console.log('GET response text:', responseText);
-        
-        let responseData;
-        try {
-          responseData = JSON.parse(responseText);
-          console.log('GET response data:', responseData);
-        } catch (parseError) {
-          console.error('JSON parse error:', parseError);
-          console.error('Response was:', responseText);
-          throw new Error('Invalid response format');
-        }
+        console.log('Upload-success response status:', response.status);
+        const responseData = await response.json();
+        console.log('Upload-success response data:', responseData);
         
         // Aggressive cache refresh
         await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });

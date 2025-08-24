@@ -130,6 +130,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PROFILE PICTURE SUCCESS: After successful upload, save to profile  
+  app.post("/api/objects/upload-success", isAuthenticated, async (req: any, res) => {
+    console.log('🎯 UPLOAD SUCCESS - SAVING TO PROFILE!');
+    
+    const { uploadURL } = req.body;
+    if (!uploadURL) {
+      return res.status(400).json({ error: "uploadURL is required" });
+    }
+
+    const userId = req.user.id;
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+
+      console.log("🎯 Saving uploaded image to profile:", { userId, objectPath });
+
+      const updatedUser = await storage.completeUserProfile(userId, {
+        profileImageUrl: objectPath
+      } as any);
+
+      console.log("🎯 Profile picture saved successfully!");
+      res.json({ success: true, user: updatedUser });
+    } catch (error) {
+      console.error("❌ Failed to save profile picture:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // NO API PREFIX: Vite only intercepts /api/ routes
   app.get("/update-avatar-now", isAuthenticated, async (req: any, res) => {
     console.log('🚀 AVATAR UPDATE VIA GET - Request received!');
