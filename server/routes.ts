@@ -130,8 +130,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // COMPLETE BYPASS: Use GET with query params to avoid ALL interception
-  app.get("/api/user/update-avatar", isAuthenticated, async (req: any, res) => {
+  // VITE-PROOF: Use weird route that Vite won't intercept
+  app.get("/api/internal-avatar-save", isAuthenticated, async (req: any, res) => {
     console.log('🚀 AVATAR UPDATE VIA GET - Request received!');
     console.log('🚀 Query params:', req.query);
     
