@@ -81,8 +81,8 @@ export default function Profile() {
         
         console.log('Direct fetch using token:', authToken?.substring(0, 10));
         
-        // NEW APPROACH: Use working upload-success endpoint
-        const response = await fetch('/api/objects/upload-success', {
+        // PROFILE AUTO-SAVE: Use new endpoint
+        const response = await fetch('/api/objects/profile-save', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -91,9 +91,9 @@ export default function Profile() {
           body: JSON.stringify({ uploadURL: profileImageUrl }),
         });
         
-        console.log('Upload-success response status:', response.status);
+        console.log('Profile-save response status:', response.status);
         const responseData = await response.json();
-        console.log('Upload-success response data:', responseData);
+        console.log('Profile-save response data:', responseData);
         
         // Aggressive cache refresh
         await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });

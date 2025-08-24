@@ -119,14 +119,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth routes
   // Profile picture upload routes
-  app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
+  app.post("/api/objects/upload", isAuthenticated, async (req: any, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      console.log("📤 Upload URL generated:", uploadURL);
       res.json({ uploadURL });
     } catch (error) {
       console.error("Error getting upload URL:", error);
       res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  // PROFILE PICTURE AUTO-SAVE: Save to profile after upload completes
+  app.post("/api/objects/profile-save", isAuthenticated, async (req: any, res) => {
+    console.log('💾 AUTO-SAVE TO PROFILE CALLED!');
+    
+    const { uploadURL } = req.body;
+    if (!uploadURL) {
+      return res.status(400).json({ error: "uploadURL is required" });
+    }
+
+    const userId = req.user.id;
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+
+      console.log("💾 Auto-saving to profile:", { userId, objectPath });
+
+      const updatedUser = await storage.completeUserProfile(userId, {
+        profileImageUrl: objectPath
+      } as any);
+
+      console.log("💾 Auto-save successful - profileImageUrl:", updatedUser.profileImageUrl);
+      
+      // Verify the save worked by getting the user again
+      const verifyUser = await storage.getUser(userId);
+      console.log("💾 Verification - profileImageUrl:", verifyUser?.profileImageUrl);
+      
+      res.json({ success: true, user: updatedUser });
+    } catch (error) {
+      console.error("❌ Auto-save failed:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
