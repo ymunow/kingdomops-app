@@ -130,8 +130,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // FIXED: Simple, direct profile picture update
-  app.put("/api/profile/picture", isAuthenticated, async (req: any, res) => {
+  // BYPASS: Use POST instead of PUT to avoid interception
+  app.post("/api/profile/picture-update", isAuthenticated, async (req: any, res) => {
     console.log('✅ PROFILE PICTURE UPDATE - Request received!');
     
     if (!req.body.profileImageUrl) {

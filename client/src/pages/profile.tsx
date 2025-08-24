@@ -81,8 +81,8 @@ export default function Profile() {
         
         console.log('Direct fetch using token:', authToken?.substring(0, 10));
         
-        const response = await fetch('/api/profile/picture', {
-          method: 'PUT',
+        const response = await fetch('/api/profile/picture-update', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`,
