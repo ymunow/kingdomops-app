@@ -25,12 +25,13 @@ export async function setupSupabaseAuth(app: Express) {
           console.log('Auth middleware - User authenticated:', user.email);
           
           // Ensure user exists in our database and get full user info
+          // ONLY update auth fields, preserve profile uploads
           await storage.upsertUser({
             id: user.id,
             email: user.email,
             firstName: user.user_metadata?.first_name,
             lastName: user.user_metadata?.last_name,
-            profileImageUrl: user.user_metadata?.avatar_url,
+            // DON'T overwrite profileImageUrl - let user uploads persist
           });
           
           // Get full user info including role and organizationId from database

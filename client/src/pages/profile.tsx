@@ -138,9 +138,9 @@ export default function Profile() {
           {/* Cover Photo */}
           <div className="relative h-96 overflow-hidden bg-gray-300 rounded-b-lg">
             <img 
-              src={mockProfileData.coverPhoto} 
+              src={user?.coverPhotoUrl || mockProfileData.coverPhoto} 
               alt="Cover"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-center"
             />
             
             {/* Cover Photo Upload Button */}
