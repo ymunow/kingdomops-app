@@ -1452,12 +1452,28 @@ class MemStorage implements IStorage {
       this.profileCompletionSteps.set(userId, new Set());
     }
     
+    // Get user data for auto-detection
+    const user = this.users.get(userId);
+    
     const completedSteps = Array.from(this.profileCompletionSteps.get(userId) || []);
+    
+    // Auto-detect completion for certain steps
+    const isProfilePhotoComplete = completedSteps.includes('profile_photo') || !!user?.profileImageUrl;
+    const isBasicInfoComplete = completedSteps.includes('basic_info') || (!!user?.firstName && !!user?.lastName);
+    const isLifeVerseComplete = completedSteps.includes('life_verse') || !!user?.lifeVerse;
+    
+    console.log('🏁 PROFILE PROGRESS CHECK:', { 
+      userId, 
+      profileImageUrl: user?.profileImageUrl, 
+      isProfilePhotoComplete,
+      completedSteps 
+    });
+    
     const steps = [
-      { key: 'basic_info', label: 'Basic Information', completed: completedSteps.includes('basic_info'), weight: 20, order: 1 },
-      { key: 'profile_photo', label: 'Profile Photo', completed: completedSteps.includes('profile_photo'), weight: 20, order: 2 },
+      { key: 'basic_info', label: 'Basic Information', completed: isBasicInfoComplete, weight: 20, order: 1 },
+      { key: 'profile_photo', label: 'Profile Photo', completed: isProfilePhotoComplete, weight: 20, order: 2 },
       { key: 'gifts_assessment', label: 'Gifts Assessment', completed: completedSteps.includes('gifts_assessment'), weight: 20, order: 3 },
-      { key: 'life_verse', label: 'Life Verse', completed: completedSteps.includes('life_verse'), weight: 20, order: 4 },
+      { key: 'life_verse', label: 'Life Verse', completed: isLifeVerseComplete, weight: 20, order: 4 },
       { key: 'join_group', label: 'Join Group', completed: completedSteps.includes('join_group'), weight: 20, order: 5 }
     ];
     
