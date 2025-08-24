@@ -124,6 +124,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       console.log("📤 Upload URL generated:", uploadURL);
+      
+      // AUTO-SAVE: If this is a profile upload, save it immediately after providing URL
+      const isProfileUpload = req.headers['x-profile-upload'] === 'true';
+      if (isProfileUpload) {
+        console.log("🎯 PROFILE UPLOAD DETECTED - Will auto-save!");
+        
+        // Set a timeout to save the profile picture after upload completes
+        setTimeout(async () => {
+          try {
+            const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+            console.log("🎯 Auto-saving profile picture:", { userId: req.user.id, objectPath });
+            
+            const updatedUser = await storage.completeUserProfile(req.user.id, {
+              profileImageUrl: objectPath
+            } as any);
+            
+            console.log("🎯 Profile picture auto-saved successfully!");
+          } catch (error) {
+            console.error("❌ Auto-save failed:", error);
+          }
+        }, 3000); // 3 second delay to allow upload to complete
+      }
+      
       res.json({ uploadURL });
     } catch (error) {
       console.error("Error getting upload URL:", error);

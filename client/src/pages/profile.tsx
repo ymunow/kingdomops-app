@@ -81,19 +81,8 @@ export default function Profile() {
         
         console.log('Direct fetch using token:', authToken?.substring(0, 10));
         
-        // PROFILE AUTO-SAVE: Use new endpoint
-        const response = await fetch('/api/objects/profile-save', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-          },
-          body: JSON.stringify({ uploadURL: profileImageUrl }),
-        });
-        
-        console.log('Profile-save response status:', response.status);
-        const responseData = await response.json();
-        console.log('Profile-save response data:', responseData);
+        // AUTO-SAVE: Profile pictures are now saved automatically by the upload endpoint
+        console.log('✅ Profile picture uploaded - auto-save in progress!');
         
         // Aggressive cache refresh
         await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
