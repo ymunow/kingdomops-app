@@ -2427,17 +2427,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const { favoriteVerse } = req.body;
       
+      console.log('🏆 FAVORITE VERSE SAVE REQUEST:', { 
+        userId, 
+        favoriteVerse, 
+        body: req.body 
+      });
+      
       if (!favoriteVerse || favoriteVerse.trim().length === 0) {
+        console.log('❌ Favorite verse validation failed:', favoriteVerse);
         return res.status(400).json({ message: "Favorite verse is required" });
       }
       
+      console.log('🔄 Updating user with verse:', favoriteVerse.trim());
       await storage.updateUser(userId, { lifeVerse: favoriteVerse.trim() });
       
+      console.log('✅ Marking favorite_verse step as complete');
       // Mark the favorite_verse step as complete
       await storage.markStepComplete(userId, 'favorite_verse');
       
       // Get updated progress
       const progress = await storage.getProfileProgress(userId);
+      console.log('📊 Updated progress:', progress);
       
       res.json({ 
         success: true, 
@@ -2445,7 +2455,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: `Favorite verse saved! You're now at ${progress.percentage}%.`
       });
     } catch (error) {
-      console.error("Update favorite verse error:", error);
+      console.error("❌ Update favorite verse error:", error);
       res.status(500).json({ message: "Failed to update favorite verse" });
     }
   });
