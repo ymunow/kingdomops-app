@@ -229,6 +229,7 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   coverPhotoUrl: varchar("cover_photo_url"),
   profileCompleted: boolean("profile_completed").default(false),
+  bio: text("bio"), // User bio/description
   lifeVerse: text("life_verse"), // User's favorite scripture
   role: roleEnum("role").default("CHURCH_MEMBER"),
   lastActiveAt: timestamp("last_active_at").defaultNow(),

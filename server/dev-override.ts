@@ -54,11 +54,15 @@ app.post("/api/objects/upload", upload.single("file"), async (req, res, next) =>
 });
 
 // Register existing API routes (auth, etc.)
-const server = await registerRoutes(app);
-
-// CRITICAL: Use process.env.PORT for Replit, bind to 0.0.0.0
-const port = Number(process.env.PORT || 4000);
-app.listen(port, "0.0.0.0", () => {
-  console.log(`🚀 REPLIT DEV OVERRIDE on port ${port}`);
-  console.log(`🎯 Ready for /api/objects/upload requests!`);
+registerRoutes(app).then(server => {
+  // CRITICAL: Use process.env.PORT for Replit, bind to 0.0.0.0
+  const port = Number(process.env.PORT || 4000);
+  app.listen(port, "0.0.0.0", () => {
+    console.log(`🚀 REPLIT DEV OVERRIDE on port ${port}`);
+    console.log(`🎯 Ready for /api/objects/upload requests!`);
+  });
+}).catch(error => {
+  console.error('Failed to register routes:', error);
+  process.exit(1);
 });
+

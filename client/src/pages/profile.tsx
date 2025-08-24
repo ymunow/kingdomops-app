@@ -19,6 +19,7 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('about');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingProfile, setEditingProfile] = useState<{
     firstName: string;
     lastName: string;

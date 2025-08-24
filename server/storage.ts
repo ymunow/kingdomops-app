@@ -1031,10 +1031,14 @@ class MemStorage implements IStorage {
       name: 'Default Organization',
       subdomain: 'default',
       inviteCode: 'DEFAULT123',
+      contactEmail: null,
+      website: null,
+      address: null,
+      description: null,
       status: 'ACTIVE',
+      settings: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-      settings: null,
     };
     this.organizations.set(defaultOrg.id, defaultOrg);
   }
@@ -1059,7 +1063,14 @@ class MemStorage implements IStorage {
   async createOrganization(organization: InsertOrganization): Promise<Organization> {
     const org: Organization = {
       ...organization,
-      id: organization.id || nanoid(),
+      id: nanoid(),
+      subdomain: organization.subdomain || null,
+      contactEmail: organization.contactEmail || null,
+      website: organization.website || null,
+      address: organization.address || null,
+      description: organization.description || null,
+      status: organization.status || 'ACTIVE',
+      settings: organization.settings || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -1089,15 +1100,16 @@ class MemStorage implements IStorage {
   }
 
   async upsertUser(user: UpsertUser): Promise<User> {
-    const existingUser = this.users.get(user.id);
+    const existingUser = this.users.get(user.id!);
     const userData: User = {
       ...user,
+      id: user.id!,
       organizationId: user.organizationId || 'default-org-001',
       createdAt: existingUser?.createdAt || new Date(),
       updatedAt: new Date(),
       lastActiveAt: new Date(),
     };
-    this.users.set(user.id, userData);
+    this.users.set(userData.id, userData);
     return userData;
   }
 
@@ -1108,7 +1120,7 @@ class MemStorage implements IStorage {
   async createUser(user: InsertUser): Promise<User> {
     const userData: User = {
       ...user,
-      id: user.id || nanoid(),
+      id: nanoid(),
       organizationId: user.organizationId || 'default-org-001',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -1144,7 +1156,7 @@ class MemStorage implements IStorage {
 
   async getUsersByOrganization(organizationId: string, filters?: AdminFilters): Promise<UserWithResults[]> {
     const orgUsers = Array.from(this.users.values()).filter(user => user.organizationId === organizationId);
-    return orgUsers.map(user => ({ ...user, results: [] }));
+    return orgUsers.map(user => ({ ...user, results: [], totalAssessments: 0 }));
   }
 
   async updateUserRole(userId: string, role: OrganizationRole): Promise<User> {
@@ -1195,9 +1207,8 @@ class MemStorage implements IStorage {
   async createAssessmentVersion(version: InsertAssessmentVersion): Promise<AssessmentVersion> {
     const assessmentVersion: AssessmentVersion = {
       ...version,
-      id: version.id || nanoid(),
+      id: nanoid(),
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
     this.assessmentVersions.set(assessmentVersion.id, assessmentVersion);
     if (version.isActive) {
@@ -1214,9 +1225,7 @@ class MemStorage implements IStorage {
   async createQuestion(question: InsertQuestion): Promise<Question> {
     const q: Question = {
       ...question,
-      id: question.id || nanoid(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      id: nanoid(),
     };
     this.questions.set(q.id, q);
     return q;
@@ -1237,7 +1246,7 @@ class MemStorage implements IStorage {
   async getSystemSettings(): Promise<any> { return {}; }
   async updateSystemSettings(settings: any): Promise<any> { return settings; }
   async createResponse(response: InsertResponse): Promise<Response> { 
-    const r: Response = { ...response, id: nanoid(), createdAt: new Date(), updatedAt: new Date() };
+    const r: Response = { ...response, id: nanoid() };
     this.responses.set(r.id, r);
     return r;
   }
@@ -1253,14 +1262,14 @@ class MemStorage implements IStorage {
     return response;
   }
   async createAnswer(answer: InsertAnswer): Promise<Answer> { 
-    const a: Answer = { ...answer, id: nanoid(), createdAt: new Date(), updatedAt: new Date() };
+    const a: Answer = { ...answer, id: nanoid() };
     this.answers.set(a.id, a);
     return a;
   }
   async bulkCreateAnswers(answers: InsertAnswer[]): Promise<Answer[]> { return []; }
   async getAnswersByResponse(responseId: string): Promise<Answer[]> { return []; }
   async createResult(result: InsertResult): Promise<Result> { 
-    const r: Result = { ...result, id: nanoid(), createdAt: new Date(), updatedAt: new Date() };
+    const r: Result = { ...result, id: nanoid(), createdAt: new Date() };
     this.results.set(r.id, r);
     return r;
   }
@@ -1319,8 +1328,88 @@ class MemStorage implements IStorage {
     }; 
   }
   async getGlobalMetrics(): Promise<DashboardMetrics> { return this.getDashboardMetrics(''); }
-  async getAssessmentStats(organizationId?: string): Promise<{totalAssessments: number; completionRate: number; avgTimeMinutes: number;}> { 
-    return { totalAssessments: 0, completionRate: 0, avgTimeMinutes: 0 }; 
+  async getAssessmentStats(organizationId?: string): Promise<{totalAssessments: number; completionRate: number; avgTimeMinutes: number; thisMonth: number}> { 
+    return { totalAssessments: 0, completionRate: 0, avgTimeMinutes: 0, thisMonth: 0 }; 
+  }
+  
+  // Add missing methods required by routes.ts
+  async getAllAssessmentVersions(): Promise<AssessmentVersion[]> {
+    return Array.from(this.assessmentVersions.values());
+  }
+
+  async getAllQuestions(): Promise<Question[]> {
+    return Array.from(this.questions.values());
+  }
+
+  async updateQuestion(id: string, updates: Partial<InsertQuestion>): Promise<Question> {
+    const question = this.questions.get(id);
+    if (!question) throw new Error('Question not found');
+    const updated = { ...question, ...updates };
+    this.questions.set(id, updated);
+    return updated;
+  }
+
+  async deactivateQuestion(id: string): Promise<Question> {
+    return this.updateQuestion(id, { isActive: false });
+  }
+
+  async updateAssessmentVersion(id: string, updates: Partial<InsertAssessmentVersion>): Promise<AssessmentVersion> {
+    const version = this.assessmentVersions.get(id);
+    if (!version) throw new Error('Assessment version not found');
+    const updated = { ...version, ...updates };
+    this.assessmentVersions.set(id, updated);
+    return updated;
+  }
+
+  async setActiveAssessmentVersion(id: string): Promise<AssessmentVersion> {
+    // Deactivate all versions first
+    for (const version of this.assessmentVersions.values()) {
+      if (version.isActive) {
+        version.isActive = false;
+      }
+    }
+    // Activate the specified version
+    const version = this.assessmentVersions.get(id);
+    if (!version) throw new Error('Assessment version not found');
+    version.isActive = true;
+    this.activeAssessmentVersionId = id;
+    return version;
+  }
+
+  async getGiftDistribution(organizationId?: string): Promise<Record<string, number>> {
+    // Return empty distribution for now
+    return {};
+  }
+
+  async updateUser(userId: string, updates: Partial<InsertUser>): Promise<User> {
+    const user = this.users.get(userId);
+    if (!user) throw new Error('User not found');
+    const updated = { ...user, ...updates, updatedAt: new Date() };
+    this.users.set(userId, updated);
+    return updated;
+  }
+
+  async hasPermission(userId: string, permission: string, organizationId?: string): Promise<boolean> {
+    const user = this.users.get(userId);
+    if (!user) return false;
+    
+    // Super admin has all permissions
+    if (user.role === 'SUPER_ADMIN') return true;
+    
+    // Check role permissions
+    const rolePermissions = ROLE_PERMISSIONS[user.role] || [];
+    return rolePermissions.includes(permission) || rolePermissions.includes('all');
+  }
+
+  async canAccessOrganization(userId: string, organizationId: string): Promise<boolean> {
+    const user = this.users.get(userId);
+    if (!user) return false;
+    
+    // Super admin can access all organizations
+    if (user.role === 'SUPER_ADMIN') return true;
+    
+    // Users can access their own organization
+    return user.organizationId === organizationId;
   }
   async getDailyActiveUsers(organizationId: string, days: number): Promise<number[]> { return []; }
   async getTopGifts(organizationId: string, limit: number): Promise<Array<{giftKey: string; count: number}>> { return []; }
