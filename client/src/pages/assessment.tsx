@@ -81,8 +81,8 @@ export default function Assessment() {
     }
   }, []);
 
-  // Save progress
-  const saveProgress = () => {
+  // Auto-save progress (silent)
+  const autoSaveProgress = () => {
     const state: AssessmentState = {
       currentStep,
       answers,
@@ -91,8 +91,18 @@ export default function Assessment() {
       naturalAbilities,
     };
     localStorage.setItem("assessment_progress", JSON.stringify(state));
+  };
+
+  // Manual save progress (with notification)
+  const saveProgress = () => {
+    autoSaveProgress();
     toast({ title: "Progress saved", description: "Your answers have been saved locally." });
   };
+
+  // Auto-save whenever answers, step, or other data changes
+  useEffect(() => {
+    autoSaveProgress();
+  }, [currentStep, answers, ageGroups, ministryInterests, naturalAbilities]);
 
   // Redirect if not authenticated
   useEffect(() => {
