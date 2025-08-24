@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Crown, ArrowLeft, ArrowRight, Save } from "lucide-react";
+import { Crown, ArrowLeft, ArrowRight, Save, X, Shield } from "lucide-react";
 import { QuestionCard } from "@/components/assessment/question-card";
 import NaturalAbilitiesStep from "@/components/assessment/natural-abilities-step";
 import { BottomNavigation } from "@/components/navigation/bottom-navigation";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { Question, AssessmentState } from "@shared/schema";
 
 interface StartAssessmentResponse {
@@ -62,6 +63,7 @@ export default function Assessment() {
   const [ministryInterests, setMinistryInterests] = useState<string[]>([]);
   const [naturalAbilities, setNaturalAbilities] = useState<string[]>([]);
   const [responseId, setResponseId] = useState<string>("");
+  const [showAutosaveNotice, setShowAutosaveNotice] = useState(true);
 
   // Load saved progress
   useEffect(() => {
@@ -255,6 +257,30 @@ export default function Assessment() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      {/* Auto-save Notice */}
+      {showAutosaveNotice && (
+        <div className="bg-gradient-to-r from-emerald-50 to-blue-50 border-b border-emerald-200">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <Alert className="border-emerald-200 bg-white/60 backdrop-blur-sm">
+              <Shield className="h-4 w-4 text-emerald-600" />
+              <AlertDescription className="flex items-center justify-between">
+                <span className="text-emerald-800 font-medium">
+                  ✨ Your progress is automatically saved as you go - no need to worry about losing your answers!
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAutosaveNotice(false)}
+                  className="text-emerald-600 hover:text-emerald-800 hover:bg-emerald-100 ml-4 px-2"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
