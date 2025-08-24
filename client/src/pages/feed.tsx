@@ -52,10 +52,15 @@ export default function Feed() {
   // Create post mutation
   const createPostMutation = useMutation({
     mutationFn: async (postData: any) => {
-      return await apiRequest('/api/feed/posts', {
+      const response = await fetch('/api/feed/posts', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
         body: JSON.stringify(postData),
       });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
@@ -77,10 +82,15 @@ export default function Feed() {
   // React to post mutation
   const reactToPostMutation = useMutation({
     mutationFn: async ({ postId, type }: { postId: string; type: string }) => {
-      return await apiRequest(`/api/feed/posts/${postId}/reactions`, {
+      const response = await fetch(`/api/feed/posts/${postId}/reactions`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
         body: JSON.stringify({ type }),
       });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
@@ -162,7 +172,7 @@ export default function Feed() {
   ];
 
   // Use API data if available, otherwise fallback to mock data
-  const displayPosts = feedPosts.length > 0 ? feedPosts : mockFeedPosts;
+  const displayPosts = Array.isArray(feedPosts) && feedPosts.length > 0 ? feedPosts : mockFeedPosts;
 
   return (
     <MainLayout>
@@ -242,7 +252,7 @@ export default function Feed() {
 
           {/* Feed Posts */}
           <div className="space-y-6">
-            {displayPosts.map((post) => (
+            {displayPosts.map((post: any) => (
               <div key={post.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 {/* Post Header */}
                 <div className="p-6 pb-4">
