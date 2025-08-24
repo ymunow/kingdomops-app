@@ -136,15 +136,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
             console.log("🎯 Auto-saving profile picture:", { userId: req.user.id, objectPath });
             
+            // Add cache-busting timestamp
+            const cacheBustedPath = `${objectPath}?v=${Date.now()}`;
+            
             const updatedUser = await storage.completeUserProfile(req.user.id, {
-              profileImageUrl: objectPath
+              profileImageUrl: cacheBustedPath
             } as any);
             
-            console.log("🎯 Profile picture auto-saved successfully!");
+            console.log("🎯 Profile picture auto-saved with cache-busting:", cacheBustedPath);
           } catch (error) {
             console.error("❌ Auto-save failed:", error);
           }
-        }, 3000); // 3 second delay to allow upload to complete
+        }, 2000); // Reduced to 2 seconds
       }
       
       res.json({ uploadURL });

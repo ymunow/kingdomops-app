@@ -84,9 +84,17 @@ export default function Profile() {
         // AUTO-SAVE: Profile pictures are now saved automatically by the upload endpoint
         console.log('✅ Profile picture uploaded - auto-save in progress!');
         
-        // Aggressive cache refresh
-        await queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-        await queryClient.refetchQueries({ queryKey: ['/api/auth/user'] });
+        // Wait for auto-save to complete, then force refresh
+        setTimeout(async () => {
+          console.log('🔄 Forcing profile refresh after auto-save...');
+          
+          // Clear cache and force fresh fetch
+          queryClient.removeQueries({ queryKey: ['/api/auth/user'] });
+          await queryClient.refetchQueries({ queryKey: ['/api/auth/user'] });
+          
+          // Force re-render by updating a state variable
+          setShowModal(false);
+        }, 3000);
         
         toast({
           title: 'Success',
