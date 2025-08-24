@@ -1101,7 +1101,14 @@ class MemStorage implements IStorage {
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const user = this.users.get(id);
+    console.log('🔍 GET USER:', { 
+      id, 
+      found: !!user, 
+      profileImageUrl: user?.profileImageUrl,
+      coverPhotoUrl: user?.coverPhotoUrl 
+    });
+    return user;
   }
 
   async upsertUser(user: UpsertUser): Promise<User> {
@@ -1155,6 +1162,14 @@ class MemStorage implements IStorage {
     
     this.users.set(userId, updated);
     console.log('📸 Profile saved:', { profileImageUrl: updated.profileImageUrl });
+    
+    // DEBUGGING: Verify the save worked
+    const verification = this.users.get(userId);
+    console.log('🔍 VERIFICATION - User after save:', { 
+      userId, 
+      profileImageUrl: verification?.profileImageUrl,
+      coverPhotoUrl: verification?.coverPhotoUrl 
+    });
     
     return updated;
   }
