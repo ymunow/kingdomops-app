@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/navigation/main-layout";
 import { useAuth } from "@/hooks/useSupabaseAuth";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   Heart, 
   MessageCircle, 
@@ -26,11 +29,75 @@ import {
 
 export default function Feed() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [newPost, setNewPost] = useState("");
-  const [selectedPostType, setSelectedPostType] = useState<'post' | 'prayer' | 'photo' | 'announcement'>('post');
+  const [selectedPostType, setSelectedPostType] = useState<'testimony' | 'prayer' | 'photo' | 'announcement'>('testimony');
 
-  // Mock feed data for demonstration
-  const feedPosts = [
+  // Fetch feed posts from API
+  const { data: feedPosts = [], isLoading } = useQuery({
+    queryKey: ['/api/feed'],
+    enabled: !!user,
+  });
+
+  // Create post mutation
+  const createPostMutation = useMutation({
+    mutationFn: async (postData: any) => {
+      return await apiRequest('/api/feed/posts', {
+        method: 'POST',
+        body: JSON.stringify(postData),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
+      setNewPost("");
+      toast({
+        title: "Success!",
+        description: "Your post has been shared with the community.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create post. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // React to post mutation
+  const reactToPostMutation = useMutation({
+    mutationFn: async ({ postId, type }: { postId: string; type: string }) => {
+      return await apiRequest(`/api/feed/posts/${postId}/reactions`, {
+        method: 'POST',
+        body: JSON.stringify({ type }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
+    },
+  });
+
+  const handleCreatePost = () => {
+    if (!newPost.trim()) return;
+    
+    createPostMutation.mutate({
+      type: selectedPostType,
+      scope: 'church',
+      visibility: 'members',
+      body: newPost,
+      title: selectedPostType === 'prayer' ? 'Prayer Request' : 
+             selectedPostType === 'testimony' ? 'Testimony' : 
+             selectedPostType === 'announcement' ? 'Announcement' : 'Photo',
+    });
+  };
+
+  const handleReaction = (postId: string, type: string) => {
+    reactToPostMutation.mutate({ postId, type });
+  };
+
+  // Mock feed data for demonstration (keeping as fallback)
+  const mockFeedPosts = [
     {
       id: 1,
       author: {
@@ -79,11 +146,14 @@ export default function Feed() {
   ];
 
   const postTypes = [
-    { type: 'post' as const, icon: Send, label: 'Post', color: 'bg-blue-500' },
+    { type: 'testimony' as const, icon: Send, label: 'Testimony', color: 'bg-green-500' },
     { type: 'prayer' as const, icon: Bell, label: 'Prayer Request', color: 'bg-purple-500' },
-    { type: 'photo' as const, icon: Image, label: 'Photo', color: 'bg-green-500' },
+    { type: 'photo' as const, icon: Image, label: 'Photo', color: 'bg-blue-500' },
     { type: 'announcement' as const, icon: Calendar, label: 'Announcement', color: 'bg-orange-500' }
   ];
+
+  // Use API data if available, otherwise fallback to mock data
+  const displayPosts = feedPosts.length > 0 ? feedPosts : mockFeedPosts;
 
   return (
     <MainLayout>
@@ -144,15 +214,26 @@ export default function Feed() {
                   Feeling
                 </Button>
               </div>
-              <Button className="bg-spiritual-blue hover:bg-spiritual-blue/90">
-                Share
+              <Button 
+                className="bg-spiritual-blue hover:bg-spiritual-blue/90"
+                onClick={handleCreatePost}
+                disabled={createPostMutation.isPending || !newPost.trim()}
+              >
+                {createPostMutation.isPending ? "Sharing..." : "Share"}
               </Button>
             </div>
           </div>
 
+          {/* Loading state */}
+          {isLoading && (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spiritual-blue"></div>
+            </div>
+          )}
+
           {/* Feed Posts */}
           <div className="space-y-6">
-            {feedPosts.map((post) => (
+            {displayPosts.map((post) => (
               <div key={post.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 {/* Post Header */}
                 <div className="p-6 pb-4">

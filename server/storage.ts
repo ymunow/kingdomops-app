@@ -26,6 +26,14 @@ import {
   type UserWithResults,
   type AdminFilters,
   type OrganizationRole,
+  type Post,
+  type InsertPost,
+  type PostReaction,
+  type InsertPostReaction,
+  type PostComment,
+  type InsertPostComment,
+  type FeedPostWithAuthor,
+  type FeedFilters,
   users,
   organizations,
   assessmentVersions,
@@ -36,6 +44,9 @@ import {
   ministryOpportunities,
   placementCandidates,
   analyticsEvents,
+  posts,
+  postReactions,
+  postComments,
   ROLE_PERMISSIONS,
   ROLE_HIERARCHY,
 } from "@shared/schema";
@@ -131,6 +142,27 @@ export interface IStorage {
   // Permission helpers
   hasPermission(userId: string, permission: string, organizationId?: string): Promise<boolean>;
   canAccessOrganization(userId: string, organizationId: string): Promise<boolean>;
+
+  // Feed/Connect operations
+  getFeedPosts(organizationId: string, userId: string, filters?: FeedFilters): Promise<FeedPostWithAuthor[]>;
+  createPost(post: InsertPost): Promise<Post>;
+  getPost(id: string): Promise<Post | undefined>;
+  updatePost(id: string, updates: Partial<InsertPost>): Promise<Post>;
+  deletePost(id: string): Promise<void>;
+  
+  // Post reactions
+  reactToPost(reaction: InsertPostReaction): Promise<PostReaction>;
+  removeReaction(postId: string, userId: string): Promise<void>;
+  getPostReactions(postId: string): Promise<PostReaction[]>;
+  
+  // Post comments
+  createComment(comment: InsertPostComment): Promise<PostComment>;
+  getPostComments(postId: string): Promise<PostComment[]>;
+  updateComment(id: string, body: string): Promise<PostComment>;
+  deleteComment(id: string): Promise<void>;
+  
+  // Engagement calculations
+  updateEngagementScore(postId: string): Promise<void>;
 
   // Profile completion operations
   getProfileProgress(userId: string): Promise<{
@@ -1500,6 +1532,245 @@ class MemStorage implements IStorage {
   async initializeProfileSteps(userId: string, organizationId: string): Promise<void> {}
   async getProfileStepConfigurations(organizationId: string): Promise<Array<{stepKey: string; label: string; weight: number; enabled: boolean; order: number;}>> { return []; }
   async updateProfileStepConfigurations(organizationId: string, configs: Array<{stepKey: string; label: string; weight: number; enabled: boolean; order: number;}>): Promise<void> {}
+
+  // Feed/Connect operations for MemStorage
+  async getFeedPosts(organizationId: string, userId: string, filters?: FeedFilters): Promise<FeedPostWithAuthor[]> {
+    // For now, return sample data based on current mock structure
+    const mockPosts: FeedPostWithAuthor[] = [
+      {
+        id: nanoid(),
+        organizationId,
+        authorId: userId,
+        type: 'testimony',
+        scope: 'church',
+        visibility: 'members',
+        groupId: null,
+        audienceType: 'church',
+        audienceGroupId: null,
+        audienceEventId: null,
+        audienceCustomList: [],
+        title: 'Answered Prayer',
+        body: 'God showed up in such a powerful way during our small group this week. Grateful for this community! 🙏',
+        payload: {},
+        media: {},
+        poll: {},
+        isPinned: false,
+        isHidden: false,
+        reactionCounts: { pray: 15, heart: 8, like: 3 },
+        commentCount: 5,
+        engagementScore: 95,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        author: {
+          id: userId,
+          organizationId,
+          email: 'sarah@example.com',
+          password: null,
+          emailVerified: null,
+          firstName: 'Sarah',
+          lastName: 'Johnson',
+          displayName: 'Sarah Johnson',
+          ageRange: '26-35' as const,
+          profileImageUrl: null,
+          coverPhotoUrl: null,
+          profileCompleted: true,
+          bio: 'Youth Leader passionate about discipleship',
+          lifeVerse: null,
+          role: 'MINISTRY_LEADER' as const,
+          lastActiveAt: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      },
+      {
+        id: nanoid(),
+        organizationId,
+        authorId: 'pastor-id',
+        type: 'prayer',
+        scope: 'church',
+        visibility: 'members',
+        groupId: null,
+        audienceType: 'church',
+        audienceGroupId: null,
+        audienceEventId: null,
+        audienceCustomList: [],
+        title: 'Prayer Request',
+        body: 'Please pray for our upcoming outreach event this Saturday. We are believing for breakthrough and many souls to be reached! Let\'s storm heaven together.',
+        payload: {},
+        media: {},
+        poll: {},
+        isPinned: false,
+        isHidden: false,
+        reactionCounts: { pray: 25, heart: 12, like: 8 },
+        commentCount: 8,
+        engagementScore: 120,
+        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+        updatedAt: new Date(),
+        author: {
+          id: 'pastor-id',
+          organizationId,
+          email: 'pastor@example.com',
+          password: null,
+          emailVerified: null,
+          firstName: 'John',
+          lastName: 'Smith',
+          displayName: 'Pastor Smith',
+          ageRange: '46-55' as const,
+          profileImageUrl: null,
+          coverPhotoUrl: null,
+          profileCompleted: true,
+          bio: 'Lead Pastor committed to seeing God\'s people thrive',
+          lifeVerse: null,
+          role: 'PASTORAL_STAFF' as const,
+          lastActiveAt: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      },
+      {
+        id: nanoid(),
+        organizationId,
+        authorId: 'worship-leader-id',
+        type: 'announcement',
+        scope: 'church',
+        visibility: 'members',
+        groupId: null,
+        audienceType: 'church',
+        audienceGroupId: null,
+        audienceEventId: null,
+        audienceCustomList: [],
+        title: 'New Worship Song',
+        body: 'New worship song we\'re learning for Sunday! Can\'t wait to lift these words together as a family.',
+        payload: {},
+        media: { video: true },
+        poll: {},
+        isPinned: false,
+        isHidden: false,
+        reactionCounts: { heart: 18, like: 15, pray: 3 },
+        commentCount: 3,
+        engagementScore: 85,
+        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+        updatedAt: new Date(),
+        author: {
+          id: 'worship-leader-id',
+          organizationId,
+          email: 'mike@example.com',
+          password: null,
+          emailVerified: null,
+          firstName: 'Mike',
+          lastName: 'Torres',
+          displayName: 'Mike Torres',
+          ageRange: '26-35' as const,
+          profileImageUrl: null,
+          coverPhotoUrl: null,
+          profileCompleted: true,
+          bio: 'Worship Leader passionate about authentic worship',
+          lifeVerse: null,
+          role: 'MINISTRY_LEADER' as const,
+          lastActiveAt: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+      }
+    ];
+
+    // Apply filters
+    let filteredPosts = mockPosts.filter(post => post.organizationId === organizationId);
+    
+    if (filters?.scope) {
+      filteredPosts = filteredPosts.filter(post => post.scope === filters.scope);
+    }
+    if (filters?.type) {
+      filteredPosts = filteredPosts.filter(post => post.type === filters.type);
+    }
+    if (filters?.authorId) {
+      filteredPosts = filteredPosts.filter(post => post.authorId === filters.authorId);
+    }
+
+    // Sort by engagement score and recency
+    filteredPosts.sort((a, b) => {
+      if (b.engagementScore !== a.engagementScore) {
+        return b.engagementScore - a.engagementScore;
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    // Apply limit and offset
+    const offset = filters?.offset || 0;
+    const limit = filters?.limit || 20;
+    return filteredPosts.slice(offset, offset + limit);
+  }
+
+  async createPost(post: InsertPost): Promise<Post> {
+    const newPost: Post = {
+      id: nanoid(),
+      ...post,
+      reactionCounts: {},
+      commentCount: 0,
+      engagementScore: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return newPost;
+  }
+
+  async getPost(id: string): Promise<Post | undefined> {
+    // For MemStorage, we'd need to search through stored posts
+    return undefined;
+  }
+
+  async updatePost(id: string, updates: Partial<InsertPost>): Promise<Post> {
+    throw new Error('Not implemented in MemStorage');
+  }
+
+  async deletePost(id: string): Promise<void> {
+    // Implementation for MemStorage
+  }
+
+  async reactToPost(reaction: InsertPostReaction): Promise<PostReaction> {
+    const newReaction: PostReaction = {
+      id: nanoid(),
+      ...reaction,
+      createdAt: new Date(),
+    };
+    return newReaction;
+  }
+
+  async removeReaction(postId: string, userId: string): Promise<void> {
+    // Implementation for MemStorage
+  }
+
+  async getPostReactions(postId: string): Promise<PostReaction[]> {
+    return [];
+  }
+
+  async createComment(comment: InsertPostComment): Promise<PostComment> {
+    const newComment: PostComment = {
+      id: nanoid(),
+      ...comment,
+      media: {},
+      reactionCounts: {},
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return newComment;
+  }
+
+  async getPostComments(postId: string): Promise<PostComment[]> {
+    return [];
+  }
+
+  async updateComment(id: string, body: string): Promise<PostComment> {
+    throw new Error('Not implemented in MemStorage');
+  }
+
+  async deleteComment(id: string): Promise<void> {
+    // Implementation for MemStorage
+  }
+
+  async updateEngagementScore(postId: string): Promise<void> {
+    // Implementation for MemStorage
+  }
 }
 
 // Use MemStorage instead of DatabaseStorage to avoid database connection issues

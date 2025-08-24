@@ -34,10 +34,14 @@ import {
   profileCompletionSchema,
   insertOrganizationSchema,
   insertMinistryOpportunitySchema,
+  insertPostSchema,
+  insertPostReactionSchema,
+  insertPostCommentSchema,
   type GiftKey,
   type User,
   type Organization,
   type DashboardMetrics,
+  type FeedFilters,
 } from "@shared/schema";
 
 // Rate limiting
@@ -2573,6 +2577,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Update profile step configs error:", error);
       res.status(500).json({ message: "Failed to update profile step configurations" });
+    }
+  });
+
+  // Feed/Connect API routes
+  app.get("/api/feed", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      if (!user?.organizationId) {
+        return res.status(400).json({ message: "User organization not found" });
+      }
+
+      const filters: FeedFilters = {
+        scope: req.query.scope as any,
+        type: req.query.type as any,
+        groupId: req.query.groupId as string,
+        authorId: req.query.authorId as string,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+        offset: req.query.offset ? parseInt(req.query.offset as string) : undefined,
+      };
+
+      const posts = await storage.getFeedPosts(user.organizationId, userId, filters);
+      res.json(posts);
+    } catch (error) {
+      console.error("Get feed posts error:", error);
+      res.status(500).json({ message: "Failed to get feed posts" });
+    }
+  });
+
+  app.post("/api/feed/posts", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.getUser(userId);
+      if (!user?.organizationId) {
+        return res.status(400).json({ message: "User organization not found" });
+      }
+
+      const postData = insertPostSchema.parse({
+        ...req.body,
+        organizationId: user.organizationId,
+        authorId: userId,
+      });
+
+      const post = await storage.createPost(postData);
+      res.json(post);
+    } catch (error) {
+      console.error("Create post error:", error);
+      res.status(400).json({ message: "Failed to create post" });
+    }
+  });
+
+  app.post("/api/feed/posts/:postId/reactions", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { postId } = req.params;
+      
+      const reactionData = insertPostReactionSchema.parse({
+        ...req.body,
+        postId,
+        userId,
+      });
+
+      const reaction = await storage.reactToPost(reactionData);
+      res.json(reaction);
+    } catch (error) {
+      console.error("React to post error:", error);
+      res.status(400).json({ message: "Failed to react to post" });
+    }
+  });
+
+  app.delete("/api/feed/posts/:postId/reactions", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { postId } = req.params;
+
+      await storage.removeReaction(postId, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Remove reaction error:", error);
+      res.status(500).json({ message: "Failed to remove reaction" });
+    }
+  });
+
+  app.get("/api/feed/posts/:postId/comments", isAuthenticated, async (req: any, res) => {
+    try {
+      const { postId } = req.params;
+      const comments = await storage.getPostComments(postId);
+      res.json(comments);
+    } catch (error) {
+      console.error("Get post comments error:", error);
+      res.status(500).json({ message: "Failed to get post comments" });
+    }
+  });
+
+  app.post("/api/feed/posts/:postId/comments", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { postId } = req.params;
+      
+      const commentData = insertPostCommentSchema.parse({
+        ...req.body,
+        postId,
+        userId,
+      });
+
+      const comment = await storage.createComment(commentData);
+      res.json(comment);
+    } catch (error) {
+      console.error("Create comment error:", error);
+      res.status(400).json({ message: "Failed to create comment" });
     }
   });
 

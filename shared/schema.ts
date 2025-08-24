@@ -532,17 +532,49 @@ export type InsertPlacementCandidate = z.infer<typeof insertPlacementCandidateSc
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
 
+// Feed-specific types for ranking and filtering
+export type FeedPostWithAuthor = Post & {
+  author?: User;
+  userReaction?: PostReaction;
+  isUserFollowing?: boolean;
+  userGroups?: string[];
+};
+
+export type FeedFilters = {
+  scope?: 'church' | 'group' | 'personal';
+  type?: typeof postTypeEnum.enumValues[number];
+  groupId?: string;
+  authorId?: string;
+  limit?: number;
+  offset?: number;
+};
+
 // KingdomOps Connect Enums
 export const postTypeEnum = pgEnum("post_type", [
   "announcement",
   "testimony", 
   "prayer",
   "event",
-  "serve_opportunity",
+  "volunteer",
   "photo",
   "video",
   "link",
-  "poll"
+  "poll",
+  "group_post",
+  "digest"
+]);
+
+export const postScopeEnum = pgEnum("post_scope", [
+  "church",
+  "group", 
+  "personal"
+]);
+
+export const postVisibilityEnum = pgEnum("post_visibility", [
+  "public",
+  "members",
+  "leaders", 
+  "group_members"
 ]);
 
 export const postAudienceTypeEnum = pgEnum("post_audience_type", [
@@ -594,19 +626,23 @@ export const reportTargetTypeEnum = pgEnum("report_target_type", [
 
 // KingdomOps Connect Tables
 
-// Posts - Core content system
+// Posts - Core content system (Enhanced for Feed specification)
 export const posts = pgTable("posts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   organizationId: varchar("organization_id")
     .notNull()
     .references(() => organizations.id),
   authorId: varchar("author_id")
-    .notNull()
-    .references(() => users.id),
+    .references(() => users.id), // Nullable for system-generated posts
   type: postTypeEnum("type").notNull(),
   
-  // Audience configuration
-  audienceType: postAudienceTypeEnum("audience_type").notNull(),
+  // Feed-specific fields
+  scope: postScopeEnum("scope").notNull().default("church"),
+  visibility: postVisibilityEnum("visibility").notNull().default("members"),
+  groupId: varchar("group_id"), // References groups table for group-scoped posts
+  
+  // Audience configuration (legacy, keeping for backward compatibility)
+  audienceType: postAudienceTypeEnum("audience_type").default("church"),
   audienceGroupId: varchar("audience_group_id"),
   audienceEventId: varchar("audience_event_id"),
   audienceCustomList: json("audience_custom_list").$type<string[]>().default([]),
@@ -614,18 +650,25 @@ export const posts = pgTable("posts", {
   // Content
   title: varchar("title"),
   body: text("body"),
+  payload: jsonb("payload").default({}), // Flexible data for different post types
   media: jsonb("media").default({}), // {images: [], videos: [], files: []}
   poll: jsonb("poll").default({}), // {question: string, options: [], votes: {}}
   
-  // Metadata
+  // Metadata and ranking
   isPinned: boolean("is_pinned").default(false),
   isHidden: boolean("is_hidden").default(false),
   reactionCounts: jsonb("reaction_counts").default({}), // {like: 0, heart: 0, pray: 0}
   commentCount: integer("comment_count").default(0),
+  engagementScore: integer("engagement_score").default(0), // For ranking algorithm
   
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_posts_org_scope").on(table.organizationId, table.scope),
+  index("idx_posts_group").on(table.groupId),
+  index("idx_posts_engagement").on(table.engagementScore),
+  index("idx_posts_created").on(table.createdAt),
+]);
 
 // Post reactions
 export const postReactions = pgTable("post_reactions", {
