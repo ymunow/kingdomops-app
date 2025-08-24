@@ -3,6 +3,7 @@ import { Edit3, PenTool, Heart, Megaphone, Calendar, Users } from 'lucide-react'
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useSupabaseAuth';
+import { useLocation } from 'wouter';
 
 interface FloatingActionButtonProps {
   isVisible: boolean;
@@ -19,6 +20,7 @@ interface CreateOption {
 export function FloatingActionButton({ isVisible }: FloatingActionButtonProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   
   const userRole = (user as any)?.role;
 
@@ -27,33 +29,33 @@ export function FloatingActionButton({ isVisible }: FloatingActionButtonProps) {
       icon: PenTool,
       label: 'Share Testimony',
       description: 'Share how God is working',
-      action: () => console.log('Create testimony'),
+      action: () => setLocation('/feed?type=testimony'),
     },
     {
       icon: Heart,
       label: 'Prayer Request',
       description: 'Ask for prayer support', 
-      action: () => console.log('Create prayer'),
+      action: () => setLocation('/feed?type=prayer'),
     },
     {
       icon: Megaphone,
       label: 'Announcement',
       description: 'Share church news',
-      action: () => console.log('Create announcement'),
+      action: () => setLocation('/feed?type=announcement'),
       requiredRoles: ['SUPER_ADMIN', 'ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER', 'PASTORAL_STAFF'],
     },
     {
       icon: Calendar,
       label: 'Create Event',
       description: 'Schedule a gathering',
-      action: () => console.log('Create event'),
+      action: () => setLocation('/events?create=true'),
       requiredRoles: ['SUPER_ADMIN', 'ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER', 'MINISTRY_LEADER'],
     },
     {
       icon: Users,
       label: 'Serve Opportunity',
       description: 'Post ministry role',
-      action: () => console.log('Create serve opportunity'),
+      action: () => setLocation('/connect?create=true'),
       requiredRoles: ['SUPER_ADMIN', 'ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER', 'MINISTRY_LEADER'],
     },
   ];

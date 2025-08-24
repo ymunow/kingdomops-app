@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MainLayout } from "@/components/navigation/main-layout";
 import { useAuth } from "@/hooks/useSupabaseAuth";
@@ -33,6 +33,15 @@ export default function Feed() {
   const queryClient = useQueryClient();
   const [newPost, setNewPost] = useState("");
   const [selectedPostType, setSelectedPostType] = useState<'testimony' | 'prayer' | 'photo' | 'announcement'>('testimony');
+
+  // Check URL parameters to pre-select post type
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const typeParam = urlParams.get('type');
+    if (typeParam && ['testimony', 'prayer', 'photo', 'announcement'].includes(typeParam)) {
+      setSelectedPostType(typeParam as 'testimony' | 'prayer' | 'photo' | 'announcement');
+    }
+  }, []);
 
   // Fetch feed posts from API
   const { data: feedPosts = [], isLoading } = useQuery({
