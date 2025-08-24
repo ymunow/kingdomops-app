@@ -8,24 +8,25 @@ import { Heart, BookOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
-interface LifeVerseModalProps {
+interface FavoriteVerseModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentVerse?: string;
 }
 
-export function LifeVerseModal({ isOpen, onClose, currentVerse = "" }: LifeVerseModalProps) {
+export function FavoriteVerseModal({ isOpen, onClose, currentVerse = "" }: FavoriteVerseModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [verse, setVerse] = useState(currentVerse);
 
   const saveVerseMutation = useMutation({
-    mutationFn: async (lifeVerse: string) => {
-      return apiRequest('/api/profile/life-verse', 'PUT', { lifeVerse });
+    mutationFn: async (favoriteVerse: string) => {
+      return apiRequest('/api/profile/favorite-verse', 'PUT', { favoriteVerse });
     },
-    onSuccess: (data) => {
+    onSuccess: async (response) => {
+      const data = await response.json();
       toast({
-        title: "Life verse saved!",
+        title: "Favorite verse saved!",
         description: data.message,
       });
       queryClient.invalidateQueries({ queryKey: ['/api/profile/progress'] });
@@ -35,7 +36,7 @@ export function LifeVerseModal({ isOpen, onClose, currentVerse = "" }: LifeVerse
     onError: (error) => {
       toast({
         title: "Error",
-        description: "Failed to save life verse. Please try again.",
+        description: "Failed to save favorite verse. Please try again.",
         variant: "destructive",
       });
     },
@@ -45,7 +46,7 @@ export function LifeVerseModal({ isOpen, onClose, currentVerse = "" }: LifeVerse
     if (!verse.trim()) {
       toast({
         title: "Verse required",
-        description: "Please enter your life verse before saving.",
+        description: "Please enter your favorite verse before saving.",
         variant: "destructive",
       });
       return;
@@ -60,7 +61,7 @@ export function LifeVerseModal({ isOpen, onClose, currentVerse = "" }: LifeVerse
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2 text-spiritual-blue">
             <Heart className="h-5 w-5" />
-            <span>Share Your Life Verse</span>
+            <span>Share Your Favorite Verse</span>
           </DialogTitle>
           <DialogDescription>
             Share a Bible verse that speaks to your heart and guides your faith journey.
@@ -69,11 +70,11 @@ export function LifeVerseModal({ isOpen, onClose, currentVerse = "" }: LifeVerse
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="life-verse" className="text-sm font-medium">
-              Your Life Verse
+            <Label htmlFor="favorite-verse" className="text-sm font-medium">
+              Your Favorite Verse
             </Label>
             <Textarea
-              id="life-verse"
+              id="favorite-verse"
               placeholder='e.g., "For I know the plans I have for you," declares the Lord, "plans to prosper you and not to harm you, to give you hope and a future." - Jeremiah 29:11'
               value={verse}
               onChange={(e) => setVerse(e.target.value)}
@@ -90,10 +91,10 @@ export function LifeVerseModal({ isOpen, onClose, currentVerse = "" }: LifeVerse
               <BookOpen className="h-5 w-5 text-spiritual-blue mt-0.5" />
               <div className="space-y-1">
                 <h4 className="text-sm font-semibold text-spiritual-blue">
-                  Why share your life verse?
+                  Why share your favorite verse?
                 </h4>
                 <p className="text-xs text-gray-700">
-                  Your life verse helps our community understand what drives your faith and can inspire others in their spiritual journey.
+                  Your favorite verse helps our community understand what drives your faith and can inspire others in their spiritual journey.
                 </p>
               </div>
             </div>
@@ -108,7 +109,7 @@ export function LifeVerseModal({ isOpen, onClose, currentVerse = "" }: LifeVerse
               disabled={saveVerseMutation.isPending || !verse.trim()}
               className="bg-spiritual-blue hover:bg-spiritual-blue/90"
             >
-              {saveVerseMutation.isPending ? "Saving..." : "Save Life Verse"}
+              {saveVerseMutation.isPending ? "Saving..." : "Save Favorite Verse"}
             </Button>
           </div>
         </div>

@@ -25,7 +25,7 @@ const STEP_ICONS = {
   profile_photo: Camera,
   basic_info: User,
   gifts_assessment: BookOpen,
-  life_verse: Heart,
+  favorite_verse: Heart,
   join_group: Users,
 };
 
@@ -42,9 +42,9 @@ const STEP_ACTIONS = {
     label: "Take Assessment",
     route: "/assessment"
   },
-  life_verse: {
+  favorite_verse: {
     label: "Add Verse",
-    route: "/profile/life-verse"
+    route: "/profile"
   },
   join_group: {
     label: "Browse Groups",

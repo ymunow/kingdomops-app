@@ -2421,20 +2421,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Life verse update endpoint
-  app.put("/api/profile/life-verse", isAuthenticated, async (req: any, res) => {
+  // Favorite verse update endpoint
+  app.put("/api/profile/favorite-verse", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const { lifeVerse } = req.body;
+      const { favoriteVerse } = req.body;
       
-      if (!lifeVerse || lifeVerse.trim().length === 0) {
-        return res.status(400).json({ message: "Life verse is required" });
+      if (!favoriteVerse || favoriteVerse.trim().length === 0) {
+        return res.status(400).json({ message: "Favorite verse is required" });
       }
       
-      await storage.updateUser(userId, { lifeVerse: lifeVerse.trim() });
+      await storage.updateUser(userId, { lifeVerse: favoriteVerse.trim() });
       
-      // Mark the life_verse step as complete
-      await storage.markStepComplete(userId, 'life_verse');
+      // Mark the favorite_verse step as complete
+      await storage.markStepComplete(userId, 'favorite_verse');
       
       // Get updated progress
       const progress = await storage.getProfileProgress(userId);
@@ -2442,11 +2442,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         success: true, 
         progress,
-        message: `Life verse saved! You're now at ${progress.percentage}%.`
+        message: `Favorite verse saved! You're now at ${progress.percentage}%.`
       });
     } catch (error) {
-      console.error("Update life verse error:", error);
-      res.status(500).json({ message: "Failed to update life verse" });
+      console.error("Update favorite verse error:", error);
+      res.status(500).json({ message: "Failed to update favorite verse" });
     }
   });
 

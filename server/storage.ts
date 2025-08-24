@@ -907,7 +907,7 @@ export class DatabaseStorage implements IStorage {
             // Check if user has completed assessment
             completed = false; // TODO: Check results table
             break;
-          case 'life_verse':
+          case 'favorite_verse':
             completed = !!user.lifeVerse;
             break;
           case 'join_group':
@@ -1460,7 +1460,7 @@ class MemStorage implements IStorage {
     // Auto-detect completion for certain steps
     const isProfilePhotoComplete = completedSteps.includes('profile_photo') || !!user?.profileImageUrl;
     const isBasicInfoComplete = completedSteps.includes('basic_info') || (!!user?.firstName && !!user?.lastName);
-    const isLifeVerseComplete = completedSteps.includes('life_verse') || !!user?.lifeVerse;
+    const isFavoriteVerseComplete = completedSteps.includes('favorite_verse') || !!user?.lifeVerse;
     
     console.log('🏁 PROFILE PROGRESS CHECK:', { 
       userId, 
@@ -1473,7 +1473,7 @@ class MemStorage implements IStorage {
       { key: 'basic_info', label: 'Basic Information', completed: isBasicInfoComplete, weight: 20, order: 1 },
       { key: 'profile_photo', label: 'Profile Photo', completed: isProfilePhotoComplete, weight: 20, order: 2 },
       { key: 'gifts_assessment', label: 'Gifts Assessment', completed: completedSteps.includes('gifts_assessment'), weight: 20, order: 3 },
-      { key: 'life_verse', label: 'Life Verse', completed: isLifeVerseComplete, weight: 20, order: 4 },
+      { key: 'favorite_verse', label: 'Favorite Verse', completed: isFavoriteVerseComplete, weight: 20, order: 4 },
       { key: 'join_group', label: 'Join Group', completed: completedSteps.includes('join_group'), weight: 20, order: 5 }
     ];
     
