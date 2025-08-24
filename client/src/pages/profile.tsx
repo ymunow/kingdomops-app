@@ -67,32 +67,10 @@ export default function Profile() {
       console.log('Profile image URL:', profileImageUrl);
       
       try {
-        console.log('About to send PUT request with data:', { profileImageUrl });
+        console.log('✅ FIXED: Sending profile picture update');
         
-        // DEBUG TEST: Try sending to our debug endpoint first to see if it reaches our server
-        console.log('🔥 Testing if PUT requests reach our server...');
+        // Get auth token  
         let authToken = queryClient.getQueryData(['authToken']) as string;
-        if (!authToken) {
-          const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
-          if (supabaseSession) {
-            const session = JSON.parse(supabaseSession);
-            authToken = session?.access_token;
-          }
-        }
-        
-        const debugResponse = await fetch('/api/test/debug-put', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`,
-          },
-          body: JSON.stringify({ test: 'debug put test' }),
-        });
-        console.log('🔥 Debug PUT response status:', debugResponse.status);
-        const debugData = await debugResponse.json();
-        console.log('🔥 Debug PUT response data:', debugData);
-        
-        // Try direct fetch to bypass any potential apiRequest issues
         if (!authToken) {
           const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
           if (supabaseSession) {

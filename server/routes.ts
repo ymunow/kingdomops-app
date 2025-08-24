@@ -73,20 +73,14 @@ function requireAdmin(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // DEBUG: Log ALL PUT requests to track interception
-  app.use((req, res, next) => {
-    if (req.method === 'PUT') {
-      console.log(`🔥 PUT REQUEST INTERCEPTED: ${req.method} ${req.path} from ${req.ip}`);
-      console.log('🔥 Headers:', JSON.stringify(req.headers, null, 2));
-    }
-    next();
-  });
-
-  // Subdomain detection middleware
-  app.use(subdomainMiddleware);
+  // PRIORITY: Register critical routes FIRST before any middleware can intercept
+  console.log('🚀 PRIORITY ROUTE REGISTRATION');
   
-  // Auth middleware
+  // Auth middleware setup
   await setupSupabaseAuth(app);
+
+  // Subdomain detection middleware  
+  app.use(subdomainMiddleware);
 
   // Subdomain routes
   const subdomainRoutes = await import('./routes/subdomain');
@@ -136,26 +130,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // DEBUG: Test route to see if ANY PUT requests reach our server
-  app.put("/api/test/debug-put", (req, res) => {
-    console.log('🔥🔥🔥 DEBUG PUT ROUTE HIT! Our server CAN receive PUT requests! 🔥🔥🔥');
-    console.log('Body:', req.body);
-    res.json({ success: true, message: "PUT request reached our server!" });
-  });
-
-  // Update profile picture
-  console.log('Registering PUT /api/profile/picture route');
-  
-  // Add specific middleware to log PUT requests
-  app.use('/api/profile/picture', (req, res, next) => {
-    console.log(`*** MIDDLEWARE: ${req.method} /api/profile/picture hit ***`);
-    next();
-  });
-  
+  // FIXED: Simple, direct profile picture update
   app.put("/api/profile/picture", isAuthenticated, async (req: any, res) => {
-    console.log('PUT /api/profile/picture route handler called!');
-    console.log('Request body:', req.body);
-    console.log('User ID:', req.user.id);
+    console.log('✅ PROFILE PICTURE UPDATE - Request received!');
     
     if (!req.body.profileImageUrl) {
       return res.status(400).json({ error: "profileImageUrl is required" });
@@ -169,26 +146,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.body.profileImageUrl
       );
 
-      console.log("Profile picture update - userId:", userId, "objectPath:", objectPath);
+      console.log("✅ Updating profile picture:", { userId, objectPath });
 
-      // Get current user to verify it exists
-      const currentUser = await storage.getUser(userId);
-      console.log("Current user before update:", currentUser?.profileImageUrl);
-
-      // Update user profile with image URL
+      // Direct update - no complex debugging
       const updatedUser = await storage.completeUserProfile(userId, {
         profileImageUrl: objectPath
       } as any);
 
-      console.log("Profile picture updated successfully - new URL:", updatedUser?.profileImageUrl);
-
-      // Double-check by getting user again
-      const verifyUser = await storage.getUser(userId);
-      console.log("User after update verification:", verifyUser?.profileImageUrl);
-
+      console.log("✅ Profile picture updated successfully!");
       res.status(200).json(updatedUser);
     } catch (error) {
-      console.error("Error setting profile picture:", error);
+      console.error("❌ Profile picture update failed:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

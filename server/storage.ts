@@ -1085,9 +1085,7 @@ class MemStorage implements IStorage {
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const user = this.users.get(id);
-    console.log('🔧 STORAGE FIX: getUser called - profileImageUrl:', user?.profileImageUrl);
-    return user;
+    return this.users.get(id);
   }
 
   async upsertUser(user: UpsertUser): Promise<User> {
@@ -1124,15 +1122,13 @@ class MemStorage implements IStorage {
     const user = this.users.get(userId);
     if (!user) throw new Error('User not found');
     
-    console.log('🔧 STORAGE FIX: Before update - user.profileImageUrl:', user.profileImageUrl);
-    console.log('🔧 STORAGE FIX: Incoming profileData.profileImageUrl:', profileData.profileImageUrl);
+    console.log('📸 Profile update:', { userId, profileImageUrl: profileData.profileImageUrl });
     
     const updated = { ...user, ...profileData, updatedAt: new Date() };
     
-    // CRITICAL FIX: Explicitly preserve profileImageUrl when provided
+    // Explicitly set profile image if provided
     if (profileData.profileImageUrl !== undefined) {
       updated.profileImageUrl = profileData.profileImageUrl;
-      console.log('🔧 STORAGE FIX: Set updated.profileImageUrl to:', updated.profileImageUrl);
     }
     
     // Handle cover photo URL updates  
@@ -1141,10 +1137,7 @@ class MemStorage implements IStorage {
     }
     
     this.users.set(userId, updated);
-    
-    // VERIFY the save worked
-    const verified = this.users.get(userId);
-    console.log('🔧 STORAGE FIX: After save - verified.profileImageUrl:', verified?.profileImageUrl);
+    console.log('📸 Profile saved:', { profileImageUrl: updated.profileImageUrl });
     
     return updated;
   }
