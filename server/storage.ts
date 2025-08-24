@@ -1113,14 +1113,24 @@ class MemStorage implements IStorage {
 
   async upsertUser(user: UpsertUser): Promise<User> {
     const existingUser = this.users.get(user.id!);
+    
+    // PRESERVE EXISTING PROFILE DATA when updating auth data
     const userData: User = {
-      ...user,
+      ...existingUser,  // Keep existing profile data (profileImageUrl, etc.)
+      ...user,          // Update with new auth data
       id: user.id!,
-      organizationId: user.organizationId || 'default-org-001',
+      organizationId: user.organizationId || existingUser?.organizationId || 'default-org-001',
       createdAt: existingUser?.createdAt || new Date(),
       updatedAt: new Date(),
       lastActiveAt: new Date(),
     };
+    
+    console.log('🔄 UPSERT USER - Preserving profile data:', { 
+      userId: userData.id, 
+      profileImageUrl: userData.profileImageUrl,
+      coverPhotoUrl: userData.coverPhotoUrl 
+    });
+    
     this.users.set(userData.id, userData);
     return userData;
   }
