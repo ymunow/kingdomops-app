@@ -226,6 +226,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GENERAL PROFILE UPDATE ENDPOINT  
+  app.put("/api/profile", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const updates = req.body;
+      
+      console.log("🔄 PROFILE UPDATE:", userId, updates);
+      
+      // Update user profile with any provided fields
+      const updatedUser = await storage.completeUserProfile(userId, updates);
+      
+      console.log("✅ Profile updated successfully");
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("❌ Profile update failed:", error);
+      res.status(500).json({ error: "Profile update failed" });
+    }
+  });
+
   // PROFILE PICTURE AUTO-SAVE: Save to profile after upload completes
   console.log('🔧 REGISTERING /api/objects/profile-save route');
   app.post("/api/objects/profile-save", isAuthenticated, async (req: any, res) => {
