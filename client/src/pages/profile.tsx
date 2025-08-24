@@ -3,7 +3,7 @@ import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ObjectUploader } from '@/components/ObjectUploader';
+import { AvatarCoverUploader } from '@/components/AvatarCoverUploader';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -43,108 +43,53 @@ export default function Profile() {
     { id: 'prayers', label: 'Prayers', icon: Heart }
   ];
 
-  // Profile picture upload
-  const handleGetUploadParameters = async () => {
-    console.log('Getting upload parameters...');
+  // Profile picture upload handler
+  const handleProfilePictureUpload = async (url: string) => {
+    console.log('Profile picture uploaded:', url);
+    
     try {
-      const response = await apiRequest('POST', '/api/objects/upload');
-      const data = await response.json();
-      console.log('Upload parameters received:', data);
-      return {
-        method: 'PUT' as const,
-        url: data.uploadURL,
-      };
-    } catch (error) {
-      console.error('Failed to get upload parameters:', error);
-      throw error;
-    }
-  };
-
-  const handleUploadComplete = async (result: any) => {
-    console.log('Upload complete result:', result);
-    if (result.successful && result.successful.length > 0) {
-      const uploadedFile = result.successful[0];
-      const profileImageUrl = uploadedFile.uploadURL;
-      console.log('Profile image URL:', profileImageUrl);
+      // Update user profile image URL
+      await apiRequest('PUT', '/api/profile', { profileImageUrl: url });
       
-      try {
-        console.log('✅ FIXED: Sending profile picture update');
-        
-        // Get auth token  
-        let authToken = queryClient.getQueryData(['authToken']) as string;
-        if (!authToken) {
-          const supabaseSession = localStorage.getItem('sb-uhrveotjyufguojzpawy-auth-token');
-          if (supabaseSession) {
-            const session = JSON.parse(supabaseSession);
-            authToken = session?.access_token;
-          }
-        }
-        
-        console.log('Direct fetch using token:', authToken?.substring(0, 10));
-        
-        // AUTO-SAVE: Profile pictures are now saved automatically by the upload endpoint
-        console.log('✅ Profile picture uploaded - auto-save in progress!');
-        
-        // Wait for auto-save to complete, then force refresh
-        setTimeout(async () => {
-          console.log('🔄 Forcing profile refresh after auto-save...');
-          
-          // Clear cache and force fresh fetch
-          queryClient.removeQueries({ queryKey: ['/api/auth/user'] });
-          await queryClient.refetchQueries({ queryKey: ['/api/auth/user'] });
-          
-          // Force re-render by updating a state variable
-          setShowModal(false);
-        }, 3000);
-        
-        toast({
-          title: 'Success',
-          description: 'Profile picture updated successfully!',
-        });
-
-        // Force page refresh after a short delay to ensure image loads
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      } catch (error) {
-        console.error('Profile picture update error:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to update profile picture',
-          variant: 'destructive',
-        });
-      }
-    } else {
-      console.error('Upload failed or no files:', result);
+      // Refresh user data
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      
       toast({
-        title: 'Upload Failed',
-        description: 'Please try uploading your image again.',
+        title: 'Success',
+        description: 'Profile picture updated successfully!',
+      });
+    } catch (error) {
+      console.error('Profile picture update error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update profile picture',
         variant: 'destructive',
       });
     }
   };
 
-  // Cover photo upload
-  const handleCoverPhotoUploadComplete = async (result: any) => {
-    if (result.successful && result.successful.length > 0) {
-      const uploadedFile = result.successful[0];
-      const coverPhotoUrl = uploadedFile.uploadURL;
+  // Cover photo upload handler
+  const handleCoverPhotoUpload = async (url: string) => {
+    console.log('Cover photo uploaded:', url);
+    
+    try {
+      // Update user cover photo URL
+      await apiRequest('PUT', '/api/profile', { coverPhotoUrl: url });
       
-      try {
-        await apiRequest('PUT', '/api/profile/cover', { coverPhotoUrl });
-        
-        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-        toast({
-          title: 'Success',
-          description: 'Cover photo updated successfully!',
-        });
-      } catch (error) {
-        toast({
-          title: 'Error',
-          description: 'Failed to update cover photo',
-          variant: 'destructive',
-        });
-      }
+      // Refresh user data
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      
+      toast({
+        title: 'Success',
+        description: 'Cover photo updated successfully!',
+      });
+    } catch (error) {
+      console.error('Cover photo update error:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update cover photo',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -198,33 +143,16 @@ export default function Profile() {
               className="w-full h-full object-cover"
             />
             
-            {/* Cover Photo Upload Overlay */}
-            <ObjectUploader
-              maxNumberOfFiles={1}
-              maxFileSize={10485760} // 10MB
-              onGetUploadParameters={handleGetUploadParameters}
-              onComplete={handleCoverPhotoUploadComplete}
-              buttonClassName="absolute inset-0 bg-black/0 hover:bg-black/20 transition-all duration-200 flex items-center justify-center group border-none p-0"
-            >
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-3">
-                <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center space-x-2">
-                  <Camera className="h-5 w-5 text-gray-700" />
-                  <span className="text-gray-700 font-medium">Edit cover photo</span>
-                </div>
-              </div>
-            </ObjectUploader>
-            
-            {/* Alternative Cover Photo Edit Button */}
-            <ObjectUploader
-              maxNumberOfFiles={1}
-              maxFileSize={10485760} // 10MB
-              onGetUploadParameters={handleGetUploadParameters}
-              onComplete={handleCoverPhotoUploadComplete}
-              buttonClassName="absolute bottom-4 right-4 bg-white/95 hover:bg-white text-gray-800 font-medium shadow-md border border-gray-200 px-3 py-2 rounded-md text-sm flex items-center"
-            >
-              <Camera className="h-4 w-4 mr-2" />
-              Edit cover photo
-            </ObjectUploader>
+            {/* Cover Photo Upload Button */}
+            <div className="absolute bottom-4 right-4">
+              <AvatarCoverUploader
+                kind="cover"
+                userId={user?.id || 'anonymous'}
+                onDone={handleCoverPhotoUpload}
+                buttonText="Edit cover photo"
+                buttonClassName="bg-white/95 hover:bg-white text-gray-800 font-medium shadow-md border border-gray-200 px-3 py-2 rounded-md text-sm flex items-center"
+              />
+            </div>
           </div>
 
           {/* Profile Picture - Overlapping Facebook Style */}
@@ -262,15 +190,15 @@ export default function Profile() {
               </div>
               
               <div className="absolute bottom-3 right-3">
-                <ObjectUploader
-                  maxNumberOfFiles={1}
-                  maxFileSize={5242880} // 5MB
-                  onGetUploadParameters={handleGetUploadParameters}
-                  onComplete={handleUploadComplete}
-                  buttonClassName="w-11 h-11 rounded-full bg-white hover:bg-gray-50 border-2 border-gray-300 shadow-md flex items-center justify-center"
-                >
-                  <Camera className="h-5 w-5 text-gray-600" />
-                </ObjectUploader>
+                <div className="w-11 h-11 rounded-full bg-white hover:bg-gray-50 border-2 border-gray-300 shadow-md flex items-center justify-center">
+                  <AvatarCoverUploader
+                    kind="avatar"
+                    userId={user?.id || 'anonymous'}
+                    onDone={handleProfilePictureUpload}
+                    buttonText=""
+                    buttonClassName="w-full h-full rounded-full flex items-center justify-center"
+                  />
+                </div>
               </div>
             </div>
           </div>
