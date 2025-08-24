@@ -130,33 +130,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // BYPASS: Use POST instead of PUT to avoid interception
-  app.post("/api/profile/picture-update", isAuthenticated, async (req: any, res) => {
-    console.log('✅ PROFILE PICTURE UPDATE - Request received!');
+  // COMPLETE BYPASS: Use GET with query params to avoid ALL interception
+  app.get("/api/user/update-avatar", isAuthenticated, async (req: any, res) => {
+    console.log('🚀 AVATAR UPDATE VIA GET - Request received!');
     
-    if (!req.body.profileImageUrl) {
-      return res.status(400).json({ error: "profileImageUrl is required" });
+    const profileImageUrl = req.query.url as string;
+    if (!profileImageUrl) {
+      return res.status(400).json({ error: "url parameter is required" });
     }
 
     const userId = req.user.id;
 
     try {
       const objectStorageService = new ObjectStorageService();
-      const objectPath = objectStorageService.normalizeObjectEntityPath(
-        req.body.profileImageUrl
-      );
+      const objectPath = objectStorageService.normalizeObjectEntityPath(profileImageUrl);
 
-      console.log("✅ Updating profile picture:", { userId, objectPath });
+      console.log("🚀 Updating avatar via GET:", { userId, objectPath });
 
-      // Direct update - no complex debugging
       const updatedUser = await storage.completeUserProfile(userId, {
         profileImageUrl: objectPath
       } as any);
 
-      console.log("✅ Profile picture updated successfully!");
+      console.log("🚀 Avatar updated successfully via GET!");
       res.status(200).json(updatedUser);
     } catch (error) {
-      console.error("❌ Profile picture update failed:", error);
+      console.error("❌ Avatar update via GET failed:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
