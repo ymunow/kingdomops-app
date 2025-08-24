@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/useSupabaseAuth";
 import { viewAsStorage } from "./lib/view-as-storage";
 import { useQuery } from "@tanstack/react-query";
+import { PageTransition } from "@/components/transitions/page-transition";
 import AuthPage from "@/pages/auth";
 import { initializeCacheManagement } from "./utils/cache-management";
 import ProfileCompletionModal from "@/components/profile/profile-completion-modal";
@@ -123,9 +124,10 @@ function Router() {
         userEmail={(user as any)?.email} 
       />
       
-      <Switch>
-        {/* Authentication routes */}
-        <Route path="/auth" component={AuthPage} />
+      <PageTransition>
+        <Switch>
+          {/* Authentication routes */}
+          <Route path="/auth" component={AuthPage} />
         
         {/* Public routes available to everyone */}
         <Route path="/church-signup" component={ChurchSignup} />
@@ -233,9 +235,10 @@ function Router() {
           </>
         )}
         
-        {/* Catch-all route */}
-        <Route component={NotFound} />
-      </Switch>
+          {/* Catch-all route */}
+          <Route component={NotFound} />
+        </Switch>
+      </PageTransition>
     </>
   );
 }
