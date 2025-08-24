@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'wouter';
-import { Crown, X, Building } from 'lucide-react';
+import { Crown, X, Church } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useSupabaseAuth';
@@ -10,29 +10,12 @@ interface SideDrawerProps {
   onClose: () => void;
 }
 
-const mainMenuItems = [
-  { path: '/features', label: 'Features' },
-  { path: '/pricing', label: 'Pricing' },
-  { path: '/contact', label: 'Contact' },
-];
-
 export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
-  const [location, setLocation] = useLocation();
-  const { user, signOutMutation } = useAuth();
+  const [, setLocation] = useLocation();
+  const { user } = useAuth();
 
-  const handleNavigation = (path: string) => {
-    setLocation(path);
-    onClose();
-  };
-
-  const handleApplyForBeta = () => {
-    // Navigate to beta application or external link
-    window.open('https://kingdomops.org/beta', '_blank');
-    onClose();
-  };
-
-  const handleSignIn = () => {
-    setLocation('/auth');
+  const handleLogin = () => {
+    setLocation("/auth");
     onClose();
   };
 
@@ -46,7 +29,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         />
       )}
       
-      {/* Drawer */}
+      {/* Mobile Navigation Menu - matching landing page design */}
       <div 
         className={cn(
           "fixed top-0 left-0 h-full w-full sm:w-80 bg-white shadow-2xl transform transition-transform duration-300 z-50",
@@ -72,55 +55,94 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           </Button>
         </div>
 
-        {/* Main Menu Items */}
-        <div className="flex-1 px-6 py-8">
-          <div className="space-y-8">
-            {mainMenuItems.map(({ path, label }) => (
-              <button
-                key={path}
-                onClick={() => handleNavigation(path)}
-                data-testid={`drawer-${label.toLowerCase()}`}
-                className="block text-left text-lg text-gray-700 hover:text-spiritual-blue transition-colors"
-              >
-                {label}
-              </button>
-            ))}
+        {/* Menu Content */}
+        <div className="p-6">
+          <div className="space-y-3">
+            {!user ? (
+              <>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-lg" 
+                  onClick={() => {
+                    setLocation("/features");
+                    onClose();
+                  }}
+                  data-testid="mobile-features"
+                >
+                  Features
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-lg" 
+                  onClick={() => {
+                    setLocation("/pricing");
+                    onClose();
+                  }}
+                  data-testid="mobile-pricing"
+                >
+                  Pricing
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-lg" 
+                  onClick={() => onClose()}
+                  data-testid="mobile-contact"
+                >
+                  Contact
+                </Button>
+                
+                <div className="pt-6 border-t border-gray-100 space-y-4">
+                  <Button 
+                    variant="outline"
+                    className="w-full border-spiritual-blue text-spiritual-blue hover:bg-spiritual-blue hover:text-white py-3"
+                    onClick={() => {
+                      setLocation("/church-signup");
+                      onClose();
+                    }}
+                    data-testid="mobile-church-signup"
+                  >
+                    <Church className="mr-2 h-4 w-4" />
+                    Apply for Beta
+                  </Button>
+                  <Button 
+                    className="w-full bg-spiritual-blue text-white hover:bg-purple-800 py-3" 
+                    onClick={() => {
+                      handleLogin();
+                      onClose();
+                    }}
+                    data-testid="mobile-signin"
+                  >
+                    Sign In
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-lg" 
+                  onClick={() => {
+                    setLocation("/dashboard");
+                    onClose();
+                  }}
+                  data-testid="mobile-dashboard"
+                >
+                  Dashboard
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-lg" 
+                  onClick={() => {
+                    setLocation("/profile");
+                    onClose();
+                  }}
+                  data-testid="mobile-profile"
+                >
+                  Profile
+                </Button>
+              </div>
+            )}
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="p-6 space-y-4">
-          <Button
-            onClick={handleApplyForBeta}
-            variant="outline"
-            className="w-full border-2 border-gray-300 text-gray-700 hover:border-spiritual-blue hover:text-spiritual-blue py-3 text-base font-medium"
-            data-testid="drawer-apply-beta"
-          >
-            <Building className="h-5 w-5 mr-2" />
-            Apply for Beta
-          </Button>
-          
-          {!user ? (
-            <Button
-              onClick={handleSignIn}
-              className="w-full bg-spiritual-blue hover:bg-spiritual-blue/90 text-white py-3 text-base font-medium"
-              data-testid="drawer-sign-in"
-            >
-              Sign In
-            </Button>
-          ) : (
-            <Button
-              onClick={() => {
-                signOutMutation.mutate();
-                onClose();
-              }}
-              variant="outline"
-              className="w-full border-2 border-red-300 text-red-600 hover:border-red-400 hover:text-red-700 py-3 text-base font-medium"
-              data-testid="drawer-sign-out"
-            >
-              Sign Out
-            </Button>
-          )}
         </div>
       </div>
     </>
