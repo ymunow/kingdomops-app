@@ -133,6 +133,39 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                   variant="ghost" 
                   className="w-full justify-start text-lg" 
                   onClick={() => {
+                    setLocation("/events");
+                    onClose();
+                  }}
+                  data-testid="mobile-events"
+                >
+                  Events
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-lg" 
+                  onClick={() => {
+                    setLocation("/connect");
+                    onClose();
+                  }}
+                  data-testid="mobile-serve"
+                >
+                  Serve
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-lg" 
+                  onClick={() => {
+                    setLocation("/gifts");
+                    onClose();
+                  }}
+                  data-testid="mobile-gifts"
+                >
+                  Spiritual Gifts
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-lg" 
+                  onClick={() => {
                     setLocation("/profile");
                     onClose();
                   }}
