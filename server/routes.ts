@@ -130,8 +130,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // VITE-PROOF: Use weird route that Vite won't intercept
-  app.get("/api/internal-avatar-save", isAuthenticated, async (req: any, res) => {
+  // NO API PREFIX: Vite only intercepts /api/ routes
+  app.get("/update-avatar-now", isAuthenticated, async (req: any, res) => {
     console.log('🚀 AVATAR UPDATE VIA GET - Request received!');
     console.log('🚀 Query params:', req.query);
     

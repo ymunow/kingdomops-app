@@ -81,9 +81,9 @@ export default function Profile() {
         
         console.log('Direct fetch using token:', authToken?.substring(0, 10));
         
-        // VITE-PROOF: Use weird route that Vite won't intercept
-        const encodedUrl = encodeURIComponent(profileImageUrl);
-        const response = await fetch(`/api/internal-avatar-save?url=${encodedUrl}`, {
+        // NO API PREFIX: Completely bypass Vite's /api/ interception
+        const encodedUrl = encodeURIComponent(profileImageUrl);  
+        const response = await fetch(`/update-avatar-now?url=${encodedUrl}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${authToken}`,
