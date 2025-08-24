@@ -2392,7 +2392,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/profile/progress", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
+      console.log('📊 GET PROGRESS REQUEST for userId:', userId);
+      
       const progress = await storage.getProfileProgress(userId);
+      console.log('📊 PROGRESS RESULT:', progress);
+      
       res.json(progress);
     } catch (error) {
       console.error("Get profile progress error:", error);
