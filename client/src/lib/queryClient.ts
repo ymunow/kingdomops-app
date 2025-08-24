@@ -41,7 +41,8 @@ export async function apiRequest(
   
   // Profile uploads are auto-saved (no header needed)
 
-  const fullUrl = url.startsWith('/api') ? url : url;
+  // BYPASS VITE: Call Express directly on port 5000 for API routes
+  const fullUrl = url.startsWith('/api') ? `http://localhost:5000${url}` : url;
   
   const res = await fetch(fullUrl, {
     method,
