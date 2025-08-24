@@ -57,9 +57,12 @@ export function ProfileCompletionCard() {
   const queryClient = useQueryClient();
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const { data: progress, isLoading } = useQuery<ProfileProgress>({
+  const { data: progress, isLoading, error } = useQuery<ProfileProgress>({
     queryKey: ['/api/profile/progress'],
   });
+  
+  // Debug logging
+  console.log('🎯 ProfileCompletionCard render:', { isLoading, progress, error });
 
   const markStepMutation = useMutation({
     mutationFn: async (stepKey: string) => {
@@ -89,8 +92,19 @@ export function ProfileCompletionCard() {
     },
   });
 
-  // Don't render if no progress data or already at 100%
-  if (isLoading || !progress || progress.percentage === 100) {
+  // Don't render if loading or already at 100%  
+  if (isLoading) {
+    console.log('🎯 ProfileCompletionCard: Still loading...');
+    return null;
+  }
+  
+  if (!progress) {
+    console.log('🎯 ProfileCompletionCard: No progress data received');
+    return null;
+  }
+  
+  if (progress.percentage === 100) {
+    console.log('🎯 ProfileCompletionCard: Progress complete, hiding card');
     return null;
   }
 
