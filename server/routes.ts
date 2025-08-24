@@ -239,7 +239,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if this was a profile photo update and mark the step complete
       if (updates.profileImageUrl) {
+        console.log('📸 Marking profile_photo step as complete for user:', userId);
         await storage.markStepComplete(userId, 'profile_photo');
+        console.log('✅ Profile photo step marked complete');
       }
       
       // Get updated progress for the message

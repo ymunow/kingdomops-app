@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'wouter';
+import { useQueryClient } from '@tanstack/react-query';
 import { Home, Calendar, Users, Gift, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +18,7 @@ const navigationItems = [
 
 export function BottomNavigation({ isVisible }: BottomNavigationProps) {
   const [location, setLocation] = useLocation();
+  const queryClient = useQueryClient();
 
   return (
     <div 
@@ -32,7 +34,13 @@ export function BottomNavigation({ isVisible }: BottomNavigationProps) {
           return (
             <button
               key={path}
-              onClick={() => setLocation(path)}
+              onClick={() => {
+                // If navigating to dashboard, invalidate progress cache for fresh data
+                if (path === '/dashboard') {
+                  queryClient.invalidateQueries({ queryKey: ['/api/profile/progress'] });
+                }
+                setLocation(path);
+              }}
               data-testid={`nav-${label.toLowerCase()}`}
               className={cn(
                 "flex flex-col items-center justify-center p-3 rounded-lg transition-colors min-w-[60px]",
