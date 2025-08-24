@@ -1,0 +1,159 @@
+Two problems are happening at once:
+API calls aren’t reliably reaching Express.
+The cover upload is reusing the profile cropper (wrong aspect and labels).
+Here’s a clean, copy-paste fix that solves both, without touching protected Vite files.
+1) Make your API reachable (same origin, one path)
+Run Express only (prod or dev-override), and bind to Replit’s port.
+// server/prod.ts  (or dev-override, same idea)
+import express from "express";
+import path from "node:path";
+import fs from "node:fs";
+import multer from "multer";
+
+const app = express();
+const resolve = (p: string) => path.resolve(process.cwd(), p);
+
+app.use((req, _res, next) => { console.log("➡️", req.method, req.url); next(); });
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use("/cdn", express.static(resolve("public/cdn")));
+
+// HEALTH
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
+// UPLOADS
+const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
+
+// Profile avatar: square (client already crops; server normalizes)
+app.post("/api/profile/photo", upload.single("file"), async (req, res, next) => {
+  try {
+    console.log("🎯 AVATAR UPLOAD");
+    if (!req.file) return res.status(400).json({ error: "No file" });
+    const userId = String(req.body.userId || "anonymous");
+    const key = `avatars/${userId}.webp`;
+    const out = resolve(`public/cdn/${key}`);
+    await fs.promises.mkdir(path.dirname(out), { recursive: true });
+    await fs.promises.writeFile(out, req.file.buffer);
+    return res.json({ ok: true, url: `/cdn/${key}?v=${Date.now()}` });
+  } catch (e) { next(e); }
+});
+
+// Cover image: wide rectangle
+app.post("/api/profile/cover", upload.single("file"), async (req, res, next) => {
+  try {
+    console.log("🎯 COVER UPLOAD");
+    if (!req.file) return res.status(400).json({ error: "No file" });
+    const userId = String(req.body.userId || "anonymous");
+    const key = `covers/${userId}.webp`;
+    const out = resolve(`public/cdn/${key}`);
+    await fs.promises.mkdir(path.dirname(out), { recursive: true });
+    await fs.promises.writeFile(out, req.file.buffer);
+    return res.json({ ok: true, url: `/cdn/${key}?v=${Date.now()}` });
+  } catch (e) { next(e); }
+});
+
+// (optional) serve built SPA so everything is same-origin
+const dist = resolve("dist");
+app.use(express.static(dist));
+app.get("*", (_req, res) => res.sendFile(path.join(dist, "index.html")));
+
+const port = Number(process.env.PORT || 4000);
+app.listen(port, "0.0.0.0", () => console.log(`✅ Server on :${port}`));
+Run:
+npm run build
+node server/prod.ts
+# open your Replit URL (or http://localhost:4000)
+Visit /api/health in the browser — you should see { ok: true }.
+When you upload, terminal must show ➡️ POST /api/profile/photo or /api/profile/cover.
+2) Fix the client: separate avatar vs cover (aspect, labels, endpoints)
+Use one uploader component with a kind prop to avoid cross-wires.
+// components/AvatarCoverUploader.tsx
+import { useState, useRef } from "react";
+import Cropper from "react-easy-crop"; // or your cropper lib
+
+type Kind = "avatar" | "cover";
+export function AvatarCoverUploader({ kind, userId, onDone }:{
+  kind: Kind; userId: string; onDone: (url: string)=>void
+}) {
+  const [image, setImage] = useState<string>();
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const aspect = kind === "cover" ? 3 / 1 : 1;   // cover = wide, avatar = square
+  const label = kind === "cover" ? "Crop your cover image" : "Crop your profile picture";
+
+  async function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setImage(URL.createObjectURL(f));
+  }
+
+  async function getCroppedBlob(): Promise<Blob> {
+    // implement with your cropper util; here’s a placeholder that just fetches the original blob
+    // replace with canvas cropping using the crop + zoom + aspect values
+    const res = await fetch(image!);
+    return await res.blob();
+  }
+
+  async function onSave() {
+    const blob = await getCroppedBlob();
+    const fd = new FormData();
+    fd.append("file", blob, kind === "cover" ? "cover.webp" : "avatar.webp");
+    fd.append("userId", userId);
+
+    const endpoint = kind === "cover" ? "/api/profile/cover" : "/api/profile/photo";
+    const res = await fetch(endpoint, { method: "POST", body: fd });
+    if (!res.ok) { alert("Upload failed"); return; }
+    const { url } = await res.json();
+    onDone(url);
+  }
+
+  return (
+    <div>
+      <label className="block mb-2">{label}</label>
+      <input type="file" accept="image/*" onChange={onSelectFile} />
+      {image && (
+        <div style={{ position: "relative", width: 320, height: kind === "cover" ? 160 : 320 }}>
+          <Cropper
+            image={image}
+            crop={crop}
+            zoom={zoom}
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            aspect={aspect}
+            // Important: do NOT render a circular mask for cover
+            // Apply a circular mask ONLY in CSS for avatar preview if desired
+          />
+        </div>
+      )}
+      <button onClick={onSave}>Save {kind === "cover" ? "Cover" : "Profile Photo"}</button>
+    </div>
+  );
+}
+Use it like:
+<AvatarCoverUploader
+  kind="avatar"
+  userId={user.id}
+  onDone={(url) => setAvatarUrl(url)}
+/>
+
+<AvatarCoverUploader
+  kind="cover"
+  userId={user.id}
+  onDone={(url) => setCoverUrl(url)}
+/>
+Why this fixes your issue
+Cover and avatar use different aspect ratios and labels.
+Each upload calls a different endpoint, writing to different folders (/cdn/avatars/* vs /cdn/covers/*), so nothing collides.
+Same-origin fetches, so no CORS, no custom headers, no Vite overlay in the path.
+3) 60-second smoke tests
+Open your app URL → visit /api/health → { ok: true }.
+In DevTools Console:
+fetch("/api/profile/photo", { method:"POST", body: new FormData() })
+  .then(r => console.log("status", r.status))
+  .catch(console.error)
+Should log status 400 (missing file) and your terminal should show ➡️ POST /api/profile/photo. If you do not see the terminal log, you’re still hitting the wrong origin.
+Then actually upload from the UI and verify:
+Terminal prints 🎯 AVATAR UPLOAD or 🎯 COVER UPLOAD.
+Response JSON includes a cache-busted /cdn/...?.v=... URL.
+The new image shows immediately.
+If you follow the three sections above, you’ll fix both the server reachability and the cover/profile crop mix-up in one pass—no need to delete the page.
