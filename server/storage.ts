@@ -262,6 +262,11 @@ export class DatabaseStorage implements IStorage {
       updateData.profileImageUrl = profileData.profileImageUrl;
     }
 
+    // Include cover photo URL if provided
+    if (profileData.coverPhotoUrl !== undefined) {
+      updateData.coverPhotoUrl = profileData.coverPhotoUrl;
+    }
+
     const [user] = await db
       .update(users)
       .set(updateData)
