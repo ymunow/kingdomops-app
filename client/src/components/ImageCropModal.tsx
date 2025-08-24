@@ -141,7 +141,7 @@ export function ImageCropModal({ imageFile, isOpen, onClose, onCropComplete }: I
 
   return createPortal(
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CropIcon className="h-5 w-5" />
@@ -149,7 +149,7 @@ export function ImageCropModal({ imageFile, isOpen, onClose, onCropComplete }: I
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1 overflow-y-auto">
           {imageSrc && (
             <div className="flex flex-col items-center space-y-4">
               <ReactCrop
@@ -164,7 +164,7 @@ export function ImageCropModal({ imageFile, isOpen, onClose, onCropComplete }: I
                   src={imageSrc}
                   alt="Crop preview"
                   onLoad={onImageLoad}
-                  className="max-w-full max-h-96 object-contain"
+                  className="max-w-full max-h-64 object-contain"
                 />
               </ReactCrop>
               
