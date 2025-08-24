@@ -1,5 +1,9 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
 import { storage } from "./storage";
 import { subdomainMiddleware, type SubdomainRequest } from "./subdomain";
 import { scoreGifts } from "../client/src/lib/hardened-scoring";
@@ -75,6 +79,9 @@ function requireAdmin(req: any, res: any, next: any) {
 export async function registerRoutes(app: Express): Promise<Server> {
   // PRIORITY: Register critical routes FIRST before any middleware can intercept
   console.log('🚀 PRIORITY ROUTE REGISTRATION');
+  
+  // Serve uploaded files
+  app.use("/cdn", express.static(path.resolve(process.cwd(), "public/cdn")));
   
   // Auth middleware setup
   await setupSupabaseAuth(app);
@@ -161,6 +168,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error getting upload URL:", error);
       res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  // DIRECT UPLOAD ENDPOINTS FOR NEW UPLOADER
+  const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
+
+  // Profile avatar: square
+  app.post("/api/profile/photo", upload.single("file"), async (req: any, res) => {
+    try {
+      console.log("🎯 AVATAR UPLOAD");
+      if (!req.file) return res.status(400).json({ error: "No file" });
+      
+      // Create public directory
+      const publicDir = path.resolve(process.cwd(), "public/cdn/avatars");
+      await fs.promises.mkdir(publicDir, { recursive: true });
+      
+      const userId = String(req.body.userId || "anonymous");
+      const fileName = `${userId}_${Date.now()}.webp`;
+      const filePath = path.join(publicDir, fileName);
+      
+      await fs.promises.writeFile(filePath, req.file.buffer);
+      
+      const url = `/cdn/avatars/${fileName}`;
+      console.log("✅ Avatar saved:", url);
+      
+      return res.json({ ok: true, url });
+    } catch (error) {
+      console.error("❌ Avatar upload error:", error);
+      return res.status(500).json({ error: "Upload failed" });
+    }
+  });
+
+  // Cover image: wide rectangle
+  app.post("/api/profile/cover", upload.single("file"), async (req: any, res) => {
+    try {
+      console.log("🎯 COVER UPLOAD");
+      if (!req.file) return res.status(400).json({ error: "No file" });
+      
+      // Create public directory
+      const publicDir = path.resolve(process.cwd(), "public/cdn/covers");
+      await fs.promises.mkdir(publicDir, { recursive: true });
+      
+      const userId = String(req.body.userId || "anonymous");
+      const fileName = `${userId}_${Date.now()}.webp`;
+      const filePath = path.join(publicDir, fileName);
+      
+      await fs.promises.writeFile(filePath, req.file.buffer);
+      
+      const url = `/cdn/covers/${fileName}`;
+      console.log("✅ Cover saved:", url);
+      
+      return res.json({ ok: true, url });
+    } catch (error) {
+      console.error("❌ Cover upload error:", error);
+      return res.status(500).json({ error: "Upload failed" });
     }
   });
 

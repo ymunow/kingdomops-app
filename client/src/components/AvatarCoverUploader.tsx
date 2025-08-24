@@ -242,6 +242,7 @@ export function AvatarCoverUploader({
                   onChange={(_, percentCrop) => setCrop(percentCrop)}
                   aspect={aspect}
                   className="max-w-full"
+                  circularCrop={false}
                 >
                   <img
                     ref={imgRef}
