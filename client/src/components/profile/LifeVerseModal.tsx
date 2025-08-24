@@ -21,11 +21,7 @@ export function FavoriteVerseModal({ isOpen, onClose, currentVerse = "" }: Favor
 
   const saveVerseMutation = useMutation({
     mutationFn: async (favoriteVerse: string) => {
-      console.log('🚀 Frontend: Saving favorite verse:', favoriteVerse);
-      console.log('🚀 Frontend: Making API request to /api/profile/favorite-verse');
-      const response = await apiRequest('PUT', '/api/profile/favorite-verse', { favoriteVerse });
-      console.log('✅ Frontend: API response received:', response);
-      return response;
+      return apiRequest('PUT', '/api/profile/favorite-verse', { favoriteVerse });
     },
     onSuccess: async (response) => {
       const data = await response.json();
@@ -34,7 +30,7 @@ export function FavoriteVerseModal({ isOpen, onClose, currentVerse = "" }: Favor
         description: data.message,
       });
       queryClient.invalidateQueries({ queryKey: ['/api/profile/progress'] });
-      queryClient.invalidateQueries({ queryKey: ['auth-user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
       onClose();
     },
     onError: (error) => {
@@ -56,7 +52,6 @@ export function FavoriteVerseModal({ isOpen, onClose, currentVerse = "" }: Favor
       return;
     }
     
-    console.log('🎯 Frontend: handleSave called with verse:', verse.trim());
     saveVerseMutation.mutate(verse.trim());
   };
 
@@ -110,11 +105,7 @@ export function FavoriteVerseModal({ isOpen, onClose, currentVerse = "" }: Favor
               Cancel
             </Button>
             <Button 
-              onClick={(e) => {
-                e.preventDefault();
-                console.log('🔥 Button clicked! Verse:', verse.trim());
-                handleSave();
-              }}
+              onClick={handleSave}
               disabled={saveVerseMutation.isPending || !verse.trim()}
               className="bg-spiritual-blue hover:bg-spiritual-blue/90"
               data-testid="button-save-verse"
