@@ -12,6 +12,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Crown, ArrowLeft, ArrowRight, Save } from "lucide-react";
 import { QuestionCard } from "@/components/assessment/question-card";
 import NaturalAbilitiesStep from "@/components/assessment/natural-abilities-step";
+import { BottomNavigation } from "@/components/navigation/bottom-navigation";
+import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import type { Question, AssessmentState } from "@shared/schema";
 
 interface StartAssessmentResponse {
@@ -51,6 +53,7 @@ export default function Assessment() {
   const { organization } = useOrganization();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const scrollDirection = useScrollDirection();
   
   const [currentStep, setCurrentStep] = useState(0); // 0 = questions, 1 = natural abilities, 2 = age groups, 3 = ministry interests, 4 = review
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -646,6 +649,11 @@ export default function Assessment() {
           )}
         </div>
       </main>
+      
+      {/* Bottom Navigation */}
+      <BottomNavigation 
+        isVisible={scrollDirection !== 'down'} 
+      />
     </div>
   );
 }
