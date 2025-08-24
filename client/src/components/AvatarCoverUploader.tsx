@@ -124,10 +124,19 @@ export function AvatarCoverUploader({
     }
 
     // Calculate crop dimensions in natural image coordinates
-    const cropX = crop.x * scaleX;
-    const cropY = crop.y * scaleY;
-    const cropWidth = crop.width * scaleX;
-    const cropHeight = crop.height * scaleY;
+    // React-crop gives us percentages, convert to pixels on natural image
+    const cropX = (crop.x / 100) * image.naturalWidth;
+    const cropY = (crop.y / 100) * image.naturalHeight;
+    const cropWidth = (crop.width / 100) * image.naturalWidth;
+    const cropHeight = (crop.height / 100) * image.naturalHeight;
+    
+    console.log('🔪 CROP DEBUG:', {
+      displayedImageSize: { width: image.width, height: image.height },
+      naturalImageSize: { width: image.naturalWidth, height: image.naturalHeight },
+      cropPercentage: crop,
+      cropPixels: { x: cropX, y: cropY, width: cropWidth, height: cropHeight },
+      targetSize: { width: canvas.width, height: canvas.height }
+    });
 
     // Draw the cropped and resized image
     ctx.drawImage(
