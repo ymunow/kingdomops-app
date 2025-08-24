@@ -29,8 +29,14 @@ export function FavoriteVerseModal({ isOpen, onClose, currentVerse = "" }: Favor
         title: "Favorite verse saved!",
         description: data.message,
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/profile/progress'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      
+      // Invalidate both progress and user data across all cache instances
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['/api/profile/progress'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] }),
+        queryClient.refetchQueries({ queryKey: ['/api/profile/progress'] }),
+      ]);
+      
       onClose();
     },
     onError: (error) => {
