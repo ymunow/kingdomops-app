@@ -1,0 +1,40 @@
+What belongs in the main feed (church-wide)
+Show these as full posts/cards, ranked by recency + engagement (+boost if you share a group):
+Prayer requests (with “I’m praying” counter)
+Testimonies (stories, baptisms, salvations)
+Photos/Videos from church-wide events
+Announcements that affect everyone
+Volunteer opportunities (limit to 1–2 active; auto-hide when filled)
+Ministry team updates/wins (impact highlights)
+Upcoming events (as a rich “Event card” 7 days before; 24-hr reminder)
+What should be group-only (appears in group feeds & in members’ home feeds)
+Study group discussions / questions
+Event photos from a group
+Small group announcements
+Service schedules / team logistics
+What should be personal or leaders-only, not church-wide
+Spiritual gifts assessment completed
+Ministry match suggestions/placements
+Follow/connection events (A followed B)
+→ Show these to the member and relevant leaders (and in the sidebar “Activity” for that user), not to everyone.
+What should be aggregated as digests / side widgets (not noisy in feed)
+New member welcomes → daily or weekly “Welcome our 8 new members” card; allow opt-out.
+Birthdays & anniversaries → “Today’s Celebrations” widget; optional single daily post.
+Milestones (years serving, streaks) → show on the person’s profile; optionally a monthly highlights post.
+Ranking & rate limits (simple rules)
+Weights: Prayer/Testimony/Event > Announcement > Volunteer > Photo/Video > System auto.
+Boost: posts from your groups, people you follow, leaders, and posts with prayer/amen reactions.
+Rate limits: max 1 auto/digest card per day; volunteer posts ≤2 concurrent.
+Pinning: allow admins to pin 1–2 posts for 24–48h.
+Minimal schema to implement
+type FeedPost = {
+  id: string;
+  type: 'prayer'|'testimony'|'announcement'|'event'|'volunteer'|'photo'|'group_post'|'digest';
+  scope: 'church'|'group'|'personal';
+  groupId?: string;
+  authorId?: string;
+  payload: Record<string, any>;   // event data, media, etc.
+  visibility: 'public'|'members'|'leaders'|'group-members';
+  createdAt: string;
+}
+That’s the balance: keep the home feed meaningful and communal, push logistics to group feeds, keep system stuff lightweight via digests, and show personal achievements to the right audience only. If you want, I can draft example JSON payloads + ranking pseudocode next.
