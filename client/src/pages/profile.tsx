@@ -3,14 +3,17 @@ import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AvatarCoverUploader } from '@/components/AvatarCoverUploader';
+import { ProfileCompletionCard } from '@/components/profile/ProfileCompletionCard';
+import { FavoriteVerseModal } from '@/components/profile/LifeVerseModal';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Camera, MapPin, Gift, UserPlus, MessageCircle, Edit3, X,
-  Users, Calendar, Heart, User, Info
+  Users, Calendar, Heart, User, Info, BookOpen, Plus
 } from 'lucide-react';
 
 export default function Profile() {
@@ -20,6 +23,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState('about');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showFavoriteVerseModal, setShowFavoriteVerseModal] = useState(false);
   const [editingProfile, setEditingProfile] = useState<{
     firstName: string;
     lastName: string;
@@ -286,6 +290,11 @@ export default function Profile() {
 
         {/* Content Area */}
         <div className="p-6 bg-white rounded-b-lg">
+          {/* Profile Completion Card */}
+          <div className="mb-6">
+            <ProfileCompletionCard />
+          </div>
+          
           {/* Edit Profile Section */}
           {isEditingProfile && (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
@@ -385,6 +394,49 @@ export default function Profile() {
                 </div>
 
                 <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Favorite Verse</h3>
+                  <Card className="border-purple-200 bg-purple-50/50">
+                    <CardContent className="p-4">
+                      {user?.lifeVerse ? (
+                        <div className="space-y-3">
+                          <div className="flex items-start space-x-3">
+                            <BookOpen className="h-5 w-5 text-purple-600 mt-1" />
+                            <div className="flex-1">
+                              <p className="text-gray-700 italic leading-relaxed">
+                                "{user.lifeVerse}"
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex justify-end">
+                            <Button
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setShowFavoriteVerseModal(true)}
+                              className="text-purple-700 border-purple-300 hover:bg-purple-50"
+                            >
+                              <Edit3 className="h-3 w-3 mr-1" />
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-6">
+                          <BookOpen className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+                          <p className="text-gray-500 mb-4">Share a Bible verse that speaks to your heart</p>
+                          <Button
+                            onClick={() => setShowFavoriteVerseModal(true)}
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Favorite Verse
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Ministry Involvement</h3>
                   <div className="grid gap-3">
                     {mockProfileData.servingAreas.map((area) => (
@@ -456,6 +508,13 @@ export default function Profile() {
           </div>
         </div>
       </div>
+      
+      {/* Favorite Verse Modal */}
+      <FavoriteVerseModal
+        isOpen={showFavoriteVerseModal}
+        onClose={() => setShowFavoriteVerseModal(false)}
+        currentVerse={user?.lifeVerse || ''}
+      />
     </MainLayout>
   );
 }
