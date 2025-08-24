@@ -1,0 +1,51 @@
+That overlay is Vite’s HMR crashing (on Replit it comes from @replit/vite-plugin-runtime-error-modal). It’s not your upload code—it’s the dev runtime. Two solid ways to stop it from intercepting your API flow:
+Quickest fix (turn HMR overlay off or HMR off)
+Since you’re creating Vite inside Express, you can override the config without touching vite.config.
+In server/vite.ts replace your createViteServer(...) with one of these:
+A) Keep HMR but disable the overlay (preferred)
+import react from '@vitejs/plugin-react'
+
+// ...
+const vite = await createViteServer({
+  // ignore on-disk vite.config so Replit’s runtime plugin isn’t loaded
+  configFile: false,
+  root: resolve('client'),      // adjust if your client dir differs
+  appType: 'spa',
+  plugins: [react()],
+  server: {
+    middlewareMode: true,
+    hmr: {
+      overlay: false,           // ⬅️ no runtime error modal
+      // Replit websockets can be picky—these help when needed:
+      // protocol: 'wss',
+      // host: process.env.REPLIT_DB_URL ? new URL(process.env.REPLIT_DB_URL).host : undefined,
+      // clientPort: 443,
+    },
+  },
+})
+app.use(vite.middlewares)
+B) Disable HMR completely (most stable)
+const vite = await createViteServer({
+  configFile: false,
+  root: resolve('client'),
+  appType: 'spa',
+  plugins: [react()],
+  server: { middlewareMode: true, hmr: false }, // ⬅️ no HMR/no overlay
+})
+app.use(vite.middlewares)
+configFile: false prevents the Replit runtime plugin from loading, which is what’s throwing the [plugin:runtime-error-plugin] Load failed modal.
+Verify the pipeline (90‑sec)
+Start only the Express front door (npm run dev that runs server/vite.ts).
+Open http://localhost:4000 (or your Replit URL), not :5173.
+Hit http://localhost:4000/api/health → should return { ok: true }.
+Upload again; terminal should show:
+➡️ POST /api/upload
+🎯 UPLOAD DETECTED ...
+If you still need the custom header later, re‑enable it once /api/upload logs appear.
+If Replit WS still nags
+Replit sometimes blocks local HMR websockets. Either stick with hmr:false during this debugging phase, or set:
+server: {
+  middlewareMode: true,
+  hmr: { overlay: false, protocol: 'wss', clientPort: 443 }
+}
+Once the overlay is gone and requests hit /api/upload, your auto‑save and cache‑busted avatar URL will work as designed.
