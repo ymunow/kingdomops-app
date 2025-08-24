@@ -335,7 +335,6 @@ export function MainLayout({ children }: MainLayoutProps) {
       </main>
 
       {/* Navigation Components */}
-      <BottomNavigation isVisible={isBottomNavVisible} />
       <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
       <FloatingActionButton isVisible={isFabVisible} />
     </div>
