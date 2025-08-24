@@ -1,0 +1,100 @@
+You’re fighting the platform now, not your code. Since both vite.config and server/vite.ts are protected and Replit’s runtime plugin keeps injecting the crash overlay, the cleanest path is to remove Vite dev from the loop entirely while you finish profile‑photo persistence.
+Best immediate fix: run in “prod mode” during dev
+Serve the built SPA from Express and keep your API in the same process. No Vite, no HMR, no overlay.
+1) Add a production server (or repurpose server/index.ts)
+// server/prod.ts
+import express from "express";
+import path from "node:path";
+import fs from "node:fs";
+import multer from "multer";
+
+const app = express();
+const resolve = (p: string) => path.resolve(process.cwd(), p);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// CDN/static for avatars
+app.use("/cdn", express.static(resolve("public/cdn")));
+
+// --- API: upload avatar ---
+const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
+app.post("/api/upload", upload.single("file"), async (req, res, next) => {
+  try {
+    console.log("🎯 UPLOAD DETECTED");
+    if (!req.file) return res.status(400).json({ error: "No file" });
+
+    const userId = String(req.body.userId || "anonymous");
+    const key = `avatars/${userId}.webp`;
+    const out = resolve(`public/cdn/${key}`);
+    await fs.promises.mkdir(path.dirname(out), { recursive: true });
+    await fs.promises.writeFile(out, req.file.buffer);
+
+    return res.json({ ok: true, url: `/cdn/${key}?v=${Date.now()}` });
+  } catch (e) { next(e); }
+});
+
+// --- Serve built SPA ---
+const dist = resolve("dist");
+app.use(express.static(dist));
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(dist, "index.html"));
+});
+
+const port = Number(process.env.PORT || 4000);
+app.listen(port, () => console.log(`✅ Prod server on http://localhost:${port}`));
+2) Update scripts
+{
+  "scripts": {
+    "build": "vite build",
+    "serve": "node server/prod.ts",              // if you use tsx:  \"tsx server/prod.ts\"
+    "preview": "npm run build && npm run serve"
+  }
+}
+3) Run it
+npm run preview
+Open your Replit URL (or http://localhost:4000). Now uploads go straight to Express; the Replit Vite overlay is gone.
+4) Client call (same origin)
+const fd = new FormData();
+fd.append("file", croppedBlob, "avatar.webp");
+fd.append("userId", user.id);
+
+const res = await fetch("/api/upload", { method: "POST", body: fd });
+const { url } = await res.json();
+setAvatarUrl(url); // contains ?v=timestamp
+Alternative (if you must keep live reload)
+Create a new dev entry you control (not protected) that embeds Vite with configFile:false to bypass the Replit plugin:
+// server/dev-override.ts
+import express from "express";
+import { createServer as createViteServer } from "vite";
+import react from "@vitejs/plugin-react";
+import multer from "multer";
+import fs from "node:fs";
+import path from "node:path";
+
+const app = express();
+const upload = multer();
+app.post("/api/upload", upload.single("file"), async (req, res) => {
+  console.log("🎯 UPLOAD DETECTED (dev override)");
+  const out = path.resolve("public/cdn/avatars/dev.webp");
+  await fs.promises.mkdir(path.dirname(out), { recursive: true });
+  await fs.promises.writeFile(out, req.file!.buffer);
+  res.json({ ok: true, url: "/cdn/avatars/dev.webp?v=" + Date.now() });
+});
+
+const vite = await createViteServer({
+  configFile: false,                // ⬅️ ignores protected vite config & Replit plugin
+  appType: "spa",
+  plugins: [react()],
+  server: { middlewareMode: true, hmr: false } // no overlay
+});
+app.use(vite.middlewares);
+
+app.listen(4000, () => console.log("Dev override on http://localhost:4000"));
+Add script:
+{ "scripts": { "dev:override": "tsx server/dev-override.ts" } }
+Run npm run dev:override and use http://localhost:4000.
+60‑second verification
+Open /api/health (add if you want) or upload → terminal must show 🎯 UPLOAD DETECTED.
+Network tab → POST /api/upload returns 200 with { ok:true, url }.
+Avatar updates immediately (URL includes ?v=timestamp).
+This route gets you unstuck today. Once persistence works, you can revisit live‑reload ergonomics later without the Replit plugin fighting you.
