@@ -95,12 +95,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Initialize seed data if needed
   let activeVersion = await storage.getActiveAssessmentVersion();
-  if (!activeVersion) {
-    // Create default assessment version and questions
-    activeVersion = await storage.createAssessmentVersion({
-      title: "K.I.T. Gifts & Ministry Fit v1",
-      isActive: true,
-    });
+  console.log('🌱 SEEDING CHECK - Active version:', activeVersion);
+  
+  // Check if questions exist for the active version
+  let questionsExist = false;
+  if (activeVersion) {
+    const existingQuestions = await storage.getQuestionsByVersion(activeVersion.id);
+    questionsExist = existingQuestions.length > 0;
+    console.log(`🔍 Questions check: ${existingQuestions.length} questions found for version ${activeVersion.id}`);
+  }
+  
+  if (!activeVersion || !questionsExist) {
+    console.log('🌱 SEEDING REQUIRED - Creating assessment version and loading questions');
+    
+    if (!activeVersion) {
+      // Create default assessment version and questions
+      activeVersion = await storage.createAssessmentVersion({
+        title: "K.I.T. Gifts & Ministry Fit v1",
+        isActive: true,
+      });
+      console.log('✅ Created new assessment version:', activeVersion.id);
+    }
 
     // Load questions from seed data
     const fs = await import("fs");
@@ -118,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }));
 
       await storage.bulkCreateQuestions(questions);
-      console.log("Seed data loaded successfully");
+      console.log(`✅ Seed data loaded successfully: ${questions.length} questions`);
     } catch (error) {
       console.error("Could not load seed data:", error);
     }
@@ -940,6 +955,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Assessment routes
+  // Manual seeding endpoint for development (force-load questions)
+  app.post("/api/assessment/force-seed", async (req, res) => {
+    try {
+      console.log('🌱 FORCE SEEDING ASSESSMENT DATA');
+      
+      // Create or get active version
+      let activeVersion = await storage.getActiveAssessmentVersion();
+      if (!activeVersion) {
+        activeVersion = await storage.createAssessmentVersion({
+          title: "K.I.T. Gifts & Ministry Fit v1",
+          isActive: true,
+        });
+        console.log('✅ Created new assessment version');
+      }
+
+      // Load questions from seed data
+      const fs = await import("fs");
+      const path = await import("path");
+      const seedPath = path.join(process.cwd(), "seeds", "questions.v1.json");
+
+      const seedData = JSON.parse(fs.readFileSync(seedPath, "utf-8"));
+      const questions = seedData.questions.map((q: any, index: number) => ({
+        versionId: activeVersion!.id,
+        text: q.text,
+        giftKey: q.giftKey,
+        orderIndex: index,
+        isActive: true,
+      }));
+
+      await storage.bulkCreateQuestions(questions);
+      console.log(`✅ Force-seeded ${questions.length} questions successfully`);
+      
+      res.json({ 
+        message: `Successfully seeded ${questions.length} questions`,
+        versionId: activeVersion.id,
+        questionCount: questions.length
+      });
+    } catch (error) {
+      console.error("❌ Force seeding failed:", error);
+      res.status(500).json({ error: "Force seeding failed" });
+    }
+  });
+
   // Public route for assessment questions (no auth required)
   app.get("/api/assessment/questions", async (req, res) => {
     try {
