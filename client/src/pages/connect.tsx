@@ -1015,12 +1015,19 @@ export default function Connect() {
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-10 w-10">
                           <AvatarFallback className="bg-spiritual-blue/10 text-spiritual-blue font-semibold">
-                            {post.author?.name?.charAt(0) || 'U'}
+                            {post.author?.displayName?.charAt(0) || 
+                             post.author?.name?.charAt(0) || 
+                             post.author?.firstName?.charAt(0) || 'U'}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="flex items-center space-x-2 mb-1">
-                            <p className="font-semibold text-charcoal text-sm">{post.author?.name || 'Unknown'}</p>
+                            <p className="font-semibold text-charcoal text-sm">
+                              {post.author?.displayName || 
+                               post.author?.name || 
+                               `${post.author?.firstName || ''} ${post.author?.lastName || ''}`.trim() || 
+                               'Unknown'}
+                            </p>
                             <Badge variant="outline" className={`text-xs border ${getPostTypeColor(post.type)}`}>
                               {getPostIcon(post.type)} {post.type}
                             </Badge>
