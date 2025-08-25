@@ -2614,6 +2614,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "User organization not found" });
       }
 
+      // 🔒 Server-side validation: Only admins can create announcements
+      const ADMIN_ROLES = ['SUPER_ADMIN', 'ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER', 'ADMIN'];
+      if (req.body.type === 'announcement' && !ADMIN_ROLES.includes(user.role || '')) {
+        return res.status(403).json({ 
+          message: "Announcements are admin-only. Only church leaders can create announcements." 
+        });
+      }
+
       const postData = insertPostSchema.parse({
         ...req.body,
         organizationId: user.organizationId,

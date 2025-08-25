@@ -15,39 +15,13 @@ import {
   MessageCircle, 
   Share,
   MoreHorizontal,
-  Camera,
-  Users,
-  Calendar,
-  MapPin,
-  Bell,
-  Image,
-  Video,
-  Smile,
-  Send,
-  Plus
 } from "lucide-react";
+import { FeedComposer } from "@/components/FeedComposer";
 
 export default function Feed() {
   const { user } = useAuth();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [newPost, setNewPost] = useState("");
-  const [selectedPostType, setSelectedPostType] = useState<'testimony' | 'prayer' | 'photo' | 'announcement'>('testimony');
-  
-  // Debug logging for textarea interaction
-  const handlePostChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    console.log('Textarea value changing:', e.target.value);
-    setNewPost(e.target.value);
-  };
 
-  // Check URL parameters to pre-select post type
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const typeParam = urlParams.get('type');
-    if (typeParam && ['testimony', 'prayer', 'photo', 'announcement'].includes(typeParam)) {
-      setSelectedPostType(typeParam as 'testimony' | 'prayer' | 'photo' | 'announcement');
-    }
-  }, []);
 
   // Fetch feed posts from API
   const { data: feedPosts = [], isLoading } = useQuery({
@@ -55,29 +29,6 @@ export default function Feed() {
     enabled: !!user,
   });
 
-  // Create post mutation
-  const createPostMutation = useMutation({
-    mutationFn: async (postData: any) => {
-      const response = await apiRequest('POST', '/api/feed/posts', postData);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
-      setNewPost("");
-      toast({
-        title: "Success!",
-        description: `Your ${selectedPostType === 'testimony' ? 'post' : selectedPostType === 'prayer' ? 'prayer request' : selectedPostType === 'photo' ? 'photo' : 'announcement'} has been shared with the community.`,
-      });
-    },
-    onError: (error: any) => {
-      console.error('Post creation error:', error);
-      toast({
-        title: "Error",
-        description: error?.message || "Failed to create post. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
 
   // React to post mutation
   const reactToPostMutation = useMutation({
@@ -98,29 +49,6 @@ export default function Feed() {
     },
   });
 
-  const handleCreatePost = () => {
-    if (!newPost.trim()) return;
-    
-    // Don't allow regular users to create announcements
-    if (selectedPostType === 'announcement' && !isAdmin) {
-      toast({
-        title: "Access Denied",
-        description: "Only church leaders can create announcements.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    createPostMutation.mutate({
-      type: selectedPostType,
-      scope: 'church',
-      visibility: 'members',
-      body: newPost.trim(),
-      title: selectedPostType === 'prayer' ? 'Prayer Request' : 
-             selectedPostType === 'testimony' ? 'Post' : 
-             selectedPostType === 'announcement' ? 'Announcement' : 'Photo',
-    });
-  };
 
   const handleReaction = (postId: string, type: string) => {
     reactToPostMutation.mutate({ postId, type });
@@ -175,19 +103,6 @@ export default function Feed() {
     }
   ];
 
-  // Filter post types based on user role - only admin users can make announcements
-  const isAdmin = user && ['SUPER_ADMIN', 'ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER', 'ADMIN'].includes((user as any)?.role);
-  
-  const allPostTypes = [
-    { type: 'testimony' as const, icon: Send, label: 'Post', color: 'bg-green-500' },
-    { type: 'prayer' as const, icon: Bell, label: 'Prayer Request', color: 'bg-purple-500' },
-    { type: 'photo' as const, icon: Image, label: 'Photo', color: 'bg-blue-500' },
-    { type: 'announcement' as const, icon: Calendar, label: 'Announcement', color: 'bg-orange-500' }
-  ];
-  
-  const postTypes = allPostTypes.filter(postType => 
-    postType.type === 'announcement' ? isAdmin : true
-  );
 
   // Use API data if available, otherwise fallback to mock data
   const displayPosts = Array.isArray(feedPosts) && feedPosts.length > 0 ? feedPosts : mockFeedPosts;
@@ -202,67 +117,13 @@ export default function Feed() {
             <p className="text-gray-600 dark:text-gray-400">Stay connected with your church family</p>
           </div>
 
-          {/* Post Creation Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
-            <div className="flex items-start space-x-4 mb-4">
-              <UserAvatar 
-                user={user || undefined} 
-                className="h-12 w-12" 
-              />
-              <div className="flex-1">
-                <Textarea
-                  placeholder="What's on your heart?"
-                  value={newPost}
-                  onChange={handlePostChange}
-                  className="border-0 bg-gray-50 dark:bg-gray-700 resize-none focus:ring-2 focus:ring-spiritual-blue focus:border-transparent cursor-text"
-                  rows={3}
-                  data-testid="post-textarea"
-                  autoFocus={false}
-                  disabled={false}
-                />
-              </div>
-            </div>
-
-            {/* Post Type Selector */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {postTypes.map(({ type, icon: Icon, label, color }) => (
-                <Button
-                  key={type}
-                  variant={selectedPostType === type ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedPostType(type)}
-                  className={`${selectedPostType === type ? color : ''} flex items-center gap-2`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {label}
-                </Button>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="sm">
-                  <Image className="h-4 w-4 mr-2" />
-                  Photo
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Video className="h-4 w-4 mr-2" />
-                  Video
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Smile className="h-4 w-4 mr-2" />
-                  Feeling
-                </Button>
-              </div>
-              <Button 
-                className="bg-spiritual-blue hover:bg-spiritual-blue/90"
-                onClick={handleCreatePost}
-                disabled={createPostMutation.isPending || !newPost.trim()}
-              >
-                {createPostMutation.isPending ? "Sharing..." : "Share"}
-              </Button>
-            </div>
-          </div>
+          {/* Feed Composer - New robust component */}
+          <FeedComposer
+            currentUser={{ id: user?.id || '', role: user?.role }}
+            onPosted={() => {
+              queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
+            }}
+          />
 
           {/* Loading state */}
           {isLoading && (
