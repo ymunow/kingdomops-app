@@ -946,55 +946,6 @@ export default function Connect() {
               </div>
             </div>
 
-            {/* Recent Posts */}
-            <div className="mb-6">
-              <h4 className="font-semibold text-charcoal mb-3 flex items-center">
-                <MessageCircle className="h-4 w-4 mr-2" />
-                Recent Activity
-              </h4>
-              <div className="space-y-3">
-                {quickViewGroup.recentPosts.slice(0, 3).map((post: any, index: number) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-start space-x-2">
-                      <div className="w-6 h-6 bg-spiritual-blue/20 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs text-spiritual-blue font-medium">
-                          {post.author.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="text-xs font-medium text-charcoal">{post.author}</span>
-                          <span className="text-xs text-gray-500">{post.time}</span>
-                        </div>
-                        <p className="text-xs text-gray-600 line-clamp-2">{post.text}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {quickViewGroup.isJoined ? (
-                <div className="mt-3 text-center">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-xs"
-                    onClick={() => {
-                      setShowQuickViewModal(false);
-                      // Navigate to group feed
-                    }}
-                  >
-                    View All Posts
-                  </Button>
-                </div>
-              ) : (
-                <div className="mt-3 p-3 bg-spiritual-blue/5 rounded-lg text-center">
-                  <p className="text-xs text-gray-600 mb-2">
-                    Join to see all group posts and participate in discussions
-                  </p>
-                </div>
-              )}
-            </div>
 
             {/* Tags */}
             {quickViewGroup.tags && (
