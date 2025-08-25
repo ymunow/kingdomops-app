@@ -33,6 +33,12 @@ export default function Feed() {
   const queryClient = useQueryClient();
   const [newPost, setNewPost] = useState("");
   const [selectedPostType, setSelectedPostType] = useState<'testimony' | 'prayer' | 'photo' | 'announcement'>('testimony');
+  
+  // Debug logging for textarea interaction
+  const handlePostChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    console.log('Textarea value changing:', e.target.value);
+    setNewPost(e.target.value);
+  };
 
   // Check URL parameters to pre-select post type
   useEffect(() => {
@@ -207,10 +213,12 @@ export default function Feed() {
                 <Textarea
                   placeholder="What's on your heart?"
                   value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
-                  className="border-0 bg-gray-50 dark:bg-gray-700 resize-none focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
+                  onChange={handlePostChange}
+                  className="border-0 bg-gray-50 dark:bg-gray-700 resize-none focus:ring-2 focus:ring-spiritual-blue focus:border-transparent cursor-text"
                   rows={3}
                   data-testid="post-textarea"
+                  autoFocus={false}
+                  disabled={false}
                 />
               </div>
             </div>
