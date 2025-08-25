@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Send, Bell, Image, Calendar } from "lucide-react";
+import { UserAvatar } from "@/components/UserAvatar";
 
 type PostType = "testimony" | "prayer" | "photo" | "announcement";
 type Visibility = "members" | "public";
@@ -20,7 +21,7 @@ const ADMIN_ROLES = new Set([
 ]);
 
 interface FeedComposerProps {
-  currentUser: { id: string; role?: string | null };
+  currentUser: { id: string; role?: string | null; displayName?: string; firstName?: string; lastName?: string; profileImageUrl?: string };
   defaultScope?: Scope;
   onPosted?: () => void;
 }
@@ -129,29 +130,35 @@ export function FeedComposer({
         />
       )}
 
-      {/* ✅ The textarea fix: ensure it's focusable, above any overlays, and controlled */}
-      <Textarea
-        placeholder="What's on your heart?"
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        onFocus={(e) => {
-          console.log("Textarea focused:", e.target.value);
-        }}
-        rows={4}
-        className="mb-4 border-0 bg-gray-50 dark:bg-gray-700 resize-none focus:ring-2 focus:ring-spiritual-blue focus:border-transparent cursor-text"
-        style={{
-          position: 'relative',
-          zIndex: 10, // make sure it's above decorative siblings
-          pointerEvents: "auto", // force clickability
-        }}
-        onMouseDown={(e) => {
-          // fight through weird wrappers: ensure focus is applied
-          const t = e.currentTarget as HTMLTextAreaElement;
-          if (document.activeElement !== t) t.focus();
-        }}
-        disabled={isSubmitting}
-        data-testid="post-textarea"
-      />
+      {/* Main Input Area with Profile Avatar */}
+      <div className="flex gap-3 mb-4">
+        <UserAvatar 
+          user={currentUser} 
+          className="h-10 w-10 flex-shrink-0" 
+        />
+        <Textarea
+          placeholder="What's on your heart?"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          onFocus={(e) => {
+            console.log("Textarea focused:", e.target.value);
+          }}
+          rows={4}
+          className="flex-1 border-0 bg-gray-50 dark:bg-gray-700 resize-none focus:ring-2 focus:ring-spiritual-blue focus:border-transparent cursor-text"
+          style={{
+            position: 'relative',
+            zIndex: 10, // make sure it's above decorative siblings
+            pointerEvents: "auto", // force clickability
+          }}
+          onMouseDown={(e) => {
+            // fight through weird wrappers: ensure focus is applied
+            const t = e.currentTarget as HTMLTextAreaElement;
+            if (document.activeElement !== t) t.focus();
+          }}
+          disabled={isSubmitting}
+          data-testid="post-textarea"
+        />
+      </div>
 
       {/* Controls Row */}
       <div className="flex items-center justify-between">

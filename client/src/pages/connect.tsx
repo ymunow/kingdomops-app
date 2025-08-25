@@ -982,7 +982,14 @@ export default function Connect() {
           <TabsContent value="feed" className="mt-0">
             {/* Real Feed Composer with API integration */}
             <FeedComposer
-              currentUser={{ id: user?.id || '', role: user?.role }}
+              currentUser={{ 
+                id: user?.id || '', 
+                role: user?.role,
+                displayName: user?.displayName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email,
+                firstName: user?.firstName,
+                lastName: user?.lastName,
+                profileImageUrl: user?.profileImageUrl
+              }}
               onPosted={() => {
                 // Force refetch the feed data immediately
                 queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
