@@ -189,6 +189,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Signed out",
         description: "You've been signed out successfully.",
       });
+      // Redirect to auth page after successful logout
+      window.location.href = '/auth';
     },
     onError: (error: Error) => {
       toast({
@@ -248,7 +250,16 @@ export function useAuth() {
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context;
+  
+  // Add convenience logout function
+  const logout = () => {
+    context.signOutMutation.mutate();
+  };
+  
+  return {
+    ...context,
+    logout,
+  };
 }
 
 // Hook for accessing Supabase client directly
