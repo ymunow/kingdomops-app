@@ -1,6 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { feedKey } from "./feedKeys";
 import { apiRequest } from "@/lib/queryClient";
+
+// ✅ Bulletproof key with cursor handling
+const FEED_KEY = (scope: "church" | "group", visibility: "members" | "public") =>
+  ["feed", scope, visibility, { cursor: null }] as const;
+
+// ✅ Handle any server response shape  
+function extractPost(saved: any) {
+  return saved?.item ?? saved?.data ?? saved?.post ?? saved;
+}
 
 type CreatePayload = {
   type: "testimony" | "prayer" | "photo" | "announcement";
@@ -14,36 +22,31 @@ type CreatePayload = {
 
 export function useCreatePost(scope: "church" | "group" = "church", visibility: "members" | "public" = "members", currentUser?: any) {
   const qc = useQueryClient();
-  const key = feedKey(scope, visibility);
+  const key = FEED_KEY(scope, visibility);
 
   return useMutation({
     mutationFn: async (payload: CreatePayload) => {
-      // ✅ Use apiRequest which handles auth correctly (just like the working GET requests)
+      // ✅ Use apiRequest which handles auth correctly
       const res = await apiRequest('POST', '/api/feed/posts', {
         ...payload, 
         scope, 
         visibility 
       });
       
-      // Parse response  
-      const saved = await res.json();
-      return saved?.id ? saved : { 
-        ...payload, 
-        id: `saved-${Date.now()}`, 
-        createdAt: new Date().toISOString(),
-        scope,
-        visibility
-      };
+      // ✅ Extract from any server response shape
+      return extractPost(res);
     },
     onMutate: async (newPost) => {
       await qc.cancelQueries({ queryKey: key });
-      const prev = qc.getQueryData<any[]>(key) || [];
+      const prev = qc.getQueryData<any[]>(key) ?? [];
+
       const optimistic = {
         id: `optimistic-${Date.now()}`,
         createdAt: new Date().toISOString(),
-        isAnnouncement: newPost.type === "announcement",
         isPinned: false,
-        authorId: currentUser?.id || "me",
+        isAnnouncement: newPost.type === "announcement",
+        isMine: true,
+        userId: currentUser?.id || "me",
         author: {
           id: currentUser?.id || "me",
           displayName: currentUser?.displayName || `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || "You",
@@ -51,29 +54,34 @@ export function useCreatePost(scope: "church" | "group" = "church", visibility: 
           lastName: currentUser?.lastName,
           profileImageUrl: currentUser?.profileImageUrl
         },
-        isMine: true,
-        isOptimistic: true,
+        scope,
+        visibility,
         likesCount: 0,
         prayersCount: 0,
         commentsCount: 0,
         attachments: [],
         ...newPost,
       };
-      qc.setQueryData<any[]>(key, [optimistic, ...prev]); // appears instantly at top
+
+      // ✅ PREPEND so it shows even if the list is paged
+      qc.setQueryData<any[]>(key, [optimistic, ...prev]);
       return { prev };
     },
     onError: (_err, _newPost, ctx) => {
       if (ctx?.prev) qc.setQueryData(key, ctx.prev); // rollback
     },
-    onSuccess: (saved) => {
+    onSuccess: (serverItem) => {
+      const item = serverItem && serverItem.id ? serverItem : null;
+
       qc.setQueryData<any[]>(key, (old = []) => {
-        // Remove optimistic, insert saved at top
+        // remove optimistic(s)
         const rest = old.filter(p => !String(p.id).startsWith("optimistic-"));
-        return [saved, ...rest];
+        // if server didn't return the item, keep old; list will refresh below
+        return item ? [item, ...rest] : rest;
       });
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: key }); // pull canonical list from server
+
+      // ✅ Ensure we're looking at the FIRST PAGE (no cursor) after posting
+      qc.invalidateQueries({ queryKey: key });
     },
   });
 }

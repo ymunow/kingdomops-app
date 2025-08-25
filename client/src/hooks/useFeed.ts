@@ -1,10 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { feedKey } from "./feedKeys";
 import { apiRequest } from "@/lib/queryClient";
+
+// ✅ Match the exact key format from useCreatePost
+const FEED_KEY = (scope: "church" | "group", visibility: "members" | "public") =>
+  ["feed", scope, visibility, { cursor: null }] as const;
 
 export function useFeed(scope: "church" | "group" = "church", visibility: "members" | "public" = "members") {
   return useQuery({
-    queryKey: feedKey(scope, visibility),
+    queryKey: FEED_KEY(scope, visibility),
     queryFn: async () => {
       try {
         const res = await apiRequest('GET', `/api/feed?scope=${scope}&visibility=${visibility}`);

@@ -1007,9 +1007,9 @@ export default function Connect() {
               </div>
             )}
             
-            {/* ✅ TEMP DEBUG - Show what the feed sees */}
+            {/* ✅ Enhanced DEBUG - Show cache state */}
             <div className="text-xs bg-gray-50 p-2 rounded mb-4 font-mono">
-              Feed count: {feedPosts?.length || 0} | First post: {feedPosts?.[0]?.type || 'none'} | ID: {feedPosts?.[0]?.id || 'none'}
+              Feed count: {feedPosts?.length || 0} | First: {feedPosts?.[0]?.type || 'none'} | ID: {feedPosts?.[0]?.id?.slice(0,8) || 'none'} | isMine: {feedPosts?.[0]?.isMine ? 'YES' : 'no'}
             </div>
 
             {/* Real API Feed Data */}

@@ -1,0 +1,194 @@
+Totally get it—seeing “Success” but no new card is maddening. From your screenshot I can see 3 likely culprits still in play:
+
+1. **Wrong shape on POST response** → your cache never inserts the real item
+2. **Scope/visibility mismatch** → POST saves as `scope:"whole"` (UI label) while GET filters `scope:"church"`
+3. **Cursor/list cache** → you’re viewing a paged slice; new items (newer than cursor) won’t appear unless we prepend or reset the cursor
+
+Below is a tight, copy‑paste patch that fixes **all three** at once.
+
+---
+
+# 1) Normalize the POST response + hard‑prepend to the cache
+
+```ts
+// client/src/hooks/useCreatePost.ts
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+const FEED_KEY = (scope: "church" | "group", visibility: "members" | "public") =>
+  ["feed", scope, visibility, { cursor: null }] as const; // note the cursor part
+
+function extractPost(saved: any) {
+  // accept any server shape
+  return saved?.item ?? saved?.data ?? saved?.post ?? saved;
+}
+
+export function useCreatePost(scope: "church" | "group" = "church", visibility: "members" | "public" = "members") {
+  const qc = useQueryClient();
+  const key = FEED_KEY(scope, visibility);
+
+  return useMutation({
+    mutationFn: async (payload: {
+      type: "testimony" | "prayer" | "photo" | "announcement";
+      body: string; title?: string; photoUrl?: string;
+    }) => {
+      const res = await apiRequest("POST", "/api/feed/posts", { scope, visibility, ...payload });
+      // IMPORTANT: your apiRequest should already throw on !ok and return parsed JSON
+      return extractPost(res);
+    },
+    onMutate: async (newPost) => {
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<any[]>(key) ?? [];
+
+      const optimistic = {
+        id: `optimistic-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        isPinned: false,
+        isAnnouncement: newPost.type === "announcement",
+        isMine: true,
+        userId: "me",
+        scope,
+        visibility,
+        ...newPost,
+      };
+
+      // PREPEND so it shows even if the list is paged
+      qc.setQueryData<any[]>(key, [optimistic, ...prev]);
+      return { prev };
+    },
+    onError: (_e, _p, ctx) => {
+      if (ctx?.prev) qc.setQueryData(key, ctx.prev);
+    },
+    onSuccess: (serverItem) => {
+      const item = serverItem && serverItem.id ? serverItem : null;
+
+      qc.setQueryData<any[]>(key, (old = []) => {
+        // remove optimistic(s)
+        const rest = old.filter(p => !String(p.id).startsWith("optimistic-"));
+        // if server didn’t return the item, keep old; list will refresh below
+        return item ? [item, ...rest] : rest;
+      });
+
+      // Ensure we’re looking at the FIRST PAGE (no cursor) after posting
+      qc.invalidateQueries({ queryKey: key });
+    },
+  });
+}
+```
+
+> Why this works: even if the server returns `{data:{item}}` or `{item:{...}}`, we extract it; we always **prepend** to the same query key the list uses; and we **invalidate** to keep it in sync after the round‑trip.
+
+---
+
+# 2) Force composer to send the correct enums (no “Whole…” leak)
+
+Your UI shows “Member • Whole…”. Those are **labels**, not the API enums. Map them explicitly:
+
+```ts
+// client/src/components/FeedComposer.tsx
+const scopeLabelToEnum = (label: string): "church" | "group" =>
+  label === "This Group" ? "group" : "church";
+
+const visLabelToEnum = (label: string): "members" | "public" =>
+  label === "Public" ? "public" : "members";
+
+// When submitting:
+const scopeEnum = scopeLabelToEnum(scopeLabel);
+const visEnum = visLabelToEnum(visLabel);
+onSubmit({ type, body, title, /* photoUrl */ });
+createPost.mutate({ type, body, title }); // scope/visibility are injected in the hook
+```
+
+> In our `useCreatePost` we inject `scope:"church"` and `visibility:"members"` so they **always** match the GET.
+
+---
+
+# 3) Make the feed query key include a cursor object—and clear it on post
+
+If your list is paginated, a “page 2” cursor can hide a freshly‑created item. Pin the key and default to **no cursor**:
+
+```ts
+// client/src/hooks/useFeed.ts
+import { useQuery } from "@tanstack/react-query";
+
+const FEED_KEY = (scope: "church" | "group", visibility: "members" | "public", cursor: string | null) =>
+  ["feed", scope, visibility, { cursor }] as const;
+
+export function useFeed(scope: "church" | "group" = "church", visibility: "members" | "public" = "members") {
+  // if you don’t have paging yet, just fix cursor to null
+  const cursor: string | null = null;
+
+  return useQuery({
+    queryKey: FEED_KEY(scope, visibility, cursor),
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/feed?scope=${scope}&visibility=${visibility}`);
+      const items = Array.isArray(res) ? res : (res.items ?? []);
+      return items as any[];
+    },
+    staleTime: 10_000,
+  });
+}
+```
+
+> Our `useCreatePost` invalidates this exact key (`cursor: null`), so you always refresh the “top of feed” page after posting.
+
+---
+
+# 4) Renderer that can’t “drop” items
+
+```tsx
+function FeedList({ items }: { items: any[] }) {
+  if (!items?.length) return <div className="text-gray-500">No posts yet.</div>;
+  return (
+    <div className="space-y-4">
+      {items.map((p) => (
+        <article
+          key={p.id ?? Math.random()}
+          className={`rounded-xl border p-4 ${
+            p.isAnnouncement ? "border-amber-400 bg-amber-50" : ""
+          } ${p.isMine ? "border-purple-400 bg-purple-50" : ""}`}
+        >
+          <div className="text-xs text-gray-500">
+            {(p.type || "post")} • {p.createdAt ? new Date(p.createdAt).toLocaleString() : "just now"}
+          </div>
+          {p.title ? <h3 className="font-semibold mt-1">{p.title}</h3> : null}
+          <p className="mt-1 whitespace-pre-wrap">{typeof p.body === "string" ? p.body : JSON.stringify(p.body)}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+# 5) 20‑second verification (copy into DevTools)
+
+After you click **Share**, run this:
+
+```js
+(async () => {
+  const r = await fetch('/api/feed?scope=church&visibility=members');
+  const j = await r.json();
+  const arr = Array.isArray(j) ? j : (j.items ?? []);
+  console.log('count', arr.length, 'top', arr[0]);
+})();
+```
+
+* If `count` increases but you still don’t see it → the renderer was filtering; the patch above prevents that.
+* If `count` does **not** increase → the POST saved under another **org/scope/visibility**. With the hook injecting `church/members`, that becomes a **server filter** issue—confirm the server sets `org_id` from your session and doesn’t override `scope`.
+
+---
+
+## One more visual clue from your screenshot
+
+You’re in **“Viewing as Church Member.”** If that preview strips admin context or changes org, the server may save the post under a different org/tenant. Test once as **Super Admin** (click “Return to Super Admin”), then post. If it appears, the preview user isn’t mapped to the same org in the API.
+
+---
+
+If you paste the code above, you’ll get:
+
+* optimistic purple card instantly,
+* then a real server item replacing it,
+* and the list refetched at the **top page** so it stays visible.
+
+If anything still hides, tell me the console output from the quick GET probe (`count` and the `top` item fields) and I’ll pinpoint the exact filter that’s blocking it.
