@@ -54,12 +54,16 @@ export async function setupSupabaseAuth(app: Express) {
             console.log('Auth middleware - User not found in database for ID:', userId, 'Creating user...');
             
             // Create the user in our database if they don't exist
+            // ⚠️ SECURITY: Only assign SUPER_ADMIN to specific admin emails
+            const isAdminEmail = email === 'tgray@graymusicmedia.com';
+            const userRole = isAdminEmail ? 'SUPER_ADMIN' : 'CHURCH_MEMBER';
+            
             const newUser = await storage.upsertUser({
               id: userId,
               email: email,
               firstName: payload.user_metadata?.first_name || 'User',
               lastName: payload.user_metadata?.last_name || '',
-              role: 'SUPER_ADMIN', // Since this is tgray@graymusicmedia.com
+              role: userRole,
               organizationId: 'default-org-001',
               emailVerified: true,
               profileCompleted: false
@@ -91,11 +95,16 @@ export async function setupSupabaseAuth(app: Express) {
           if (user && !error) {
             console.log('Auth middleware - Supabase user authenticated:', user.email);
             
+            // ⚠️ SECURITY: Only assign SUPER_ADMIN to specific admin emails  
+            const isAdminEmail = user.email === 'tgray@graymusicmedia.com';
+            const userRole = isAdminEmail ? 'SUPER_ADMIN' : 'CHURCH_MEMBER';
+            
             await storage.upsertUser({
               id: user.id,
               email: user.email,
               firstName: user.user_metadata?.first_name,
               lastName: user.user_metadata?.last_name,
+              role: userRole,
             });
             
             const dbUser = await storage.getUser(user.id);
