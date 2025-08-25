@@ -52,10 +52,7 @@ export default function Feed() {
   // Create post mutation
   const createPostMutation = useMutation({
     mutationFn: async (postData: any) => {
-      return await apiRequest('/api/feed/posts', {
-        method: 'POST',
-        body: JSON.stringify(postData),
-      });
+      return await apiRequest('/api/feed/posts', postData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
@@ -78,10 +75,7 @@ export default function Feed() {
   // React to post mutation
   const reactToPostMutation = useMutation({
     mutationFn: async ({ postId, type }: { postId: string; type: string }) => {
-      return await apiRequest(`/api/feed/posts/${postId}/reactions`, {
-        method: 'POST',
-        body: JSON.stringify({ type }),
-      });
+      return await apiRequest(`/api/feed/posts/${postId}/reactions`, { type });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
@@ -204,7 +198,7 @@ export default function Feed() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
             <div className="flex items-start space-x-4 mb-4">
               <UserAvatar 
-                user={user} 
+                user={user || undefined} 
                 className="h-12 w-12" 
               />
               <div className="flex-1">
@@ -212,8 +206,9 @@ export default function Feed() {
                   placeholder="What's on your heart?"
                   value={newPost}
                   onChange={(e) => setNewPost(e.target.value)}
-                  className="border-0 bg-gray-50 dark:bg-gray-700 resize-none"
+                  className="border-0 bg-gray-50 dark:bg-gray-700 resize-none focus:ring-2 focus:ring-spiritual-blue focus:border-transparent"
                   rows={3}
+                  data-testid="post-textarea"
                 />
               </div>
             </div>
