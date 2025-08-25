@@ -13,7 +13,8 @@ import {
   Activity,
   Globe,
   Database,
-  Shield
+  Shield,
+  Rocket
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -36,6 +37,19 @@ export default function AdminPlatform() {
     queryKey: ['/api/super-admin/platform-metrics'],
     enabled: user?.role === 'SUPER_ADMIN',
   });
+
+  // Get beta applications count (organizations created in last 7 days)
+  const { data: organizations } = useQuery<any[]>({
+    queryKey: ['/api/super-admin/organizations'],
+    enabled: user?.role === 'SUPER_ADMIN',
+  });
+
+  const betaApplicationsCount = (() => {
+    if (!organizations) return 0;
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return organizations.filter(org => new Date(org.createdAt) > sevenDaysAgo).length;
+  })();
 
   if (isLoading || metricsLoading) {
     return (
@@ -133,7 +147,7 @@ export default function AdminPlatform() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Key Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -194,6 +208,27 @@ export default function AdminPlatform() {
                 <div className="flex items-center mt-4">
                   <Activity className="h-4 w-4 text-orange-600 mr-1" />
                   <span className="text-sm text-orange-600 font-medium">Avg. {metrics?.avgTimePerAssessment || 12} min/assessment</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Beta Applications Card */}
+            <Card 
+              className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
+              onClick={() => setLocation('/admin-organizations')}
+              data-testid="card-beta-applications"
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Beta Applications</p>
+                    <p className="text-3xl font-bold text-charcoal">{betaApplicationsCount}</p>
+                  </div>
+                  <Rocket className="h-12 w-12 text-green-600" />
+                </div>
+                <div className="flex items-center mt-4">
+                  <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                  <span className="text-sm text-green-600 font-medium">Last 7 days</span>
                 </div>
               </CardContent>
             </Card>
