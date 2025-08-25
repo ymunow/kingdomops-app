@@ -2599,7 +2599,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const posts = await storage.getFeedPosts(user.organizationId, userId, filters);
-      res.json(posts);
+      
+      // ✅ Feed Config Spec: Return {items: [...], nextCursor: ...} format
+      res.json({
+        items: posts,
+        nextCursor: null // TODO: Implement cursor pagination later
+      });
     } catch (error) {
       console.error("Get feed posts error:", error);
       res.status(500).json({ message: "Failed to get feed posts" });

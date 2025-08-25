@@ -1,0 +1,261 @@
+Awesome — here’s a clean, hand‑off‑ready Feed Config Spec that puts backend and frontend on the same page. You can copy this into your repo as docs/feed-spec.md and build against it.
+
+KingdomOps Feed – Functional & API Spec
+
+1) Post Types (Enums)
+
+* testimony (regular post)
+* prayer (prayer request)
+* photo (image + caption)
+* announcement (admin‑only)
+
+2) Visibility & Scope (Enums)
+
+* visibility: members (default) | public
+* scope: church (default) | group
+
+Rule: public posts are readable without auth if the org enables it. prayer posts default to members.
+
+3) Permissions
+
+* Create
+  * Members: testimony, prayer, photo
+  * Admins (SUPER_ADMIN, ORG_OWNER, ORG_ADMIN, ORG_LEADER, ADMIN): all types including announcement
+* Edit/Delete: author or admin
+* Pin/Unpin: admin
+* Announcements: admin‑only (UI hides it; API rejects with 403 if attempted)
+
+4) Data Model (DB Table posts)
+
+id             uuid primary key
+org_id         uuid not null
+group_id       uuid null         -- for scope = 'group'
+user_id        uuid not null
+type           text check (type in ('testimony','prayer','photo','announcement')) not null
+title          text null
+body           text not null      -- caption or content
+photo_url      text null
+visibility     text check (visibility in ('members','public')) default 'members' not null
+scope          text check (scope in ('church','group')) default 'church' not null
+is_pinned      boolean default false not null
+is_announcement generated always as (type = 'announcement') stored
+created_at     timestamptz default now() not null
+updated_at     timestamptz default now() not null
+
+-- helpful indexes
+create index if not exists posts_sort_idx
+  on posts (org_id, scope, is_pinned desc, is_announcement desc, created_at desc);
+create index if not exists posts_user_idx on posts (user_id, created_at desc);
+create index if not exists posts_group_idx on posts (group_id, created_at desc);
+
+
+5) API Contract
+
+5.1 List Feed
+
+GET /api/feed?scope={church|group}&visibility={members|public}&groupId={uuid?}&cursor={iso8601?}&limit={10..50}
+
+* Auth: required for members; optional for public if org allows public feed.
+* Sorting: server returns pinned → announcements → newest.
+* Pagination: cursor = ISO timestamp of last item; returns nextCursor if more.
+
+Response
+
+{
+  "items": [
+    {
+      "id": "uuid",
+      "orgId": "uuid",
+      "groupId": "uuid|null",
+      "userId": "uuid",
+      "type": "testimony|prayer|photo|announcement",
+      "title": "string|null",
+      "body": "string",
+      "photoUrl": "string|null",
+      "visibility": "members|public",
+      "scope": "church|group",
+      "isPinned": false,
+      "isAnnouncement": false,
+      "createdAt": "2025-08-24T20:05:00.000Z"
+    }
+  ],
+  "nextCursor": "2025-08-24T19:00:00.000Z|null"
+}
+
+
+5.2 Create Post
+
+POST /api/feed/posts
+
+Auth: required
+Body
+
+{
+  "type": "testimony|prayer|photo|announcement",
+  "title": "string (optional)",
+  "body": "string (required)",
+  "photoUrl": "string (optional, required if type='photo')",
+  "visibility": "members|public (optional, default 'members')",
+  "scope": "church|group (optional, default 'church')",
+  "groupId": "uuid (required if scope='group')"
+}
+
+
+Rules
+
+* announcement → 403 if user not admin
+* photo → require photoUrl
+* prayer → may allow anonymousToMembers: true (optional future flag)
+
+Response (201)
+
+{
+  "id": "uuid",
+  "createdAt": "2025-08-24T20:05:00.000Z",
+  "...": "same shape as list item"
+}
+
+
+5.3 Edit Post
+
+PATCH /api/feed/posts/:id (author or admin)
+
+Body (any subset)
+
+{ "title": "...", "body": "...", "photoUrl": "...", "visibility": "members|public" }
+
+
+5.4 Delete Post (Soft Delete Recommended)
+
+DELETE /api/feed/posts/:id → 204
+(Optionally mark deleted_at and exclude in queries.)
+
+5.5 Pin / Unpin
+
+POST /api/feed/posts/:id/pin (admin) → { "isPinned": true }
+POST /api/feed/posts/:id/unpin (admin) → { "isPinned": false }
+
+5.6 Reactions (Optional V1)
+
+POST /api/feed/posts/:id/reactions body { "emoji": "👍" }
+DELETE /api/feed/posts/:id/reactions?emoji=👍
+
+5.7 Comments (Optional V1)
+
+* GET /api/feed/posts/:id/comments?cursor=&limit=
+* POST /api/feed/posts/:id/comments body { "body": "string" }
+
+6) Error Codes
+
+* 400 invalid enum/shape (type, visibility, scope, missing photoUrl for photo)
+* 401 auth required
+* 403 forbidden (announcement by non‑admin; edit/delete not owner/admin)
+* 404 not found (wrong org/scope/id)
+* 429 rate limited (per‑user post spam protection)
+* 500 unexpected
+
+7) Frontend Rules
+
+7.1 Composer
+
+* Tabs/selector for: Post, Prayer Request, Photo. Announcement shows only for admins.
+* Controlled inputs; submit disabled while empty or uploading.
+* On submit:
+  * send { type, title?, body, photoUrl?, visibility, scope, groupId? }
+  * Optimistic add at the top with isMine: true, then replace with server item
+* For photo: upload to storage first → get photoUrl → then create post.
+
+7.2 Feed List
+
+* Query GET /api/feed with chosen scope/visibility (default church/members).
+* Render in order received (already correctly sorted by server).
+* Empty state: “No posts yet — be the first to share.”
+* Visuals:
+  * Announcement: subtle amber accent
+  * Pinned: “Pinned” chip
+  * Own post: optional “You” tag
+* Infinite scroll using nextCursor.
+
+7.3 Filters (Optional)
+
+* Chips: All | My Posts | Prayer | Announcements | Photos
+* Text search (server param q= in V2)
+
+7.4 Accessibility
+
+* Inputs labelled; buttons have aria-label; visible focus rings.
+
+8) Auth & Security
+
+* All mutating routes require auth (JWT/Supabase).
+* Server determines org_id from token/session; client does not supply it.
+* Server checks role for announcements and pin/unpin.
+* Rate limit: e.g., max 10 posts / 5 minutes per user.
+
+9) Realtime (Optional)
+
+* Postgres/Supabase channel broadcasts INSERT/PATCH/DELETE on posts.
+* Client subscribes and merges in new/updated items (keep server order rules).
+
+10) Migration Checklist
+
+* Create posts table and indexes (above).
+* Seed roles and ensure role lookup works in API middleware.
+* Add storage bucket & upload policy for photos (public-read or signed URLs).
+* Gate public feed by org setting (if needed).
+
+11) Example Payloads
+
+Create – Testimony
+
+{
+  "type": "testimony",
+  "title": "God Came Through",
+  "body": "We saw breakthrough at the outreach today!",
+  "visibility": "members",
+  "scope": "church"
+}
+
+
+Create – Prayer (group)
+
+{
+  "type": "prayer",
+  "body": "Please pray for healing for my aunt.",
+  "scope": "group",
+  "groupId": "4a1d3d1e-1e2a-4f0e-95ec-9c1a7a5b9c22"
+}
+
+
+Create – Photo
+
+{
+  "type": "photo",
+  "body": "Baptism Sunday 🙌",
+  "photoUrl": "https://cdn.../baptism.jpg",
+  "visibility": "public",
+  "scope": "church"
+}
+
+
+Create – Announcement (admin only)
+
+{
+  "type": "announcement",
+  "title": "All‑Church Night of Prayer",
+  "body": "This Wednesday at 7pm in the main sanctuary. Childcare provided.",
+  "scope": "church"
+}
+
+
+---
+
+12) Implementation Notes
+
+* Server sorting (so every client gets the same order):
+
+order by is_pinned desc, (type='announcement') desc, created_at desc
+
+
+* Cursor pagination: use created_at < cursor for next pages.
+* Normalizer on client can be minimal once backend matches this spec.

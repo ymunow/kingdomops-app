@@ -1010,8 +1010,10 @@ export default function Connect() {
               {feedPosts && Array.isArray(feedPosts) && feedPosts.length > 0 ? (
                 feedPosts.map((post: any, index: number) => (
                   <Card key={post?.id || `post-${index}`} className={`shadow-sm hover:shadow-md transition-shadow ${
-                    post.authorId === user?.id ? 'border-2 border-spiritual-blue bg-purple-50' : ''
-                  } ${post.isOptimistic ? 'opacity-80 animate-pulse' : ''}`}>
+                    post.authorId === user?.id || post.isMine ? 'border-2 border-spiritual-blue bg-purple-50' : ''
+                  } ${post.isOptimistic ? 'opacity-80 animate-pulse' : ''} ${
+                    post.type === 'announcement' ? 'border-l-4 border-l-amber-500 bg-amber-50' : ''
+                  }`}>
                   <CardContent className="p-4">
                     {/* Post Header */}
                     <div className="flex items-start justify-between mb-4">

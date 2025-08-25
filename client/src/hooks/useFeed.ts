@@ -63,7 +63,7 @@ export function useCreatePost(scope: "church" | "group" = "church", currentUser?
       const queryKey = ["feed", scope, "members"];
       const previousFeed = queryClient.getQueryData<any[]>(queryKey) || [];
 
-      // Create optimistic post
+      // ✅ Feed Config Spec: Create optimistic post with isMine flag  
       const optimisticPost = {
         id: `optimistic-${Date.now()}`,
         authorId: currentUser?.id,
@@ -78,6 +78,7 @@ export function useCreatePost(scope: "church" | "group" = "church", currentUser?
         reactionCounts: {},
         commentCount: 0,
         isOptimistic: true, // flag for styling
+        isMine: true, // ✅ Spec compliance: Mark as user's own post
         ...newPost, // includes body, title, type, etc.
       };
 
