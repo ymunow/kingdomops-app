@@ -133,6 +133,11 @@ export default function Dashboard() {
     }
   };
 
+  // Add direct assessment navigation function
+  const handleTakeAssessment = () => {
+    setLocation("/assessment");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       {/* Top Navigation for Super Admins */}
@@ -247,7 +252,15 @@ export default function Dashboard() {
                 ) : (
                   <div className="text-center py-8 text-gray-500">
                     <Target className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                    <p>Complete your assessment to see personalized opportunities!</p>
+                    <p className="mb-3">Complete your assessment to see personalized opportunities!</p>
+                    <Button 
+                      onClick={handleTakeAssessment}
+                      className="bg-spiritual-blue hover:bg-spiritual-blue/90"
+                      data-testid="button-take-assessment-serve"
+                    >
+                      <Gift className="mr-2 h-4 w-4" />
+                      Take Assessment
+                    </Button>
                   </div>
                 )}
               </CardContent>
