@@ -116,7 +116,7 @@ export default function Gifts() {
                 Your spiritual gifts are meant to be used in service to others and for God's glory. Continue to develop these gifts through prayer, practice, and serving in your local church.
               </p>
               
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" onClick={() => window.location.href = '/assessment'}>
                 Retake Assessment
               </Button>
             </div>
@@ -129,7 +129,7 @@ export default function Gifts() {
             <p className="text-gray-600 mb-6 max-w-md mx-auto">
               Take our comprehensive assessment to discover your God-given spiritual gifts and find the perfect ways to serve in ministry.
             </p>
-            <Button size="lg" data-testid="take-assessment">
+            <Button size="lg" data-testid="take-assessment" onClick={() => window.location.href = '/assessment'}>
               <Gift className="h-5 w-5 mr-2" />
               Take Assessment
             </Button>
