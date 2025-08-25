@@ -5,10 +5,18 @@ export function useFeed(scope: "church" | "group" = "church", visibility = "memb
   return useQuery({
     queryKey: ["feed", scope, visibility],
     queryFn: async () => {
-      // Use apiRequest to handle authentication properly
-      const response = await apiRequest('GET', '/api/feed');
-      const data = await response.json();
-      return sortFeed(data);
+      try {
+        // Use apiRequest to handle authentication properly
+        const response = await apiRequest('GET', '/api/feed');
+        const data = await response.json();
+        
+        // Ensure we always return an array
+        const items = Array.isArray(data) ? data : (data.items ?? []);
+        return sortFeed(items);
+      } catch (error) {
+        console.error('Feed fetch error:', error);
+        return []; // Return empty array on error
+      }
     },
   });
 }
@@ -45,7 +53,8 @@ export function useCreatePost(scope: "church" | "group" = "church", currentUser?
         visibility: "members",
         ...payload,
       });
-      return response; // return the canonical post from API
+      const data = await response.json(); // ✅ Parse JSON, don't return raw Response
+      return data; // return the canonical post from API
     },
     onMutate: async (newPost) => {
       // Cancel outgoing refetches

@@ -1,0 +1,193 @@
+Great catch — that red overlay tells us exactly what’s wrong:
+
+> **Objects are not valid as a React child (found: `[object ReadableStream]`).**
+> This happens when some JSX is trying to render a **fetch response** (or `res.body`) instead of parsed JSON/text.
+
+In plain English: somewhere we’re doing `setState(res)` or rendering `res.body` and React is trying to paint a **stream** onto the page. That’s why the feed went blank right after we added the “instant post” work.
+
+Here’s the surgical fix list. You can copy/paste these patches and be done:
+
+---
+
+# 1) Fix the feed loader to always parse JSON
+
+**Replace** your feed fetcher (wherever you load posts) with this exact function:
+
+```ts
+// client/src/hooks/useFeed.ts (or wherever your fetcher lives)
+export async function fetchFeed(scope: "church" | "group", visibility = "members") {
+  const res = await fetch(`/api/feed?scope=${scope}&visibility=${visibility}`);
+  if (!res.ok) throw new Error(`Feed load failed: ${res.status}`);
+  // ⛔️ never return res or res.body
+  const data = await res.json();           // ✅ parse JSON
+  // Some APIs wrap as {items: [...]}; support both
+  const items = Array.isArray(data) ? data : (data.items ?? []);
+  return items;
+}
+```
+
+**If you’re using React Query:**
+
+```ts
+import { useQuery } from "@tanstack/react-query";
+import { fetchFeed } from "./fetchFeed";
+
+export function useFeed(scope: "church" | "group", visibility = "members") {
+  return useQuery({
+    queryKey: ["feed", scope, visibility],
+    queryFn: () => fetchFeed(scope, visibility),
+  });
+}
+```
+
+---
+
+# 2) Fix the creator mutation to NOT drop a Response into state
+
+Make sure the post‑create code **returns parsed JSON** and your optimistic update only inserts plain objects.
+
+```ts
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+export function useCreatePost(scope: "church" | "group") {
+  const qc = useQueryClient();
+  const key = ["feed", scope, "members"];
+
+  return useMutation({
+    mutationFn: async (payload: {
+      type: "testimony" | "prayer" | "photo" | "announcement";
+      body: string; title?: string; visibility?: "members" | "public"; photoUrl?: string;
+    }) => {
+      const res = await fetch("/api/feed/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scope, visibility: "members", ...payload }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return await res.json(); // ✅ parsed JSON (not Response)
+    },
+    onMutate: async (newPost) => {
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<any[]>(key) || [];
+      const optimistic = {
+        id: `optimistic-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        isAnnouncement: newPost.type === "announcement",
+        ...newPost,
+        isMine: true,
+      };
+      qc.setQueryData(key, [optimistic, ...prev]); // ✅ plain object
+      return { prev };
+    },
+    onError: (_err, _newPost, ctx) => {
+      if (ctx?.prev) qc.setQueryData(key, ctx.prev); // rollback
+    },
+    onSuccess: (saved) => {
+      qc.setQueryData(key, (old: any[] = []) => {
+        // remove any optimistic entries, prepend server post
+        const filtered = old.filter(p => !String(p.id).startsWith("optimistic-"));
+        return [saved, ...filtered];
+      });
+    },
+  });
+}
+```
+
+> Common pitfall we just eliminated: `return res` or `return res.body` from `mutationFn`, which later gets rendered and triggers the **ReadableStream** error.
+
+---
+
+# 3) Guard your renderer so it never tries to paint objects/streams
+
+In your feed list and card, force strings where appropriate:
+
+```tsx
+// FeedList.tsx
+export function FeedList({ items }: { items: any[] }) {
+  if (!Array.isArray(items)) return null;  // safety
+
+  return (
+    <div className="space-y-4">
+      {items.map((p) => (
+        <FeedCard key={p.id} post={p} />
+      ))}
+    </div>
+  );
+}
+
+// FeedCard.tsx
+export function FeedCard({ post }: { post: any }) {
+  // Never render raw objects:
+  const safeBody = typeof post.body === "string" ? post.body : JSON.stringify(post.body ?? "", null, 2);
+  const safeTitle = typeof post.title === "string" ? post.title : "";
+
+  return (
+    <article className="rounded-xl border p-4">
+      {safeTitle && <h3 className="font-semibold">{safeTitle}</h3>}
+      <p className="whitespace-pre-wrap">{safeBody}</p>
+      {/* createdAt display etc. */}
+    </article>
+  );
+}
+```
+
+Also scan for these anti‑patterns and fix if present:
+
+* `setFeed(res)` → **should be** `setFeed(await res.json())`
+* `{feed}` in JSX → **should be** `{feed.map(...)}`
+* `{post}` in JSX → **should be** render its fields
+* `{res.body}` anywhere in JSX → remove; parse JSON first
+
+---
+
+# 4) Quick repo search (2 minutes)
+
+Search your project for tell‑tale mistakes:
+
+* `res.body`
+* `setFeed(` where the argument is `res` or a `fetch(...)` call
+* `return res` inside any fetcher or mutation
+* rendering a whole `res`/`response`/`data` object directly in JSX
+
+Example grep commands (Replit shell):
+
+```
+grep -R "res.body" client -n
+grep -R "return res$" client -n
+grep -R "setFeed(" client -n
+grep -R "<Feed.*{.*res" client -n
+```
+
+Fix any hits per the patterns above.
+
+---
+
+# 5) (Optional) Hide the Vite overlay while testing
+
+This is just cosmetic; the real fix is above. If you need to keep working while you hunt:
+
+```ts
+// vite.config.ts
+server: {
+  hmr: { overlay: false }
+}
+```
+
+---
+
+## About announcements
+
+Your earlier instinct is correct — **Announcements should remain admin‑only**. We already enforce both:
+
+* **UI**: don’t show the option for non‑admins
+* **API**: return `403` if a non‑admin posts `type:"announcement"`
+
+That closes any loopholes.
+
+---
+
+### What likely happened
+
+When we added optimistic updates / new fetching, one code path started returning the **raw `Response`** instead of **`await res.json()`**. React then tried to render the `ReadableStream` sitting at `res.body`, which triggers the exact error you’re seeing.
+
+Apply the three patches above (fetcher, mutation, renderer). That removes every path where a stream could sneak into React, and your feed will render normally again — with your newest post showing up instantly at the top.

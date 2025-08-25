@@ -1007,9 +1007,9 @@ export default function Connect() {
             
             {/* Real API Feed Data */}
             <div className="space-y-4">
-              {feedPosts && feedPosts.length > 0 ? (
-                feedPosts.map((post: any) => (
-                  <Card key={post.id} className={`shadow-sm hover:shadow-md transition-shadow ${
+              {feedPosts && Array.isArray(feedPosts) && feedPosts.length > 0 ? (
+                feedPosts.map((post: any, index: number) => (
+                  <Card key={post?.id || `post-${index}`} className={`shadow-sm hover:shadow-md transition-shadow ${
                     post.authorId === user?.id ? 'border-2 border-spiritual-blue bg-purple-50' : ''
                   } ${post.isOptimistic ? 'opacity-80 animate-pulse' : ''}`}>
                   <CardContent className="p-4">
@@ -1049,7 +1049,9 @@ export default function Connect() {
 
                     {/* Post Content */}
                     <div className="mb-4">
-                      <p className="text-gray-700 text-sm leading-relaxed mb-3">{post.body}</p>
+                      <p className="text-gray-700 text-sm leading-relaxed mb-3">
+                        {typeof post.body === "string" ? post.body : JSON.stringify(post.body || "")}
+                      </p>
                       {post.attachments && post.attachments.length > 0 && (
                         <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                           <img 
