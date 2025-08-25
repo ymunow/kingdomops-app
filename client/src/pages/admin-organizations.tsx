@@ -191,6 +191,72 @@ export default function AdminOrganizations() {
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
+          {/* Recent Beta Applications Alert */}
+          {(() => {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const recentBetaApps = organizations?.filter(org => 
+              new Date(org.createdAt) > sevenDaysAgo
+            ) || [];
+            
+            if (recentBetaApps.length === 0) return null;
+            
+            return (
+              <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 shadow-lg">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="bg-green-600 rounded-full p-2">
+                      <Church className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-green-800">
+                        🚀 New Beta Applications ({recentBetaApps.length})
+                      </h3>
+                      <p className="text-green-700">Churches that have applied in the last 7 days</p>
+                    </div>
+                  </div>
+                  <div className="grid gap-3">
+                    {recentBetaApps.map((org) => (
+                      <div key={org.id} className="bg-white rounded-lg border border-green-200 p-4 shadow-sm">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h4 className="font-semibold text-gray-900">{org.name}</h4>
+                              <Badge className="bg-green-100 text-green-800 border-green-300">
+                                NEW
+                              </Badge>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-gray-600">
+                              <div>📧 {org.contactEmail}</div>
+                              <div>👥 {org.memberCount} members</div>
+                              <div>📅 {new Date(org.createdAt).toLocaleDateString()}</div>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button 
+                              size="sm" 
+                              onClick={() => setLocation(`/admin/organizations/${org.id}`)}
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              Review
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => setEditingOrg(org)}
+                            >
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
           {/* Search and Filters */}
           <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
             <CardContent className="p-6">
