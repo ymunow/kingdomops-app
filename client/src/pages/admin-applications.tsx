@@ -3,8 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
+// Dialog imports removed - using custom modal components
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 import { apiRequest } from '@/lib/queryClient';
@@ -19,6 +18,8 @@ import {
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { MainLayout } from '@/components/navigation/main-layout';
+import { ApproveOrganizationModal } from '@/components/modals/approve-organization-modal';
+import { RejectOrganizationModal } from '@/components/modals/reject-organization-modal';
 
 interface Organization {
   id: string;
@@ -41,8 +42,7 @@ export default function AdminApplications() {
 
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-  const [isDenyModalOpen, setIsDenyModalOpen] = useState(false);
-  const [denyReason, setDenyReason] = useState('');
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
   // Fetch pending applications
   const { data: applications, isLoading } = useQuery<Organization[]>({
@@ -50,78 +50,26 @@ export default function AdminApplications() {
     enabled: !!user && user.role === 'SUPER_ADMIN',
   });
 
-  // Approve mutation
-  const approveMutation = useMutation({
-    mutationFn: async (orgId: string) => {
-      return apiRequest(`/api/admin/orgs/${orgId}/approve`, {
-        method: 'POST',
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/orgs'] });
-      toast({
-        title: "Application Approved",
-        description: "The church application has been approved successfully.",
-      });
-      setIsApproveModalOpen(false);
-      setSelectedOrg(null);
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to approve application. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Deny mutation
-  const denyMutation = useMutation({
-    mutationFn: async ({ orgId, reason }: { orgId: string; reason: string }) => {
-      return apiRequest(`/api/admin/orgs/${orgId}/deny`, {
-        method: 'POST',
-        data: { reason },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/orgs'] });
-      toast({
-        title: "Application Denied",
-        description: "The church application has been denied.",
-      });
-      setIsDenyModalOpen(false);
-      setSelectedOrg(null);
-      setDenyReason('');
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to deny application. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
+  // Mutations are now handled in the modal components
 
   const handleApprove = (org: Organization) => {
     setSelectedOrg(org);
     setIsApproveModalOpen(true);
   };
 
-  const handleDeny = (org: Organization) => {
+  const handleReject = (org: Organization) => {
     setSelectedOrg(org);
-    setIsDenyModalOpen(true);
+    setIsRejectModalOpen(true);
   };
 
-  const confirmApprove = () => {
-    if (selectedOrg) {
-      approveMutation.mutate(selectedOrg.id);
-    }
+  const closeApproveModal = () => {
+    setIsApproveModalOpen(false);
+    setSelectedOrg(null);
   };
 
-  const confirmDeny = () => {
-    if (selectedOrg) {
-      denyMutation.mutate({ orgId: selectedOrg.id, reason: denyReason });
-    }
+  const closeRejectModal = () => {
+    setIsRejectModalOpen(false);
+    setSelectedOrg(null);
   };
 
   if (user?.role !== 'SUPER_ADMIN') {
@@ -245,7 +193,7 @@ export default function AdminApplications() {
                         </Button>
                         <Button
                           variant="outline"
-                          onClick={() => handleDeny(org)}
+                          onClick={() => handleReject(org)}
                           className="border-red-300 text-red-600 hover:bg-red-50"
                           data-testid={`button-deny-${org.id}`}
                         >
@@ -261,61 +209,26 @@ export default function AdminApplications() {
           </div>
         </div>
 
-        {/* Approve Confirmation Modal */}
-        <Dialog open={isApproveModalOpen} onOpenChange={setIsApproveModalOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Approve Application</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to approve "{selectedOrg?.name}"? This will activate their church account and grant access to all platform features.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsApproveModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button 
-                onClick={confirmApprove}
-                disabled={approveMutation.isPending}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                {approveMutation.isPending ? 'Approving...' : 'Approve'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Deny Confirmation Modal */}
-        <Dialog open={isDenyModalOpen} onOpenChange={setIsDenyModalOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Deny Application</DialogTitle>
-              <DialogDescription>
-                Please provide a reason for denying "{selectedOrg?.name}". This will be recorded for future reference.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <Textarea
-                placeholder="Enter reason for denial..."
-                value={denyReason}
-                onChange={(e) => setDenyReason(e.target.value)}
-                className="min-h-[100px]"
-              />
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDenyModalOpen(false)}>
-                Cancel
-              </Button>
-              <Button 
-                onClick={confirmDeny}
-                disabled={denyMutation.isPending || !denyReason.trim()}
-                variant="destructive"
-              >
-                {denyMutation.isPending ? 'Denying...' : 'Deny Application'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* Enhanced Modal Components */}
+        <ApproveOrganizationModal
+          organization={selectedOrg ? {
+            id: selectedOrg.id,
+            name: selectedOrg.name,
+            contactEmail: selectedOrg.contactEmail
+          } : null}
+          open={isApproveModalOpen}
+          onClose={closeApproveModal}
+        />
+        
+        <RejectOrganizationModal
+          organization={selectedOrg ? {
+            id: selectedOrg.id,
+            name: selectedOrg.name,
+            contactEmail: selectedOrg.contactEmail
+          } : null}
+          open={isRejectModalOpen}
+          onClose={closeRejectModal}
+        />
       </div>
     </MainLayout>
   );

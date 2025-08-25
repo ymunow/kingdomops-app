@@ -4,6 +4,8 @@ import {
   type UpsertUser,
   type Organization,
   type InsertOrganization,
+  type WaitlistChurch,
+  type InsertWaitlistChurch,
   type AssessmentVersion,
   type InsertAssessmentVersion,
   type Question,
@@ -36,6 +38,7 @@ import {
   type FeedFilters,
   users,
   organizations,
+  waitlistChurches,
   assessmentVersions,
   questions,
   responses,
@@ -192,6 +195,11 @@ export interface IStorage {
     enabled: boolean;
     order: number;
   }>): Promise<void>;
+
+  // Waitlist operations
+  addToWaitlist(waitlist: InsertWaitlistChurch): Promise<WaitlistChurch>;
+  getWaitlistChurches(): Promise<WaitlistChurch[]>;
+  removeFromWaitlist(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1045,6 +1053,20 @@ export class DatabaseStorage implements IStorage {
       `);
     }
   }
+
+  // Waitlist operations
+  async addToWaitlist(waitlist: InsertWaitlistChurch): Promise<WaitlistChurch> {
+    const [waitlistEntry] = await db.insert(waitlistChurches).values(waitlist).returning();
+    return waitlistEntry;
+  }
+
+  async getWaitlistChurches(): Promise<WaitlistChurch[]> {
+    return await db.select().from(waitlistChurches).orderBy(desc(waitlistChurches.createdAt));
+  }
+
+  async removeFromWaitlist(id: string): Promise<void> {
+    await db.delete(waitlistChurches).where(eq(waitlistChurches.id, id));
+  }
 }
 
 class MemStorage implements IStorage {
@@ -1770,6 +1792,29 @@ class MemStorage implements IStorage {
 
   async updateEngagementScore(postId: string): Promise<void> {
     // Implementation for MemStorage
+  }
+
+  // Waitlist operations (MemStorage implementation)
+  private waitlist = new Map<string, WaitlistChurch>();
+
+  async addToWaitlist(waitlist: InsertWaitlistChurch): Promise<WaitlistChurch> {
+    const newWaitlistEntry: WaitlistChurch = {
+      id: nanoid(),
+      ...waitlist,
+      createdAt: new Date(),
+    };
+    this.waitlist.set(newWaitlistEntry.id, newWaitlistEntry);
+    return newWaitlistEntry;
+  }
+
+  async getWaitlistChurches(): Promise<WaitlistChurch[]> {
+    return Array.from(this.waitlist.values()).sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  async removeFromWaitlist(id: string): Promise<void> {
+    this.waitlist.delete(id);
   }
 }
 

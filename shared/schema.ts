@@ -210,12 +210,26 @@ export const organizations = pgTable("organizations", {
   description: text("description"),
   status: organizationStatusEnum("status").default("PENDING"),
   deniedReason: text("denied_reason"),
+  reviewedBy: varchar("reviewed_by").references(() => users.id), // Admin who reviewed the application
   approvedAt: timestamp("approved_at"),
   deniedAt: timestamp("denied_at"),
   settings: jsonb("settings").default({}), // Custom settings per org
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Waitlist for rejected churches who want to be notified when platform launches
+export const waitlistChurches = pgTable("waitlist_churches", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id").references(() => organizations.id, { onDelete: "set null" }),
+  churchName: varchar("church_name").notNull(),
+  contactEmail: varchar("contact_email").notNull(),
+  source: varchar("source").default("beta_rejected"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_waitlist_email_church").on(table.contactEmail, table.churchName),
+]);
 
 // User storage table.
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
@@ -1125,6 +1139,9 @@ export type ProfileCompletionStep = typeof profileCompletionSteps.$inferSelect;
 export type InsertProfileCompletionStep = typeof profileCompletionSteps.$inferInsert;
 export type ProfileStepConfiguration = typeof profileStepConfigurations.$inferSelect;
 export type InsertProfileStepConfiguration = typeof profileStepConfigurations.$inferInsert;
+
+export type WaitlistChurch = typeof waitlistChurches.$inferSelect;
+export type InsertWaitlistChurch = typeof waitlistChurches.$inferInsert;
 
 // Profile completion progress data structure
 export type ProfileProgress = {

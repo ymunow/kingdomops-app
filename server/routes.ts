@@ -1380,11 +1380,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Approve organization application
   app.post("/api/admin/orgs/:id/approve", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {
+      const { makeOwnerUserId } = req.body;
+      const reviewerId = (req.user as any)?.id;
+      
       const organization = await storage.updateOrganization(req.params.id, {
         status: "APPROVED",
         approvedAt: new Date(),
+        reviewedBy: reviewerId,
         deniedReason: null
       });
+      
+      // TODO: Send approval email to organization contact
       
       res.json({
         success: true,
@@ -1397,26 +1403,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Deny organization application
-  app.post("/api/admin/orgs/:id/deny", isAuthenticated, requireSuperAdmin, async (req, res) => {
+  // Reject organization application  
+  app.post("/api/admin/orgs/:id/reject", isAuthenticated, requireSuperAdmin, async (req, res) => {
     try {
-      const { reason } = req.body;
+      const { reason, waitlist, noteToApplicant } = req.body;
+      const reviewerId = (req.user as any)?.id;
+      
+      if (!reason) {
+        return res.status(400).json({ message: "Rejection reason is required" });
+      }
       
       const organization = await storage.updateOrganization(req.params.id, {
-        status: "DENIED",
+        status: "DENIED", // Keep existing status name for consistency
         deniedAt: new Date(),
-        deniedReason: reason || null,
+        deniedReason: reason,
+        reviewedBy: reviewerId,
         approvedAt: null
       });
+      
+      // If waitlist requested, add to waitlist
+      if (waitlist && organization) {
+        await storage.addToWaitlist({
+          orgId: organization.id,
+          churchName: organization.name,
+          contactEmail: organization.contactEmail || '',
+          source: 'beta_rejected',
+          notes: noteToApplicant || null
+        });
+      }
+      
+      // TODO: Send rejection email (with waitlist info if applicable)
       
       res.json({
         success: true,
         organization,
-        message: "Organization denied successfully"
+        message: waitlist ? "Organization rejected and added to waitlist" : "Organization rejected successfully"
       });
     } catch (error) {
-      console.error("Deny organization error:", error);
-      res.status(500).json({ message: "Failed to deny organization" });
+      console.error("Reject organization error:", error);
+      res.status(500).json({ message: "Failed to reject organization" });
+    }
+  });
+
+  // Activate organization (APPROVED → ACTIVE)
+  app.post("/api/admin/orgs/:id/activate", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const organization = await storage.getOrganization(req.params.id);
+      
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+      
+      if (organization.status !== "APPROVED") {
+        return res.status(400).json({ message: "Only approved organizations can be activated" });
+      }
+      
+      const updatedOrg = await storage.updateOrganization(req.params.id, {
+        status: "ACTIVE"
+      });
+      
+      res.json({
+        success: true,
+        organization: updatedOrg,
+        message: "Organization activated successfully"
+      });
+    } catch (error) {
+      console.error("Activate organization error:", error);
+      res.status(500).json({ message: "Failed to activate organization" });
     }
   });
 
