@@ -985,10 +985,10 @@ export default function Connect() {
               currentUser={{ 
                 id: user?.id || '', 
                 role: user?.role,
-                displayName: user?.displayName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email,
-                firstName: user?.firstName,
-                lastName: user?.lastName,
-                profileImageUrl: user?.profileImageUrl
+                displayName: user?.displayName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.email || undefined,
+                firstName: user?.firstName || undefined,
+                lastName: user?.lastName || undefined,
+                profileImageUrl: user?.profileImageUrl || undefined
               }}
               onPosted={() => {
                 // Force refetch the feed data immediately
@@ -1007,10 +1007,8 @@ export default function Connect() {
             {/* Real API Feed Data */}
             <div className="space-y-4">
               {feedPosts && feedPosts.length > 0 ? (
-                feedPosts.map((post: any) => {
-                  console.log('🔍 POST DEBUG:', post);
-                  return (
-                <Card key={post.id} className="shadow-sm hover:shadow-md transition-shadow">
+                feedPosts.map((post: any) => (
+                  <Card key={post.id} className="shadow-sm hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     {/* Post Header */}
                     <div className="flex items-start justify-between mb-4">
@@ -1088,8 +1086,7 @@ export default function Connect() {
                     </div>
                   </CardContent>
                 </Card>
-                  );
-                })
+                ))
               ) : (
                 <div className="text-center py-8">
                   <p className="text-gray-500">
