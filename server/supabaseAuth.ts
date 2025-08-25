@@ -23,33 +23,38 @@ export async function setupSupabaseAuth(app: Express) {
         // For development, temporarily decode JWT without full verification
         // This allows us to test the feed functionality while fixing Supabase config
         const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        console.log('Auth middleware - Token payload structure:', payload);
         
-        if (payload.email && payload.userId) {
-          console.log('Auth middleware - User authenticated:', payload.email);
+        // Handle different token structures
+        const userId = payload.userId || payload.user_id || payload.sub;
+        const email = payload.email;
+        
+        if (email && userId) {
+          console.log('Auth middleware - User authenticated:', email, 'ID:', userId);
           
           // Get user from database
-          const dbUser = await storage.getUser(payload.userId);
+          const dbUser = await storage.getUser(userId);
           
           if (dbUser) {
             // Store user info in request for downstream middleware
             req.user = {
-              id: payload.userId,
-              email: payload.email,
+              id: userId,
+              email: email,
               firstName: dbUser.firstName,
               lastName: dbUser.lastName,
               profileImageUrl: dbUser.profileImageUrl,
               role: dbUser.role,
               organizationId: dbUser.organizationId,
               claims: {
-                sub: payload.userId,
-                email: payload.email,
+                sub: userId,
+                email: email,
               }
             };
           } else {
-            console.log('Auth middleware - User not found in database');
+            console.log('Auth middleware - User not found in database for ID:', userId);
           }
         } else {
-          console.log('Auth middleware - Invalid token payload');
+          console.log('Auth middleware - Invalid token payload, missing email or userId');
         }
       } catch (error) {
         console.log('Auth middleware - Token decode error:', error);
