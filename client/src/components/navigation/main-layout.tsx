@@ -103,7 +103,7 @@ export function MainLayout({ children }: MainLayoutProps) {
             </Button>
             
             {/* Apps Switcher - Only for admins */}
-            {(isSuperAdmin || isAdmin) && (
+            {(isSuperAdmin || isAdmin) && user && (
               <AppSwitcher user={user} className="bg-white/20 hover:bg-white/30 border-white/30 hover:border-white/40 rounded-full px-4 py-2 transition-all duration-200" />
             )}
           </div>
@@ -138,28 +138,62 @@ export function MainLayout({ children }: MainLayoutProps) {
               </div>
             )}
             
-            {/* Profile Avatar - For non-admin users */}
+            {/* Profile Menu - For non-admin users */}
             {!isAdmin && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleProfileClick}
-                className="text-white hover:bg-white/10 rounded-full p-2"
-                data-testid="header-profile"
-              >
-                <Avatar className="w-8 h-8">
-                  {user?.profileImageUrl && (
-                    <AvatarImage 
-                      src={user.profileImageUrl} 
-                      alt="Profile" 
-                      className="object-cover" 
-                    />
-                  )}
-                  <AvatarFallback className="bg-white/20 text-white text-sm font-bold">
-                    {user?.displayName?.charAt(0) || user?.firstName?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10 rounded-full p-2"
+                    data-testid="header-profile"
+                  >
+                    <Avatar className="w-8 h-8">
+                      {user?.profileImageUrl && (
+                        <AvatarImage 
+                          src={user.profileImageUrl} 
+                          alt="Profile" 
+                          className="object-cover" 
+                        />
+                      )}
+                      <AvatarFallback className="bg-white/20 text-white text-sm font-bold">
+                        {user?.displayName?.charAt(0) || user?.firstName?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-2" align="end">
+                  <div className="space-y-1">
+                    <div className="px-3 py-2 border-b border-gray-100">
+                      <p className="font-medium text-sm text-gray-900">
+                        {user?.displayName || user?.firstName || 'Member'}
+                      </p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleProfileClick}
+                      className="w-full justify-start text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                      data-testid="menu-profile"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      My Profile
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleLogout}
+                      disabled={signOutMutation.isPending}
+                      className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                      data-testid="menu-sign-out"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      {signOutMutation.isPending ? 'Signing out...' : 'Sign Out'}
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             )}
             
             {/* Divider */}
