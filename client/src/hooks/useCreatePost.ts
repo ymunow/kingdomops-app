@@ -18,22 +18,15 @@ export function useCreatePost(scope: "church" | "group" = "church", visibility: 
 
   return useMutation({
     mutationFn: async (payload: CreatePayload) => {
-      const res = await fetch('/api/feed/posts', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')?.replace(/"/g, '') || ''}`
-        },
-        body: JSON.stringify({ 
-          ...payload, 
-          scope, 
-          visibility 
-        }),
+      // ✅ Use apiRequest which handles auth correctly (just like the working GET requests)
+      const res = await apiRequest('POST', '/api/feed/posts', {
+        ...payload, 
+        scope, 
+        visibility 
       });
-      if (!res.ok) throw new Error(await res.text());
       
-      // Parse response, fallback if needed
-      const saved = await res.json().catch(() => ({}));
+      // Parse response  
+      const saved = await res.json();
       return saved?.id ? saved : { 
         ...payload, 
         id: `saved-${Date.now()}`, 

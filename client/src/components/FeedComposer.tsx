@@ -66,7 +66,7 @@ export function FeedComposer({
     try {
       // ✅ Force consistent scope/visibility - no prop variation
       if (createPostMutation) {
-        console.log('🚀 SUBMITTING POST:', {
+        console.log('🚀 SUBMITTING POST (using working apiRequest):', {
           type: postType,
           body: body.trim(),
           title: title.trim() || undefined,

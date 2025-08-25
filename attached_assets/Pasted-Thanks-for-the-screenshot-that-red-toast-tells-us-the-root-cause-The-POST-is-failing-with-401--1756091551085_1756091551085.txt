@@ -1,0 +1,132 @@
+Thanks for the screenshot—that red toast tells us the root cause:
+
+# The POST is failing with **401 Unauthorized**
+
+Your feed GET works (you see 3 posts), but the **create** request is **unauthenticated**. That’s why the post never appears.
+
+Two common reasons:
+
+1. The request to `/api/feed/posts` isn’t sending your auth (Bearer token or cookie).
+2. You’re in “Viewing as Church Member” preview and the preview user has **no auth/session** bound to the API (UI looks logged in, server sees no token).
+
+Let’s fix it decisively.
+
+---
+
+## Fix A — send auth with the POST (and GET if your API requires it)
+
+### 1) Grab your Supabase (or JWT) token where you build fetch calls
+
+```ts
+// auth.ts (helper)
+export async function getAuthToken() {
+  // Supabase example; adapt to your auth library
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token || null;
+}
+```
+
+### 2) Use it in the mutation (and include credentials if your API uses cookies)
+
+```ts
+// useCreatePost.ts
+import { getAuthToken } from "../auth";
+
+export function useCreatePost(scope: "church" | "group" = "church", visibility: "members" | "public" = "members") {
+  const qc = useQueryClient();
+  const key = ["feed", scope, visibility] as const;
+
+  return useMutation({
+    mutationFn: async (payload) => {
+      const token = await getAuthToken();  // ✅ get token
+      const res = await fetch("/api/feed/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        // If your server uses httpOnly session cookies, also add:
+        credentials: "include", // ✅ only if server session cookie is used
+        body: JSON.stringify({ scope, visibility, ...payload }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return await res.json();
+    },
+    // ...onMutate/onSuccess as you already have
+  });
+}
+```
+
+### 3) If your GET `/api/feed` also requires auth, do the same:
+
+```ts
+const token = await getAuthToken();
+const res = await fetch(`/api/feed?scope=${scope}&visibility=${visibility}`, {
+  headers: token ? { Authorization: `Bearer ${token}` } : {},
+  credentials: "include", // if server uses cookies
+});
+```
+
+> **401 means “no/invalid token.”** If you were missing permissions you’d see **403**. So the fix is to **send the token** (or include cookies) on the POST.
+
+---
+
+## Fix B — confirm server middleware accepts both header and cookies
+
+On the server, ensure your auth middleware does **either** of these:
+
+```ts
+// 1) Bearer token in header
+const auth = req.headers.authorization;
+const token = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
+
+// 2) Or httpOnly cookie (if you use cookie sessions)
+const cookieToken = req.cookies?.access_token || null;
+
+// Use whichever is present
+const jwt = token ?? cookieToken;
+if (!jwt) return res.status(401).json({ message: "Unauthorized" });
+```
+
+If you only validate cookies but your client sends headers (or vice‑versa), you’ll keep getting 401s.
+
+---
+
+## Fix C — exit “View As” preview while testing create
+
+Your screenshot shows the banner **“Viewing as Church Member.”** Some preview/impersonation modes don’t carry a real session to the API.
+
+* Click **“Return to Super Admin”** and try posting again.
+* Or refresh your session: sign out → sign back in, then post.
+* Either way, after Fix A the POST will carry a valid token and the 401 will disappear.
+
+---
+
+## 20‑second verification (do this now)
+
+Open DevTools Console on `/connect`:
+
+```js
+// Check whether you can hit a protected endpoint with auth:
+(async () => {
+  const r = await fetch('/api/feed/posts', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    // if your API uses cookies, add credentials
+    // credentials:'include',
+    body: JSON.stringify({ type:'testimony', body:'Auth test', scope:'church', visibility:'members' })
+  });
+  console.log('POST /api/feed/posts ->', r.status);
+  console.log('text:', await r.text());
+})();
+```
+
+* If you still see **401**, the request isn’t sending a token/cookie. Apply Fix A exactly.
+* If you see **403**, your auth works but the **role** lacks permission (unlikely for `testimony` but check announcements).
+* If it’s **201/200**, your post will show—your optimistic path will then keep it at the top.
+
+---
+
+### TL;DR
+
+Your POST is unauthenticated. Add the **Authorization: Bearer \<token>** header (or `credentials:"include"` for cookie auth) to your create call, and avoid “View As” while testing. Once the POST returns 201/200, the new item will appear instantly and persist after refetch.
