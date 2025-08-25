@@ -1,0 +1,59 @@
+Ah—your confirmation link is pointing to http://localhost:3000/auth, which only works on your dev machine. That’s why you hit “This site can’t be reached.” This happens when the auth provider (very likely Supabase) is configured with a localhost Site URL / redirect or your app sends sign‑up emails with a redirectTo set to localhost.
+Here’s the fix, both immediate and permanent.
+Quick workaround (right now)
+In the email link you received, replace the domain part:
+Change http://localhost:3000 → your live domain (e.g. https://<your-app>.replit.dev or https://kingdomops.org).
+Open the modified link. It should land on https://<domain>/auth#access_token=... and complete the confirmation.
+If the token is expired, just resend after you do the permanent fix below.
+Permanent fix (do this once)
+1) Supabase (or your auth service) settings
+Go to Auth → URL Configuration.
+Set Site URL to your production URL, e.g.:
+https://<your-app>.janeway.replit.dev (current Replit domain), or
+https://kingdomops.org (if routed to the app)
+In Redirect URLs (additional) add:
+https://<your-app>.janeway.replit.dev/auth
+https://kingdomops.org/auth
+http://localhost:3000/auth (keep for dev)
+Supabase uses Site URL to build the confirmation link (#access_token=...). If it’s localhost, all emails keep sending localhost.
+2) Code: always pass a production redirect
+Where you create users/invites, pass redirectTo (or emailRedirectTo) that points to your /auth route.
+Client sign‑up:
+await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: `${PUBLIC_SITE_URL}/auth`, // e.g. https://kingdomops.org/auth
+  },
+});
+OTP / magic link:
+await supabase.auth.signInWithOtp({
+  email,
+  options: {
+    emailRedirectTo: `${PUBLIC_SITE_URL}/auth`,
+  },
+});
+Admin invite:
+await supabase.auth.admin.inviteUserByEmail(email, {
+  redirectTo: `${PUBLIC_SITE_URL}/auth`,
+});
+3) Environment variable used by the client
+Set a single env var and use it everywhere:
+For Vite: VITE_PUBLIC_SITE_URL=https://kingdomops.org (or your Replit URL)
+For Next.js: NEXT_PUBLIC_SITE_URL=...
+Then in code, reference import.meta.env.VITE_PUBLIC_SITE_URL (Vite) or process.env.NEXT_PUBLIC_SITE_URL (Next).
+4) Confirm the /auth handler exists
+Your frontend route /auth must read the hash and finish the session:
+For Supabase:
+On mount, call supabase.auth.getSession() or supabase.auth.onAuthStateChange to pick up the tokens in the URL hash.
+Show a “You’re confirmed—redirecting…” message, then route to the app.
+If you’re already using Supabase’s helpers, you likely have this. The problem is the URL, not the handler.
+After changes
+Resend a confirmation (or invite) and click the link again.
+The URL should now be https://kingdomops.org/auth#access_token=... (or your Replit domain).
+You should land in the app as a confirmed user and the church‑code flow can continue.
+Bonus sanity checks
+Make sure both HTTP and HTTPS variants you’ll use are in Supabase Redirect URLs (it’s picky).
+If you proxy through a custom domain, verify that domain serves the same app and /auth route.
+Keep http://localhost:3000/auth in the allowed list for dev testing.
+If you want, paste your current production URL and I’ll give you the exact values for Site URL, Redirect URLs, and the code snippet using your actual domain.
