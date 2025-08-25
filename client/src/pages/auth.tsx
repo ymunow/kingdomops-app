@@ -51,9 +51,9 @@ export default function AuthPage() {
           refresh_token: refreshToken
         }).then(() => {
           alert('Email confirmed! You are now signed in.');
-          // Clear URL and redirect to main app
-          window.history.replaceState({}, '', '/connect');
-          window.location.href = '/connect';
+          // Clear URL and redirect to main app - use root path for production
+          window.history.replaceState({}, '', '/');
+          window.location.href = '/';
         }).catch((error) => {
           console.error('Session error:', error);
           alert('Email confirmed but there was an issue signing you in. Please try signing in manually.');
