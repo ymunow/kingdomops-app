@@ -26,6 +26,7 @@ import AdminOrganizationSettings from "@/pages/admin-organization-settings";
 import AdminSystem from "@/pages/admin-system";
 import AdminQuestions from "@/pages/admin-questions";
 import AdminApplications from "@/pages/admin-applications";
+import AdminApprovedChurches from "@/pages/admin-approved-churches";
 import AdminChurches from "@/pages/admin-churches";
 import AdminChurchDetail from "@/pages/admin-church-detail";
 import ChurchOverview from "@/pages/church-overview";
@@ -211,7 +212,10 @@ function Router() {
                 <Route path="/admin/applications">
                   {() => (user as any)?.role === 'SUPER_ADMIN' ? <AdminApplications /> : <NotFound />}
                 </Route>
-                <Route path="/admin/churches">
+                <Route path="/admin/approved-churches">
+                  {() => (user as any)?.role === 'SUPER_ADMIN' ? <AdminApprovedChurches /> : <NotFound />}
+                </Route>
+                <Route path="/admin/active-churches">
                   {() => (user as any)?.role === 'SUPER_ADMIN' ? <AdminChurches /> : <NotFound />}
                 </Route>
                 <Route path="/admin/churches/:id">

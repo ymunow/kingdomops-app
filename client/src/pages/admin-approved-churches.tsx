@@ -5,14 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 import { 
-  CheckCircle, 
+  Clock, 
   Calendar,
   Globe,
   Mail,
   ArrowLeft,
   ExternalLink,
   Users,
-  ChevronRight
+  ChevronRight,
+  CheckCircle2
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { MainLayout } from '@/components/navigation/main-layout';
@@ -30,13 +31,13 @@ interface Organization {
   createdAt: string;
 }
 
-export default function AdminActiveChurches() {
+export default function AdminApprovedChurches() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
 
-  // Fetch only active churches (fully onboarded)
+  // Fetch approved churches (ready to activate)
   const { data: churches, isLoading } = useQuery<Organization[]>({
-    queryKey: ['/api/admin/orgs?status=active'],
+    queryKey: ['/api/admin/orgs?status=approved'],
     enabled: !!user && user.role === 'SUPER_ADMIN',
   });
 
@@ -75,12 +76,12 @@ export default function AdminActiveChurches() {
                 Back to Dashboard
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-charcoal">Active Churches</h1>
-                <p className="text-gray-600 mt-1">Fully onboarded and actively using the platform</p>
+                <h1 className="text-3xl font-bold text-charcoal">Approved Churches</h1>
+                <p className="text-gray-600 mt-1">Churches approved but waiting to activate</p>
               </div>
             </div>
-            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-              {churches?.length || 0} Active
+            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
+              {churches?.length || 0} Ready to Activate
             </Badge>
           </div>
 
@@ -101,9 +102,9 @@ export default function AdminActiveChurches() {
             ) : churches?.length === 0 ? (
               <Card>
                 <CardContent className="p-12 text-center">
-                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-charcoal mb-2">No Active Churches</h3>
-                  <p className="text-gray-600">No churches have completed onboarding and become active yet.</p>
+                  <CheckCircle2 className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-charcoal mb-2">No Churches Waiting</h3>
+                  <p className="text-gray-600">All approved churches have already been activated.</p>
                 </CardContent>
               </Card>
             ) : (
@@ -119,9 +120,9 @@ export default function AdminActiveChurches() {
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-4">
                           <h3 className="text-xl font-semibold text-charcoal">{church.name}</h3>
-                          <Badge className="bg-green-100 text-green-800">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Active
+                          <Badge className="bg-blue-100 text-blue-800">
+                            <Clock className="h-3 w-3 mr-1" />
+                            Ready to Activate
                           </Badge>
                         </div>
 
@@ -171,9 +172,16 @@ export default function AdminActiveChurches() {
                               className="flex items-center text-blue-600 hover:text-blue-800"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              Visit Site <ExternalLink className="h-3 w-3 ml-1" />
+                              Visit Portal <ExternalLink className="h-3 w-3 ml-1" />
                             </a>
                           )}
+                        </div>
+
+                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-sm text-blue-800">
+                            <strong>Next Steps:</strong> This church is approved and ready for onboarding. 
+                            They will move to "Active" status once they complete setup or have their first login.
+                          </p>
                         </div>
                       </div>
 
