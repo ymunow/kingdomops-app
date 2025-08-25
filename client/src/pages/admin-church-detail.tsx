@@ -122,7 +122,21 @@ export default function AdminChurchDetail({ params }: ChurchDetailProps) {
             <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
-                onClick={() => setLocation('/admin/churches')}
+                onClick={() => {
+                  // Navigate back to appropriate admin page based on status
+                  switch (church.status) {
+                    case 'PENDING':
+                      setLocation('/admin/applications');
+                      break;
+                    case 'APPROVED':
+                      setLocation('/admin/approved-churches');
+                      break;
+                    case 'ACTIVE':
+                    default:
+                      setLocation('/admin/active-churches');
+                      break;
+                  }
+                }}
                 className="flex items-center"
                 data-testid="button-back-churches"
               >
