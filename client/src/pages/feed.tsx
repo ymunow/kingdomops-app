@@ -52,7 +52,8 @@ export default function Feed() {
   // Create post mutation
   const createPostMutation = useMutation({
     mutationFn: async (postData: any) => {
-      return await apiRequest('/api/feed/posts', postData);
+      const response = await apiRequest('POST', '/api/feed/posts', postData);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
@@ -75,7 +76,8 @@ export default function Feed() {
   // React to post mutation
   const reactToPostMutation = useMutation({
     mutationFn: async ({ postId, type }: { postId: string; type: string }) => {
-      return await apiRequest(`/api/feed/posts/${postId}/reactions`, { type });
+      const response = await apiRequest('POST', `/api/feed/posts/${postId}/reactions`, { type });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
