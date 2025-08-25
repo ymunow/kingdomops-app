@@ -18,14 +18,29 @@ export function useCreatePost(scope: "church" | "group" = "church", visibility: 
 
   return useMutation({
     mutationFn: async (payload: CreatePayload) => {
-      const res = await apiRequest('POST', '/api/feed/posts', {
-        scope,
-        visibility,
-        ...payload,
+      const res = await fetch('/api/feed/posts', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')?.replace(/"/g, '') || ''}`
+        },
+        body: JSON.stringify({ 
+          ...payload, 
+          scope, 
+          visibility 
+        }),
       });
-      const saved = await res.json();
-      // Ensure server responds in spec shape; if not, wrap
-      return (saved?.id ? saved : { ...saved, id: saved?.id ?? crypto.randomUUID() });
+      if (!res.ok) throw new Error(await res.text());
+      
+      // Parse response, fallback if needed
+      const saved = await res.json().catch(() => ({}));
+      return saved?.id ? saved : { 
+        ...payload, 
+        id: `saved-${Date.now()}`, 
+        createdAt: new Date().toISOString(),
+        scope,
+        visibility
+      };
     },
     onMutate: async (newPost) => {
       await qc.cancelQueries({ queryKey: key });

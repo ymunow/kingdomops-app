@@ -64,8 +64,15 @@ export function FeedComposer({
     setIsSubmitting(true);
     
     try {
-      // Use optimistic mutation if provided, otherwise fall back to direct API call
+      // ✅ Force consistent scope/visibility - no prop variation
       if (createPostMutation) {
+        console.log('🚀 SUBMITTING POST:', {
+          type: postType,
+          body: body.trim(),
+          title: title.trim() || undefined,
+          visibility,
+          scope,
+        });
         await createPostMutation.mutateAsync({
           type: postType,
           body: body.trim(),

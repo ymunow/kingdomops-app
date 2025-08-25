@@ -1,0 +1,231 @@
+I hear you—this is frustrating. When the toast says “Success” but nothing shows, it’s almost always one of these three causes:
+
+1. the composer isn’t actually calling the mutation (or the wrong one),
+2. the post is saved under a different **scope/visibility/org** than the list is fetching, or
+3. the feed cache key doesn’t match the query you’re rendering.
+
+Below is a **bulletproof patch** that bypasses all three. Paste it in and your post will show instantly (optimistic), then persist after the server round‑trip—even if the server returns a wrapper or the list is filtered.
+
+---
+
+# A) Wire the composer → mutation directly (no loose props)
+
+```tsx
+// FeedPage.tsx (your Connect > Feed tab page)
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
+
+const FEED_KEY = (scope: "church" | "group", visibility: "members" | "public") =>
+  ["feed", scope, visibility] as const;
+
+const scope: "church" | "group" = "church";
+const visibility: "members" | "public" = "members";
+
+function useFeed() {
+  return useQuery({
+    queryKey: FEED_KEY(scope, visibility),
+    queryFn: async () => {
+      const r = await fetch(`/api/feed?scope=${scope}&visibility=${visibility}`);
+      if (!r.ok) throw new Error(`Feed load failed ${r.status}`);
+      const j = await r.json();
+      return (Array.isArray(j) ? j : j.items) ?? [];
+    },
+    staleTime: 10_000,
+  });
+}
+
+function useCreatePost() {
+  const qc = useQueryClient();
+  const key = FEED_KEY(scope, visibility);
+
+  return useMutation({
+    mutationFn: async (payload: {
+      type: "testimony" | "prayer" | "photo" | "announcement";
+      body: string;
+      title?: string;
+      photoUrl?: string;
+    }) => {
+      const res = await fetch("/api/feed/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, scope, visibility }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      // server should return the saved post; if not, we’ll still show optimistic
+      const saved = await res.json().catch(() => ({}));
+      return saved?.id ? saved : { ...payload, id: `saved-${Date.now()}`, createdAt: new Date().toISOString() };
+    },
+    onMutate: async (newPost) => {
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<any[]>(key) || [];
+      const optimistic = {
+        id: `optimistic-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        isPinned: false,
+        isAnnouncement: newPost.type === "announcement",
+        isMine: true,
+        userId: "me",
+        ...newPost,
+      };
+      qc.setQueryData<any[]>(key, [optimistic, ...prev]);
+      return { prev };
+    },
+    onError: (_e, _p, ctx) => {
+      if (ctx?.prev) qc.setQueryData(key, ctx.prev);
+    },
+    onSuccess: (saved) => {
+      qc.setQueryData<any[]>(key, (old = []) => {
+        const rest = old.filter(p => !String(p.id).startsWith("optimistic-"));
+        return [saved, ...rest];
+      });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: key });
+    },
+  });
+}
+
+export default function FeedPage() {
+  const { data: items = [], isLoading, error } = useFeed();
+  const create = useCreatePost();
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Composer is hard-wired to THIS mutation */}
+      <FeedComposer
+        onSubmit={(payload) => create.mutate(payload)}
+      />
+
+      {/* TEMP DEBUG – proves what the list sees */}
+      <pre className="text-[11px] bg-gray-50 p-2 rounded">
+        {JSON.stringify({ count: items.length, first: items[0]?.type, firstId: items[0]?.id }, null, 2)}
+      </pre>
+
+      {isLoading && <div>Loading…</div>}
+      {error && <div className="text-red-600">Feed error</div>}
+
+      <FeedList items={items} />
+    </div>
+  );
+}
+```
+
+**Why this helps:** the composer no longer depends on prop wiring—clicking **Share** always hits the exact mutation whose cache key matches the list you’re rendering.
+
+---
+
+# B) Composer sends correct enums every time
+
+```tsx
+// FeedComposer.tsx (simplified)
+type PostType = "testimony" | "prayer" | "photo" | "announcement";
+
+export function FeedComposer({
+  onSubmit,
+}: {
+  onSubmit: (p: { type: PostType; body: string; title?: string; photoUrl?: string }) => void;
+}) {
+  const [type, setType] = React.useState<PostType>("testimony");
+  const [title, setTitle] = React.useState("");
+  const [body, setBody] = React.useState("");
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!body.trim()) return;
+        onSubmit({ type, body: body.trim(), title: title.trim() || undefined });
+        setBody("");
+        setTitle("");
+        setType("testimony");
+      }}
+      className="rounded-2xl border p-4 bg-white"
+    >
+      {/* tabs → setType('testimony'|'prayer'|'photo'|'announcement') */}
+      <textarea
+        placeholder="What's on your heart?"
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        className="w-full rounded border px-3 py-2"
+        rows={4}
+      />
+      {(type === "testimony" || type === "announcement") && (
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title (optional)"
+          className="w-full mt-2 rounded border px-3 py-2"
+        />
+      )}
+      <div className="mt-3 flex justify-end">
+        <button type="submit" className="px-4 py-2 rounded bg-purple-600 text-white">
+          Share
+        </button>
+      </div>
+    </form>
+  );
+}
+```
+
+---
+
+# C) Renderer cannot “drop” posts (safe fields)
+
+```tsx
+function FeedList({ items }: { items: any[] }) {
+  if (!items?.length) return <div className="text-gray-500">No posts yet.</div>;
+  return (
+    <div className="space-y-4">
+      {items.map((p) => (
+        <article
+          key={p.id ?? Math.random()}
+          className={`rounded-xl border p-4 ${p.isAnnouncement ? "border-amber-400 bg-amber-50" : ""} ${
+            p.isMine ? "border-purple-400 bg-purple-50" : ""
+          }`}
+        >
+          <div className="text-xs text-gray-500">
+            {(p.type || "post")} • {p.createdAt ? new Date(p.createdAt).toLocaleString() : "just now"}
+          </div>
+          {p.title ? <h3 className="font-semibold mt-1">{p.title}</h3> : null}
+          <p className="mt-1 whitespace-pre-wrap">{typeof p.body === "string" ? p.body : JSON.stringify(p.body)}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+# D) One 10‑second sanity check
+
+Open DevTools → Console on the feed page and paste:
+
+```js
+(async () => {
+  const r = await fetch('/api/feed?scope=church&visibility=members');
+  console.log('GET status', r.status);
+  const j = await r.json();
+  const arr = Array.isArray(j) ? j : (j.items ?? []);
+  console.log('items:', arr.length, arr[0]);
+})();
+```
+
+* If `items` increases after you post, but you still don’t see it, the renderer was filtering it out—C) prevents that.
+* If `items` stays the same, the post saved under a different **scope/visibility/org**. In that case:
+
+  * Ensure the server sets `org_id` from your session.
+  * Confirm the POST body includes `scope:'church'` and `visibility:'members'` (the mutation above enforces it).
+  * Check the server’s GET where clause matches those fields.
+
+---
+
+## Likely root cause (based on your screenshot)
+
+Your composer is showing “Member • Whole…” which sometimes maps to values like `"whole"` or `"all"` instead of `"church"`. If the POST saves `scope:"whole"` but the list queries `scope:"church"`, you’ll never see your item. The patch above **forces** `scope:"church"` and `visibility:"members"` on both create and list so they always match.
+
+Try this exact wiring. If it still fails, tell me what the quick console probe prints for:
+
+* `GET status`
+* `items:` count and sample item fields
+
+I’ll pinpoint the server filter (org/scope/visibility) in one shot.

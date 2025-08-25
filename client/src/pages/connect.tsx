@@ -55,11 +55,12 @@ export default function Connect() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch feed posts from API with optimistic updates
-  const { data: feedPosts = [], isLoading } = useFeed("church", "members");
+  // ✅ Bulletproof feed with hardcoded scope/visibility
+  const FEED_SCOPE: "church" | "group" = "church";
+  const FEED_VISIBILITY: "members" | "public" = "members";
   
-  // Create post mutation with optimistic updates  
-  const createPostMutation = useCreatePost("church", "members", user);
+  const { data: feedPosts = [], isLoading } = useFeed(FEED_SCOPE, FEED_VISIBILITY);
+  const createPostMutation = useCreatePost(FEED_SCOPE, FEED_VISIBILITY, user);
 
   // Check URL parameter for initial tab
   useEffect(() => {
@@ -1006,6 +1007,11 @@ export default function Connect() {
               </div>
             )}
             
+            {/* ✅ TEMP DEBUG - Show what the feed sees */}
+            <div className="text-xs bg-gray-50 p-2 rounded mb-4 font-mono">
+              Feed count: {feedPosts?.length || 0} | First post: {feedPosts?.[0]?.type || 'none'} | ID: {feedPosts?.[0]?.id || 'none'}
+            </div>
+
             {/* Real API Feed Data */}
             <div className="space-y-4">
               {feedPosts && Array.isArray(feedPosts) && feedPosts.length > 0 ? (
