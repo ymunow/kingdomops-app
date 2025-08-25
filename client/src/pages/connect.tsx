@@ -3,6 +3,7 @@ import { FeedComposer } from '@/components/FeedComposer';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp, HandHeart, Filter, CheckCircle, Sparkles, Plus, Shield, Lock, Globe, Eye, UserCheck, AlertCircle, X, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useSupabaseAuth';
+import { useFeed, useCreatePost } from '@/hooks/useFeed';
 import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,11 +54,11 @@ export default function Connect() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch feed posts from API
-  const { data: feedPosts = [], isLoading } = useQuery<any[]>({
-    queryKey: ['/api/feed'],
-    enabled: !!user,
-  });
+  // Fetch feed posts from API with optimistic updates
+  const { data: feedPosts = [], isLoading } = useFeed("church", "members");
+  
+  // Create post mutation with optimistic updates
+  const createPostMutation = useCreatePost("church", user);
 
   // Check URL parameter for initial tab
   useEffect(() => {
@@ -980,7 +981,7 @@ export default function Connect() {
           </TabsList>
 
           <TabsContent value="feed" className="mt-0">
-            {/* Real Feed Composer with API integration */}
+            {/* Real Feed Composer with optimistic updates */}
             <FeedComposer
               currentUser={{ 
                 id: user?.id || '', 
@@ -990,10 +991,10 @@ export default function Connect() {
                 lastName: user?.lastName || undefined,
                 profileImageUrl: user?.profileImageUrl || undefined
               }}
+              createPostMutation={createPostMutation}
               onPosted={() => {
-                // Force refetch the feed data immediately
-                queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
-                queryClient.refetchQueries({ queryKey: ['/api/feed'] });
+                // Fallback for backward compatibility
+                queryClient.invalidateQueries({ queryKey: ["feed", "church", "members"] });
               }}
             />
             
@@ -1010,7 +1011,7 @@ export default function Connect() {
                 feedPosts.map((post: any) => (
                   <Card key={post.id} className={`shadow-sm hover:shadow-md transition-shadow ${
                     post.authorId === user?.id ? 'border-2 border-spiritual-blue bg-purple-50' : ''
-                  }`}>
+                  } ${post.isOptimistic ? 'opacity-80 animate-pulse' : ''}`}>
                   <CardContent className="p-4">
                     {/* Post Header */}
                     <div className="flex items-start justify-between mb-4">

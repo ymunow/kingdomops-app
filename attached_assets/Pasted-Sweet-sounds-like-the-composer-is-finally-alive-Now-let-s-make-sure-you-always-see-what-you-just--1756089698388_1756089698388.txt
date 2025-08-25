@@ -1,0 +1,170 @@
+Sweet — sounds like the composer is finally alive. Now let’s make sure you always see what you just posted and lock in exactly how the feed should work.
+I’ll do two things for you right now:
+give you a drop‑in “shows up immediately” fix (optimistic UI + proper sorting), and
+propose a simple, clear feed spec you can approve.
+A) Make new posts appear instantly (and reliably)
+1) Use optimistic updates (React Query example)
+This puts your post at the top immediately (no waiting on the server), then reconciles with the API response.
+// hooks/useFeed.ts
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+export function useFeed(scope: "church" | "group", visibility = "members") {
+  return useQuery({
+    queryKey: ["feed", scope, visibility],
+    queryFn: async () => {
+      const res = await fetch(`/api/feed?scope=${scope}&visibility=${visibility}`);
+      if (!res.ok) throw new Error("Failed to load feed");
+      const data = await res.json(); // [{ id, userId, type, body, title, createdAt, isPinned, isAnnouncement, ... }]
+      return sortFeed(data);
+    },
+  });
+}
+
+function sortFeed(items) {
+  // Order: pinned → announcements → newest first
+  return [...items].sort((a, b) => {
+    const pin = Number(!!b.isPinned) - Number(!!a.isPinned);
+    if (pin !== 0) return pin;
+    const ann = Number(!!b.isAnnouncement) - Number(!!a.isAnnouncement);
+    if (ann !== 0) return ann;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
+
+export function useCreatePost(scope: "church" | "group") {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: {
+      type: "testimony" | "prayer" | "photo" | "announcement";
+      body: string;
+      title?: string;
+      visibility?: "members" | "public";
+      photoUrl?: string;
+    }) => {
+      const res = await fetch("/api/feed/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scope, visibility: "members", ...payload }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json(); // return the canonical post from API
+    },
+    onMutate: async (newPost) => {
+      await qc.cancelQueries({ queryKey: ["feed", scope, "members"] });
+      const key = ["feed", scope, "members"];
+      const prev = qc.getQueryData<any[]>(key) || [];
+
+      // Add optimistic “your post”
+      const optimistic = {
+        id: `optimistic-${Date.now()}`,
+        userId: "me",
+        isMine: true,
+        createdAt: new Date().toISOString(),
+        isPinned: false,
+        isAnnouncement: newPost.type === "announcement",
+        ...newPost,
+      };
+
+      qc.setQueryData(key, (old: any[] | undefined) =>
+        sortFeed([optimistic, ...(old || [])])
+      );
+      return { prev, key };
+    },
+    onError: (_err, _newPost, ctx) => {
+      if (ctx) qc.setQueryData(ctx.key, ctx.prev); // rollback
+    },
+    onSuccess: (saved, _newPost, ctx) => {
+      if (!ctx) return;
+      // Replace optimistic with real one
+      qc.setQueryData(ctx.key, (old: any[] | undefined) => {
+        const list = (old || []).filter((p) => !String(p.id).startsWith("optimistic-"));
+        return sortFeed([saved, ...list]);
+      });
+    },
+    onSettled: () => {
+      // optional: ensure perfect sync
+      qc.invalidateQueries({ queryKey: ["feed", scope, "members"] });
+    },
+  });
+}
+In your page:
+const { data: feed, isLoading } = useFeed("church", "members");
+const createPost = useCreatePost("church");
+
+<FeedComposer
+  /* ... */
+  onPosted={(payload) => createPost.mutate(payload)}
+/>
+
+{isLoading ? <Spinner/> : feed?.length ? (
+  <FeedList items={feed}/>
+) : (
+  <EmptyState title="No posts yet" />
+)}
+2) Real‑time updates (optional but nice)
+If you’re on Supabase/Postgres, add a channel subscription so posts from others pop in without refresh:
+// useFeedRealtime.ts (pseudo)
+useEffect(() => {
+  const ch = supabase.channel("feed")
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "posts" }, (payload) => {
+      qc.setQueryData(["feed", scope, "members"], (old: any[] = []) => sortFeed([payload.new, ...old]));
+    })
+    .subscribe();
+  return () => { supabase.removeChannel(ch); };
+}, [scope]);
+3) Visual “yours” without debug boxes
+Instead of debug JSON, add a subtle tag on your items:
+{item.isMine && <span className="text-xs px-2 py-0.5 rounded bg-purple-100">You</span>}
+B) Decide how the feed behaves (simple spec)
+Here’s a clean, church‑friendly model. If you say “yes,” you’re done — it matches what you already wanted.
+Post types
+Post → testimony
+Prayer Request → prayer (toggle: allow anonymous to members)
+Photo → photo (caption optional)
+Announcement → announcement (admin‑only: SUPER_ADMIN, ORG_OWNER, ORG_ADMIN, ORG_LEADER, ADMIN)
+Ordering
+Pinned (admin pin/unpin)
+Announcements
+Newest first within scope
+Scope
+church (default) shows to entire organization
+group shows only inside the group context
+Visibility
+members (default)
+public (optional toggle per org; hides prayer requests from public by default)
+Permissions
+Create: all members (except Announcements)
+Edit/Delete: author + admins
+Pin/Unpin: admins
+Announcements: admins only (UI hidden + API 403)
+Moderation
+Soft‑delete (hide from feed, retain for audit)
+Report flag (sends to admins)
+Interactions
+Reactions: 👍 ❤️ 🙏
+Comments: flat thread (no nesting) with count + “View comments” toggle
+Empty states
+“No posts yet — be the first to share” with a shortcut to open the composer
+Pagination
+Infinite scroll (page size 10–20), show a spinner at the bottom
+Search/Filters (optional V2)
+Filter by: All | My Posts | Prayer Requests | Announcements
+Text search (server‑side)
+Accessibility
+Composer inputs labeled; buttons have aria‑labels; keyboard focus visible
+C) Small server touches (to keep it snappy & safe)
+Indexes
+create index on posts (scope, is_pinned desc, is_announcement desc, created_at desc);
+create index on posts (user_id, created_at desc);
+API guard for announcements
+if (body.type === "announcement" && !ADMIN_ROLES.has(user.role)) {
+  return res.status(403).json({ error: "Announcements are admin-only." });
+}
+Return the saved post so the optimistic entry can be replaced 1:1.
+D) Why your test “didn’t show”
+Common reasons (the patch above eliminates them):
+New post appended to the end instead of top (bad sort)
+Feed cache not updated on create (no optimistic update)
+Debug box hid the new item visually, or highlight didn’t match your userId check
+Posting as post instead of testimony (server rejected silently)
+If you’re good with the spec above, the optimistic+sort patch will make the experience feel instant and predictable. Want me to tailor the code to your exact stack (Redux vs React Query, Next vs Vite, etc.)?

@@ -24,12 +24,14 @@ interface FeedComposerProps {
   currentUser: { id: string; role?: string | null; displayName?: string; firstName?: string; lastName?: string; profileImageUrl?: string };
   defaultScope?: Scope;
   onPosted?: () => void;
+  createPostMutation?: any; // New optimistic mutation
 }
 
 export function FeedComposer({
   currentUser,
   defaultScope = "church",
   onPosted,
+  createPostMutation,
 }: FeedComposerProps) {
   const { toast } = useToast();
   
@@ -62,16 +64,28 @@ export function FeedComposer({
     setIsSubmitting(true);
     
     try {
-      const response = await apiRequest('POST', '/api/feed/posts', {
-        // ✅ API expects these exact enums:
-        type: postType, // "testimony" | "prayer" | "photo" | "announcement"
-        body: body.trim(),
-        title: title.trim() || undefined,
-        visibility, // "members" | "public"
-        scope, // "church" | "group"
-      });
+      // Use optimistic mutation if provided, otherwise fall back to direct API call
+      if (createPostMutation) {
+        await createPostMutation.mutateAsync({
+          type: postType,
+          body: body.trim(),
+          title: title.trim() || undefined,
+          visibility,
+          scope,
+        });
+      } else {
+        // Fallback to direct API call
+        await apiRequest('POST', '/api/feed/posts', {
+          type: postType,
+          body: body.trim(),
+          title: title.trim() || undefined,
+          visibility,
+          scope,
+        });
+        onPosted?.(); // Only call if using fallback
+      }
 
-      // Reset
+      // Reset form
       setBody("");
       setTitle("");
       setPostType("testimony");
@@ -81,7 +95,6 @@ export function FeedComposer({
         description: `Your ${postType === 'testimony' ? 'post' : postType === 'prayer' ? 'prayer request' : postType === 'photo' ? 'photo' : 'announcement'} has been shared with the community.`,
       });
       
-      onPosted?.();
     } catch (err) {
       console.error('Post creation error:', err);
       toast({
