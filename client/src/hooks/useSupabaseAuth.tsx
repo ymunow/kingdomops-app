@@ -203,7 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async ({ email }: { email: string }) => {
       // Use the current window origin which will be the Replit URL in development
       const redirectUrl = `${window.location.origin}/auth?reset=true`;
-      console.log('Password reset redirect URL:', redirectUrl);
+      console.log('🔗 Password reset redirect URL:', redirectUrl);
       
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl
