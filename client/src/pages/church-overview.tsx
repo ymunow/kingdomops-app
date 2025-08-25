@@ -196,18 +196,19 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     refetchInterval: 30000,
   });
 
-  // Get organizations data for beta applications count
-  const { data: organizations } = useQuery<any[]>({
-    queryKey: ['/api/organizations'],
+  // Get organizations data for beta applications and churches
+  const { data: pendingOrgs } = useQuery<any[]>({
+    queryKey: ['/api/admin/orgs?status=pending'],
     enabled: isPlatformView && !!user,
   });
 
-  const betaApplicationsCount = (() => {
-    if (!organizations) return 0;
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    return organizations.filter(org => new Date(org.createdAt) > sevenDaysAgo).length;
-  })();
+  const { data: approvedOrgs } = useQuery<any[]>({
+    queryKey: ['/api/admin/orgs?status=approved'], 
+    enabled: isPlatformView && !!user,
+  });
+
+  const betaApplicationsCount = pendingOrgs?.length || 0;
+  const betaChurchesCount = approvedOrgs?.length || 0;
   
   const { data: churchMetrics, isLoading: isChurchLoading, error: churchError } = useQuery<ChurchMetrics>({
     queryKey: ['/api/church-overview', targetOrgId],
@@ -466,7 +467,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                 {/* Beta Applications Card - First Card */}
                 <Card 
                   className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-                  onClick={() => setLocation('/admin/organizations')}
+                  onClick={() => setLocation('/admin/applications')}
                   data-testid="card-beta-applications"
                 >
                   <CardContent className="p-6">
@@ -474,25 +475,29 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                       <div>
                         <p className="text-sm text-gray-600 font-medium">Beta Applications</p>
                         <p className="text-3xl font-bold text-charcoal">{betaApplicationsCount}</p>
-                        <p className="text-xs text-green-600 font-medium mt-1">
-                          Last 7 days
+                        <p className="text-xs text-orange-600 font-medium mt-1">
+                          Pending review
                         </p>
                       </div>
-                      <div className="bg-green-100 rounded-full p-3">
-                        <Rocket className="text-green-600 h-6 w-6" />
+                      <div className="bg-orange-100 rounded-full p-3">
+                        <Rocket className="text-orange-600 h-6 w-6" />
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                <Card 
+                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  onClick={() => setLocation('/admin/churches')}
+                  data-testid="card-beta-churches"
+                >
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600 font-medium">Total Churches</p>
-                        <p className="text-3xl font-bold text-charcoal">{(metrics as PlatformMetrics).totalChurches}</p>
+                        <p className="text-sm text-gray-600 font-medium">Beta Churches</p>
+                        <p className="text-3xl font-bold text-charcoal">{betaChurchesCount}</p>
                         <p className="text-xs text-green-600 font-medium mt-1">
-                          ↗ {(metrics as PlatformMetrics).churchGrowthRate}% growth
+                          Approved & active
                         </p>
                       </div>
                       <div className="bg-purple-100 rounded-full p-3">

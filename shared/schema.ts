@@ -88,7 +88,7 @@ export const LEGACY_ROLES = {
   PARTICIPANT: 'CHURCH_MEMBER',
 } as const;
 
-export const organizationStatusEnum = pgEnum("organization_status", ["ACTIVE", "INACTIVE", "TRIAL"]);
+export const organizationStatusEnum = pgEnum("organization_status", ["PENDING", "APPROVED", "DENIED", "ACTIVE", "INACTIVE", "TRIAL"]);
 
 export const placementStatusEnum = pgEnum("placement_status", ["OPEN", "FILLED", "CLOSED"]);
 
@@ -208,7 +208,10 @@ export const organizations = pgTable("organizations", {
   website: varchar("website"),
   address: text("address"),
   description: text("description"),
-  status: organizationStatusEnum("status").default("ACTIVE"),
+  status: organizationStatusEnum("status").default("PENDING"),
+  deniedReason: text("denied_reason"),
+  approvedAt: timestamp("approved_at"),
+  deniedAt: timestamp("denied_at"),
   settings: jsonb("settings").default({}), // Custom settings per org
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

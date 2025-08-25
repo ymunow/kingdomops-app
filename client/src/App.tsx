@@ -25,6 +25,9 @@ import AdminOrganizationDetail from "@/pages/admin-organization-detail";
 import AdminOrganizationSettings from "@/pages/admin-organization-settings";
 import AdminSystem from "@/pages/admin-system";
 import AdminQuestions from "@/pages/admin-questions";
+import AdminApplications from "@/pages/admin-applications";
+import AdminChurches from "@/pages/admin-churches";
+import AdminChurchDetail from "@/pages/admin-church-detail";
 import ChurchOverview from "@/pages/church-overview";
 import LeaderOpportunities from "@/pages/leader-opportunities";
 import Dashboard from "@/pages/dashboard";
@@ -203,6 +206,18 @@ function Router() {
                   {(params) => <ChurchOverview organizationId={params.id} />}
                 </Route>
                 <Route path="/admin/organizations/:id" component={AdminOrganizationDetail} />
+                
+                {/* Application Review Pipeline Routes - Super Admin Only */}
+                <Route path="/admin/applications">
+                  {() => (user as any)?.role === 'SUPER_ADMIN' ? <AdminApplications /> : <NotFound />}
+                </Route>
+                <Route path="/admin/churches">
+                  {() => (user as any)?.role === 'SUPER_ADMIN' ? <AdminChurches /> : <NotFound />}
+                </Route>
+                <Route path="/admin/churches/:id">
+                  {(params) => (user as any)?.role === 'SUPER_ADMIN' ? <AdminChurchDetail params={params} /> : <NotFound />}
+                </Route>
+                
                 <Route path="/admin/system" component={AdminSystem} />
         <Route path="/admin/questions" component={AdminQuestions} />
                 

@@ -1,0 +1,162 @@
+Here’s a tight, copy‑paste brief you can give the agent. It spells out exactly what to change, where, and how we’ll know it’s done.
+
+---
+
+## ✳️ Goal
+
+Turn the Super Admin dashboard into a clear pipeline:
+
+* **Beta Applications** = churches that applied and are **pending review**
+* **Approved/Beta Churches** = applications that were **approved** and promoted to real churches
+* Clicking each card routes to the right management page
+
+---
+
+## ✅ Acceptance Criteria
+
+1. **Cards & copy**
+
+* Rename **“Total Churches” → “Beta Churches”** (for now).
+* **Beta Applications** card shows count of orgs with `status = 'pending'`.
+* **Beta Churches** card shows count of orgs with `status = 'approved'`.
+* Keep growth % badges working (based on last 30 days).
+
+2. **Click‑throughs**
+
+* Clicking **Beta Applications** → route to `/admin/applications` (review queue).
+* Clicking **Beta Churches** → route to `/admin/churches` (approved list).
+* From `/admin/churches`, clicking a row opens `/admin/churches/:id` church detail page.
+
+3. **Review queue actions**
+
+* On `/admin/applications` each row has **Approve** and **Deny**.
+* **Approve**:
+
+  * Sets `org.status = 'approved'`.
+  * (Optional) auto‑creates initial org owner membership if not present.
+* **Deny**:
+
+  * Sets `org.status = 'denied'` and stores `denied_reason`.
+* Both actions toast success and update counts on the dashboard (React Query invalidation).
+
+4. **Security & roles**
+
+* Only `SUPER_ADMIN` can view/modify these pages and call approve/deny endpoints.
+* No public flow can change `org.status`.
+
+5. **Routing exists**
+
+* Implement `/admin/applications`, `/admin/churches`, `/admin/churches/:id` with basic tables/detail page.
+* Dashboard cards navigate there.
+
+---
+
+## 🗃️ Data model (assume table `orgs`)
+
+Add or confirm these columns:
+
+```sql
+-- status: 'pending' | 'approved' | 'denied'
+ALTER TABLE orgs
+  ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'pending',
+  ADD COLUMN IF NOT EXISTS denied_reason text;
+
+-- optional: timestamps to support growth metrics
+ALTER TABLE orgs
+  ADD COLUMN IF NOT EXISTS approved_at timestamptz,
+  ADD COLUMN IF NOT EXISTS denied_at timestamptz;
+```
+
+Server approve/deny endpoints:
+
+```ts
+// POST /api/admin/orgs/:id/approve
+// POST /api/admin/orgs/:id/deny
+// requireSuperAdmin middleware
+
+// approve:
+await db.orgs.update({ where:{ id }, data:{ status:'approved', approved_at:new Date(), denied_reason:null }});
+
+// deny:
+await db.orgs.update({ where:{ id }, data:{ status:'denied', denied_at:new Date(), denied_reason:req.body.reason ?? null }});
+```
+
+List endpoints:
+
+```ts
+// GET /api/admin/orgs?status=pending|approved|denied
+// GET /api/admin/orgs/:id
+```
+
+---
+
+## 🖥️ UI changes (files to touch)
+
+* `client/src/pages/admin/Dashboard.tsx` (or wherever cards are)
+
+  * Change card title to **“Beta Churches”**
+  * Counts:
+
+    * Beta Applications = `useQuery(['orgs','pending'], ...)`
+    * Beta Churches = `useQuery(['orgs','approved'], ...)`
+  * OnClick handlers:
+
+    ```ts
+    navigate('/admin/applications') // pending
+    navigate('/admin/churches')     // approved
+    ```
+
+* `client/src/pages/admin/Applications.tsx` (new)
+
+  * Table of `status='pending'` orgs with Approve/Deny buttons.
+  * Mutations call approve/deny endpoints and `invalidateQueries(['orgs','pending'])` and `invalidateQueries(['orgs','approved'])`.
+
+* `client/src/pages/admin/Churches.tsx` (new)
+
+  * Table of `status='approved'` orgs. Row click → `/admin/churches/:id`.
+
+* `client/src/pages/admin/ChurchDetail.tsx` (new)
+
+  * Basic profile: name, domain, leader, members count, created/approved dates.
+  * Buttons: “Open church profile”, “Impersonate” (if you already support it).
+
+* **Role guard** (if not present):
+
+  * Wrap admin routes with `requireRole('SUPER_ADMIN')`. If not SUPER\_ADMIN → redirect to `/`.
+
+---
+
+## 📈 Growth & badges (keep working)
+
+For each card show Δ vs last 30 days:
+
+* **Pending** growth = `count_pending_now - count_pending_30d_ago`
+* **Approved** growth = `approved between now-30d and now`
+
+If implementing later, leave placeholder but don’t block the PR.
+
+---
+
+## 🧪 QA checklist
+
+* Create two test orgs via application.
+* Approve one, deny one.
+* Dashboard shows **Beta Applications: 0/1**, **Beta Churches: +1**.
+* Clicking cards goes to the right pages.
+* Approved church appears in `/admin/churches`; detail page opens.
+* Non‑SUPER\_ADMIN can’t reach these routes or endpoints.
+
+---
+
+## 🧰 Nice‑to‑haves (optional if quick)
+
+* Add filter chips on Applications: `All | Pending | Approved | Denied`.
+* Keep an audit log entry for approve/deny with actor + timestamp.
+
+---
+
+If any table/route names differ in our codebase, keep the behavior but adapt names accordingly. Please open a single PR named:
+
+**“Admin: Applications → Approval pipeline and Beta Churches roll‑up”**
+
+and include a short demo video/GIF.

@@ -1345,6 +1345,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get organizations with optional status filter
+  app.get("/api/admin/orgs", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const status = req.query.status as string | undefined;
+      const organizations = await storage.getOrganizations();
+      
+      let filteredOrgs = organizations;
+      if (status) {
+        filteredOrgs = organizations.filter(org => org.status === status.toUpperCase());
+      }
+      
+      res.json(filteredOrgs);
+    } catch (error) {
+      console.error("Get organizations error:", error);
+      res.status(500).json({ message: "Failed to get organizations" });
+    }
+  });
+
+  // Get specific organization details
+  app.get("/api/admin/orgs/:id", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const organization = await storage.getOrganization(req.params.id);
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+      res.json(organization);
+    } catch (error) {
+      console.error("Get organization error:", error);
+      res.status(500).json({ message: "Failed to get organization" });
+    }
+  });
+
+  // Approve organization application
+  app.post("/api/admin/orgs/:id/approve", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const organization = await storage.updateOrganization(req.params.id, {
+        status: "APPROVED",
+        approvedAt: new Date(),
+        deniedReason: null
+      });
+      
+      res.json({
+        success: true,
+        organization,
+        message: "Organization approved successfully"
+      });
+    } catch (error) {
+      console.error("Approve organization error:", error);
+      res.status(500).json({ message: "Failed to approve organization" });
+    }
+  });
+
+  // Deny organization application
+  app.post("/api/admin/orgs/:id/deny", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { reason } = req.body;
+      
+      const organization = await storage.updateOrganization(req.params.id, {
+        status: "DENIED",
+        deniedAt: new Date(),
+        deniedReason: reason || null,
+        approvedAt: null
+      });
+      
+      res.json({
+        success: true,
+        organization,
+        message: "Organization denied successfully"
+      });
+    } catch (error) {
+      console.error("Deny organization error:", error);
+      res.status(500).json({ message: "Failed to deny organization" });
+    }
+  });
+
   // Consolidated organization update route (for both super admin and church admin)
   app.put("/api/organizations/:id", isAuthenticated, async (req: any, res) => {
     try {
