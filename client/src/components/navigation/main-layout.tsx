@@ -103,8 +103,8 @@ export function MainLayout({ children }: MainLayoutProps) {
             </Button>
             
             {/* Apps Switcher - Only for admins */}
-            {(isSuperAdmin || isAdmin) && user && (
-              <AppSwitcher user={user} className="bg-white/20 hover:bg-white/30 border-white/30 hover:border-white/40 rounded-full px-4 py-2 transition-all duration-200" />
+            {(isSuperAdmin || isAdmin) && user && user.role && (
+              <AppSwitcher user={user as any} className="bg-white/20 hover:bg-white/30 border-white/30 hover:border-white/40 rounded-full px-4 py-2 transition-all duration-200" />
             )}
           </div>
           
