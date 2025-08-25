@@ -1036,7 +1036,9 @@ export default function Connect() {
                             </Badge>
                           </div>
                           <p className="text-xs text-gray-500">
-                            {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                            {post.createdAt && !isNaN(new Date(post.createdAt).getTime()) 
+                              ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })
+                              : 'just now'}
                           </p>
                         </div>
                       </div>
