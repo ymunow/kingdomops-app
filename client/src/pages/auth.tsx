@@ -27,6 +27,33 @@ export default function AuthPage() {
   // Check for confirmation, email check, and password reset parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    
+    // Handle email confirmation from Supabase redirect with tokens in URL hash
+    if (hash && hash.includes('access_token')) {
+      // Extract tokens from URL hash (Supabase email confirmation)
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      
+      if (accessToken && refreshToken) {
+        // Set the session using Supabase
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        }).then(() => {
+          alert('Email confirmed! You are now signed in.');
+          // Clear URL and redirect to main app
+          window.history.replaceState({}, '', '/connect');
+          window.location.href = '/connect';
+        }).catch((error) => {
+          console.error('Session error:', error);
+          alert('Email confirmed but there was an issue signing you in. Please try signing in manually.');
+        });
+        return; // Exit early to avoid other checks
+      }
+    }
+    
     if (urlParams.get('confirmed') === 'true') {
       setShowConfirmation(true);
     }
