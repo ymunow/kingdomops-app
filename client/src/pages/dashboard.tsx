@@ -7,6 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ViewAsSwitcher } from "@/components/admin/view-as-switcher";
 import { viewAsStorage } from "@/lib/view-as-storage";
 import { ProfileCompletionCard } from "@/components/profile/ProfileCompletionCard";
@@ -24,7 +31,9 @@ import {
   MessageSquare,
   Sparkles,
   Plus,
-  ExternalLink
+  ExternalLink,
+  LogOut,
+  User
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 
@@ -80,7 +89,7 @@ interface DashboardData {
 }
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { organization } = useOrganization();
   const [, setLocation] = useLocation();
 
@@ -166,16 +175,65 @@ export default function Dashboard() {
               Welcome to {organization?.name || 'KingdomOps'}
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setLocation("/connect")}
-            className="flex items-center gap-2"
-            data-testid="button-connect"
-          >
-            <Plus className="h-4 w-4" />
-            Share
-          </Button>
+          
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLocation("/connect")}
+              className="flex items-center gap-2"
+              data-testid="button-connect"
+            >
+              <Plus className="h-4 w-4" />
+              Share
+            </Button>
+            
+            {/* User Profile Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                  data-testid="user-menu-trigger"
+                >
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={user?.profileImageUrl} />
+                    <AvatarFallback className="text-xs bg-spiritual-blue text-white">
+                      {(user?.firstName?.[0] || user?.displayName?.[0] || user?.email?.[0] || 'U').toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline">
+                    {user?.firstName || user?.displayName || 'Account'}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="px-2 py-1.5 text-sm">
+                  <p className="font-medium">{user?.firstName || user?.displayName || 'User'}</p>
+                  <p className="text-gray-500 text-xs">{user?.email}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => setLocation("/profile")}
+                  className="flex items-center gap-2"
+                  data-testid="menu-profile"
+                >
+                  <User className="h-4 w-4" />
+                  My Profile
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={logout}
+                  className="flex items-center gap-2 text-red-600 focus:text-red-600"
+                  data-testid="menu-logout"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
 
