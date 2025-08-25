@@ -52,28 +52,24 @@ export default function Feed() {
   // Create post mutation
   const createPostMutation = useMutation({
     mutationFn: async (postData: any) => {
-      const response = await fetch('/api/feed/posts', {
+      return await apiRequest('/api/feed/posts', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
         body: JSON.stringify(postData),
       });
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
       setNewPost("");
       toast({
         title: "Success!",
-        description: "Your post has been shared with the community.",
+        description: `Your ${selectedPostType === 'testimony' ? 'post' : selectedPostType === 'prayer' ? 'prayer request' : selectedPostType === 'photo' ? 'photo' : 'announcement'} has been shared with the community.`,
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('Post creation error:', error);
       toast({
         title: "Error",
-        description: "Failed to create post. Please try again.",
+        description: error?.message || "Failed to create post. Please try again.",
         variant: "destructive",
       });
     },
@@ -82,31 +78,44 @@ export default function Feed() {
   // React to post mutation
   const reactToPostMutation = useMutation({
     mutationFn: async ({ postId, type }: { postId: string; type: string }) => {
-      const response = await fetch(`/api/feed/posts/${postId}/reactions`, {
+      return await apiRequest(`/api/feed/posts/${postId}/reactions`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
         body: JSON.stringify({ type }),
       });
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
+    },
+    onError: (error: any) => {
+      console.error('Reaction error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to react to post. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
   const handleCreatePost = () => {
     if (!newPost.trim()) return;
     
+    // Don't allow regular users to create announcements
+    if (selectedPostType === 'announcement' && !isAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "Only church leaders can create announcements.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     createPostMutation.mutate({
       type: selectedPostType,
       scope: 'church',
       visibility: 'members',
-      body: newPost,
+      body: newPost.trim(),
       title: selectedPostType === 'prayer' ? 'Prayer Request' : 
-             selectedPostType === 'testimony' ? 'Testimony' : 
+             selectedPostType === 'testimony' ? 'Post' : 
              selectedPostType === 'announcement' ? 'Announcement' : 'Photo',
     });
   };
@@ -164,12 +173,19 @@ export default function Feed() {
     }
   ];
 
-  const postTypes = [
-    { type: 'testimony' as const, icon: Send, label: 'Testimony', color: 'bg-green-500' },
+  // Filter post types based on user role - only admin users can make announcements
+  const isAdmin = user && ['SUPER_ADMIN', 'ORG_OWNER', 'ORG_ADMIN', 'ORG_LEADER', 'ADMIN'].includes((user as any)?.role);
+  
+  const allPostTypes = [
+    { type: 'testimony' as const, icon: Send, label: 'Post', color: 'bg-green-500' },
     { type: 'prayer' as const, icon: Bell, label: 'Prayer Request', color: 'bg-purple-500' },
     { type: 'photo' as const, icon: Image, label: 'Photo', color: 'bg-blue-500' },
     { type: 'announcement' as const, icon: Calendar, label: 'Announcement', color: 'bg-orange-500' }
   ];
+  
+  const postTypes = allPostTypes.filter(postType => 
+    postType.type === 'announcement' ? isAdmin : true
+  );
 
   // Use API data if available, otherwise fallback to mock data
   const displayPosts = Array.isArray(feedPosts) && feedPosts.length > 0 ? feedPosts : mockFeedPosts;
