@@ -1549,7 +1549,7 @@ export default function Connect() {
                                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-xs h-7 px-3"
                                 onClick={(e) => { 
                                   e.stopPropagation(); 
-                                  /* Handle join/request logic */
+                                  handleQuickView(group);
                                 }}
                                 data-testid={`join-group-${group.id}`}
                               >
