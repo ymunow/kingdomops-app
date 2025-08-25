@@ -146,10 +146,8 @@ export async function setupSupabaseAuth(app: Express) {
   app.post('/api/auth/signup', async (req, res) => {
     const { email, password, firstName, lastName } = req.body;
     
-    // ✅ Bulletproof redirect URL - always use the correct domain
-    const redirectUrl = process.env.NODE_ENV === 'production' 
-      ? `https://kingdomops.org/auth?confirmed=true`
-      : `https://${process.env.REPLIT_DEV_DOMAIN || req.get('host')}/auth?confirmed=true`;
+    // ✅ Always use production domain for auth redirects
+    const redirectUrl = `https://kingdomops.org/auth?confirmed=true`;
     
     console.log('🔗 Email redirect URL:', redirectUrl);
     
