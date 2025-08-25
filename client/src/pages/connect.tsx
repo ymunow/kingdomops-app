@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { FeedComposer } from '@/components/FeedComposer';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp, HandHeart, Filter, CheckCircle, Sparkles, Plus, Shield, Lock, Globe, Eye, UserCheck, AlertCircle, X, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useSupabaseAuth';
 import { MainLayout } from '@/components/navigation/main-layout';
@@ -49,6 +51,13 @@ export default function Connect() {
   ]);
   
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Fetch feed posts from API
+  const { data: feedPosts = [], isLoading } = useQuery<any[]>({
+    queryKey: ['/api/feed'],
+    enabled: !!user,
+  });
 
   // Check URL parameter for initial tab
   useEffect(() => {
@@ -827,68 +836,6 @@ export default function Connect() {
   const recommendations = getRecommendations();
   const filteredSuggestedGroups = filterGroups(suggestedGroups);
 
-  const ComposerBar = () => (
-    <Card className="mb-6 shadow-sm">
-      <CardContent className="p-4">
-        <div className="flex items-center space-x-3 mb-4">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-spiritual-blue text-white">TG</AvatarFallback>
-          </Avatar>
-          <div 
-            className="flex-1 bg-gray-50 rounded-full px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors"
-            onClick={() => setActiveComposer(activeComposer ? null : 'post')}
-            data-testid="composer-input"
-          >
-            <span className="text-gray-500">What's on your heart?</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex space-x-2">
-            <Button
-              variant={activeComposer === 'post' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveComposer('post')}
-              className="text-sm"
-              data-testid="composer-post"
-            >
-              <Edit3 className="h-4 w-4 mr-2" />
-              Post
-            </Button>
-            <Button
-              variant={activeComposer === 'prayer' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveComposer('prayer')}
-              className="text-sm"
-              data-testid="composer-prayer"
-            >
-              🙏 Prayer Request
-            </Button>
-            <Button
-              variant={activeComposer === 'photo' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveComposer('photo')}
-              className="text-sm"
-              data-testid="composer-photo"
-            >
-              <Camera className="h-4 w-4 mr-2" />
-              Photo
-            </Button>
-            <Button
-              variant={activeComposer === 'announcement' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveComposer('announcement')}
-              className="text-sm"
-              data-testid="composer-announcement"
-            >
-              <Megaphone className="h-4 w-4 mr-2" />
-              Announcement
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   // Quick View Modal Component
   const QuickViewModal = () => {
@@ -1033,37 +980,37 @@ export default function Connect() {
           </TabsList>
 
           <TabsContent value="feed" className="mt-0">
-            <ComposerBar />
+            {/* Real Feed Composer with API integration */}
+            <FeedComposer
+              currentUser={{ id: user?.id || '', role: user?.role }}
+              onPosted={() => {
+                queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
+              }}
+            />
             
-            {/* Merged Feed with Algorithmic Service Opportunity Placement */}
+            {/* Loading state */}
+            {isLoading && (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spiritual-blue"></div>
+              </div>
+            )}
+            
+            {/* Real API Feed Data */}
             <div className="space-y-4">
-              {mergedFeed.map((item) => {
-                if (item.type === 'serviceOpportunity') {
-                  return (
-                    <ServiceOpportunityPost 
-                      key={item.key} 
-                      opportunity={item.data} 
-                      isUrgent={item.isUrgent || false} 
-                    />
-                  );
-                }
-                
-                // Regular post
-                const post = item.data;
-                return (
-                <Card key={item.key} className="shadow-sm hover:shadow-md transition-shadow">
+              {feedPosts.map((post: any) => (
+                <Card key={post.id} className="shadow-sm hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     {/* Post Header */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-10 w-10">
                           <AvatarFallback className="bg-spiritual-blue/10 text-spiritual-blue font-semibold">
-                            {post.author.name.charAt(0)}
+                            {post.author?.name?.charAt(0) || 'U'}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <div className="flex items-center space-x-2 mb-1">
-                            <p className="font-semibold text-charcoal text-sm">{post.author.name}</p>
+                            <p className="font-semibold text-charcoal text-sm">{post.author?.name || 'Unknown'}</p>
                             <Badge variant="outline" className={`text-xs border ${getPostTypeColor(post.type)}`}>
                               {getPostIcon(post.type)} {post.type}
                             </Badge>
@@ -1081,10 +1028,10 @@ export default function Connect() {
                     {/* Post Content */}
                     <div className="mb-4">
                       <p className="text-gray-700 text-sm leading-relaxed mb-3">{post.body}</p>
-                      {post.image && (
+                      {post.attachments && post.attachments.length > 0 && (
                         <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                           <img 
-                            src={post.image} 
+                            src={post.attachments[0]} 
                             alt="Post image" 
                             className="w-full h-64 object-cover cursor-pointer hover:opacity-95 transition-opacity"
                             data-testid={`post-image-${post.id}`}
@@ -1102,7 +1049,7 @@ export default function Connect() {
                           className="text-red-500 hover:text-red-600 hover:bg-red-50 px-2"
                           data-testid={`like-${post.id}`}
                         >
-                          ❤️ {post.reactionCounts.heart}
+                          ❤️ {post.likesCount || 0}
                         </Button>
                         <Button 
                           variant="ghost" 
@@ -1110,7 +1057,7 @@ export default function Connect() {
                           className="text-purple-500 hover:text-purple-600 hover:bg-purple-50 px-2"
                           data-testid={`pray-${post.id}`}
                         >
-                          🙏 {post.reactionCounts.pray}
+                          🙏 {post.prayersCount || 0}
                         </Button>
                         <Button 
                           variant="ghost" 
@@ -1119,7 +1066,7 @@ export default function Connect() {
                           data-testid={`comment-${post.id}`}
                         >
                           <MessageSquare className="h-4 w-4 mr-1" />
-                          {post.commentCount}
+                          {post.commentsCount || 0}
                         </Button>
                       </div>
                       
@@ -1129,8 +1076,7 @@ export default function Connect() {
                     </div>
                   </CardContent>
                 </Card>
-                );
-              })}
+              ))}
             </div>
 
             {/* Load More */}
