@@ -207,8 +207,13 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     enabled: isPlatformView && !!user,
   });
 
+  const { data: activeOrgs } = useQuery<any[]>({
+    queryKey: ['/api/admin/orgs?status=active'],
+    enabled: isPlatformView && !!user,
+  });
+
   const betaApplicationsCount = pendingOrgs?.length || 0;
-  const betaChurchesCount = approvedOrgs?.length || 0;
+  const betaChurchesCount = (approvedOrgs?.length || 0) + (activeOrgs?.length || 0);
   
   const { data: churchMetrics, isLoading: isChurchLoading, error: churchError } = useQuery<ChurchMetrics>({
     queryKey: ['/api/church-overview', targetOrgId],

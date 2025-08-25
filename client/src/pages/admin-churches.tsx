@@ -34,11 +34,19 @@ export default function AdminChurches() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
 
-  // Fetch approved churches
-  const { data: churches, isLoading } = useQuery<Organization[]>({
+  // Fetch approved and active churches
+  const { data: approvedChurches } = useQuery<Organization[]>({
     queryKey: ['/api/admin/orgs?status=approved'],
     enabled: !!user && user.role === 'SUPER_ADMIN',
   });
+
+  const { data: activeChurches } = useQuery<Organization[]>({
+    queryKey: ['/api/admin/orgs?status=active'],
+    enabled: !!user && user.role === 'SUPER_ADMIN',
+  });
+
+  const churches = [...(approvedChurches || []), ...(activeChurches || [])];
+  const isLoading = !approvedChurches && !activeChurches;
 
   const handleChurchClick = (churchId: string) => {
     setLocation(`/admin/churches/${churchId}`);
