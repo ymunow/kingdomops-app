@@ -1,0 +1,172 @@
+Awesome — here’s a clean, copy-paste brief you can give the AI agent to update the workflow end-to-end.
+
+---
+
+# ✅ PROJECT BRIEF: Applications → Approval → Activation (with Rejections & Waitlist)
+
+## Goals
+
+* Treat incoming churches as **applications** first.
+* Distinguish **Pending**, **Approved (not active)**, **Active**, and **Rejected**.
+* Update dashboard cards and click-throughs.
+* Add **rejection + waitlist** flow and email notifications.
+* Lock all admin actions to **SUPER\_ADMIN**.
+
+---
+
+## Data Model (DB changes)
+
+**Table: `orgs`**
+
+* `status` `text NOT NULL DEFAULT 'pending'`  // `pending | approved | active | rejected`
+* `approved_at` `timestamptz`
+* `rejected_at` `timestamptz`
+* `rejection_reason` `text`
+* `reviewed_by` `uuid`  // users.id of the admin reviewer
+
+**Waitlist (new)**
+
+```sql
+CREATE TABLE IF NOT EXISTS waitlist_churches (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  org_id uuid REFERENCES orgs(id) ON DELETE SET NULL,
+  church_name text NOT NULL,
+  contact_email text NOT NULL,
+  source text DEFAULT 'beta_rejected',
+  notes text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (contact_email, church_name)
+);
+```
+
+> IMPORTANT: Public/join flows must **never** set `users.global_role`. Membership role on join = `MEMBER`.
+
+---
+
+## API (admin-only)
+
+* `GET /api/admin/orgs?status=pending|approved|active|rejected`
+
+* `GET /api/admin/orgs/:id`
+
+* `POST /api/admin/orgs/:id/approve`
+
+  * Body: `{ makeOwnerUserId?: string }` (optional)
+  * Effect: `status='approved'`, `approved_at=now()`, `reviewed_by=currentAdminId`
+  * (optional) ensure requester has `org_membership role='MEMBER'`
+
+* `POST /api/admin/orgs/:id/activate`
+
+  * Effect: `status='active'` (triggered on first leader login or manual admin action)
+
+* `POST /api/admin/orgs/:id/reject`
+
+  * Body: `{ reason: string, waitlist: boolean, noteToApplicant?: string }`
+  * Effect: `status='rejected'`, `rejected_at=now()`, `rejection_reason=reason`, `reviewed_by=currentAdminId`
+  * If `waitlist===true`: upsert into `waitlist_churches (org_id, church_name, contact_email, notes)`
+
+> All routes require `SUPER_ADMIN`. Public APIs cannot modify `org.status`.
+
+---
+
+## Notifications (email)
+
+Send emails on:
+
+* **New application (pending)** → to `staff@graymusicmedia.com` (subject: “New Beta Application: <church>”)
+* **Approved** (to applicant)
+* **Rejected + waitlist** (to applicant; add to waitlist)
+* (Optional) **Activated** (to staff)
+
+Implementation options:
+
+* **Edge Function + DB trigger** on `INSERT orgs.status='pending'` (recommended), or
+* Send within server route that creates the application.
+
+---
+
+## Dashboard Cards (Super Admin home)
+
+Rename & wire counts:
+
+* **Beta Applications (Pending Review)** → count `status='pending'` → click → `/admin/applications`
+* **Approved Churches** (not active yet) → count `status='approved'` → click → `/admin/churches?status=approved`
+* **Active Churches** → count `status='active'` → click → `/admin/churches?status=active`
+* (Optional small badge) **Rejected** → count `status='rejected'` → `/admin/churches?status=rejected`
+
+Show growth % vs last 30 days where relevant.
+
+---
+
+## Admin Pages
+
+### `/admin/applications` (Pending Queue)
+
+* Table: church, contact email, submitted date, quick view.
+* Actions: **Approve**, **Reject**.
+
+  * Reject opens modal: **Reason** (required), **Add to waitlist** (checkbox, default ON), **Optional note**.
+* On success: toast + invalidate React Query caches for pending/approved/rejected counts.
+
+### `/admin/churches` (Directory)
+
+* Filters: Approved / Active / Rejected.
+* Row click → `/admin/churches/:id`.
+
+### `/admin/churches/:id` (Detail)
+
+* Header: church name, **status badge**, join code (copy), buttons: **Edit**, **Impersonate**, **Deactivate**.
+* Key Info: leader, contact, location, created\_at, approved\_at/rejected\_at, reviewed\_by.
+* Membership snapshot: total members, leaders/admins, last activity.
+* Activity log (status changes + key events).
+
+---
+
+## Frontend Wiring (React Query)
+
+* Queries:
+
+  * `['orgs','pending']`, `['orgs','approved']`, `['orgs','active']`, `['orgs','rejected']`
+* Mutations:
+
+  * `approveOrg` → invalidate `pending` + `approved`
+  * `rejectOrg` → invalidate `pending` + `rejected`
+  * `activateOrg` → invalidate `approved` + `active`
+* Dashboard cards read from these queries; cards navigate to pages above.
+
+---
+
+## Emails (templates)
+
+**Rejected + waitlist (to applicant)**
+
+* Subject: `We’ve added {{churchName}} to the KingdomOps launch waitlist`
+* Body: brief explanation; include optional `noteToApplicant`; confirm they’ll be notified at GA.
+
+**Approved (to applicant)**
+
+* Subject: `Welcome to KingdomOps, {{churchName}} — you’re approved 🎉`
+* Body: link to onboarding steps.
+
+**Staff notifications**: short HTML with link to `/admin/applications` or the church detail page.
+
+---
+
+## Security
+
+* Route guards: only `SUPER_ADMIN` can access `/admin/...` routes and APIs.
+* DB/RLS: Users cannot update `users.global_role`; self-join inserts only allow `role='MEMBER'`.
+
+---
+
+## Acceptance Test
+
+1. Submit two applications → Dashboard shows Pending = 2.
+2. Approve one → Pending = 1; Approved = 1; email to applicant + staff.
+3. Reject the other with waitlist → Pending = 0; Rejected = 1; waitlist row created; email sent.
+4. Activate the approved one → Active = 1; Approved = 0.
+5. Cards click to correct pages; detail page opens with correct info.
+
+---
+
+**Please implement this spec and open PR: “Admin: Applications pipeline (pending/approved/active/rejected) + waitlist + notifications.” Include a 30–60s demo video walking through pending → approve/reject, waitlist email, and card click-throughs.**
