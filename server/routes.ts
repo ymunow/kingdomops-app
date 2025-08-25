@@ -10,7 +10,7 @@ import { scoreGifts } from "../client/src/lib/hardened-scoring";
 import { giftContent } from "./content/gifts";
 import { emailService } from "./services/email";
 import { sendEmail } from "./services/email-service";
-import { generateChurchWelcomeEmail } from "./services/email-templates";
+import { generateChurchWelcomeEmail, generateBetaApplicationNotificationEmail } from "./services/email-templates";
 import { setupSupabaseAuth, isAuthenticated, supabase } from "./supabaseAuth";
 import {
   ObjectStorageService,
@@ -739,6 +739,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (emailError) {
         console.error('Failed to send welcome email:', emailError);
         // Don't fail the registration if email fails
+      }
+
+      // Send notification email to staff@ymunow.com for beta applications
+      if (req.body.isBetaApplication) {
+        try {
+          const staffNotificationContent = generateBetaApplicationNotificationEmail({
+            churchName: organization.name,
+            contactPersonName: ownerData.firstName + ' ' + ownerData.lastName,
+            contactEmail: ownerData.email,
+            contactPhone: req.body.contactPhone || 'Not provided',
+            memberCount: req.body.memberCount || 'Not provided',
+            currentSoftware: req.body.currentSoftware || 'Not provided',
+            specificNeeds: req.body.specificNeeds || 'Not provided',
+            website: req.body.website || 'Not provided',
+            address: req.body.address,
+            description: req.body.description,
+            inviteCode,
+            organizationId: organization.id
+          });
+
+          await sendEmail({
+            to: 'staff@ymunow.com',
+            subject: staffNotificationContent.subject,
+            html: staffNotificationContent.html,
+            text: staffNotificationContent.text
+          });
+
+          console.log(`Beta application notification sent to staff@ymunow.com for church ${organization.name}`);
+        } catch (emailError) {
+          console.error('Failed to send staff notification email:', emailError);
+          // Don't fail the registration if email fails
+        }
       }
 
       res.json({

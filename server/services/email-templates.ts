@@ -6,6 +6,21 @@ interface ChurchRegistrationEmailData {
   contactEmail: string;
 }
 
+export interface BetaApplicationNotificationData {
+  churchName: string;
+  contactPersonName: string;
+  contactEmail: string;
+  contactPhone: string;
+  memberCount: string;
+  currentSoftware: string;
+  specificNeeds: string;
+  website: string;
+  address: string;
+  description: string;
+  inviteCode: string;
+  organizationId: string;
+}
+
 export function generateChurchWelcomeEmail(data: ChurchRegistrationEmailData) {
   const { churchName, pastorName, inviteCode, organizationId, contactEmail } = data;
   
@@ -380,6 +395,153 @@ Phone: (555) 123-4567
 
 Blessings,
 The Kingdom Impact Training Team
+`;
+
+  return {
+    subject,
+    html: htmlContent,
+    text: textContent
+  };
+}
+
+export function generateBetaApplicationNotificationEmail(data: BetaApplicationNotificationData) {
+  const { 
+    churchName, 
+    contactPersonName, 
+    contactEmail, 
+    contactPhone, 
+    memberCount, 
+    currentSoftware, 
+    specificNeeds, 
+    website, 
+    address, 
+    description, 
+    inviteCode, 
+    organizationId 
+  } = data;
+  
+  const subject = `🚀 New Beta Application: ${churchName}`;
+  
+  const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Beta Application</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #334155; background-color: #f8fafc; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%); padding: 30px; text-align: center; color: white; }
+        .content { padding: 30px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .info-item { background: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #5b21b6; }
+        .info-label { font-weight: 600; color: #5b21b6; margin-bottom: 5px; }
+        .info-value { color: #334155; }
+        .full-width { grid-column: 1 / -1; }
+        .highlight { background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border-left: 4px solid #22c55e; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 New Beta Application</h1>
+            <p>A church has applied for the KingdomOps Inner Circle beta program</p>
+        </div>
+        
+        <div class="content">
+            <div class="highlight">
+                <h2 style="margin: 0 0 10px 0; color: #22c55e;">✅ ${churchName}</h2>
+                <p style="margin: 0; color: #166534;">Organization ID: <strong>${organizationId}</strong></p>
+                <p style="margin: 0; color: #166534;">Invite Code: <strong>${inviteCode}</strong></p>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Contact Person</div>
+                    <div class="info-value">${contactPersonName}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">${contactEmail}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Phone</div>
+                    <div class="info-value">${contactPhone}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Church Size</div>
+                    <div class="info-value">${memberCount}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Website</div>
+                    <div class="info-value">${website}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Current Software</div>
+                    <div class="info-value">${currentSoftware}</div>
+                </div>
+                
+                <div class="info-item full-width">
+                    <div class="info-label">Address</div>
+                    <div class="info-value">${address}</div>
+                </div>
+                
+                <div class="info-item full-width">
+                    <div class="info-label">Church Description</div>
+                    <div class="info-value">${description}</div>
+                </div>
+                
+                <div class="info-item full-width">
+                    <div class="info-label">Specific Needs & Goals</div>
+                    <div class="info-value">${specificNeeds}</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <p><strong>Next Steps:</strong></p>
+                <p>1. Review the application details above</p>
+                <p>2. Follow up with the contact person within 48 hours</p>
+                <p>3. Provide them with onboarding instructions and beta access</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
+
+  const textContent = `
+🚀 NEW BETA APPLICATION
+
+Church: ${churchName}
+Organization ID: ${organizationId}
+Invite Code: ${inviteCode}
+
+CONTACT INFORMATION:
+Name: ${contactPersonName}
+Email: ${contactEmail}
+Phone: ${contactPhone}
+
+CHURCH DETAILS:
+Size: ${memberCount}
+Website: ${website}
+Current Software: ${currentSoftware}
+
+Address: ${address}
+
+Description: ${description}
+
+Specific Needs & Goals:
+${specificNeeds}
+
+NEXT STEPS:
+1. Review the application details
+2. Follow up with the contact person within 48 hours
+3. Provide onboarding instructions and beta access
 `;
 
   return {

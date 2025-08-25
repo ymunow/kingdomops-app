@@ -61,17 +61,45 @@ export default function ChurchSignup() {
     window.scrollTo(0, 0);
   }, []);
 
-  const onSubmit = (data: BetaApplicationData) => {
+  const onSubmit = async (data: BetaApplicationData) => {
     setIsSubmitting(true);
     
-    // Simulate form submission delay for better UX
-    setTimeout(() => {
+    try {
+      // Map form data to API format
+      const apiData = {
+        churchName: data.churchName,
+        contactEmail: data.contactEmail,
+        contactPersonName: data.contactPersonName,
+        contactPhone: data.contactPhone,
+        website: data.website || '',
+        address: data.address,
+        description: data.description,
+        memberCount: data.memberCount,
+        currentSoftware: data.currentSoftware || '',
+        specificNeeds: data.specificNeeds,
+        // Beta application flag
+        isBetaApplication: true
+      };
+
+      const response = await fetch('/api/organizations/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to submit application');
+      }
+
+      const result = await response.json();
+
       toast({
         title: "Application Submitted Successfully! 🎉",
         description: "We'll review your application and get back to you within 48 hours with next steps."
       });
-      
-      setIsSubmitting(false);
       
       // Reset form after successful submission
       form.reset();
@@ -80,7 +108,17 @@ export default function ChurchSignup() {
       setTimeout(() => {
         setLocation("/");
       }, 3000);
-    }, 2000);
+      
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        title: "Submission Failed",
+        description: error instanceof Error ? error.message : "Please try again or contact support.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
