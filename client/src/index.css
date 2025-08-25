@@ -62,6 +62,19 @@
   --spacing: 0.25rem;
 }
 
+/* TEMP DEBUG – remove once fixed */
+#feed-root, .feed-root, [data-feed-root] {
+  position: relative !important;
+}
+
+#feed-root *, .feed-root *, [data-feed-root] * {
+  pointer-events: auto !important;
+}
+
+[data-overlay], .page-overlay, .app-overlay, [aria-hidden="true"][style*="position: fixed"] {
+  pointer-events: none !important;
+}
+
 .dark {
   --background: hsl(0, 0%, 0%);
   --foreground: hsl(200, 6.6667%, 91.1765%);

@@ -135,13 +135,19 @@ export function FeedComposer({
         value={body}
         onChange={(e) => setBody(e.target.value)}
         onFocus={(e) => {
-          console.log("Textarea value changing:", e.target.value);
+          console.log("Textarea focused:", e.target.value);
         }}
         rows={4}
         className="mb-4 border-0 bg-gray-50 dark:bg-gray-700 resize-none focus:ring-2 focus:ring-spiritual-blue focus:border-transparent cursor-text"
         style={{
-          zIndex: 1, // keep above any decorative layers
-          pointerEvents: "auto", // make sure it receives clicks
+          position: 'relative',
+          zIndex: 10, // make sure it's above decorative siblings
+          pointerEvents: "auto", // force clickability
+        }}
+        onMouseDown={(e) => {
+          // fight through weird wrappers: ensure focus is applied
+          const t = e.currentTarget as HTMLTextAreaElement;
+          if (document.activeElement !== t) t.focus();
         }}
         disabled={isSubmitting}
         data-testid="post-textarea"

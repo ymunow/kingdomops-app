@@ -1,0 +1,167 @@
+Thanks for the detail. If the composer you pasted still won’t focus/type, something **outside** the component is blocking interaction. Let’s zero it in fast and fix it. No guesswork—do these in order (it’s quick):
+
+# 0) Prove it’s an overlay (10‑second check)
+
+In your browser console on the Feed page, paste this and click directly in the box:
+
+```js
+document.addEventListener('click', e => {
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  console.log('Top element at click:', el, '->', el?.id, el?.className, getComputedStyle(el).pointerEvents, getComputedStyle(el).zIndex);
+}, { once: true });
+```
+
+* If the log shows anything **other than** the `<textarea>`, that element is intercepting clicks.
+* Typical culprits: headers with `position:absolute; z-index`, full‑page loaders, modals, invisible divs, a disabled `<fieldset>` ancestor, or a wrapper with `pointer-events:none` applied to the wrong layer.
+
+# 1) Quick “nuclear” CSS override (instant unblock)
+
+Drop this **temporarily** anywhere global (e.g., your global.css) and refresh:
+
+```css
+/* TEMP DEBUG – remove once fixed */
+#feed-root, .feed-root, [data-feed-root] {
+  position: relative !important;
+}
+
+#feed-root *, .feed-root *, [data-feed-root] * {
+  pointer-events: auto !important;
+}
+
+[data-overlay], .page-overlay, .app-overlay, [aria-hidden="true"][style*="position: fixed"] {
+  pointer-events: none !important;
+}
+```
+
+Then wrap your composer container:
+
+```tsx
+<div id="feed-root">
+  <FeedComposer /* ...props */ />
+</div>
+```
+
+If clicks now work, we’ve confirmed an overlay/pointer‑events issue. Keep reading for the proper fix.
+
+# 2) Kill the usual blockers (pick what matches your codebase)
+
+* **Accidental overlay**
+  Look for any siblings above the composer with `position:absolute/fixed` and a higher `z-index`. Lower that z‑index or add `pointer-events:none` to just that decorative layer.
+
+* **Disabled ancestor**
+  If a parent uses `<fieldset disabled>` or a UI lib wraps the section in a disabled state, every input inside becomes unfocusable. Remove the `disabled` or scope it.
+
+* **Hydration/SSR mismatch** (Next.js)
+  If the composer renders before auth finishes, an early render can mark inputs `disabled` or `readOnly`. Ensure the composer only mounts when auth is ready:
+
+  ```tsx
+  if (!authToken || !currentUser) return null;
+  ```
+
+* **Event swallowing**
+  Parent `onClick` with `event.preventDefault()` *and* CSS that prevents focus can cause trouble. PreventDefault alone doesn’t block focus, but combined styles do—remove it from wrappers.
+
+* **Hidden overlay from toast/tooltip**
+  Some libs render a full‑screen container for toasts/tooltips. Confirm it isn’t covering the feed. In DevTools → Elements, toggle that layer visibility and try again.
+
+# 3) Make the composer self‑defensive (drop‑in hardening)
+
+Even if the parent has odd styles, this will help:
+
+```tsx
+<textarea
+  placeholder="What's on your heart?"
+  value={body}
+  onChange={(e) => setBody(e.target.value)}
+  rows={4}
+  className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+  style={{
+    position: 'relative',
+    zIndex: 10,              // make sure it's above decorative siblings
+    pointerEvents: 'auto',   // force clickability
+  }}
+  onMouseDown={(e) => {
+    // fight through weird wrappers: ensure focus is applied
+    const t = e.currentTarget as HTMLTextAreaElement;
+    if (document.activeElement !== t) t.focus();
+  }}
+/>
+```
+
+Also ensure **no wrapper** around the composer carries these styles:
+
+* `pointer-events: none`
+* `opacity: 0` (but still occupying space)
+* `display: contents` (rarely causes input quirks with some CSS resets)
+
+# 4) Confirm POST payload & role gating (you won’t see success otherwise)
+
+Open DevTools → Network while posting and check the request body:
+
+```json
+{
+  "type": "testimony",   // not "post"
+  "body": "...",
+  "title": "...",
+  "visibility": "members",
+  "scope": "church"
+}
+```
+
+If your UI still labels it “Post”, make sure it maps to `"testimony"` under the hood.
+
+Server gate (keep this!):
+
+```ts
+if (req.body.type === 'announcement' && !ADMIN_ROLES.has(user.role)) {
+  return res.status(403).json({ error: "Announcements are admin-only." });
+}
+```
+
+# 5) If it STILL won’t focus—minimal repro page (rules out page‑level CSS)
+
+Create a bare route with only the composer:
+
+```tsx
+// client/src/pages/_debug_feed.tsx (or similar)
+import { FeedComposer } from '../components/FeedComposer';
+
+export default function DebugFeed() {
+  const authToken = "<paste a valid dev token or pull from your hook>";
+  const currentUser = { id: "dev", role: "SUPER_ADMIN" };
+  return (
+    <div style={{ padding: 24 }} data-feed-root>
+      <FeedComposer authToken={authToken} currentUser={currentUser} />
+    </div>
+  );
+}
+```
+
+* If it works here, the problem is **layout/overlay** on the real page.
+* If it doesn’t, the problem is inside the **composer** (but the code I sent is controlled and focusable, so that’d be unusual—check browser console errors).
+
+# 6) Optional: “Click‑trap buster” (shows you the blocker instantly)
+
+Temporarily mount this at the bottom of the page:
+
+```tsx
+function ClickTrapBuster() {
+  React.useEffect(() => {
+    function onDown(e: MouseEvent) {
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      console.log('[ClickTrap] elementFromPoint:', el);
+    }
+    window.addEventListener('mousedown', onDown, true);
+    return () => window.removeEventListener('mousedown', onDown, true);
+  }, []);
+  return null;
+}
+```
+
+# Quick call on announcements
+
+Your instinct is correct: **Announcements should be admin‑only**. Keep both the **UI hide** and the **API 403** so even crafted requests from regular members can’t sneak one through.
+
+---
+
+If you tell me what the console’s `elementFromPoint` printed when you clicked the textarea, I’ll pinpoint the exact element to tame and give you the one‑line CSS or code tweak for that layer.
