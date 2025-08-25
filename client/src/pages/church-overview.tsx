@@ -25,7 +25,8 @@ import {
   Shield,
   Settings,
   Church,
-  Crown
+  Crown,
+  Rocket
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from "recharts";
 import { Link, useLocation } from "wouter";
@@ -194,6 +195,19 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     enabled: isPlatformView && !!user,
     refetchInterval: 30000,
   });
+
+  // Get organizations data for beta applications count
+  const { data: organizations } = useQuery<any[]>({
+    queryKey: ['/api/organizations'],
+    enabled: isPlatformView && !!user,
+  });
+
+  const betaApplicationsCount = (() => {
+    if (!organizations) return 0;
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    return organizations.filter(org => new Date(org.createdAt) > sevenDaysAgo).length;
+  })();
   
   const { data: churchMetrics, isLoading: isChurchLoading, error: churchError } = useQuery<ChurchMetrics>({
     queryKey: ['/api/church-overview', targetOrgId],
@@ -445,10 +459,32 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
 
         <div className="space-y-8">
           {/* Key Metrics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             {isPlatformView ? (
               // Platform-wide metrics for Super Admin
               <>
+                {/* Beta Applications Card - First Card */}
+                <Card 
+                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  onClick={() => setLocation('/admin/organizations')}
+                  data-testid="card-beta-applications"
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Beta Applications</p>
+                        <p className="text-3xl font-bold text-charcoal">{betaApplicationsCount}</p>
+                        <p className="text-xs text-green-600 font-medium mt-1">
+                          Last 7 days
+                        </p>
+                      </div>
+                      <div className="bg-green-100 rounded-full p-3">
+                        <Rocket className="text-green-600 h-6 w-6" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
