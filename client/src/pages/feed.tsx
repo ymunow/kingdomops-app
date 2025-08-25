@@ -24,15 +24,6 @@ export default function Feed() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Debug component to detect click blockers
-  React.useEffect(() => {
-    function onDown(e: MouseEvent) {
-      const el = document.elementFromPoint(e.clientX, e.clientY);
-      console.log('[ClickTrap] elementFromPoint:', el, '->', el?.id, el?.className, getComputedStyle(el).pointerEvents, getComputedStyle(el).zIndex);
-    }
-    window.addEventListener('mousedown', onDown, true);
-    return () => window.removeEventListener('mousedown', onDown, true);
-  }, []);
 
 
   // Fetch feed posts from API
@@ -131,15 +122,13 @@ export default function Feed() {
             <p className="text-gray-600 dark:text-gray-400">Stay connected with your church family</p>
           </div>
 
-          {/* Feed Composer - New robust component with debugging wrapper */}
-          <div id="feed-root" data-feed-root>
-            <FeedComposer
-              currentUser={{ id: user?.id || '', role: user?.role }}
-              onPosted={() => {
-                queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
-              }}
-            />
-          </div>
+          {/* Feed Composer - Robust component for creating posts */}
+          <FeedComposer
+            currentUser={{ id: user?.id || '', role: user?.role }}
+            onPosted={() => {
+              queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
+            }}
+          />
 
           {/* Loading state */}
           {isLoading && (
