@@ -1006,6 +1006,16 @@ export default function Connect() {
             
             {/* Real API Feed Data */}
             <div className="space-y-4">
+              {/* DEBUG: Show feed data info */}
+              <div className="bg-yellow-100 p-2 rounded text-xs">
+                DEBUG: feedPosts = {JSON.stringify({ 
+                  exists: !!feedPosts, 
+                  length: feedPosts?.length, 
+                  isLoading,
+                  type: typeof feedPosts
+                })}
+              </div>
+              
               {feedPosts && feedPosts.length > 0 ? (
                 feedPosts.map((post: any) => (
                   <Card key={post.id} className="shadow-sm hover:shadow-md transition-shadow">
