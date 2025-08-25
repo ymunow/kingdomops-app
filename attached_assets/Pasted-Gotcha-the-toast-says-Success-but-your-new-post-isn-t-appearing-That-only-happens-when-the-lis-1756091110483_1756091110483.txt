@@ -1,0 +1,129 @@
+Gotcha—the toast says “Success,” but your new post isn’t appearing. That only happens when the **list cache** and the **create** call aren’t wired to the same key / shape (or you’re filtering it out). Here’s a tight fix you can paste that makes your post appear **instantly** and then stays after refetch.
+
+# 1) Use one canonical query key everywhere
+
+```ts
+// client/src/hooks/feedKeys.ts
+export const feedKey = (scope: "church" | "group", visibility: "members" | "public") =>
+  ["feed", scope, visibility] as const;
+```
+
+# 2) Fetch with that key (and no extra client-side filters)
+
+```ts
+// client/src/hooks/useFeed.ts
+import { useQuery } from "@tanstack/react-query";
+import { feedKey } from "./feedKeys";
+
+export function useFeed(scope: "church" | "group" = "church", visibility: "members" | "public" = "members") {
+  return useQuery({
+    queryKey: feedKey(scope, visibility),
+    queryFn: async () => {
+      const res = await fetch(`/api/feed?scope=${scope}&visibility=${visibility}`);
+      if (!res.ok) throw new Error(`Feed load failed ${res.status}`);
+      const data = await res.json();
+      const items = Array.isArray(data) ? data : (data.items ?? []);
+      return items as any[]; // already sorted by server (pinned → announcement → newest)
+    },
+    staleTime: 10_000,
+  });
+}
+```
+
+# 3) Mutation: optimistic add + replace with server item + invalidate
+
+```ts
+// client/src/hooks/useCreatePost.ts
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { feedKey } from "./feedKeys";
+
+type CreatePayload = {
+  type: "testimony" | "prayer" | "photo" | "announcement";
+  body: string;
+  title?: string;
+  visibility?: "members" | "public";
+  scope?: "church" | "group";
+  groupId?: string;
+  photoUrl?: string;
+};
+
+export function useCreatePost(scope: "church" | "group" = "church", visibility: "members" | "public" = "members") {
+  const qc = useQueryClient();
+  const key = feedKey(scope, visibility);
+
+  return useMutation({
+    mutationFn: async (payload: CreatePayload) => {
+      const res = await fetch("/api/feed/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scope, visibility, ...payload }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const saved = await res.json();
+      // Ensure server responds in spec shape; if not, wrap
+      return (saved?.id ? saved : { ...saved, id: saved?.id ?? crypto.randomUUID() });
+    },
+    onMutate: async (newPost) => {
+      await qc.cancelQueries({ queryKey: key });
+      const prev = qc.getQueryData<any[]>(key) || [];
+      const optimistic = {
+        id: `optimistic-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        isAnnouncement: newPost.type === "announcement",
+        isPinned: false,
+        userId: "me",
+        isMine: true,
+        ...newPost,
+      };
+      qc.setQueryData<any[]>(key, [optimistic, ...prev]); // appears instantly at top
+      return { prev };
+    },
+    onError: (_err, _newPost, ctx) => {
+      if (ctx?.prev) qc.setQueryData(key, ctx.prev); // rollback
+    },
+    onSuccess: (saved) => {
+      qc.setQueryData<any[]>(key, (old = []) => {
+        // Remove optimistic, insert saved at top
+        const rest = old.filter(p => !String(p.id).startsWith("optimistic-"));
+        return [saved, ...rest];
+      });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: key }); // pull canonical list from server
+    },
+  });
+}
+```
+
+# 4) Composer: send the exact payload and call the mutation
+
+```tsx
+// where you render the composer on the Feed page
+const scope: "church" | "group" = "church";
+const visibility: "members" | "public" = "members";
+const { data: items } = useFeed(scope, visibility);
+const createPost = useCreatePost(scope, visibility);
+
+<FeedComposer
+  onPosted={(payload) => createPost.mutate(payload)}
+/>
+
+// Render items directly (no extra client filters that could hide new items)
+<FeedList items={items || []} />
+```
+
+# 5) Two quick checks if it still doesn’t appear
+
+* **Scope/visibility mismatch:** make sure the composer dropdowns really map to `"church"` and `"members"`. If the UI label says “Whole …” but sends `"whole"`, the post will never show in a `"church"` feed. Fix mapping:
+
+```ts
+// label → enum mapping
+const scopeMap = { "Whole Church": "church", "This Group": "group" } as const;
+const visibilityMap = { "Members": "members", "Public": "public" } as const;
+```
+
+* **Server response shape:** After the POST, check the Network tab → Response. You should see the **saved post object** (not just `{ success: true }`). If you get a wrapper like `{ item: {...} }`, then change `onSuccess` to use `saved.item`.
+
+---
+
+This aligns the **query key**, the **mutation cache**, and the **server response**. With this in place, when you press **Share**, your post will pop to the top immediately (optimistic) and then remain there after the refetch.

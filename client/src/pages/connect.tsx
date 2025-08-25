@@ -3,7 +3,8 @@ import { FeedComposer } from '@/components/FeedComposer';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { MessageCircle, Heart, MessageSquare, Share, MoreHorizontal, Edit3, Camera, Megaphone, Users, Crown, ArrowRight, MapPin, Clock, Bookmark, ChevronLeft, ChevronRight, TrendingUp, HandHeart, Filter, CheckCircle, Sparkles, Plus, Shield, Lock, Globe, Eye, UserCheck, AlertCircle, X, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useSupabaseAuth';
-import { useFeed, useCreatePost } from '@/hooks/useFeed';
+import { useFeed } from '@/hooks/useFeed';
+import { useCreatePost } from '@/hooks/useCreatePost';
 import { MainLayout } from '@/components/navigation/main-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,8 +58,8 @@ export default function Connect() {
   // Fetch feed posts from API with optimistic updates
   const { data: feedPosts = [], isLoading } = useFeed("church", "members");
   
-  // Create post mutation with optimistic updates
-  const createPostMutation = useCreatePost("church", user);
+  // Create post mutation with optimistic updates  
+  const createPostMutation = useCreatePost("church", "members", user);
 
   // Check URL parameter for initial tab
   useEffect(() => {
