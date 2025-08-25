@@ -999,7 +999,10 @@ export default function Connect() {
             
             {/* Real API Feed Data */}
             <div className="space-y-4">
-              {feedPosts.map((post: any) => (
+              {feedPosts && feedPosts.length > 0 ? (
+                feedPosts.map((post: any) => {
+                  console.log('🔍 POST DEBUG:', post);
+                  return (
                 <Card key={post.id} className="shadow-sm hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     {/* Post Header */}
@@ -1078,7 +1081,15 @@ export default function Connect() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                  );
+                })
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">
+                    {isLoading ? 'Loading feed...' : 'No posts yet. Be the first to share something!'}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Load More */}
