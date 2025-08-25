@@ -916,6 +916,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "A user with this email already exists" });
       }
 
+      // Get organization name for personalized welcome
+      const org = await storage.getOrganization(organizationId);
+      const churchName = org ? encodeURIComponent(org.name) : '';
+      
+      // Create personalized redirect URL with church name
+      const redirectUrl = churchName 
+        ? `https://kingdomops.org/auth?confirmed=true&churchName=${churchName}`
+        : `https://kingdomops.org/auth?confirmed=true`;
+      
+      console.log('🔗 Congregation signup redirect URL:', redirectUrl);
+
       // First create the user in Supabase auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: req.body.email,
@@ -925,9 +936,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             first_name: req.body.firstName,
             last_name: req.body.lastName,
           },
-          emailRedirectTo: process.env.NODE_ENV === 'production' 
-            ? `https://kingdomops.org/auth?confirmed=true`
-            : `https://${process.env.REPLIT_DEV_DOMAIN || req.get('host')}/auth?confirmed=true`
+          emailRedirectTo: redirectUrl
         }
       });
 

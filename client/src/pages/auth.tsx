@@ -24,10 +24,18 @@ export default function AuthPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
-  // Check for confirmation, email check, and password reset parameters
+  // Check for confirmation, email check, password reset, and church name parameters
+  const [churchName, setChurchName] = useState('');
+  
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const hash = window.location.hash;
+    
+    // Extract church name for personalized welcome
+    const churchParam = urlParams.get('churchName');
+    if (churchParam) {
+      setChurchName(decodeURIComponent(churchParam));
+    }
     
     // Handle email confirmation from Supabase redirect with tokens in URL hash
     if (hash && hash.includes('access_token')) {
@@ -191,9 +199,16 @@ export default function AuthPage() {
           <CardHeader className="text-center">
             <div className="flex items-center justify-center mb-4">
               <Crown className="text-warm-gold h-8 w-8 mr-3" />
-              <CardTitle className="text-spiritual-blue text-2xl">Email Confirmed!</CardTitle>
+              <CardTitle className="text-spiritual-blue text-2xl">
+                {churchName ? `Welcome ${churchName}!` : 'Email Confirmed!'}
+              </CardTitle>
             </div>
-            <CardDescription>Your account has been verified. You can now sign in.</CardDescription>
+            <CardDescription>
+              {churchName 
+                ? `Your ${churchName} account has been verified. You can now sign in to access your church platform.`
+                : 'Your account has been verified. You can now sign in.'
+              }
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button 

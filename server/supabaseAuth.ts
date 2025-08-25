@@ -144,10 +144,25 @@ export async function setupSupabaseAuth(app: Express) {
   });
 
   app.post('/api/auth/signup', async (req, res) => {
-    const { email, password, firstName, lastName } = req.body;
+    const { email, password, firstName, lastName, organizationId } = req.body;
     
-    // ✅ Always use production domain for auth redirects
-    const redirectUrl = `https://kingdomops.org/auth?confirmed=true`;
+    // ✅ Get organization name for personalized welcome
+    let churchName = '';
+    if (organizationId) {
+      try {
+        const org = await storage.getOrganization(organizationId);
+        if (org) {
+          churchName = encodeURIComponent(org.name);
+        }
+      } catch (error) {
+        console.log('Could not fetch organization for redirect:', error);
+      }
+    }
+    
+    // ✅ Always use production domain with personalized church name
+    const redirectUrl = churchName 
+      ? `https://kingdomops.org/auth?confirmed=true&churchName=${churchName}`
+      : `https://kingdomops.org/auth?confirmed=true`;
     
     console.log('🔗 Email redirect URL:', redirectUrl);
     
