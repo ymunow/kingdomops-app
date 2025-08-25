@@ -984,7 +984,9 @@ export default function Connect() {
             <FeedComposer
               currentUser={{ id: user?.id || '', role: user?.role }}
               onPosted={() => {
+                // Force refetch the feed data immediately
                 queryClient.invalidateQueries({ queryKey: ['/api/feed'] });
+                queryClient.refetchQueries({ queryKey: ['/api/feed'] });
               }}
             />
             
