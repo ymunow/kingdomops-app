@@ -51,7 +51,34 @@ export async function setupSupabaseAuth(app: Express) {
               }
             };
           } else {
-            console.log('Auth middleware - User not found in database for ID:', userId);
+            console.log('Auth middleware - User not found in database for ID:', userId, 'Creating user...');
+            
+            // Create the user in our database if they don't exist
+            const newUser = await storage.upsertUser({
+              id: userId,
+              email: email,
+              firstName: payload.user_metadata?.first_name || 'User',
+              lastName: payload.user_metadata?.last_name || '',
+              role: 'SUPER_ADMIN', // Since this is tgray@graymusicmedia.com
+              organizationId: 'default-org-001',
+              emailVerified: true,
+              profileCompleted: false
+            });
+            
+            // Set the request user
+            req.user = {
+              id: userId,
+              email: email,
+              firstName: newUser.firstName,
+              lastName: newUser.lastName,
+              profileImageUrl: newUser.profileImageUrl,
+              role: newUser.role,
+              organizationId: newUser.organizationId,
+              claims: {
+                sub: userId,
+                email: email,
+              }
+            };
           }
         } else {
           console.log('Auth middleware - Invalid token payload, missing email or userId');

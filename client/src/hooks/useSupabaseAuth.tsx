@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: userLoading,
   } = useQuery<AppUser | undefined, Error>({
     queryKey: ["/api/auth/user"],
-    enabled: !!session,
+    enabled: true, // Always enabled - let the API handle auth verification
     retry: false,
   });
 
