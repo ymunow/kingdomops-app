@@ -1,0 +1,87 @@
+
+
+---
+
+🏛 Super Admin – Individual Church Dashboard Layout
+
+1. Header Section (Top Bar)
+
+* Church Logo + Name
+* Status Badge → PENDING | APPROVED | ACTIVE | SUSPENDED
+* Primary Contact → Name, role, email, phone
+* Subdomain → yourchurch.kingdomops.org (clickable link)
+
+---
+
+2. Quick Stats (Cards at a Glance)
+
+(4–6 cards across the top row)
+
+* Total Members → Number + % growth vs last 30 days
+* Active Users (30 days) → Number + sparkline trend
+* Pending Invitations → Number of unconfirmed accounts
+* Groups Created → Total # of groups/ministries
+* Events Created → Count this quarter
+* Church Health Score → 0–100 (aggregated from engagement/activity)
+
+---
+
+3. Engagement & Growth Section
+
+📊 Two side-by-side charts
+
+* Member Growth Over Time (line chart – total members by month)
+* Activity Breakdown (bar or donut chart – % posts, assessments, events, etc.)
+
+---
+
+4. Ministry & Spiritual Metrics
+
+Cards or table-style display:
+
+* Assessments Completed → Total completed
+* Pending Assessments → Number outstanding
+* Ministry Matches → How many members matched to volunteer/service teams
+* Volunteer Opportunities Posted
+
+---
+
+5. Communication Metrics
+
+* Posts in Feed (30 days)
+* Prayer Requests Submitted
+* Announcements Sent
+* Photos/Media Uploaded
+
+---
+
+6. Timeline / Activity Log
+
+📅 A vertical timeline showing:
+
+* Date Applied
+* Date Approved
+* Date Activated
+* Most recent login / activity date
+* Any major updates (admin added, subscription change, etc.)
+
+---
+
+7. Admin Tools (Action Buttons at Bottom)
+
+* Suspend / Reactivate Church
+* Reset Admin Password
+* Export Report (CSV/PDF)
+* Email Church Admin
+
+---
+
+⚡ Optional Add-ons:
+
+* Compare that church’s engagement to average across all churches (benchmarking)
+* Heatmap of weekly activity (which days/times the church is most active)
+
+---
+
+📌 AI Agent Instructions Example:
+"Update the Super Admin > Church Details page (/admin/churches/[id]) to display the new dashboard layout. Add cards for Total Members, Active Users, Pending Invitations, Groups Created, Events Created, and Health Score. Below the cards, add charts for Member Growth and Activity Breakdown. Include sections for Assessments, Communication, and Timeline. Add admin action buttons (Suspend, Reset Password, Export, Email) at the bottom."
