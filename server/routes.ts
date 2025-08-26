@@ -695,7 +695,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         website: req.body.website,
         address: req.body.address,
         description: req.body.description,
-        status: "ACTIVE" as const
+        status: req.body.isBetaApplication ? "PENDING" as const : "ACTIVE" as const
       };
 
       // Validate the data
@@ -718,27 +718,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store the intended owner info but don't create the user yet
       // They'll be created when they first sign in through Replit Auth
 
-      // Send welcome email to the pastor
-      try {
-        const emailContent = generateChurchWelcomeEmail({
-          churchName: organization.name,
-          pastorName: ownerData.firstName + ' ' + ownerData.lastName,
-          inviteCode,
-          organizationId: organization.id,
-          contactEmail: ownerData.email
-        });
+      // Send appropriate email based on application status
+      if (req.body.isBetaApplication && organization.status === 'PENDING') {
+        // Send "application under review" email for pending beta applications
+        try {
+          const emailContent = {
+            subject: `Application Received: ${organization.name} - KingdomOps`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #250A34;">Thank you for your KingdomOps application!</h2>
+                <p>Dear ${ownerData.firstName} ${ownerData.lastName},</p>
+                <p>We've received your application for <strong>${organization.name}</strong> to join the KingdomOps platform.</p>
+                <p><strong>What happens next:</strong></p>
+                <ul>
+                  <li>Our team will review your application within 24-48 hours</li>
+                  <li>You'll receive an email notification once your application is approved</li>
+                  <li>After approval, you'll gain access to your church's admin dashboard</li>
+                </ul>
+                <p>Thank you for your interest in KingdomOps - we're excited to potentially partner with ${organization.name}!</p>
+                <p>Blessings,<br>The KingdomOps Team</p>
+              </div>
+            `,
+            text: `Thank you for your KingdomOps application! We've received your application for ${organization.name}. Our team will review it within 24-48 hours and you'll receive an email notification once approved.`
+          };
 
-        await sendEmail({
-          to: ownerData.email,
-          subject: emailContent.subject,
-          html: emailContent.html,
-          text: emailContent.text
-        });
+          await sendEmail({
+            to: ownerData.email,
+            subject: emailContent.subject,
+            html: emailContent.html,
+            text: emailContent.text
+          });
 
-        console.log(`Welcome email sent to ${ownerData.email} for church ${organization.name}`);
-      } catch (emailError) {
-        console.error('Failed to send welcome email:', emailError);
-        // Don't fail the registration if email fails
+          console.log(`Application received email sent to ${ownerData.email} for church ${organization.name}`);
+        } catch (emailError) {
+          console.error('Failed to send application received email:', emailError);
+          // Don't fail the registration if email fails
+        }
+      } else {
+        // Send welcome email for non-beta applications (immediate activation)
+        try {
+          const emailContent = generateChurchWelcomeEmail({
+            churchName: organization.name,
+            pastorName: ownerData.firstName + ' ' + ownerData.lastName,
+            inviteCode,
+            organizationId: organization.id,
+            contactEmail: ownerData.email
+          });
+
+          await sendEmail({
+            to: ownerData.email,
+            subject: emailContent.subject,
+            html: emailContent.html,
+            text: emailContent.text
+          });
+
+          console.log(`Welcome email sent to ${ownerData.email} for church ${organization.name}`);
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't fail the registration if email fails
+        }
       }
 
       // Send notification email to staff@ymunow.com for beta applications
