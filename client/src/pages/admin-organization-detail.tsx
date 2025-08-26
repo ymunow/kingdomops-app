@@ -362,7 +362,7 @@ export default function AdminOrganizationDetail() {
   const [adminNotes, setAdminNotes] = useState<string>("");
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   
-  // Always call useEffect hooks
+  // Always call useEffect hooks first
   useEffect(() => {
     const path = window.location.pathname;
     const id = path.split('/admin/organizations/')[1]?.split('/')[0];
@@ -380,48 +380,14 @@ export default function AdminOrganizationDetail() {
     enabled: !!user && !!orgId,
   });
 
-  // Handle loading states
-  if (isLoading || orgLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spiritual-blue mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading organization details...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !organization) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
-        <div className="flex items-center justify-center min-h-screen">
-          <Card className="w-96">
-            <CardContent className="p-6 text-center">
-              <AlertTriangle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Organization Not Found</h2>
-              <p className="text-gray-600 mb-4">The organization you're looking for doesn't exist or you don't have permission to view it.</p>
-              <Button onClick={() => setLocation('/admin/organizations')}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Organizations
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  // Initialize notes when organization loads
+  // Initialize notes when organization loads - always call this useEffect
   useEffect(() => {
     if (organization?.adminNotes) {
       setAdminNotes(organization.adminNotes);
     }
   }, [organization]);
 
-  // Approval/Rejection mutations
+  // Approval/Rejection mutations - must be called before any conditional returns
   const approveMutation = useMutation({
     mutationFn: (orgId: string) => 
       apiRequest('POST', `/api/admin/orgs/${orgId}/approve`),
@@ -510,6 +476,40 @@ export default function AdminOrganizationDetail() {
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
+
+  // Handle loading states
+  if (isLoading || orgLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spiritual-blue mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading organization details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !organization) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
+        <div className="flex items-center justify-center min-h-screen">
+          <Card className="w-96">
+            <CardContent className="p-6 text-center">
+              <AlertTriangle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Organization Not Found</h2>
+              <p className="text-gray-600 mb-4">The organization you're looking for doesn't exist or you don't have permission to view it.</p>
+              <Button onClick={() => setLocation('/admin/organizations')}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Organizations
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   // Mock data for charts when stats are not available
   const mockMemberGrowthData = [
