@@ -357,25 +357,27 @@ export default function AdminOrganizationDetail() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Extract organization ID from URL
+  // Extract organization ID from URL - always call hooks in same order
   const [orgId, setOrgId] = useState<string>("");
   const [adminNotes, setAdminNotes] = useState<string>("");
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   
+  // Always call useEffect hooks
   useEffect(() => {
     const path = window.location.pathname;
     const id = path.split('/admin/organizations/')[1]?.split('/')[0];
     if (id) setOrgId(id);
   }, []);
 
+  // Always call useQuery hooks - don't conditionally render them
   const { data: organization, isLoading: orgLoading, error } = useQuery<OrganizationDetail>({
     queryKey: ['/api/super-admin/organizations', orgId],
-    enabled: user?.role === 'SUPER_ADMIN' && !!orgId,
+    enabled: !!user && !!orgId,
   });
 
   const { data: stats, isLoading: statsLoading } = useQuery<OrganizationStats>({
     queryKey: ['/api/super-admin/organizations', orgId, 'stats'],
-    enabled: user?.role === 'SUPER_ADMIN' && !!orgId,
+    enabled: !!user && !!orgId,
   });
 
   // Handle loading states
