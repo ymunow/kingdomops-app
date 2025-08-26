@@ -34,7 +34,7 @@ interface Organization {
   address?: string;
   memberCount: number;
   completedAssessments: number;
-  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING' | 'APPROVED' | 'DENIED';
   createdAt: string;
 }
 
@@ -47,10 +47,45 @@ export default function AdminOrganizations() {
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: organizations, isLoading: orgsLoading } = useQuery<Organization[]>({
+  // Fetch all organizations from all status endpoints
+  const { data: allOrgs } = useQuery<Organization[]>({
     queryKey: ['/api/super-admin/organizations'],
     enabled: user?.role === 'SUPER_ADMIN',
   });
+
+  const { data: pendingOrgs } = useQuery<Organization[]>({
+    queryKey: ['/api/admin/orgs?status=pending'],
+    enabled: user?.role === 'SUPER_ADMIN',
+  });
+
+  const { data: approvedOrgs } = useQuery<Organization[]>({
+    queryKey: ['/api/admin/orgs?status=approved'],
+    enabled: user?.role === 'SUPER_ADMIN',
+  });
+
+  const { data: activeOrgs } = useQuery<Organization[]>({
+    queryKey: ['/api/admin/orgs?status=active'],
+    enabled: user?.role === 'SUPER_ADMIN',
+  });
+
+  const { data: deniedOrgs } = useQuery<Organization[]>({
+    queryKey: ['/api/admin/orgs?status=denied'],
+    enabled: user?.role === 'SUPER_ADMIN',
+  });
+
+  // Combine all organizations from different sources
+  const organizations = [
+    ...(allOrgs || []),
+    ...(pendingOrgs || []).map(org => ({ ...org, status: 'PENDING' as const })),
+    ...(approvedOrgs || []).map(org => ({ ...org, status: 'APPROVED' as const })),
+    ...(activeOrgs || []).map(org => ({ ...org, status: 'ACTIVE' as const })),
+    ...(deniedOrgs || []).map(org => ({ ...org, status: 'DENIED' as const }))
+  ].filter((org, index, self) => 
+    // Remove duplicates by id
+    index === self.findIndex(o => o.id === org.id)
+  );
+
+  const isLoading = !organizations;
 
   const createOrgMutation = useMutation({
     mutationFn: async (data: { name: string; contactEmail: string; phone?: string; address?: string }) => {
@@ -80,7 +115,7 @@ export default function AdminOrganizations() {
     }
   });
 
-  if (isLoading || orgsLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
         <div className="text-center">
@@ -111,10 +146,20 @@ export default function AdminOrganizations() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ACTIVE': return 'bg-green-100 text-green-800 border-green-300';
-      case 'INACTIVE': return 'bg-gray-100 text-gray-800 border-gray-300';
-      case 'SUSPENDED': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'ACTIVE': 
+        return 'bg-green-100 text-green-800 border-green-300';
+      case 'PENDING': 
+        return 'bg-orange-100 text-orange-800 border-orange-300';
+      case 'APPROVED': 
+        return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'DENIED': 
+        return 'bg-red-100 text-red-800 border-red-300';
+      case 'INACTIVE': 
+        return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'SUSPENDED': 
+        return 'bg-red-100 text-red-800 border-red-300';
+      default: 
+        return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
 
