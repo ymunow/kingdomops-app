@@ -1,0 +1,56 @@
+data mapping (so the agent knows what to query)
+members: org_memberships (count); active = last_login within range
+invites: org_invites where status='pending'
+groups: groups by org
+events: events by org within range
+feed: posts by type: testimony, prayer, announcement, photo
+assessments: assessments & assessment_results
+ministry matches: volunteer_matches
+media: media_uploads
+timeline: from orgs (applied_at/approved_at/activated_at), plus derived events from above tables
+health score: compute server-side and return with dashboard payload (so UI stays snappy)
+acceptance checklist
+all cards are clickable and deep-link to filtered lists
+global time range updates cards & charts
+export produces CSV/PDF for the selected range
+health score matches server calculation and shows a one-line explanation tooltip
+empty states have CTAs; no dead ends
+page loads in <1.5s for 90d range (server pre-aggregates)
+copy-paste brief for your agent
+Goal: Finish the Super Admin → Church Dashboard (single page) with drill-downs, time-range, health score, and exports.
+Backend
+Add /api/admin/churches/:id/dashboard?range=30d|90d|12m that returns:
+{
+  "header": {"name","status","subdomain","primaryContact":{"name","email","phone"}},
+  "stats": {
+    "totalMembers", "activeUsers", "pendingInvites",
+    "groupsCreated", "eventsCreated", "healthScore", "benchmarks": {...}
+  },
+  "charts": {
+    "memberGrowth": [{"month":"2025-04","count":62}, ...],
+    "activityBreakdown": {"posts":12,"prayers":8,"announcements":3,"media":5}
+  },
+  "ministry": {"assessmentsCompleted", "assessmentsPending", "ministryMatches", "volunteerOpportunities"},
+  "communication": {"posts", "prayerRequests", "announcements", "mediaUploads"},
+  "timeline": [{"ts":"…","label":"Applied"}, {"ts":"…","label":"Approved"}, {"ts":"…","label":"Activated"}, {"ts":"…","label":"Last activity"}]
+}
+Compute healthScore server-side using the provided formula and return a short explain string.
+Ensure queries are time-bounded by range and use indexes; return in ≤500ms where possible.
+Frontend
+Implement global range selector (30d/90d/12m) that refetches the endpoint.
+Make every card clickable:
+Members → /admin/churches/:id/members
+Active Users → same list pre-filtered last_login <= range
+Invites → invites table with “Resend”
+Groups/Events → their respective lists
+Communication cards → open activity feed pre-filtered
+Charts: line (member growth), donut (activity breakdown). Respect range.
+Add benchmarks captions (vs network average) under key cards.
+Implement Export (CSV and simple PDF) for current range and visible sections.
+Empty states with CTA buttons (e.g., “Create first group”).
+Accessibility: cards are keyboard-navigable; charts have aria labels.
+QA
+Switch range and confirm all numbers & charts update consistently.
+Click each card and verify navigation + pre-filters.
+Export works and matches on-screen totals.
+Performance within target; no N+1 queries.

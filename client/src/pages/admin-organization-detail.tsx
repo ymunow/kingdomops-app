@@ -361,6 +361,7 @@ export default function AdminOrganizationDetail() {
   const [orgId, setOrgId] = useState<string>("");
   const [adminNotes, setAdminNotes] = useState<string>("");
   const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [timeRange, setTimeRange] = useState<'30d' | '90d' | '12m'>('30d');
   
   // Always call useEffect hooks first
   useEffect(() => {
@@ -377,6 +378,12 @@ export default function AdminOrganizationDetail() {
 
   const { data: stats, isLoading: statsLoading } = useQuery<OrganizationStats>({
     queryKey: ['/api/super-admin/organizations', orgId, 'stats'],
+    enabled: !!user && !!orgId,
+  });
+
+  // New comprehensive dashboard API
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+    queryKey: ['/api/admin/churches', orgId, 'dashboard', timeRange],
     enabled: !!user && !!orgId,
   });
 
@@ -478,13 +485,13 @@ export default function AdminOrganizationDetail() {
   };
 
   // Handle loading states
-  if (isLoading || orgLoading) {
+  if (isLoading || orgLoading || dashboardLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-spiritual-blue mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading organization details...</p>
+            <p className="text-gray-600">Loading church dashboard...</p>
           </div>
         </div>
       </div>
@@ -511,21 +518,21 @@ export default function AdminOrganizationDetail() {
     );
   }
 
-  // Mock data for charts when stats are not available
-  const mockMemberGrowthData = [
-    { month: 'Jan', members: 45 },
-    { month: 'Feb', members: 52 },
-    { month: 'Mar', members: 61 },
-    { month: 'Apr', members: 68 },
-    { month: 'May', members: 75 },
-    { month: 'Jun', members: 82 }
+  // Use real dashboard data or fallback to mock data
+  const memberGrowthData = dashboardData?.charts?.memberGrowth || [
+    { month: '2025-08', count: 1 }
   ];
 
-  const mockActivityBreakdown = [
-    { name: 'Posts', value: 35, color: '#4A90E2' },
-    { name: 'Assessments', value: 25, color: '#7ED321' },
-    { name: 'Events', value: 20, color: '#F5A623' },
-    { name: 'Prayer Requests', value: 20, color: '#D0021B' }
+  const activityBreakdown = dashboardData?.charts?.activityBreakdown ? [
+    { name: 'Posts', value: dashboardData.charts.activityBreakdown.posts, color: '#4A90E2' },
+    { name: 'Prayers', value: dashboardData.charts.activityBreakdown.prayers, color: '#7ED321' },
+    { name: 'Announcements', value: dashboardData.charts.activityBreakdown.announcements, color: '#F5A623' },
+    { name: 'Media', value: dashboardData.charts.activityBreakdown.media, color: '#D0021B' }
+  ] : [
+    { name: 'Posts', value: 0, color: '#4A90E2' },
+    { name: 'Prayers', value: 0, color: '#7ED321' },
+    { name: 'Announcements', value: 0, color: '#F5A623' },
+    { name: 'Media', value: 0, color: '#D0021B' }
   ];
 
   return (
@@ -554,7 +561,28 @@ export default function AdminOrganizationDetail() {
                 <p className="text-gray-600">Organization ID: {organization.id}</p>
               </div>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex items-center space-x-4">
+              {/* Time Range Selector */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">Time Range:</span>
+                <Select value={timeRange} onValueChange={(value: '30d' | '90d' | '12m') => setTimeRange(value)}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30d">30 Days</SelectItem>
+                    <SelectItem value="90d">90 Days</SelectItem>
+                    <SelectItem value="12m">12 Months</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Export Button */}
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+              
               {/* Application Actions for Pending Status */}
               {organization.status === 'PENDING' && (
                 <>
@@ -765,12 +793,12 @@ export default function AdminOrganizationDetail() {
             <CardContent>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={stats?.memberGrowthData || mockMemberGrowthData}>
+                  <LineChart data={memberGrowthData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
-                    <Line type="monotone" dataKey="members" stroke="#4A90E2" strokeWidth={2} />
+                    <Line type="monotone" dataKey="count" stroke="#4A90E2" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -789,14 +817,14 @@ export default function AdminOrganizationDetail() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={stats?.activityBreakdown || mockActivityBreakdown}
+                      data={activityBreakdown}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
                       outerRadius={100}
                       dataKey="value"
                     >
-                      {(stats?.activityBreakdown || mockActivityBreakdown).map((entry, index) => (
+                      {activityBreakdown.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
