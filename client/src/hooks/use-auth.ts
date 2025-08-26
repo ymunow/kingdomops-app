@@ -4,16 +4,21 @@ export function useAuth() {
   const { data: user, isLoading, isSuccess } = useQuery({
     queryKey: ["auth-user"], // Use a key that won't be treated as URL by default queryFn
     queryFn: async () => {
-      const response = await fetch("/api/auth/user", {
-        credentials: "include"
-      });
-      if (response.status === 401) {
-        return null; // Not authenticated
+      try {
+        const response = await fetch("/api/auth/user", {
+          credentials: "include"
+        });
+        if (response.status === 401) {
+          return null; // Not authenticated
+        }
+        if (!response.ok) {
+          return null; // Treat other errors as not authenticated
+        }
+        return await response.json();
+      } catch (error) {
+        console.error("Auth fetch error:", error);
+        return null; // Treat fetch errors as not authenticated
       }
-      if (!response.ok) {
-        return null; // Treat other errors as not authenticated
-      }
-      return response.json();
     },
     retry: false,
     refetchOnWindowFocus: false,

@@ -48,7 +48,19 @@ export function useSubdomain() {
   const { data: organization, isLoading, error } = useQuery<OrganizationInfo>({
     queryKey: [`/api/subdomain/${subdomain}/info`],
     enabled: !!subdomain,
-    retry: false
+    retry: false,
+    queryFn: async () => {
+      try {
+        const response = await fetch(`/api/subdomain/${subdomain}/info`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch subdomain info: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error("Subdomain fetch error:", error);
+        throw error; // Re-throw for useQuery error handling
+      }
+    }
   });
 
   return {

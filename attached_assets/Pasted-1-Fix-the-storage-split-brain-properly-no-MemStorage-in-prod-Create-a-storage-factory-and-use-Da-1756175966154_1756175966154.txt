@@ -1,0 +1,64 @@
+1) Fix the storage split-brain properly (no MemStorage in prod).
+Create a storage factory and use DatabaseStorage everywhere by default.
+Allow MemStorage only behind a dev flag.
+// server/storage.ts
+export interface Storage { /* existing methods */ }
+
+export const storage: Storage = (() => {
+  const useMem = process.env.USE_MEM_STORAGE === 'true';
+  return useMem ? new MemStorage() : new DatabaseStorage();
+})();
+In all routes (including /api/organizations/register and /api/admin/orgs) make sure we are importing this storage and not instantiating MemStorage directly.
+Add an env default for prod: USE_MEM_STORAGE=false.
+2) Normalize application statuses and filter by DB.
+Add/confirm enum: pending | approved | active | rejected.
+On beta registration, force status='pending'.
+In the admin list endpoint, fetch from DB with status filter (don’t load everything then filter in memory).
+Example: SELECT * FROM orgs WHERE status = $1 ORDER BY created_at DESC.
+Add DB defaults:
+ALTER TABLE orgs
+  ALTER COLUMN status SET DEFAULT 'pending';
+3) Fix the Vite overlay crash (front-end).
+Find the real cause (don’t just hide the overlay). Typical culprits:
+A bad import path or circular import.
+Importing JSON or a non-js asset without a plugin.
+Dynamic import of a file that doesn’t exist.
+Steps:
+Check the browser console stack in the overlay for the first failed module path and fix that import.
+Grep for the path it mentions and correct/rename/remove.
+As a temporary mitigation while debugging, you can add in vite.config.ts:
+server: { hmr: { overlay: false } }
+but remove this once the root error is fixed.
+4) End-to-end checks (wire these in a quick test script).
+After the fixes:
+POST /api/organizations/register → returns 200 with {status:'pending'}.
+GET /api/admin/orgs?status=pending → returns ≥1 row from DB (restart server and verify it still persists).
+Dashboard’s “Beta Applications” shows the correct count and turns the bell orange.
+Emails fire as before.
+5) Acceptance criteria.
+Restart the server: pending applications still present (no data loss).
+Create → Approve → Activate flows update counts correctly.
+No red Vite overlay; hot reload works.
+Please push a PR titled:
+“Storage unification (DB by default) + status enum + Vite crash fix” with a short screen capture showing:
+Submitting an application,
+Seeing it under pending after a server restart, and
+The dashboard badge updating.
+Quick diagnostic you can run now (in browser console)
+(async () => {
+  const r1 = await fetch('/api/organizations/register', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      churchName:'Console Test',
+      contactEmail:'console@test.com',
+      isBetaApplication:true
+    })
+  });
+  console.log('register', r1.status, await r1.json());
+
+  const r2 = await fetch('/api/admin/orgs?status=pending');
+  console.log('pending', r2.status, await r2.json());
+})();
+If pending is empty after a server restart → you’re still on MemStorage.
+If the overlay reappears, expand it to the first failing module path and fix that import.
