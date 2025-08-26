@@ -41,10 +41,12 @@ import {
   Shield,
   KeyRound,
   ExternalLink,
-  Phone
+  Phone,
+  Info
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface OrganizationDetail {
   id: string;
@@ -771,11 +773,72 @@ export default function AdminOrganizationDetail() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Health Score</p>
-                  <p className="text-2xl font-bold text-charcoal">{organization.healthScore || 85}/100</p>
-                  <p className="text-xs text-emerald-600">Excellent</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-gray-600">Health Score</p>
+                    {dashboardData?.stats?.healthScoreBreakdown && (
+                      <TooltipProvider>
+                        <UITooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="w-80 p-4">
+                            <div className="space-y-3">
+                              <div className="font-medium text-sm border-b pb-2">
+                                Health Score Breakdown ({timeRange})
+                              </div>
+                              <div className="space-y-2 text-xs">
+                                <div className="flex justify-between">
+                                  <span>Active Users (35%)</span>
+                                  <span>{dashboardData.stats.healthScoreBreakdown.components.activeUsers.percentage}%</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Communication (25%)</span>
+                                  <span>{dashboardData.stats.healthScoreBreakdown.components.communication.percentage}%</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Assessments (15%)</span>
+                                  <span>{dashboardData.stats.healthScoreBreakdown.components.assessments.percentage}%</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Groups (10%)</span>
+                                  <span>{dashboardData.stats.healthScoreBreakdown.components.groups.percentage}%</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Events (7%)</span>
+                                  <span>{dashboardData.stats.healthScoreBreakdown.components.events.percentage}%</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Ministry Matches (8%)</span>
+                                  <span>{dashboardData.stats.healthScoreBreakdown.components.ministryMatches.percentage}%</span>
+                                </div>
+                              </div>
+                              <div className="text-xs text-gray-600 pt-2 border-t">
+                                {dashboardData.stats.healthScoreBreakdown.insight}
+                              </div>
+                            </div>
+                          </TooltipContent>
+                        </UITooltip>
+                      </TooltipProvider>
+                    )}
+                  </div>
+                  <p className="text-2xl font-bold text-charcoal">
+                    {dashboardData?.stats?.healthScoreBreakdown?.score || stats?.healthScore || 85}/100
+                  </p>
+                  <p className="text-xs text-emerald-600">
+                    {dashboardData?.stats?.healthScoreBreakdown?.band || 'Excellent'}
+                    {dashboardData?.stats?.healthScoreBreakdown?.isProvisional && ' (Provisional)'}
+                  </p>
                 </div>
-                <Heart className="h-8 w-8 text-emerald-500/70" />
+                <div className="flex flex-col items-end">
+                  <Heart className="h-8 w-8 text-emerald-500/70" />
+                  {dashboardData?.stats?.healthScoreBreakdown?.insight && (
+                    <div className="mt-2 text-right">
+                      <p className="text-xs text-gray-500 max-w-40 leading-tight">
+                        {dashboardData.stats.healthScoreBreakdown.insight}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
