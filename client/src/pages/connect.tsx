@@ -950,7 +950,7 @@ export default function Connect() {
                     data-testid="join-from-quick-view"
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
-                    {quickViewGroup.privacy === 'private' ? 'Request to Join' : 'Join Group'}
+                    {quickViewGroup.privacy === 'Private' ? 'Request to Join' : 'Join Group'}
                   </Button>
                   <Button 
                     variant="outline"
@@ -1539,7 +1539,7 @@ export default function Connect() {
                                 }}
                                 data-testid={`join-group-${group.id}`}
                               >
-                                {group.privacy === 'Private' ? 'Request' : 'Join'}
+                                {group.privacy === 'Private' ? 'Request to Join' : 'Join Group'}
                               </Button>
                             </div>
                           </div>
