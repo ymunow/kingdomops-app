@@ -20,6 +20,7 @@ import { useLocation } from 'wouter';
 import { MainLayout } from '@/components/navigation/main-layout';
 import { ApproveOrganizationModal } from '@/components/modals/approve-organization-modal';
 import { RejectOrganizationModal } from '@/components/modals/reject-organization-modal';
+import { useBetaApplicationNotifications } from '@/hooks/useBetaApplicationNotifications';
 
 interface Organization {
   id: string;
@@ -43,6 +44,14 @@ export default function AdminApplications() {
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  
+  // Beta application notifications
+  const { markApplicationsAsRead } = useBetaApplicationNotifications();
+
+  // Mark applications as read when this page loads
+  React.useEffect(() => {
+    markApplicationsAsRead();
+  }, [markApplicationsAsRead]);
 
   // Fetch pending applications
   const { data: applications, isLoading } = useQuery<Organization[]>({

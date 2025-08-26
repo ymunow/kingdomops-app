@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useSupabaseAuth';
 import { ViewAsSwitcher } from '@/components/admin/view-as-switcher';
 import { AppSwitcher } from '@/components/admin/app-switcher';
 import { useLocation } from 'wouter';
+import { useBetaApplicationNotifications } from '@/hooks/useBetaApplicationNotifications';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -24,6 +25,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   const scrollDirection = useScrollDirection();
   const { user, signOutMutation } = useAuth();
   const [, setLocation] = useLocation();
+  const { betaNotifications, markApplicationsAsRead } = useBetaApplicationNotifications();
   
   // Bottom nav is visible when scrolling up or at top, hidden when scrolling down
   const isBottomNavVisible = scrollDirection !== 'down';
@@ -71,7 +73,9 @@ export function MainLayout({ children }: MainLayoutProps) {
     }
   ];
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  // Combine sample notifications with beta notifications
+  const allNotifications = [...betaNotifications, ...notifications];
+  const unreadCount = allNotifications.filter(n => !n.read).length;
 
   const handleLogout = () => {
     signOutMutation.mutate();
@@ -223,20 +227,37 @@ export function MainLayout({ children }: MainLayoutProps) {
                   <h3 className="font-semibold text-charcoal">Notifications</h3>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
-                  {notifications.length > 0 ? (
-                    notifications.map((notification) => {
+                  {allNotifications.length > 0 ? (
+                    allNotifications.map((notification) => {
                       const Icon = notification.icon;
+                      const isBetaApplication = notification.type === 'beta_application';
+                      
                       return (
                         <div
                           key={notification.id}
                           className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
                             !notification.read ? 'bg-blue-50/50' : ''
                           }`}
+                          onClick={() => {
+                            if (isBetaApplication) {
+                              markApplicationsAsRead();
+                              setIsNotificationsOpen(false);
+                              setLocation('/admin/applications');
+                            }
+                          }}
                           data-testid={`notification-${notification.id}`}
                         >
                           <div className="flex items-start space-x-3">
-                            <div className="w-10 h-10 rounded-full bg-spiritual-blue/10 flex items-center justify-center">
-                              <Icon className="h-5 w-5 text-spiritual-blue" />
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                              isBetaApplication 
+                                ? 'bg-orange-100' 
+                                : 'bg-spiritual-blue/10'
+                            }`}>
+                              <Icon className={`h-5 w-5 ${
+                                isBetaApplication 
+                                  ? 'text-orange-600' 
+                                  : 'text-spiritual-blue'
+                              }`} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className={`text-sm ${
@@ -247,9 +268,16 @@ export function MainLayout({ children }: MainLayoutProps) {
                               <p className="text-xs text-gray-500 mt-1">
                                 {formatDistanceToNow(notification.time, { addSuffix: true })}
                               </p>
+                              {isBetaApplication && (
+                                <p className="text-xs text-orange-600 font-medium mt-1">
+                                  Click to review application
+                                </p>
+                              )}
                             </div>
                             {!notification.read && (
-                              <div className="w-2 h-2 bg-spiritual-blue rounded-full mt-2" />
+                              <div className={`w-2 h-2 rounded-full mt-2 ${
+                                isBetaApplication ? 'bg-orange-500' : 'bg-spiritual-blue'
+                              }`} />
                             )}
                           </div>
                         </div>
