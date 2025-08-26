@@ -391,7 +391,7 @@ export default function AdminOrganizationDetail() {
   // Approval/Rejection mutations
   const approveMutation = useMutation({
     mutationFn: (orgId: string) => 
-      apiRequest(`/api/admin/orgs/${orgId}/approve`, { method: 'POST' }),
+      apiRequest('POST', `/api/admin/orgs/${orgId}/approve`),
     onSuccess: () => {
       toast({ title: "Success", description: "Application approved successfully!" });
       queryClient.invalidateQueries({ queryKey: ['/api/super-admin/organizations', orgId] });
@@ -408,10 +408,7 @@ export default function AdminOrganizationDetail() {
 
   const rejectMutation = useMutation({
     mutationFn: ({ orgId, reason }: { orgId: string; reason: string }) => 
-      apiRequest(`/api/admin/orgs/${orgId}/reject`, { 
-        method: 'POST', 
-        body: { reason }
-      }),
+      apiRequest('POST', `/api/admin/orgs/${orgId}/reject`, { reason }),
     onSuccess: () => {
       toast({ title: "Success", description: "Application rejected successfully!" });
       queryClient.invalidateQueries({ queryKey: ['/api/super-admin/organizations', orgId] });
@@ -428,10 +425,7 @@ export default function AdminOrganizationDetail() {
 
   const updateNotesMutation = useMutation({
     mutationFn: ({ orgId, notes }: { orgId: string; notes: string }) => 
-      apiRequest(`/api/admin/orgs/${orgId}/notes`, { 
-        method: 'POST', 
-        body: { adminNotes: notes }
-      }),
+      apiRequest('POST', `/api/admin/orgs/${orgId}/notes`, { adminNotes: notes }),
     onSuccess: () => {
       toast({ title: "Success", description: "Notes updated successfully!" });
       setIsEditingNotes(false);

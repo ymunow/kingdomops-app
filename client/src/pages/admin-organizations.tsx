@@ -85,7 +85,7 @@ export default function AdminOrganizations() {
     index === self.findIndex(o => o.id === org.id)
   );
 
-  const isLoading = !organizations;
+  const organizationsLoading = !organizations;
 
   const createOrgMutation = useMutation({
     mutationFn: async (data: { name: string; contactEmail: string; phone?: string; address?: string }) => {
@@ -115,7 +115,7 @@ export default function AdminOrganizations() {
     }
   });
 
-  if (isLoading) {
+  if (isLoading || organizationsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
         <div className="text-center">

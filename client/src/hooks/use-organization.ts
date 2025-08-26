@@ -14,12 +14,12 @@ interface Organization {
 export function useOrganization() {
   const { user, session } = useAuth();
   
-  const { data: organization, isLoading, error } = useQuery({
+  const { data: organization, isLoading, error } = useQuery<Organization | null>({
     queryKey: ["/api/auth/organization"],
     queryFn: async () => {
       try {
         const response = await apiRequest("GET", "/api/auth/organization");
-        return response;
+        return response as unknown as Organization;
       } catch (error: any) {
         if (error.status === 404) {
           return null; // User not associated with organization

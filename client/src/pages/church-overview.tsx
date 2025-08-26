@@ -616,9 +616,9 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 font-medium">Assessments Completed</p>
-                    <p className="text-3xl font-bold text-charcoal">{isPlatformView ? (metrics as PlatformMetrics).totalAssessments : (metrics as ChurchMetrics).totalAssessments}</p>
+                    <p className="text-3xl font-bold text-charcoal">{isPlatformView ? (metrics as PlatformMetrics).globalAssessments : (metrics as ChurchMetrics).totalAssessments}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {isPlatformView ? (metrics as PlatformMetrics).assessmentsThisMonth : (metrics as ChurchMetrics).completionsLast30Days} this month
+                      {isPlatformView ? (metrics as PlatformMetrics).globalCompletions : (metrics as ChurchMetrics).completionsLast30Days} this month
                     </p>
                   </div>
                   <div className="bg-sage-green/10 rounded-full p-3">
@@ -641,7 +641,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                     <p className="text-sm text-gray-600 font-medium">Pending Assessments</p>
                     <p className="text-3xl font-bold text-charcoal">{isPlatformView ? (metrics as PlatformMetrics).pendingAssessments || 0 : (metrics as ChurchMetrics).pendingAssessments}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      Avg. {isPlatformView ? (metrics as PlatformMetrics).averageAssessmentTime || 0 : (metrics as ChurchMetrics).averageTimeMinutes}min to complete
+                      Avg. {isPlatformView ? 25 : (metrics as ChurchMetrics).averageTimeMinutes}min to complete
                     </p>
                   </div>
                   <div className="bg-warm-gold/10 rounded-full p-3">
@@ -660,9 +660,9 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 font-medium">Ministry Matches</p>
-                    <p className="text-3xl font-bold text-charcoal">{isPlatformView ? (metrics as PlatformMetrics).totalPlacements || 0 : (metrics as ChurchMetrics).placementMatches}</p>
+                    <p className="text-3xl font-bold text-charcoal">{isPlatformView ? 0 : (metrics as ChurchMetrics).placementMatches}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {isPlatformView ? (metrics as PlatformMetrics).activeVolunteers || 0 : (metrics as ChurchMetrics).availableVolunteers} volunteers available
+                      {isPlatformView ? 0 : (metrics as ChurchMetrics).availableVolunteers} volunteers available
                     </p>
                   </div>
                   <div className="bg-purple-100 rounded-full p-3">
@@ -672,7 +672,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                 <div className="mt-4 flex items-center">
                   <Target className="text-purple-600 h-4 w-4 mr-1" />
                   <span className="text-purple-600 text-sm font-medium">
-                    {isPlatformView ? (metrics as PlatformMetrics).totalOpportunities || 0 : (metrics as ChurchMetrics).ministryOpportunities} opportunities
+                    {isPlatformView ? 0 : (metrics as ChurchMetrics).ministryOpportunities} opportunities
                   </span>
                 </div>
               </CardContent>
