@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useLocation } from "wouter";
@@ -28,7 +29,9 @@ import {
   Eye,
   Download,
   MoreHorizontal,
-  UserCheck
+  UserCheck,
+  XCircle,
+  Edit3
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -40,7 +43,7 @@ interface OrganizationDetail {
   website?: string;
   address?: string;
   description?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'TRIAL';
+  status: 'ACTIVE' | 'INACTIVE' | 'TRIAL' | 'PENDING' | 'APPROVED' | 'DENIED';
   inviteCode: string;
   createdAt: string;
   updatedAt: string;
@@ -50,6 +53,8 @@ interface OrganizationDetail {
   totalAssessments: number;
   activeUsers: number;
   completionRate: number;
+  // Application notes
+  adminNotes?: string;
 }
 
 interface OrganizationStats {
@@ -323,6 +328,8 @@ export default function AdminOrganizationDetail() {
   
   // Extract organization ID from URL
   const [orgId, setOrgId] = useState<string>("");
+  const [adminNotes, setAdminNotes] = useState<string>("");
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
   
   useEffect(() => {
     const path = window.location.pathname;
@@ -374,10 +381,98 @@ export default function AdminOrganizationDetail() {
     );
   }
 
+  // Initialize notes when organization loads
+  useEffect(() => {
+    if (organization?.adminNotes) {
+      setAdminNotes(organization.adminNotes);
+    }
+  }, [organization]);
+
+  // Approval/Rejection mutations
+  const approveMutation = useMutation({
+    mutationFn: (orgId: string) => 
+      apiRequest(`/api/admin/orgs/${orgId}/approve`, { method: 'POST' }),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Application approved successfully!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/super-admin/organizations', orgId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/orgs'] });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to approve application",
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: ({ orgId, reason }: { orgId: string; reason: string }) => 
+      apiRequest(`/api/admin/orgs/${orgId}/reject`, { 
+        method: 'POST', 
+        body: { reason }
+      }),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Application rejected successfully!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/super-admin/organizations', orgId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/orgs'] });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to reject application",
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const updateNotesMutation = useMutation({
+    mutationFn: ({ orgId, notes }: { orgId: string; notes: string }) => 
+      apiRequest(`/api/admin/orgs/${orgId}/notes`, { 
+        method: 'POST', 
+        body: { adminNotes: notes }
+      }),
+    onSuccess: () => {
+      toast({ title: "Success", description: "Notes updated successfully!" });
+      setIsEditingNotes(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/super-admin/organizations', orgId] });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to update notes",
+        variant: "destructive" 
+      });
+    }
+  });
+
+  const handleApprove = () => {
+    if (window.confirm(`Are you sure you want to approve ${organization?.name}?`)) {
+      approveMutation.mutate(orgId);
+    }
+  };
+
+  const handleReject = () => {
+    const reason = window.prompt("Please provide a reason for rejection:");
+    if (reason && reason.trim()) {
+      rejectMutation.mutate({ orgId, reason: reason.trim() });
+    }
+  };
+
+  const handleSaveNotes = () => {
+    updateNotesMutation.mutate({ orgId, notes: adminNotes });
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ACTIVE':
         return 'bg-green-100 text-green-800 border-green-200';
+      case 'PENDING':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'APPROVED':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'DENIED':
+        return 'bg-red-100 text-red-800 border-red-200';
       case 'INACTIVE':
         return 'bg-gray-100 text-gray-800 border-gray-200';
       case 'TRIAL':
@@ -414,6 +509,31 @@ export default function AdminOrganizationDetail() {
               </div>
             </div>
             <div className="flex space-x-3">
+              {/* Application Actions for Pending Status */}
+              {organization.status === 'PENDING' && (
+                <>
+                  <Button 
+                    onClick={handleApprove}
+                    disabled={approveMutation.isPending}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    data-testid="button-approve-application"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {approveMutation.isPending ? 'Approving...' : 'Approve'}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={handleReject}
+                    disabled={rejectMutation.isPending}
+                    className="border-red-300 text-red-600 hover:bg-red-50"
+                    data-testid="button-reject-application"
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    {rejectMutation.isPending ? 'Rejecting...' : 'Reject'}
+                  </Button>
+                </>
+              )}
+              
               <Button 
                 variant="outline"
                 onClick={() => setLocation(`/admin/organizations/${orgId}/overview`)}
@@ -548,6 +668,72 @@ export default function AdminOrganizationDetail() {
 
           {/* Stats Sidebar */}
           <div className="space-y-6">
+            {/* Admin Notes Section */}
+            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+              <CardHeader>
+                <CardTitle className="text-charcoal flex items-center justify-between">
+                  <span className="flex items-center">
+                    <Edit3 className="h-5 w-5 mr-2" />
+                    Admin Notes
+                  </span>
+                  {!isEditingNotes ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setIsEditingNotes(true)}
+                      data-testid="button-edit-notes"
+                    >
+                      <Edit3 className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                  ) : (
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setIsEditingNotes(false);
+                          setAdminNotes(organization?.adminNotes || "");
+                        }}
+                        disabled={updateNotesMutation.isPending}
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        size="sm"
+                        onClick={handleSaveNotes}
+                        disabled={updateNotesMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        {updateNotesMutation.isPending ? 'Saving...' : 'Save'}
+                      </Button>
+                    </div>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isEditingNotes ? (
+                  <Textarea
+                    value={adminNotes}
+                    onChange={(e) => setAdminNotes(e.target.value)}
+                    placeholder="Add internal notes about this organization..."
+                    className="min-h-[120px] resize-none"
+                    data-testid="textarea-admin-notes"
+                  />
+                ) : (
+                  <div className="min-h-[120px] p-3 bg-gray-50 rounded-md">
+                    {adminNotes || organization?.adminNotes ? (
+                      <p className="text-gray-700 whitespace-pre-wrap">
+                        {adminNotes || organization?.adminNotes}
+                      </p>
+                    ) : (
+                      <p className="text-gray-500 italic">No notes added yet. Click Edit to add notes.</p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Quick Stats */}
             <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
               <CardHeader>
