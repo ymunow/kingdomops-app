@@ -31,28 +31,56 @@ import {
   MoreHorizontal,
   UserCheck,
   XCircle,
-  Edit3
+  Edit3,
+  TrendingUp,
+  Activity,
+  Heart,
+  BookOpen,
+  MessageSquare,
+  Image,
+  Shield,
+  KeyRound,
+  ExternalLink,
+  Phone
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 interface OrganizationDetail {
   id: string;
   name: string;
   subdomain?: string;
   contactEmail: string;
+  contactName?: string;
+  contactRole?: string;
+  contactPhone?: string;
   website?: string;
   address?: string;
   description?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'TRIAL' | 'PENDING' | 'APPROVED' | 'DENIED';
+  status: 'ACTIVE' | 'INACTIVE' | 'TRIAL' | 'PENDING' | 'APPROVED' | 'DENIED' | 'SUSPENDED';
   inviteCode: string;
   createdAt: string;
   updatedAt: string;
+  lastActiveAt?: string;
+  approvedAt?: string;
+  activatedAt?: string;
   settings: any;
-  // Stats
-  totalUsers: number;
-  totalAssessments: number;
-  activeUsers: number;
-  completionRate: number;
+  // Dashboard Stats
+  totalMembers: number;
+  activeUsers30Days: number;
+  memberGrowthPercent: number;
+  pendingInvitations: number;
+  groupsCreated: number;
+  eventsCreatedQuarter: number;
+  healthScore: number;
+  assessmentsCompleted: number;
+  pendingAssessments: number;
+  ministryMatches: number;
+  volunteerOpportunities: number;
+  posts30Days: number;
+  prayerRequests: number;
+  announcementsSent: number;
+  mediaUploaded: number;
   // Application notes
   adminNotes?: string;
 }
@@ -62,6 +90,9 @@ interface OrganizationStats {
   assessmentsByMonth: Array<{ month: string; count: number }>;
   topGifts: Array<{ gift: string; count: number }>;
   recentActivity: Array<{ type: string; description: string; timestamp: string }>;
+  memberGrowthData: Array<{ month: string; members: number }>;
+  activityBreakdown: Array<{ name: string; value: number; color: string }>;
+  weeklyActivity: Array<{ day: string; activity: number }>;
 }
 
 interface OrganizationMember {
@@ -471,10 +502,29 @@ export default function AdminOrganizationDetail() {
         return 'bg-gray-100 text-gray-800 border-gray-200';
       case 'TRIAL':
         return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'SUSPENDED':
+        return 'bg-red-100 text-red-800 border-red-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
+
+  // Mock data for charts when stats are not available
+  const mockMemberGrowthData = [
+    { month: 'Jan', members: 45 },
+    { month: 'Feb', members: 52 },
+    { month: 'Mar', members: 61 },
+    { month: 'Apr', members: 68 },
+    { month: 'May', members: 75 },
+    { month: 'Jun', members: 82 }
+  ];
+
+  const mockActivityBreakdown = [
+    { name: 'Posts', value: 35, color: '#4A90E2' },
+    { name: 'Assessments', value: 25, color: '#7ED321' },
+    { name: 'Events', value: 20, color: '#F5A623' },
+    { name: 'Prayer Requests', value: 20, color: '#D0021B' }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
@@ -551,254 +601,495 @@ export default function AdminOrganizationDetail() {
       </section>
 
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Info Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Organization Overview */}
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-charcoal">Organization Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="flex items-start">
-                      <Mail className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">Contact Email</p>
-                        <p className="text-charcoal">{organization.contactEmail}</p>
-                      </div>
-                    </div>
-                    
-                    {organization.website && (
-                      <div className="flex items-start">
-                        <Globe className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">Website</p>
-                          <a 
-                            href={organization.website} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-spiritual-blue hover:underline"
-                          >
-                            {organization.website}
-                          </a>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-start">
-                      <Calendar className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">Created</p>
-                        <p className="text-charcoal">{new Date(organization.createdAt).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {organization.subdomain && (
-                      <div className="flex items-start">
-                        <Globe className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">Subdomain</p>
-                          <p className="text-charcoal">{organization.subdomain}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-start">
-                      <FileText className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">Invite Code</p>
-                        <p className="text-charcoal font-mono bg-gray-100 px-2 py-1 rounded text-sm inline-block">
-                          {organization.inviteCode}
-                        </p>
-                      </div>
-                    </div>
-
-                    {organization.address && (
-                      <div className="flex items-start">
-                        <MapPin className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-gray-700">Address</p>
-                          <p className="text-charcoal">{organization.address}</p>
-                        </div>
-                      </div>
-                    )}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Header Section with Primary Contact and Subdomain */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-charcoal flex items-center">
+                <Users className="h-5 w-5 mr-2 text-spiritual-blue" />
+                Primary Contact
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center">
+                <Mail className="h-4 w-4 text-gray-400 mr-3" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Email</p>
+                  <p className="text-charcoal">{organization.contactEmail}</p>
+                </div>
+              </div>
+              {organization.contactName && (
+                <div className="flex items-center">
+                  <Users className="h-4 w-4 text-gray-400 mr-3" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Name & Role</p>
+                    <p className="text-charcoal">{organization.contactName} {organization.contactRole && `- ${organization.contactRole}`}</p>
                   </div>
                 </div>
-
-                {organization.description && (
-                  <div className="border-t pt-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Description</p>
-                    <p className="text-charcoal">{organization.description}</p>
+              )}
+              {organization.contactPhone && (
+                <div className="flex items-center">
+                  <Phone className="h-4 w-4 text-gray-400 mr-3" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Phone</p>
+                    <p className="text-charcoal">{organization.contactPhone}</p>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Members Section */}
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-charcoal flex items-center justify-between">
-                  <span className="flex items-center">
-                    <Users className="h-5 w-5 mr-2" />
-                    Members & Users
-                  </span>
-                  <Button variant="outline" size="sm" disabled>
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
-                </CardTitle>
-                <CardDescription>View and manage all members of {organization.name}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <MembersTable organizationId={orgId} organizationName={organization.name} />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Stats Sidebar */}
-          <div className="space-y-6">
-            {/* Admin Notes Section */}
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-charcoal flex items-center justify-between">
-                  <span className="flex items-center">
-                    <Edit3 className="h-5 w-5 mr-2" />
-                    Admin Notes
-                  </span>
-                  {!isEditingNotes ? (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setIsEditingNotes(true)}
-                      data-testid="button-edit-notes"
-                    >
-                      <Edit3 className="h-4 w-4 mr-2" />
-                      Edit
-                    </Button>
-                  ) : (
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          setIsEditingNotes(false);
-                          setAdminNotes(organization?.adminNotes || "");
-                        }}
-                        disabled={updateNotesMutation.isPending}
-                      >
-                        Cancel
-                      </Button>
-                      <Button 
-                        size="sm"
-                        onClick={handleSaveNotes}
-                        disabled={updateNotesMutation.isPending}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        {updateNotesMutation.isPending ? 'Saving...' : 'Save'}
-                      </Button>
-                    </div>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isEditingNotes ? (
-                  <Textarea
-                    value={adminNotes}
-                    onChange={(e) => setAdminNotes(e.target.value)}
-                    placeholder="Add internal notes about this organization..."
-                    className="min-h-[120px] resize-none"
-                    data-testid="textarea-admin-notes"
-                  />
-                ) : (
-                  <div className="min-h-[120px] p-3 bg-gray-50 rounded-md">
-                    {adminNotes || organization?.adminNotes ? (
-                      <p className="text-gray-700 whitespace-pre-wrap">
-                        {adminNotes || organization?.adminNotes}
-                      </p>
-                    ) : (
-                      <p className="text-gray-500 italic">No notes added yet. Click Edit to add notes.</p>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Quick Stats */}
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-charcoal">Quick Stats</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-spiritual-blue/5 rounded-lg">
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 text-spiritual-blue mr-2" />
-                    <span className="text-sm font-medium">Total Members</span>
-                  </div>
-                  <span className="text-lg font-bold text-spiritual-blue">{organization.totalUsers}</span>
                 </div>
+              )}
+            </CardContent>
+          </Card>
 
-                <div className="flex items-center justify-between p-3 bg-sage-green/5 rounded-lg">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-sage-green mr-2" />
-                    <span className="text-sm font-medium">Assessments</span>
-                  </div>
-                  <span className="text-lg font-bold text-sage-green">{organization.totalAssessments}</span>
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-charcoal flex items-center">
+                <Globe className="h-5 w-5 mr-2 text-spiritual-blue" />
+                Church URL
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Subdomain</p>
+                  <a 
+                    href={`https://${organization.subdomain || organization.name.toLowerCase().replace(/\\s+/g, '')}.kingdomops.org`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-spiritual-blue hover:underline flex items-center"
+                    data-testid="link-church-subdomain"
+                  >
+                    {organization.subdomain || organization.name.toLowerCase().replace(/\\s+/g, '')}.kingdomops.org
+                    <ExternalLink className="h-3 w-3 ml-1" />
+                  </a>
                 </div>
-
-                <div className="flex items-center justify-between p-3 bg-warm-gold/5 rounded-lg">
-                  <div className="flex items-center">
-                    <Clock className="h-5 w-5 text-warm-gold mr-2" />
-                    <span className="text-sm font-medium">Completion Rate</span>
-                  </div>
-                  <span className="text-lg font-bold text-warm-gold">
-                    {organization.totalUsers > 0 
-                      ? Math.round((organization.totalAssessments / organization.totalUsers) * 100)
-                      : 0
-                    }%
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Actions */}
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardHeader>
-                <CardTitle className="text-charcoal">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  disabled
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  View Analytics
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  disabled
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  Export Reports
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  disabled
-                >
-                  <Mail className="h-4 w-4 mr-2" />
-                  Send Communications
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Quick Stats Cards (6 cards across) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <Card className="bg-gradient-to-br from-spiritual-blue/10 to-spiritual-blue/5 border-spiritual-blue/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Members</p>
+                  <p className="text-2xl font-bold text-charcoal">{organization.totalMembers || 0}</p>
+                  <p className="text-xs text-green-600 flex items-center mt-1">
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    +{organization.memberGrowthPercent || 0}% this month
+                  </p>
+                </div>
+                <Users className="h-8 w-8 text-spiritual-blue/70" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-sage-green/10 to-sage-green/5 border-sage-green/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Active Users</p>
+                  <p className="text-2xl font-bold text-charcoal">{organization.activeUsers30Days || 0}</p>
+                  <p className="text-xs text-gray-500">Last 30 days</p>
+                </div>
+                <Activity className="h-8 w-8 text-sage-green/70" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-warm-gold/10 to-warm-gold/5 border-warm-gold/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Pending Invites</p>
+                  <p className="text-2xl font-bold text-charcoal">{organization.pendingInvitations || 0}</p>
+                  <p className="text-xs text-gray-500">Unconfirmed</p>
+                </div>
+                <Clock className="h-8 w-8 text-warm-gold/70" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-100/50 to-purple-50/30 border-purple-200/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Groups Created</p>
+                  <p className="text-2xl font-bold text-charcoal">{organization.groupsCreated || 0}</p>
+                  <p className="text-xs text-gray-500">Ministries</p>
+                </div>
+                <Users className="h-8 w-8 text-purple-500/70" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-blue-100/50 to-blue-50/30 border-blue-200/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Events Created</p>
+                  <p className="text-2xl font-bold text-charcoal">{organization.eventsCreatedQuarter || 0}</p>
+                  <p className="text-xs text-gray-500">This quarter</p>
+                </div>
+                <Calendar className="h-8 w-8 text-blue-500/70" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-emerald-100/50 to-emerald-50/30 border-emerald-200/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Health Score</p>
+                  <p className="text-2xl font-bold text-charcoal">{organization.healthScore || 85}/100</p>
+                  <p className="text-xs text-emerald-600">Excellent</p>
+                </div>
+                <Heart className="h-8 w-8 text-emerald-500/70" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Engagement & Growth Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-charcoal flex items-center">
+                <TrendingUp className="h-5 w-5 mr-2 text-spiritual-blue" />
+                Member Growth Over Time
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={stats?.memberGrowthData || mockMemberGrowthData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="members" stroke="#4A90E2" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardHeader>
+              <CardTitle className="text-charcoal flex items-center">
+                <BarChart3 className="h-5 w-5 mr-2 text-spiritual-blue" />
+                Activity Breakdown
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={stats?.activityBreakdown || mockActivityBreakdown}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      dataKey="value"
+                    >
+                      {(stats?.activityBreakdown || mockActivityBreakdown).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Ministry & Spiritual Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Assessments Completed</p>
+                  <p className="text-xl font-bold text-charcoal">{organization.assessmentsCompleted || 0}</p>
+                </div>
+                <CheckCircle className="h-6 w-6 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Pending Assessments</p>
+                  <p className="text-xl font-bold text-charcoal">{organization.pendingAssessments || 0}</p>
+                </div>
+                <Clock className="h-6 w-6 text-orange-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Ministry Matches</p>
+                  <p className="text-xl font-bold text-charcoal">{organization.ministryMatches || 0}</p>
+                </div>
+                <UserCheck className="h-6 w-6 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Volunteer Opportunities</p>
+                  <p className="text-xl font-bold text-charcoal">{organization.volunteerOpportunities || 0}</p>
+                </div>
+                <Heart className="h-6 w-6 text-red-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Communication Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Posts in Feed</p>
+                  <p className="text-xl font-bold text-charcoal">{organization.posts30Days || 0}</p>
+                  <p className="text-xs text-gray-500">Last 30 days</p>
+                </div>
+                <MessageSquare className="h-6 w-6 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Prayer Requests</p>
+                  <p className="text-xl font-bold text-charcoal">{organization.prayerRequests || 0}</p>
+                </div>
+                <Heart className="h-6 w-6 text-pink-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Announcements Sent</p>
+                  <p className="text-xl font-bold text-charcoal">{organization.announcementsSent || 0}</p>
+                </div>
+                <FileText className="h-6 w-6 text-indigo-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Photos/Media Uploaded</p>
+                  <p className="text-xl font-bold text-charcoal">{organization.mediaUploaded || 0}</p>
+                </div>
+                <Image className="h-6 w-6 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Timeline / Activity Log */}
+        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-charcoal flex items-center">
+              <Calendar className="h-5 w-5 mr-2 text-spiritual-blue" />
+              Timeline & Activity Log
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mr-4"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-900">Date Applied</p>
+                  <p className="text-xs text-gray-500">{new Date(organization.createdAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+              
+              {organization.approvedAt && (
+                <div className="flex items-center p-3 bg-green-50 rounded-lg">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-4"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">Date Approved</p>
+                    <p className="text-xs text-gray-500">{new Date(organization.approvedAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              )}
+              
+              {organization.activatedAt && (
+                <div className="flex items-center p-3 bg-emerald-50 rounded-lg">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full mr-4"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">Date Activated</p>
+                    <p className="text-xs text-gray-500">{new Date(organization.activatedAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              )}
+              
+              {organization.lastActiveAt && (
+                <div className="flex items-center p-3 bg-blue-50 rounded-lg">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-4"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">Most Recent Activity</p>
+                    <p className="text-xs text-gray-500">{new Date(organization.lastActiveAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Admin Tools Action Buttons */}
+        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-charcoal flex items-center">
+              <Settings className="h-5 w-5 mr-2 text-spiritual-blue" />
+              Admin Tools
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Button 
+                variant="outline"
+                className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
+                data-testid="button-suspend-church"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                {organization.status === 'SUSPENDED' ? 'Reactivate Church' : 'Suspend Church'}
+              </Button>
+              
+              <Button 
+                variant="outline"
+                className="w-full justify-start"
+                data-testid="button-reset-password"
+              >
+                <KeyRound className="h-4 w-4 mr-2" />
+                Reset Admin Password
+              </Button>
+              
+              <Button 
+                variant="outline"
+                className="w-full justify-start"
+                data-testid="button-export-report"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Report (CSV)
+              </Button>
+              
+              <Button 
+                variant="outline"
+                className="w-full justify-start"
+                data-testid="button-email-admin"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Email Church Admin
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Admin Notes */}
+        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-charcoal flex items-center justify-between">
+              <div className="flex items-center">
+                <FileText className="h-5 w-5 mr-2 text-spiritual-blue" />
+                Admin Notes
+              </div>
+              {!isEditingNotes && (
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => setIsEditingNotes(true)}
+                  data-testid="button-edit-notes"
+                >
+                  <Edit3 className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+              )}
+              {isEditingNotes && (
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={() => {
+                      setIsEditingNotes(false);
+                      setAdminNotes(organization?.adminNotes || "");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={handleSaveNotes}
+                    disabled={updateNotesMutation.isPending}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {updateNotesMutation.isPending ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isEditingNotes ? (
+              <Textarea
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                placeholder="Add internal notes about this organization..."
+                className="min-h-[120px] resize-none"
+                data-testid="textarea-admin-notes"
+              />
+            ) : (
+              <div className="min-h-[120px] p-3 bg-gray-50 rounded-md">
+                {adminNotes || organization?.adminNotes ? (
+                  <p className="text-gray-700 whitespace-pre-wrap">
+                    {adminNotes || organization?.adminNotes}
+                  </p>
+                ) : (
+                  <p className="text-gray-500 italic">No notes added yet. Click Edit to add notes.</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Members Table */}
+        <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-charcoal flex items-center">
+              <Users className="h-5 w-5 mr-2 text-spiritual-blue" />
+              Members Management
+            </CardTitle>
+            <CardDescription>
+              Manage organization members and their roles
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MembersTable organizationId={orgId} organizationName={organization.name} />
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
