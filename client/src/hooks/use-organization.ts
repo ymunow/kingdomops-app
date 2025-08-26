@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "./use-auth";
+import { useAuth } from "./useSupabaseAuth";
+import { apiRequest } from "@/lib/queryClient";
 
 interface Organization {
   id: string;
@@ -16,14 +17,17 @@ export function useOrganization() {
   const { data: organization, isLoading, error } = useQuery({
     queryKey: ["/api/auth/organization"],
     queryFn: async () => {
-      const response = await fetch("/api/auth/organization");
-      if (response.status === 404) {
-        return null; // User not associated with organization
+      try {
+        const response = await apiRequest("/api/auth/organization", {
+          method: "GET"
+        });
+        return response;
+      } catch (error: any) {
+        if (error.status === 404) {
+          return null; // User not associated with organization
+        }
+        throw error;
       }
-      if (!response.ok) {
-        throw new Error("Failed to fetch organization");
-      }
-      return response.json();
     },
     enabled: isAuthenticated,
     retry: false,
