@@ -1,0 +1,140 @@
+Great question. Make the Health Score a single 0–100 number that reflects engagement in the last N days (default 30), computed on the server so it’s consistent and fast.
+
+Here’s a practical, defendable formula you can ship now.
+
+---
+
+1) Inputs (for a time window range, default 30d)
+
+Per church/org:
+
+* totalMembers
+* activeUsers (distinct users with a session/action in range)
+* Communication counts: posts, prayers, announcements, mediaUploads
+* Ministry: assessmentsCompleted, eligibleForAssessment (usually = members)
+* Structure/discipleship: newGroups (created in range)
+* Mission: eventsCreated (in range)
+* Serving: ministryMatches (members placed into a team/role in range)
+
+Derived:
+
+* per100 = max(1, totalMembers/100) (so small churches aren’t punished)
+* commPer100 = (posts + prayers + announcements) / per100
+
+---
+
+2) Targets & normalizers (for 30 days)
+
+Choose caps/targets so “good” performance lands near 1.0 and we clamp at 1.0.
+
+Metric	Normalization (0…1)	30-day Target (T)
+A – Active ratio	A = clamp(activeUsers / totalMembers)	(implicit)
+C – Communication	C = clamp(commPer100 / 20)	20 posts/prayers/announcements per 100 members
+S – Assessments	S = clamp(assessmentsCompleted / eligibleForAssessment)	100% over time
+G – New groups	G = clamp(newGroups / 2)	2 per month
+E – Events	E = clamp(eventsCreated / 4)	4 per month
+M – Ministry matches	M = clamp(ministryMatches / (0.03 * totalMembers))	3% of members / month
+
+
+clamp(x) = min(1, max(0, x))
+
+Adjust targets to your culture later (e.g., change events target to 2/month or matches to 5%/mo). The normalization keeps the score robust across church sizes.
+
+---
+
+3) Weights (sum to 1)
+
+Start with engagement-heavy weights:
+
+* wA = 0.35 (Active users)
+* wC = 0.25 (Communication)
+* wS = 0.15 (Assessments completion)
+* wG = 0.10 (New groups)
+* wE = 0.07 (Events)
+* wM = 0.08 (Ministry matches)
+
+---
+
+4) Final score
+
+score0_1 = wA*A + wC*C + wS*S + wG*G + wE*E + wM*M
+HealthScore = round(100 * score0_1)
+
+
+Add labels:
+
+* ≥ 85: Excellent
+* 70–84: Healthy
+* 55–69: Watch
+* < 55: At Risk
+
+Show a tooltip:
+“Active 35%, Comms 25%, Assessments 15%, Groups 10%, Events 7%, Matches 8%. 30-day window.”
+
+---
+
+5) Guardrails & fairness
+
+* Small churches: use per100 = max(1, members/100) so rates don’t explode for <100 members.
+* Provisional flag: if totalMembers < 20 or range < 14d, show “Provisional score”.
+* Smoothing: optionally average the last 2 periods (EMA) to reduce volatility.
+* Time range aware: recompute targets for 90d/12m by multiplying targets (e.g., events target = 4 * monthsInRange).
+
+---
+
+6) Example (30d)
+
+* Members 120, Active 48 → A = 48/120 = 0.40
+* Posts 20 + Prayers 12 + Announcements 3 = 35 → commPer100 = 35 / 1.2 = 29.17
+C = clamp(29.17 / 20) = 1.00
+* Assessments 72/120 → S = 0.60
+* New groups 3 → G = clamp(3/2) = 1.00
+* Events 4 → E = clamp(4/4) = 1.00
+* Matches 15; target 0.03*120 = 3.6 → M = clamp(15/3.6) = 1.00
+
+Score:
+
+= 0.35*0.40 + 0.25*1 + 0.15*0.60 + 0.10*1 + 0.07*1 + 0.08*1
+= 0.14 + 0.25 + 0.09 + 0.10 + 0.07 + 0.08
+= 0.73 → 73/100 (Healthy)
+
+
+---
+
+7) Server implementation sketch (pseudo)
+
+// GET /api/admin/churches/:id/dashboard?range=30d
+const R = parseRange(query.range ?? '30d'); // start,end
+const m = await metricsForOrg(orgId, R);    // gather counts, distincts, etc.
+
+const per100 = Math.max(1, m.totalMembers / 100);
+const A = clamp(m.activeUsers / Math.max(1, m.totalMembers));
+const C = clamp(((m.posts + m.prayers + m.announcements) / per100) / 20);
+const S = clamp(m.assessmentsCompleted / Math.max(1, m.eligibleForAssessment));
+const G = clamp(m.newGroups / (2 * R.months));            // scale targets by months in range
+const E = clamp(m.eventsCreated / (4 * R.months));
+const M = clamp(m.ministryMatches / (0.03 * m.totalMembers * R.months));
+
+const score = 100 * (0.35*A + 0.25*C + 0.15*S + 0.10*G + 0.07*E + 0.08*M);
+
+return {
+  healthScore: Math.round(score),
+  band: band(score),
+  explain: { A, C, S, G, E, M, weights: {A:0.35, C:0.25, S:0.15, G:0.10, E:0.07, M:0.08} }
+};
+
+
+---
+
+8) Make it actionable (UI nudges)
+
+Alongside the score, show 1–2 tips based on the lowest normalized component:
+
+* Low A → “Only 18% active this month. Try a church-wide post and 2 leader invites.”
+* Low C → “Post cadence below target. Aim for ≈20 communications per 100 members / month.”
+* Low S → “Assessment completion at 32%. Prompt members during service.”
+* Low M → “Few people placed on teams. Create opportunities or run a serve push.”
+
+---
+
+If you want, I can tune the targets/weights to your actual dataset once you have a few churches live—just export a month of anonymized metrics and we’ll calibrate so 70 ≈ “typical” and 85+ truly stands out.
