@@ -12,15 +12,13 @@ interface Organization {
 }
 
 export function useOrganization() {
-  const { isAuthenticated } = useAuth();
+  const { user, session } = useAuth();
   
   const { data: organization, isLoading, error } = useQuery({
     queryKey: ["/api/auth/organization"],
     queryFn: async () => {
       try {
-        const response = await apiRequest("/api/auth/organization", {
-          method: "GET"
-        });
+        const response = await apiRequest("GET", "/api/auth/organization");
         return response;
       } catch (error: any) {
         if (error.status === 404) {
@@ -29,7 +27,7 @@ export function useOrganization() {
         throw error;
       }
     },
-    enabled: isAuthenticated,
+    enabled: !!(user && session),
     retry: false,
     refetchOnWindowFocus: false,
     staleTime: 10 * 60 * 1000, // 10 minutes
