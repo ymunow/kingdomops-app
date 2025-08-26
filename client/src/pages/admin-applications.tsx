@@ -193,6 +193,15 @@ export default function AdminApplications() {
 
                       <div className="flex space-x-3 ml-6">
                         <Button
+                          variant="outline"
+                          onClick={() => setLocation(`/admin/organizations/${org.id}`)}
+                          className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                          data-testid={`button-view-${org.id}`}
+                        >
+                          <Globe className="h-4 w-4 mr-2" />
+                          View Application
+                        </Button>
+                        <Button
                           onClick={() => handleApprove(org)}
                           className="bg-green-600 hover:bg-green-700 text-white"
                           data-testid={`button-approve-${org.id}`}
