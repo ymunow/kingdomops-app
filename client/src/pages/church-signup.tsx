@@ -65,28 +65,29 @@ export default function ChurchSignup() {
     setIsSubmitting(true);
     
     try {
-      // Map form data to API format
-      const apiData = {
+      // Map form data to application format
+      const applicationData = {
         churchName: data.churchName,
-        contactEmail: data.contactEmail,
-        contactPersonName: data.contactPersonName,
-        contactPhone: data.contactPhone,
-        website: data.website || '',
-        address: data.address,
-        description: data.description,
-        memberCount: data.memberCount,
-        currentSoftware: data.currentSoftware || '',
-        specificNeeds: data.specificNeeds,
-        // Beta application flag
-        isBetaApplication: true
+        primaryContact: data.contactPersonName,
+        email: data.contactEmail,
+        phone: data.contactPhone,
+        subdomain: '', // Can be set during review
+        answers: {
+          website: data.website || '',
+          address: data.address,
+          description: data.description,
+          memberCount: data.memberCount,
+          currentSoftware: data.currentSoftware || '',
+          specificNeeds: data.specificNeeds
+        }
       };
 
-      const response = await fetch('/api/organizations/register', {
+      const response = await fetch('/api/applications', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify(applicationData),
       });
 
       if (!response.ok) {
