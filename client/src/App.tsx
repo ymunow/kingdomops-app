@@ -18,7 +18,6 @@ import AnonymousAssessment from "@/pages/anonymous-assessment";
 import Results from "@/pages/results";
 import MyResults from "@/pages/my-results";
 import Admin from "@/pages/admin";
-import AdminDashboard from "@/pages/admin-dashboard";
 import AdminPlatform from "@/pages/admin-platform";
 import AdminOrganizations from "@/pages/admin-organizations";
 import AdminOrganizationDetail from "@/pages/admin-organization-detail";
@@ -187,7 +186,6 @@ function Router() {
             {user && (user as any)?.role && ["SUPER_ADMIN", "ORG_OWNER", "ORG_ADMIN", "ORG_LEADER", "ADMIN"].includes((user as any).role) && (
               <>
                 <Route path="/admin" component={Admin} />
-                <Route path="/admin-dashboard" component={AdminDashboard} />
                 
                 {/* Module-based routes for App Switcher */}
                 <Route path="/admin/overview">  
