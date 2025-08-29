@@ -196,12 +196,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     refetchInterval: 30000,
   });
 
-  // Get applications data for three-state pipeline
-  const { data: pendingOrgs } = useQuery<any[]>({
-    queryKey: ['/api/applications?status=PENDING'],
-    enabled: isPlatformView && !!user,
-  });
-
+  // Get data for church pipeline (keeping approved and active for other cards)
   const { data: approvedOrgs } = useQuery<any[]>({
     queryKey: ['/api/admin/orgs?status=approved'], 
     enabled: isPlatformView && !!user,
@@ -212,7 +207,6 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     enabled: isPlatformView && !!user,
   });
 
-  const betaApplicationsCount = pendingOrgs?.length || 0;
   const approvedChurchesCount = approvedOrgs?.length || 0;
   const activeChurchesCount = activeOrgs?.length || 0;
   
@@ -470,27 +464,6 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
             {isPlatformView ? (
               // Platform-wide metrics for Super Admin
               <>
-                {/* Beta Applications Card - First Card */}
-                <Card 
-                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-                  onClick={() => setLocation('/admin/applications')}
-                  data-testid="card-beta-applications"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 font-medium">Beta Applications</p>
-                        <p className="text-3xl font-bold text-charcoal">{betaApplicationsCount}</p>
-                        <p className="text-xs text-orange-600 font-medium mt-1">
-                          Pending review
-                        </p>
-                      </div>
-                      <div className="bg-orange-100 rounded-full p-3">
-                        <Rocket className="text-orange-600 h-6 w-6" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
 
                 <Card 
                   className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
