@@ -1386,15 +1386,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get organizations with optional status filter
-  app.get("/api/admin/orgs", isAuthenticated, requireSuperAdmin, async (req, res) => {
+  // Compatibility shim: treat "pending" orgs as pending applications
+  app.get("/api/admin/orgs", isAuthenticated, requireSuperAdmin, async (req, res, next) => {
     try {
-      const status = req.query.status as string | undefined;
+      const status = String(req.query.status || '').toLowerCase();
+      if (status === 'pending') {
+        console.log('🔄 COMPAT SHIM: Redirecting pending orgs request to applications');
+        const applications = await storage.getApplications();
+        const pendingApps = applications.filter(app => app.status === 'PENDING');
+        
+        // Return a shape similar enough for the dashboard count/list
+        const compatData = pendingApps.map(app => ({
+          id: `app_${app.id}`,
+          name: app.churchName,
+          type: 'application',
+          subdomain: app.subdomain || null,
+          createdAt: app.createdAt,
+          status: 'PENDING'
+        }));
+        
+        console.log(`🔄 COMPAT SHIM: Returning ${compatData.length} pending applications`);
+        return res.json(compatData);
+      }
+      
+      // Otherwise fall through to the real /orgs handler
       const organizations = await storage.getOrganizations();
       
       let filteredOrgs = organizations;
-      if (status) {
-        filteredOrgs = organizations.filter(org => org.status === status.toUpperCase());
+      if (req.query.status) {
+        filteredOrgs = organizations.filter(org => org.status === String(req.query.status).toUpperCase());
       }
       
       res.json(filteredOrgs);

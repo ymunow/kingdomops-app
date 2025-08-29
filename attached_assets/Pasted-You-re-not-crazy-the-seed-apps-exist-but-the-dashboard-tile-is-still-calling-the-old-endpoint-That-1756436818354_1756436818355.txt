@@ -1,0 +1,83 @@
+You’re not crazy—the seed apps exist, but the dashboard tile is still calling the old endpoint. That’s why you see GET /api/admin/orgs?status=pending in the logs and a 0 on the “Beta Applications” tile.
+Here’s how to fix it fast and clean.
+What’s happening
+Old behavior: the Beta Applications tile called /api/admin/orgs?status=pending.
+New model: pending items now live in Application, exposed at /api/admin/applications?status=PENDING.
+Result: the tile asks the orgs endpoint for “pending” orgs (there are none), so it shows 0 even though /api/admin/applications returns your seeded rows.
+Fix Plan (two ways)
+Option A — Quickest unblock: add a compatibility shim on the backend
+This keeps the current UI working immediately. Later you can switch the UI to the new endpoint.
+In your Express API where /api/admin/orgs is defined, add this early handler:
+// Compat shim: treat "pending" orgs as pending *applications*
+app.get('/api/admin/orgs', async (req, res, next) => {
+  try {
+    const status = String(req.query.status || '').toLowerCase()
+    if (status === 'pending') {
+      const apps = await prisma.application.findMany({
+        where: { status: 'PENDING' },
+        orderBy: { createdAt: 'desc' },
+      })
+      // Return a shape similar enough for the dashboard count/list
+      // (if the tile only uses length, this is already enough)
+      return res.json(apps.map(a => ({
+        id: `app_${a.id}`,
+        name: a.churchName,
+        type: 'application',
+        subdomain: a.subdomain ?? null,
+        createdAt: a.createdAt,
+      })))
+    }
+    // Otherwise fall through to the real /orgs handler
+    return next()
+  } catch (e) {
+    console.error(e)
+    return res.status(500).json({ error: 'compat handler failed' })
+  }
+})
+Restart the server and refresh the dashboard.
+The Beta Applications tile should now reflect the seed count.
+Clicking it will still go to your current page; later we’ll point it to the new review list.
+This is a short-term bridge so you’re not blocked.
+Option B — Proper fix: point the UI to the right endpoint
+Do this even if you used the shim, so you can remove the shim later.
+Find the tile code (search in the client for the old path):
+grep -R "/api/admin/orgs" client/src -n
+grep -R "status=pending" client/src -n
+Change the fetch for the tiles:
+Beta Applications → GET /api/admin/applications?status=PENDING
+Approved Churches → GET /api/admin/applications?status=APPROVED
+Active Churches → your existing orgs endpoint (active orgs).
+Example React snippet you can drop into your tile component:
+async function getCounts() {
+  const [pending, approved, active] = await Promise.all([
+    fetch('/api/admin/applications?status=PENDING').then(r => r.json()),
+    fetch('/api/admin/applications?status=APPROVED').then(r => r.json()),
+    fetch('/api/admin/orgs').then(r => r.json()), // or your active-orgs path
+  ])
+  return {
+    betaApplications: pending.length,
+    approvedChurches: approved.length,
+    activeChurches: active.length,
+  }
+}
+Fix the tile links (onClick / href):
+Beta Applications → /admin/applications?status=PENDING
+Approved Churches → /admin/applications?status=APPROVED
+Active Churches → /admin/orgs
+Fix the “Review Application” buttons in any lists so they go to:
+/admin/applications/:id
+(not the org dashboard)
+Verify in 60 seconds
+API check (Replit Shell):
+curl -s http://localhost:5000/api/admin/applications?status=PENDING | jq length
+You should see a number > 0 (your seeds).
+Network tab in the browser:
+Reload the dashboard.
+Confirm the tile now calls /api/admin/applications?status=PENDING (or, if you used the shim, the old call returns the seeded rows).
+Click the tile and Review:
+It should take you to /admin/applications → pick an app → see the full review page with pastor answers.
+Approve → redirected to /admin/orgs/{id}.
+Common gotchas (quick checks)
+Seeded the wrong DB: ensure Prisma DATABASE_URL matches what the API uses in Replit. If you’re on Supabase/Postgres, set provider to postgresql and re-run npx prisma migrate dev.
+Hot reload cache: after changing endpoints, hard-refresh the browser or clear SW cache if you use a service worker.
+Auth guard: make sure your admin token is present for the new endpoints; otherwise you’ll see 401/403 in Network.
