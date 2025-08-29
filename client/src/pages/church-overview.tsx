@@ -196,9 +196,9 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     refetchInterval: 30000,
   });
 
-  // Get organizations data for three-state pipeline
+  // Get applications data for three-state pipeline
   const { data: pendingOrgs } = useQuery<any[]>({
-    queryKey: ['/api/admin/orgs?status=pending'],
+    queryKey: ['/api/applications?status=PENDING'],
     enabled: isPlatformView && !!user,
   });
 
