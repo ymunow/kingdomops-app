@@ -396,6 +396,33 @@ export class DatabaseStorage implements IStorage {
     await db.delete(organizations).where(eq(organizations.id, organizationId));
   }
 
+  // Application operations
+  async getApplication(id: string): Promise<Application | undefined> {
+    const [app] = await db.select().from(applications).where(eq(applications.id, id));
+    return app;
+  }
+
+  async getApplications(status?: string): Promise<Application[]> {
+    if (status) {
+      return await db.select().from(applications).where(eq(applications.status, status as any)).orderBy(desc(applications.createdAt));
+    }
+    return await db.select().from(applications).orderBy(desc(applications.createdAt));
+  }
+
+  async createApplication(application: InsertApplication): Promise<Application> {
+    const [app] = await db.insert(applications).values(application).returning();
+    return app;
+  }
+
+  async updateApplication(id: string, updates: Partial<Application>): Promise<Application> {
+    const [app] = await db
+      .update(applications)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(applications.id, id))
+      .returning();
+    return app;
+  }
+
   // Assessment Version operations
   async getActiveAssessmentVersion(): Promise<AssessmentVersion | undefined> {
     const [version] = await db
