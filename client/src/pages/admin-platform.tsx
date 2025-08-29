@@ -40,7 +40,7 @@ export default function AdminPlatform() {
 
   // Get pending applications count
   const { data: pendingApplications } = useQuery<any[]>({
-    queryKey: ['/api/applications?status=PENDING'],
+    queryKey: ['/api/admin/applications?status=PENDING'],
     enabled: user?.role === 'SUPER_ADMIN',
   });
 
