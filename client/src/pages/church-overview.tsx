@@ -1,6 +1,4 @@
-import { useAuth } from "@/hooks/useSupabaseAuth";
-// import { useOrganization } from "@/hooks/useOrganization"; // TODO: Create organization hook
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,71 +25,76 @@ import {
   Church,
   Crown,
   Rocket,
-  Database,
   Globe
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from "recharts";
 import { Link, useLocation } from "wouter";
 import { viewAsStorage } from "@/lib/view-as-storage";
 import { useOrganization } from "@/hooks/use-organization";
-import { MainLayout } from "@/components/navigation/main-layout";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
 
+// Define metrics interface
 interface ChurchMetrics {
-  // Overview Stats
   totalMembers: number;
   activeMembers: number;
   totalAssessments: number;
-  completionRate: number;
-  
-  // Assessment Stats  
   completionsLast30Days: number;
-  averageTimeMinutes: number;
+  completionRate: number;
   pendingAssessments: number;
-  
-  // Spiritual Gifts Distribution
-  topGifts: Array<{
-    gift: string;
-    giftLabel: string;
-    count: number;
-    percentage: number;
-  }>;
-  
-  // Age Group Insights
-  ageDistribution: Array<{
-    ageRange: string;
-    count: number;
-    percentage: number;
-  }>;
-  
-  // Engagement Metrics
+  averageTimeMinutes: number;
+  placementMatches: number;
+  availableVolunteers: number;
+  ministryOpportunities: number;
+  topGifts: Array<{ gift: string; count: number }>;
+  ageDistribution: Array<{ group: string; count: number }>;
   recentActivity: Array<{
     type: string;
     description: string;
     timestamp: string;
     userName?: string;
   }>;
-  
-  // Ministry Matching
-  ministryOpportunities: number;
-  placementMatches: number;
-  availableVolunteers: number;
 }
 
 interface PlatformMetrics {
-  // Core platform metrics
+  // Core statistics
+  totalOrganizations: number;
+  totalUsers: number;
+  totalAssessments: number;
+  activeToday: number;
+  organizationGrowth: number;
+  userGrowth: number;
+  completionRate: number;
+  avgTimePerAssessment: number;
+  
+  // Legacy compatibility - keeping old fields that are referenced
   totalChurches: number;
   churchGrowthRate: number;
-  totalMembers: number;
-  memberGrowthRate: number;
-  activeUsers: number;
   activeUsersLast30Days: number;
-  
-  // Assessment metrics
   globalAssessments: number;
   globalCompletions: number;
   globalCompletionRate: number;
-  pendingAssessments: number;
+  pendingAssessments?: number;
   
+  // Growth data
+  churchGrowthData: Array<{
+    month: string;
+    count: number;
+  }>;
+  
+  // Age and gift distribution
+  ageDistribution: Array<{
+    group: string;
+    count: number;
+    percentage: number;
+  }>;
+  
+  giftDistribution: Array<{
+    gift: string;
+    count: number;
+    percentage: number;
+  }>;
+
   // System oversight
   systemAlerts: Array<{
     type: string;
@@ -284,199 +287,137 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     );
   }
 
-  return (
-    <MainLayout>
-      <div className="bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Crown className="text-spiritual-blue h-8 w-8 mr-3" />
-              <div>
-                <h1 className="font-display font-bold text-xl text-charcoal">
-                  {targetOrgName}
-                </h1>
-                <p className="text-sm text-gray-600">{dashboardTitle}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700" data-testid="text-username">
-                Welcome, {user?.displayName || user?.firstName || user?.email?.split('@')[0] || "Member"}
-              </span>
-              
-              {/* Admin Role Indicator and View As Controls */}
-              {(["ORG_ADMIN", "ORG_OWNER", "SUPER_ADMIN"].includes(user?.role || "")) && (
-                <>
-                  <Badge variant="outline" className={
-                    user?.role === "SUPER_ADMIN" 
-                      ? "bg-purple-50 text-purple-700 border-purple-200" 
-                      : "bg-blue-50 text-blue-700 border-blue-200"
-                  }>
-                    <Shield className="mr-1 h-3 w-3" />
-                    {user?.role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}
-                  </Badge>
-                </>
-              )}
-              
-              <Button variant="outline" onClick={handleViewProfile} data-testid="button-profile">
-                <User className="mr-2 h-4 w-4" />
-                Profile
-              </Button>
-              <Button variant="outline" onClick={handleLogout} data-testid="button-logout">
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+  // Safe parsing for age distribution data
+  let ageData = [];
+  try {
+    if (isPlatformView) {
+      const platformData = metrics as PlatformMetrics;
+      ageData = platformData.ageDistribution || [];
+    } else {
+      const churchData = metrics as ChurchMetrics;
+      ageData = churchData.ageDistribution || [];
+    }
+  } catch (error) {
+    console.error("Failed to parse age distribution data:", error);
+    ageData = [];
+  }
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* View Context Indicator for Super Admins */}
-        {user?.role === 'SUPER_ADMIN' && (
-          <div className="mb-6">
-            {(currentViewType && currentViewType !== user?.role) ? (
-              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <User className="h-5 w-5 text-amber-600 mr-2" />
-                    <div>
-                      <h3 className="font-medium text-amber-800">
-                        Viewing as {currentViewType ? currentViewType.replace('_', ' ').toLowerCase() : 'participant'}
-                      </h3>
-                      <p className="text-sm text-amber-700">
-                        You are currently viewing the dashboard with limited access
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
-                      <User className="mr-1 h-3 w-3" />
-                      View Mode Active
-                    </Badge>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        viewAsStorage.clearViewContext();
-                        fetch('/api/super-admin/view-as', { 
-                          method: 'DELETE',
-                          headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`,
-                            'Content-Type': 'application/json'
-                          }
-                        }).then(() => {
-                          window.location.reload();
-                        }).catch(() => {
-                          window.location.reload();
-                        });
-                      }}
-                      className="bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200"
-                      data-testid="button-return-to-admin"
-                    >
-                      Return to Admin
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <Shield className="h-5 w-5 text-purple-600 mr-2" />
-                  <div>
-                    <h3 className="font-medium text-purple-800">Super Admin View</h3>
-                    <p className="text-sm text-purple-700">You are viewing as yourself with full admin privileges.</p>
-                  </div>
-                </div>
+  // Safe parsing for gift distribution data
+  let giftData = [];
+  try {
+    if (isPlatformView) {
+      const platformData = metrics as PlatformMetrics;
+      giftData = platformData.giftDistribution || [];
+    } else {
+      const churchData = metrics as ChurchMetrics;
+      giftData = churchData.topGifts?.map((gift, index) => ({
+        gift: GIFT_LABELS[gift.gift] || gift.gift,
+        count: gift.count,
+        percentage: ((gift.count / (churchData.totalMembers || 1)) * 100),
+      })) || [];
+    }
+  } catch (error) {
+    console.error("Failed to parse gift distribution data:", error);
+    giftData = [];
+  }
+
+  // Safe parsing for recent activity data
+  let activityData = [];
+  try {
+    const dataSource = metrics as (PlatformMetrics | ChurchMetrics);
+    activityData = dataSource.recentActivity || [];
+  } catch (error) {
+    console.error("Failed to parse activity data:", error);
+    activityData = [];
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-spiritual-blue/5 to-warm-gold/5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-charcoal">{dashboardTitle}</h1>
+              <p className="text-gray-600 mt-2">
+                {isPlatformView 
+                  ? "Monitor platform-wide performance, church applications, and system health across all organizations."
+                  : isChurchAdmin
+                    ? "Welcome to your church dashboard. Monitor member engagement, track spiritual growth, and manage ministry opportunities."
+                    : "Welcome! Explore your spiritual gifts and ministry opportunities within your church community."
+                }
+              </p>
+            </div>
+            
+            {canViewAdministration && (
+              <div className="flex items-center space-x-3">
+                <Button 
+                  onClick={handleViewProfile}
+                  variant="outline"
+                  className="bg-white/80 backdrop-blur-sm"
+                  data-testid="button-view-profile"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </Button>
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="bg-white/80 backdrop-blur-sm"
+                  data-testid="button-logout"
+                >
+                  Logout
+                </Button>
               </div>
             )}
           </div>
-        )}
+        </div>
 
-        {/* Super Admin Platform Controls */}
-        {canViewAdministration && user?.role === "SUPER_ADMIN" && (
+        {/* Super Admin Tools Section - Only for Super Admins */}
+        {canViewAdministration && isSuperAdmin && (
           <div className="mb-8">
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <Shield className="h-6 w-6 text-purple-600 mr-3" />
-                <h2 className="text-xl font-bold text-gray-900">Super Admin Controls</h2>
-              </div>
+            <h2 className="text-xl font-semibold text-charcoal mb-4 flex items-center">
+              <Crown className="h-5 w-5 mr-2" />
+              Super Admin Controls
+            </h2>
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Button
+                <Button 
+                  onClick={() => setLocation('/admin')}
                   variant="outline"
-                  onClick={() => setLocation('/admin/platform')}
-                  className="bg-white hover:bg-gray-50"
-                  data-testid="button-platform-overview"
+                  className="flex items-center justify-center p-4 h-auto flex-col space-y-2"
+                  data-testid="button-platform-stats"
                 >
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  Platform Stats
+                  <BarChart3 className="h-6 w-6" />
+                  <span className="text-sm font-medium">Platform Stats</span>
                 </Button>
-                <Button
-                  variant="outline"
+                <Button 
                   onClick={() => setLocation('/admin/organizations')}
-                  className="bg-white hover:bg-gray-50"
-                  data-testid="button-manage-churches"
-                >
-                  <Church className="mr-2 h-4 w-4" />
-                  All Churches
-                </Button>
-                <Button
                   variant="outline"
+                  className="flex items-center justify-center p-4 h-auto flex-col space-y-2"
+                  data-testid="button-all-churches"
+                >
+                  <Church className="h-6 w-6" />
+                  <span className="text-sm font-medium">All Churches</span>
+                </Button>
+                <Button 
                   onClick={() => setLocation('/admin/system')}
-                  className="bg-white hover:bg-gray-50"
+                  variant="outline"
+                  className="flex items-center justify-center p-4 h-auto flex-col space-y-2"
                   data-testid="button-system-admin"
                 >
-                  <Settings className="mr-2 h-4 w-4" />
-                  System Admin
+                  <Settings className="h-6 w-6" />
+                  <span className="text-sm font-medium">System Admin</span>
                 </Button>
-                <Button
+                <Button 
+                  onClick={() => setLocation('/admin/reports')}
                   variant="outline"
-                  disabled
-                  className="bg-white hover:bg-gray-50"
+                  className="flex items-center justify-center p-4 h-auto flex-col space-y-2"
+                  data-testid="button-export-report"
                 >
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  Export Report
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Church Admin Controls */}
-        {canViewAdministration && ["ORG_ADMIN", "ORG_OWNER"].includes(user?.role || "") && (
-          <div className="mb-8">
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <Settings className="h-6 w-6 text-blue-600 mr-3" />
-                <h2 className="text-xl font-bold text-gray-900">Church Administration</h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setLocation('/admin')}
-                  className="bg-white hover:bg-gray-50"
-                  data-testid="button-manage-users"
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  Manage Users
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setLocation('/admin')}
-                  className="bg-white hover:bg-gray-50"
-                  data-testid="button-view-assessments"
-                >
-                  <BarChart3 className="mr-2 h-4 w-4" />
-                  View Assessments
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setLocation('/admin')}
-                  className="bg-white hover:bg-gray-50"
-                  data-testid="button-manage-ministries"
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Manage Ministries
+                  <Rocket className="h-6 w-6" />
+                  <span className="text-sm font-medium">Export Report</span>
                 </Button>
               </div>
             </div>
@@ -484,480 +425,505 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
         )}
 
         <div className="space-y-8">
-          {/* Key Metrics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            {isPlatformView ? (
-              // Platform-wide metrics for Super Admin - Enhanced version from Platform Overview
-              <>
+          {isPlatformView ? (
+            <>
+              {/* Platform Statistics Section */}
+              <div>
+                <h2 className="text-xl font-semibold text-charcoal mb-4 flex items-center">
+                  <BarChart3 className="h-5 w-5 mr-2" />
+                  Platform Statistics
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Total Organizations</p>
+                          <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.totalOrganizations || 12}</p>
+                        </div>
+                        <Church className="h-12 w-12 text-green-600" />
+                      </div>
+                      <div className="flex items-center mt-4">
+                        <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                        <span className="text-sm text-green-600 font-medium">+{(platformMetrics as PlatformMetrics)?.organizationGrowth || 15}% this month</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Total Users</p>
+                          <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.totalUsers || 1247}</p>
+                        </div>
+                        <Users className="h-12 w-12 text-blue-600" />
+                      </div>
+                      <div className="flex items-center mt-4">
+                        <TrendingUp className="h-4 w-4 text-blue-600 mr-1" />
+                        <span className="text-sm text-blue-600 font-medium">+{(platformMetrics as PlatformMetrics)?.userGrowth || 8}% this week</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Total Assessments</p>
+                          <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.totalAssessments || 3456}</p>
+                        </div>
+                        <BarChart3 className="h-12 w-12 text-purple-600" />
+                      </div>
+                      <div className="flex items-center mt-4">
+                        <Activity className="h-4 w-4 text-purple-600 mr-1" />
+                        <span className="text-sm text-purple-600 font-medium">{(platformMetrics as PlatformMetrics)?.completionRate || 87}% completion rate</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Active Today</p>
+                          <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.activeToday || 45}</p>
+                        </div>
+                        <Globe className="h-12 w-12 text-orange-600" />
+                      </div>
+                      <div className="flex items-center mt-4">
+                        <Activity className="h-4 w-4 text-orange-600 mr-1" />
+                        <span className="text-sm text-orange-600 font-medium">Avg. {(platformMetrics as PlatformMetrics)?.avgTimePerAssessment || 12} min/assessment</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Application Management Section */}
+              <div>
+                <h2 className="text-xl font-semibold text-charcoal mb-4 flex items-center">
+                  <Settings className="h-5 w-5 mr-2" />
+                  Application Management
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card 
+                    className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    onClick={() => setLocation('/admin/applications')}
+                    data-testid="card-pending-applications"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600 font-medium">Pending Applications</p>
+                          <p className="text-3xl font-bold text-charcoal">{pendingApplicationsCount}</p>
+                          <p className="text-xs text-orange-600 font-medium mt-1">
+                            Needs review
+                          </p>
+                        </div>
+                        <div className="bg-orange-100 rounded-full p-3">
+                          <Clock className="text-orange-600 h-6 w-6" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card 
+                    className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    onClick={() => setLocation('/admin/approved-churches')}
+                    data-testid="card-approved-churches"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600 font-medium">Approved Churches</p>
+                          <p className="text-3xl font-bold text-charcoal">{approvedChurchesCount}</p>
+                          <p className="text-xs text-blue-600 font-medium mt-1">
+                            Ready to activate
+                          </p>
+                        </div>
+                        <div className="bg-blue-100 rounded-full p-3">
+                          <Church className="text-blue-600 h-6 w-6" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card 
+                    className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    onClick={() => setLocation('/admin/active-churches')}
+                    data-testid="card-active-churches"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600 font-medium">Active Churches</p>
+                          <p className="text-3xl font-bold text-charcoal">{activeChurchesCount}</p>
+                          <p className="text-xs text-green-600 font-medium mt-1">
+                            Fully onboarded
+                          </p>
+                        </div>
+                        <div className="bg-green-100 rounded-full p-3">
+                          <Church className="text-green-600 h-6 w-6" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </>
+          ) : null}
+
+          {/* Assessment Analytics Section - Shared for both views */}
+          <div>
+            <h2 className="text-xl font-semibold text-charcoal mb-4 flex items-center">
+              <Trophy className="h-5 w-5 mr-2" />
+              Assessment Analytics
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {!isPlatformView && (
                 <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Total Organizations</p>
-                        <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.totalOrganizations || 12}</p>
-                      </div>
-                      <Church className="h-12 w-12 text-green-600" />
-                    </div>
-                    <div className="flex items-center mt-4">
-                      <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
-                      <span className="text-sm text-green-600 font-medium">+{(platformMetrics as PlatformMetrics)?.organizationGrowth || 15}% this month</span>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">Total Users</p>
-                        <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.totalUsers || 1247}</p>
-                      </div>
-                      <Users className="h-12 w-12 text-blue-600" />
-                    </div>
-                    <div className="flex items-center mt-4">
-                      <TrendingUp className="h-4 w-4 text-blue-600 mr-1" />
-                      <span className="text-sm text-blue-600 font-medium">+{(platformMetrics as PlatformMetrics)?.userGrowth || 8}% this week</span>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">Total Assessments</p>
-                        <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.totalAssessments || 3456}</p>
-                      </div>
-                      <BarChart3 className="h-12 w-12 text-purple-600" />
-                    </div>
-                    <div className="flex items-center mt-4">
-                      <Activity className="h-4 w-4 text-purple-600 mr-1" />
-                      <span className="text-sm text-purple-600 font-medium">{(platformMetrics as PlatformMetrics)?.completionRate || 87}% completion rate</span>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">Active Today</p>
-                        <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.activeToday || 45}</p>
-                      </div>
-                      <Globe className="h-12 w-12 text-orange-600" />
-                    </div>
-                    <div className="flex items-center mt-4">
-                      <Activity className="h-4 w-4 text-orange-600 mr-1" />
-                      <span className="text-sm text-orange-600 font-medium">Avg. {(platformMetrics as PlatformMetrics)?.avgTimePerAssessment || 12} min/assessment</span>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Application Workflow Cards for Super Admin */}
-                <Card 
-                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-                  onClick={() => setLocation('/admin/applications')}
-                  data-testid="card-pending-applications"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 font-medium">Pending Applications</p>
-                        <p className="text-3xl font-bold text-charcoal">{pendingApplicationsCount}</p>
-                        <p className="text-xs text-orange-600 font-medium mt-1">
-                          Needs review
-                        </p>
-                      </div>
-                      <div className="bg-orange-100 rounded-full p-3">
-                        <Clock className="text-orange-600 h-6 w-6" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card 
-                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-                  onClick={() => setLocation('/admin/approved-churches')}
-                  data-testid="card-approved-churches"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 font-medium">Approved Churches</p>
-                        <p className="text-3xl font-bold text-charcoal">{approvedChurchesCount}</p>
-                        <p className="text-xs text-blue-600 font-medium mt-1">
-                          Ready to activate
-                        </p>
-                      </div>
-                      <div className="bg-blue-100 rounded-full p-3">
-                        <Church className="text-blue-600 h-6 w-6" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card 
-                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-                  onClick={() => setLocation('/admin/active-churches')}
-                  data-testid="card-active-churches"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 font-medium">Active Churches</p>
-                        <p className="text-3xl font-bold text-charcoal">{activeChurchesCount}</p>
-                        <p className="text-xs text-green-600 font-medium mt-1">
-                          Fully onboarded
-                        </p>
-                      </div>
-                      <div className="bg-green-100 rounded-full p-3">
-                        <Church className="text-green-600 h-6 w-6" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 font-medium">Active Users</p>
-                        <p className="text-3xl font-bold text-charcoal">{(metrics as PlatformMetrics).activeUsersLast30Days}</p>
+                        <p className="text-sm text-gray-600 font-medium">Total Members</p>
+                        <p className="text-3xl font-bold text-charcoal">{(metrics as ChurchMetrics).totalMembers}</p>
                         <p className="text-xs text-gray-500 mt-1">
-                          Last 30 days
+                          {(metrics as ChurchMetrics).activeMembers} active this month
                         </p>
                       </div>
-                      <div className="bg-green-100 rounded-full p-3">
-                        <Activity className="text-green-600 h-6 w-6" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 font-medium">Global Assessments</p>
-                        <p className="text-3xl font-bold text-charcoal">{(metrics as PlatformMetrics).globalCompletions}</p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {(metrics as PlatformMetrics).globalCompletionRate}% completion rate
-                        </p>
-                      </div>
-                      <div className="bg-amber-100 rounded-full p-3">
-                        <Target className="text-amber-600 h-6 w-6" />
+                      <div className="bg-spiritual-blue/10 rounded-full p-3">
+                        <Users className="text-spiritual-blue h-6 w-6" />
                       </div>
                     </div>
                     <div className="mt-4">
-                      <Progress value={(metrics as PlatformMetrics).globalCompletionRate} className="h-2" />
+                      <Progress value={((metrics as ChurchMetrics).activeMembers / (metrics as ChurchMetrics).totalMembers) * 100} className="h-2" />
                     </div>
                   </CardContent>
                 </Card>
-              </>
-            ) : (
-              // Church-specific metrics for Church Admin
+              )}
+
               <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 font-medium">Total Members</p>
-                      <p className="text-3xl font-bold text-charcoal">{(metrics as ChurchMetrics).totalMembers}</p>
+                      <p className="text-sm text-gray-600 font-medium">Assessments Completed</p>
+                      <p className="text-3xl font-bold text-charcoal">{isPlatformView ? (metrics as PlatformMetrics).globalAssessments : (metrics as ChurchMetrics).totalAssessments}</p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {(metrics as ChurchMetrics).activeMembers} active this month
+                        {isPlatformView ? (metrics as PlatformMetrics).globalCompletions : (metrics as ChurchMetrics).completionsLast30Days} this month
                       </p>
                     </div>
-                    <div className="bg-spiritual-blue/10 rounded-full p-3">
-                      <Users className="text-spiritual-blue h-6 w-6" />
+                    <div className="bg-sage-green/10 rounded-full p-3">
+                      <Trophy className="text-sage-green h-6 w-6" />
                     </div>
                   </div>
-                  <div className="mt-4">
-                    <Progress value={((metrics as ChurchMetrics).activeMembers / (metrics as ChurchMetrics).totalMembers) * 100} className="h-2" />
+                  <div className="mt-4 flex items-center">
+                    <TrendingUp className="text-sage-green h-4 w-4 mr-1" />
+                    <span className="text-sage-green text-sm font-medium">
+                      {isPlatformView ? (metrics as PlatformMetrics).globalCompletionRate : (metrics as ChurchMetrics).completionRate}% completion rate
+                    </span>
                   </div>
                 </CardContent>
               </Card>
-            )}
 
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 font-medium">Assessments Completed</p>
-                    <p className="text-3xl font-bold text-charcoal">{isPlatformView ? (metrics as PlatformMetrics).globalAssessments : (metrics as ChurchMetrics).totalAssessments}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {isPlatformView ? (metrics as PlatformMetrics).globalCompletions : (metrics as ChurchMetrics).completionsLast30Days} this month
-                    </p>
+              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 font-medium">Pending Assessments</p>
+                      <p className="text-3xl font-bold text-charcoal">{isPlatformView ? (metrics as PlatformMetrics).pendingAssessments || 0 : (metrics as ChurchMetrics).pendingAssessments}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Avg. {isPlatformView ? 25 : (metrics as ChurchMetrics).averageTimeMinutes}min to complete
+                      </p>
+                    </div>
+                    <div className="bg-warm-gold/10 rounded-full p-3">
+                      <Clock className="text-warm-gold h-6 w-6" />
+                    </div>
                   </div>
-                  <div className="bg-sage-green/10 rounded-full p-3">
-                    <Trophy className="text-sage-green h-6 w-6" />
+                  <div className="mt-4 flex items-center">
+                    <Calendar className="text-warm-gold h-4 w-4 mr-1" />
+                    <span className="text-warm-gold text-sm font-medium">Follow up needed</span>
                   </div>
-                </div>
-                <div className="mt-4 flex items-center">
-                  <TrendingUp className="text-sage-green h-4 w-4 mr-1" />
-                  <span className="text-sage-green text-sm font-medium">
-                    {isPlatformView ? (metrics as PlatformMetrics).globalCompletionRate : (metrics as ChurchMetrics).completionRate}% completion rate
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 font-medium">Pending Assessments</p>
-                    <p className="text-3xl font-bold text-charcoal">{isPlatformView ? (metrics as PlatformMetrics).pendingAssessments || 0 : (metrics as ChurchMetrics).pendingAssessments}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Avg. {isPlatformView ? 25 : (metrics as ChurchMetrics).averageTimeMinutes}min to complete
-                    </p>
-                  </div>
-                  <div className="bg-warm-gold/10 rounded-full p-3">
-                    <Clock className="text-warm-gold h-6 w-6" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center">
-                  <Calendar className="text-warm-gold h-4 w-4 mr-1" />
-                  <span className="text-warm-gold text-sm font-medium">Follow up needed</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 font-medium">Ministry Matches</p>
-                    <p className="text-3xl font-bold text-charcoal">{isPlatformView ? 0 : (metrics as ChurchMetrics).placementMatches}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {isPlatformView ? 0 : (metrics as ChurchMetrics).availableVolunteers} volunteers available
-                    </p>
-                  </div>
-                  <div className="bg-purple-100 rounded-full p-3">
-                    <Heart className="text-purple-600 h-6 w-6" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center">
-                  <Target className="text-purple-600 h-4 w-4 mr-1" />
-                  <span className="text-purple-600 text-sm font-medium">
-                    {isPlatformView ? 0 : (metrics as ChurchMetrics).ministryOpportunities} opportunities
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+              {!isPlatformView && (
+                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Ministry Matches</p>
+                        <p className="text-3xl font-bold text-charcoal">{(metrics as ChurchMetrics).placementMatches}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {(metrics as ChurchMetrics).availableVolunteers} volunteers available
+                        </p>
+                      </div>
+                      <div className="bg-purple-100 rounded-full p-3">
+                        <Heart className="text-purple-600 h-6 w-6" />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex items-center">
+                      <Target className="text-purple-600 h-4 w-4 mr-1" />
+                      <span className="text-purple-600 text-sm font-medium">
+                        {(metrics as ChurchMetrics).ministryOpportunities} opportunities
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
 
-          {/* Platform-wide charts - only show for Super Admin platform view */}
-          {isPlatformView && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Organization Growth Chart */}
-              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-                <CardHeader>
-                  <CardTitle className="text-charcoal">Organization Growth</CardTitle>
-                  <CardDescription>Number of registered churches over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={organizationGrowthData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#10B981" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* User Activity Chart */}
-              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-                <CardHeader>
-                  <CardTitle className="text-charcoal">User Activity</CardTitle>
-                  <CardDescription>Active users by time period</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <RechartsPieChart>
-                      <Pie
-                        data={userActivityData}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        dataKey="value"
-                        label={({ name, value }) => `${name}: ${value}`}
-                      >
-                        {userActivityData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </RechartsPieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {/* Church-specific charts - only show for church view */}
-          {!isPlatformView && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Top Spiritual Gifts Distribution */}
-              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
-                <CardHeader>
-                  <CardTitle className="text-charcoal flex items-center">
-                    <Star className="h-5 w-5 mr-2" />
-                    Top Spiritual Gifts in Your Congregation
-                  </CardTitle>
-                  <CardDescription>
-                    Most common spiritual gifts identified through assessments
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {(metrics as ChurchMetrics).topGifts && (metrics as ChurchMetrics).topGifts.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={(metrics as ChurchMetrics).topGifts.slice(0, 6)}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="giftLabel" 
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                        fontSize={12}
-                      />
-                      <YAxis />
-                      <Tooltip 
-                        formatter={(value, name) => [value, 'Members']}
-                        labelFormatter={(label) => `Gift: ${label}`}
-                      />
-                      <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>No assessment data available yet</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Age Group Distribution */}
+          {/* Analytics Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Age Distribution Chart */}
             <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
               <CardHeader>
-                <CardTitle className="text-charcoal flex items-center">
+                <CardTitle className="flex items-center text-charcoal">
                   <PieChart className="h-5 w-5 mr-2" />
-                  Congregation Age Distribution
+                  Age Distribution
                 </CardTitle>
                 <CardDescription>
-                  Age demographics of assessment participants
+                  {isPlatformView ? "Platform-wide age demographics" : "Member age groups in your church"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {(metrics as ChurchMetrics).ageDistribution && (metrics as ChurchMetrics).ageDistribution.length > 0 ? (
-                  <div className="space-y-4">
-                    <ResponsiveContainer width="100%" height={200}>
+                {ageData.length > 0 ? (
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
                       <RechartsPieChart>
-                        <Tooltip 
-                          formatter={(value, name) => [`${value} members`, name]}
-                        />
                         <Pie
-                          data={(metrics as ChurchMetrics).ageDistribution}
+                          data={ageData}
                           cx="50%"
                           cy="50%"
-                          innerRadius={0}
+                          innerRadius={40}
                           outerRadius={80}
+                          paddingAngle={2}
                           dataKey="count"
                         >
-                          {(metrics as ChurchMetrics).ageDistribution.map((entry, index) => (
+                          {ageData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
+                        <Tooltip />
                       </RechartsPieChart>
                     </ResponsiveContainer>
-                    <div className="grid grid-cols-2 gap-2">
-                      {(metrics as ChurchMetrics).ageDistribution.map((item, index) => (
-                        <div key={item.ageRange} className="flex items-center text-sm">
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {ageData.map((entry, index) => (
+                        <div key={entry.group} className="flex items-center">
                           <div 
-                            className="w-3 h-3 rounded-full mr-2" 
+                            className="w-3 h-3 rounded-full mr-2"
                             style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                          ></div>
-                          <span className="text-gray-600">
-                            {item.ageRange}: {item.count} ({item.percentage}%)
-                          </span>
+                          />
+                          <span className="text-sm text-gray-600">{entry.group}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p>No age data available yet</p>
+                  <div className="h-64 flex items-center justify-center text-gray-500">
+                    No age distribution data available
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Spiritual Gifts Distribution or Growth Chart */}
+            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+              <CardHeader>
+                <CardTitle className="flex items-center text-charcoal">
+                  <BarChart3 className="h-5 w-5 mr-2" />
+                  {isPlatformView ? "Organization Growth" : "Top Spiritual Gifts"}
+                </CardTitle>
+                <CardDescription>
+                  {isPlatformView ? "Churches joining the platform over time" : "Most common spiritual gifts in your church"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isPlatformView ? (
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={organizationGrowthData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="#3B82F6" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : giftData.length > 0 ? (
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={giftData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={40}
+                          outerRadius={80}
+                          paddingAngle={2}
+                          dataKey="count"
+                        >
+                          {giftData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {giftData.slice(0, 6).map((entry, index) => (
+                        <div key={entry.gift} className="flex items-center">
+                          <div 
+                            className="w-3 h-3 rounded-full mr-2"
+                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                          />
+                          <span className="text-sm text-gray-600">{entry.gift}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-64 flex items-center justify-center text-gray-500">
+                    No gifts data available
                   </div>
                 )}
               </CardContent>
             </Card>
           </div>
-          )}
 
-          {/* Recent Activity Feed - Church view only */}
-          {!isPlatformView && (
+          {/* Activity Feed */}
           <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
             <CardHeader>
-              <CardTitle className="text-charcoal flex items-center justify-between">
-                <span className="flex items-center">
-                  <Activity className="h-5 w-5 mr-2" />
-                  Recent Activity
-                </span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setLocation('/admin')}
-                  data-testid="button-view-all-activity"
-                >
-                  View All
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
+              <CardTitle className="flex items-center text-charcoal">
+                <Activity className="h-5 w-5 mr-2" />
+                Recent Activity
               </CardTitle>
               <CardDescription>
-                Latest spiritual gifts assessments and member activity
+                {isPlatformView ? "Latest activity across all churches" : "Recent events in your church"}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {(metrics as ChurchMetrics).recentActivity && (metrics as ChurchMetrics).recentActivity.length > 0 ? (
-                <div className="space-y-4">
-                  {(metrics as ChurchMetrics).recentActivity.slice(0, 8).map((activity, index) => (
-                    <div key={index} className="flex items-start space-x-3 py-3 border-b last:border-b-0">
-                      <div className="bg-spiritual-blue/10 rounded-full p-2">
-                        <UserCheck className="h-4 w-4 text-spiritual-blue" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-charcoal">
-                          {activity.description}
-                        </p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="secondary" className="text-xs">
-                            {activity.type}
-                          </Badge>
-                          <span className="text-xs text-gray-500">
-                            {new Date(activity.timestamp).toLocaleDateString()} at{' '}
-                            {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
+              {activityData.length > 0 ? (
+                <div className="space-y-3">
+                  {activityData.slice(0, 5).map((activity, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50/50">
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-spiritual-blue/10 rounded-full p-2">
+                          <Activity className="h-4 w-4 text-spiritual-blue" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-charcoal">{activity.description}</p>
+                          {activity.userName && (
+                            <p className="text-xs text-gray-500">by {activity.userName}</p>
+                          )}
+                          {activity.organizationName && isPlatformView && (
+                            <p className="text-xs text-gray-500">at {activity.organizationName}</p>
+                          )}
                         </div>
                       </div>
+                      <span className="text-xs text-gray-500">{activity.timestamp}</span>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p className="text-lg font-medium mb-2">No Recent Activity</p>
-                  <p>Activity will appear here as members complete assessments</p>
+                  No recent activity to display
                 </div>
               )}
             </CardContent>
           </Card>
+
+          {/* Quick Actions */}
+          {canViewAdministration && (
+            <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+              <CardHeader>
+                <CardTitle className="flex items-center text-charcoal">
+                  <Rocket className="h-5 w-5 mr-2" />
+                  Quick Actions
+                </CardTitle>
+                <CardDescription>Common tasks and shortcuts</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {isSuperAdmin && (
+                    <>
+                      <Button 
+                        onClick={() => setLocation('/admin/applications')}
+                        variant="outline" 
+                        className="flex items-center justify-start space-x-2 h-auto p-4"
+                        data-testid="button-review-applications"
+                      >
+                        <Clock className="h-5 w-5" />
+                        <span>Review Applications</span>
+                      </Button>
+                      <Button 
+                        onClick={() => setLocation('/admin/organizations')}
+                        variant="outline" 
+                        className="flex items-center justify-start space-x-2 h-auto p-4"
+                        data-testid="button-manage-churches"
+                      >
+                        <Church className="h-5 w-5" />
+                        <span>Manage Churches</span>
+                      </Button>
+                      <Button 
+                        onClick={() => setLocation('/admin/system')}
+                        variant="outline" 
+                        className="flex items-center justify-start space-x-2 h-auto p-4"
+                        data-testid="button-system-settings"
+                      >
+                        <Settings className="h-5 w-5" />
+                        <span>System Settings</span>
+                      </Button>
+                    </>
+                  )}
+                  {isChurchAdmin && (
+                    <>
+                      <Button 
+                        onClick={() => setLocation('/admin/participants')}
+                        variant="outline" 
+                        className="flex items-center justify-start space-x-2 h-auto p-4"
+                        data-testid="button-view-members"
+                      >
+                        <Users className="h-5 w-5" />
+                        <span>View Members</span>
+                      </Button>
+                      <Button 
+                        onClick={() => setLocation('/admin/ministry-opportunities')}
+                        variant="outline" 
+                        className="flex items-center justify-start space-x-2 h-auto p-4"
+                        data-testid="button-ministry-opportunities"
+                      >
+                        <Heart className="h-5 w-5" />
+                        <span>Ministry Opportunities</span>
+                      </Button>
+                    </>
+                  )}
+                  <Button 
+                    onClick={() => setLocation('/assessment')}
+                    variant="outline" 
+                    className="flex items-center justify-start space-x-2 h-auto p-4"
+                    data-testid="button-take-assessment"
+                  >
+                    <BookOpen className="h-5 w-5" />
+                    <span>Take Assessment</span>
+                  </Button>
+                  <Button 
+                    onClick={() => setLocation('/results')}
+                    variant="outline" 
+                    className="flex items-center justify-start space-x-2 h-auto p-4"
+                    data-testid="button-view-results"
+                  >
+                    <Star className="h-5 w-5" />
+                    <span>View Results</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
-      </main>
       </div>
-    </MainLayout>
+    </div>
   );
 }
