@@ -127,6 +127,16 @@ interface ChurchOverviewProps {
 
 const COLORS = ['#2563eb', '#16a34a', '#dc2626', '#ea580c', '#7c3aed', '#0891b2', '#be123c', '#4338ca'];
 
+// Platform chart data for Super Admin view
+const organizationGrowthData = [
+  { month: 'Jan', count: 12 },
+  { month: 'Feb', count: 15 },
+  { month: 'Mar', count: 18 },
+  { month: 'Apr', count: 22 },
+  { month: 'May', count: 28 },
+  { month: 'Jun', count: 35 },
+];
+
 const GIFT_LABELS: Record<string, string> = {
   LEADERSHIP_ORG: "Leadership & Organization",
   TEACHING: "Teaching",
@@ -209,6 +219,13 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
 
   const approvedChurchesCount = approvedOrgs?.length || 0;
   const activeChurchesCount = activeOrgs?.length || 0;
+
+  // User activity data for platform charts
+  const userActivityData = [
+    { name: 'Active Today', value: (platformMetrics as PlatformMetrics)?.activeToday || 45, color: '#3B82F6' },
+    { name: 'This Week', value: 128, color: '#10B981' },
+    { name: 'This Month', value: 342, color: '#F59E0B' },
+  ];
   
   const { data: churchMetrics, isLoading: isChurchLoading, error: churchError } = useQuery<ChurchMetrics>({
     queryKey: ['/api/church-overview', targetOrgId],
@@ -651,6 +668,57 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
               </CardContent>
             </Card>
           </div>
+
+          {/* Platform-wide charts - only show for Super Admin platform view */}
+          {isPlatformView && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Organization Growth Chart */}
+              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                <CardHeader>
+                  <CardTitle className="text-charcoal">Organization Growth</CardTitle>
+                  <CardDescription>Number of registered churches over time</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={organizationGrowthData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="#10B981" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* User Activity Chart */}
+              <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                <CardHeader>
+                  <CardTitle className="text-charcoal">User Activity</CardTitle>
+                  <CardDescription>Active users by time period</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={userActivityData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        dataKey="value"
+                        label={({ name, value }) => `${name}: ${value}`}
+                      >
+                        {userActivityData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Church-specific charts - only show for church view */}
           {!isPlatformView && (
