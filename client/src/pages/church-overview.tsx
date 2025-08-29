@@ -209,6 +209,11 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
   });
 
   // Get data for church pipeline (keeping approved and active for other cards)
+  const { data: pendingApplications } = useQuery<any[]>({
+    queryKey: ['/api/admin/orgs?status=pending'], 
+    enabled: isPlatformView && !!user,
+  });
+
   const { data: approvedOrgs } = useQuery<any[]>({
     queryKey: ['/api/admin/orgs?status=approved'], 
     enabled: isPlatformView && !!user,
@@ -219,6 +224,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     enabled: isPlatformView && !!user,
   });
 
+  const pendingApplicationsCount = pendingApplications?.length || 0;
   const approvedChurchesCount = approvedOrgs?.length || 0;
   const activeChurchesCount = activeOrgs?.length || 0;
 
@@ -543,6 +549,70 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                     <div className="flex items-center mt-4">
                       <Activity className="h-4 w-4 text-orange-600 mr-1" />
                       <span className="text-sm text-orange-600 font-medium">Avg. {(platformMetrics as PlatformMetrics)?.avgTimePerAssessment || 12} min/assessment</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Application Workflow Cards for Super Admin */}
+                <Card 
+                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  onClick={() => setLocation('/admin/applications')}
+                  data-testid="card-pending-applications"
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Pending Applications</p>
+                        <p className="text-3xl font-bold text-charcoal">{pendingApplicationsCount}</p>
+                        <p className="text-xs text-orange-600 font-medium mt-1">
+                          Needs review
+                        </p>
+                      </div>
+                      <div className="bg-orange-100 rounded-full p-3">
+                        <Clock className="text-orange-600 h-6 w-6" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card 
+                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  onClick={() => setLocation('/admin/approved-churches')}
+                  data-testid="card-approved-churches"
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Approved Churches</p>
+                        <p className="text-3xl font-bold text-charcoal">{approvedChurchesCount}</p>
+                        <p className="text-xs text-blue-600 font-medium mt-1">
+                          Ready to activate
+                        </p>
+                      </div>
+                      <div className="bg-blue-100 rounded-full p-3">
+                        <Church className="text-blue-600 h-6 w-6" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card 
+                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  onClick={() => setLocation('/admin/active-churches')}
+                  data-testid="card-active-churches"
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Active Churches</p>
+                        <p className="text-3xl font-bold text-charcoal">{activeChurchesCount}</p>
+                        <p className="text-xs text-green-600 font-medium mt-1">
+                          Fully onboarded
+                        </p>
+                      </div>
+                      <div className="bg-green-100 rounded-full p-3">
+                        <Church className="text-green-600 h-6 w-6" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
