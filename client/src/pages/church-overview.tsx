@@ -382,7 +382,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
               Super Admin Controls
             </h2>
             <div className="bg-white/80 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <Button 
                   onClick={() => setLocation('/admin')}
                   variant="outline"
@@ -390,7 +390,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                   data-testid="button-platform-stats"
                 >
                   <BarChart3 className="h-6 w-6" />
-                  <span className="text-sm font-medium">Platform Stats</span>
+                  <span className="text-sm font-medium">Platform</span>
                 </Button>
                 <Button 
                   onClick={() => setLocation('/admin/organizations')}
@@ -399,7 +399,16 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                   data-testid="button-all-churches"
                 >
                   <Church className="h-6 w-6" />
-                  <span className="text-sm font-medium">All Churches</span>
+                  <span className="text-sm font-medium">Churches</span>
+                </Button>
+                <Button 
+                  onClick={() => setLocation('/admin/questions')}
+                  variant="outline"
+                  className="flex items-center justify-center p-4 h-auto flex-col space-y-2"
+                  data-testid="button-questions"
+                >
+                  <BookOpen className="h-6 w-6" />
+                  <span className="text-sm font-medium">Questions</span>
                 </Button>
                 <Button 
                   onClick={() => setLocation('/admin/system')}
@@ -408,7 +417,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                   data-testid="button-system-admin"
                 >
                   <Settings className="h-6 w-6" />
-                  <span className="text-sm font-medium">System Admin</span>
+                  <span className="text-sm font-medium">System</span>
                 </Button>
                 <Button 
                   onClick={() => setLocation('/admin/reports')}
@@ -417,7 +426,7 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                   data-testid="button-export-report"
                 >
                   <Rocket className="h-6 w-6" />
-                  <span className="text-sm font-medium">Export Report</span>
+                  <span className="text-sm font-medium">Dashboard</span>
                 </Button>
               </div>
             </div>
