@@ -38,18 +38,13 @@ export default function AdminPlatform() {
     enabled: user?.role === 'SUPER_ADMIN',
   });
 
-  // Get beta applications count (organizations created in last 7 days)
-  const { data: organizations } = useQuery<any[]>({
-    queryKey: ['/api/super-admin/organizations'],
+  // Get pending applications count
+  const { data: pendingApplications } = useQuery<any[]>({
+    queryKey: ['/api/applications?status=PENDING'],
     enabled: user?.role === 'SUPER_ADMIN',
   });
 
-  const betaApplicationsCount = (() => {
-    if (!organizations) return 0;
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    return organizations.filter(org => new Date(org.createdAt) > sevenDaysAgo).length;
-  })();
+  const pendingApplicationsCount = pendingApplications?.length || 0;
 
   if (isLoading || metricsLoading) {
     return (
@@ -212,23 +207,23 @@ export default function AdminPlatform() {
               </CardContent>
             </Card>
 
-            {/* Beta Applications Card */}
+            {/* Pending Applications Card */}
             <Card 
               className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-              onClick={() => setLocation('/admin-organizations')}
-              data-testid="card-beta-applications"
+              onClick={() => setLocation('/admin/applications')}
+              data-testid="card-pending-applications"
             >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Beta Applications</p>
-                    <p className="text-3xl font-bold text-charcoal">{betaApplicationsCount}</p>
+                    <p className="text-sm font-medium text-gray-600">Pending Applications</p>
+                    <p className="text-3xl font-bold text-charcoal">{pendingApplicationsCount}</p>
                   </div>
                   <Rocket className="h-12 w-12 text-green-600" />
                 </div>
                 <div className="flex items-center mt-4">
                   <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
-                  <span className="text-sm text-green-600 font-medium">Last 7 days</span>
+                  <span className="text-sm text-green-600 font-medium">Awaiting Review</span>
                 </div>
               </CardContent>
             </Card>

@@ -33,6 +33,7 @@ import {
   insertResultSchema,
   profileCompletionSchema,
   insertOrganizationSchema,
+  insertApplicationSchema,
   insertMinistryOpportunitySchema,
   insertPostSchema,
   insertPostReactionSchema,
@@ -40,6 +41,8 @@ import {
   type GiftKey,
   type User,
   type Organization,
+  type Application,
+  type InsertApplication,
   type DashboardMetrics,
   type FeedFilters,
 } from "@shared/schema";
@@ -1508,6 +1511,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Activate organization error:", error);
       res.status(500).json({ message: "Failed to activate organization" });
+    }
+  });
+
+  // === APPLICATION REVIEW ENDPOINTS ===
+  
+  // Get all applications (for pending queue)
+  app.get("/api/admin/applications", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const status = req.query.status as string;
+      const applications = await storage.getApplications(status);
+      res.json(applications);
+    } catch (error) {
+      console.error("Get applications error:", error);
+      res.status(500).json({ message: "Failed to get applications" });
+    }
+  });
+
+  // Get specific application for review
+  app.get("/api/admin/applications/:id", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const application = await storage.getApplication(req.params.id);
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      res.json(application);
+    } catch (error) {
+      console.error("Get application error:", error);
+      res.status(500).json({ message: "Failed to get application" });
+    }
+  });
+
+  // Approve application (creates organization)
+  app.post("/api/admin/applications/:id/approve", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { subdomain, decisionNotes } = req.body;
+      const reviewerId = (req.user as any)?.id;
+      
+      const application = await storage.getApplication(req.params.id);
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      if (application.status !== "PENDING") {
+        return res.status(400).json({ message: "Application is not pending" });
+      }
+
+      // Create organization from application data
+      const organizationData = {
+        name: application.churchName,
+        subdomain: subdomain || application.churchName.toLowerCase().replace(/[^a-z0-9]/g, ''),
+        contactEmail: application.pastorEmail,
+        address: application.churchAddress,
+        website: application.churchWebsite,
+        status: "ACTIVE" as const,
+      };
+
+      const organization = await storage.createOrganization(organizationData);
+      
+      // Update application status and link to organization
+      const updatedApplication = await storage.updateApplication(req.params.id, {
+        status: "APPROVED" as const,
+        reviewedById: reviewerId,
+        reviewedAt: new Date(),
+        decisionNotes: decisionNotes || "Application approved",
+        organizationId: organization.id,
+      });
+
+      res.json({
+        success: true,
+        application: updatedApplication,
+        organizationId: organization.id,
+        message: "Application approved and organization created"
+      });
+    } catch (error) {
+      console.error("Approve application error:", error);
+      res.status(500).json({ message: "Failed to approve application" });
+    }
+  });
+
+  // Reject application
+  app.post("/api/admin/applications/:id/reject", isAuthenticated, requireSuperAdmin, async (req, res) => {
+    try {
+      const { decisionNotes } = req.body;
+      const reviewerId = (req.user as any)?.id;
+
+      const application = await storage.getApplication(req.params.id);
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+      
+      if (application.status !== "PENDING") {
+        return res.status(400).json({ message: "Application is not pending" });
+      }
+
+      const updatedApplication = await storage.updateApplication(req.params.id, {
+        status: "REJECTED" as const,
+        reviewedById: reviewerId,
+        reviewedAt: new Date(),
+        decisionNotes: decisionNotes || "No reason provided",
+      });
+
+      // TODO: Send rejection email to applicant
+
+      res.json({
+        success: true,
+        application: updatedApplication,
+        message: "Application rejected successfully"
+      });
+    } catch (error) {
+      console.error("Reject application error:", error);
+      res.status(500).json({ message: "Failed to reject application" });
     }
   });
 

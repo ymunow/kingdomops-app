@@ -27,6 +27,7 @@ import AdminSystem from "@/pages/admin-system";
 import AdminQuestions from "@/pages/admin-questions";
 import AdminApplications from "@/pages/admin-applications";
 import AdminApprovedChurches from "@/pages/admin-approved-churches";
+import ApplicationReview from "@/pages/application-review";
 import AdminChurches from "@/pages/admin-churches";
 import AdminChurchDetail from "@/pages/admin-church-detail";
 import ChurchOverview from "@/pages/church-overview";
@@ -211,6 +212,9 @@ function Router() {
                 {/* Application Review Pipeline Routes - Super Admin Only */}
                 <Route path="/admin/applications">
                   {() => (user as any)?.role === 'SUPER_ADMIN' ? <AdminApplications /> : <NotFound />}
+                </Route>
+                <Route path="/admin/applications/:applicationId">
+                  {(params) => (user as any)?.role === 'SUPER_ADMIN' ? <ApplicationReview /> : <NotFound />}
                 </Route>
                 <Route path="/admin/approved-churches">
                   {() => (user as any)?.role === 'SUPER_ADMIN' ? <AdminApprovedChurches /> : <NotFound />}

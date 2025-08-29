@@ -18,21 +18,26 @@ import {
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { MainLayout } from '@/components/navigation/main-layout';
-import { ApproveOrganizationModal } from '@/components/modals/approve-organization-modal';
-import { RejectOrganizationModal } from '@/components/modals/reject-organization-modal';
 import { useBetaApplicationNotifications } from '@/hooks/useBetaApplicationNotifications';
 
-interface Organization {
+interface Application {
   id: string;
-  name: string;
-  subdomain?: string;
-  contactEmail?: string;
-  website?: string;
-  address?: string;
-  description?: string;
-  status: string;
-  createdAt: string;
-  deniedReason?: string;
+  pastorName: string;
+  pastorEmail: string;
+  pastorPhone: string;
+  churchName: string;
+  churchWebsite: string | null;
+  churchAddress: string;
+  churchSize: string;
+  status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED';
+  answers: Record<string, string>;
+  attachments: Record<string, string>;
+  reviewedById: string | null;
+  reviewedAt: Date | null;
+  decisionNotes: string | null;
+  organizationId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export default function AdminApplications() {
@@ -41,10 +46,6 @@ export default function AdminApplications() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
-  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  
   // Beta application notifications
   const { markApplicationsAsRead } = useBetaApplicationNotifications();
 
@@ -54,32 +55,10 @@ export default function AdminApplications() {
   }, [markApplicationsAsRead]);
 
   // Fetch pending applications
-  const { data: applications, isLoading } = useQuery<Organization[]>({
-    queryKey: ['/api/admin/orgs?status=pending'],
+  const { data: applications, isLoading } = useQuery<Application[]>({
+    queryKey: ['/api/applications?status=PENDING'],
     enabled: !!user && user.role === 'SUPER_ADMIN',
   });
-
-  // Mutations are now handled in the modal components
-
-  const handleApprove = (org: Organization) => {
-    setSelectedOrg(org);
-    setIsApproveModalOpen(true);
-  };
-
-  const handleReject = (org: Organization) => {
-    setSelectedOrg(org);
-    setIsRejectModalOpen(true);
-  };
-
-  const closeApproveModal = () => {
-    setIsApproveModalOpen(false);
-    setSelectedOrg(null);
-  };
-
-  const closeRejectModal = () => {
-    setIsRejectModalOpen(false);
-    setSelectedOrg(null);
-  };
 
   if (user?.role !== 'SUPER_ADMIN') {
     return (
@@ -144,79 +123,52 @@ export default function AdminApplications() {
                 </CardContent>
               </Card>
             ) : (
-              applications?.map((org) => (
-                <Card key={org.id} className="bg-white shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+              applications?.map((app) => (
+                <Card key={app.id} className="bg-white shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-4">
-                          <h3 className="text-xl font-semibold text-charcoal">{org.name}</h3>
+                          <h3 className="text-xl font-semibold text-charcoal">{app.churchName}</h3>
                           <Badge className="bg-orange-100 text-orange-800">
                             <Clock className="h-3 w-3 mr-1" />
-                            Pending
+                            {app.status}
                           </Badge>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                          {org.contactEmail && (
-                            <div className="flex items-center text-gray-600">
-                              <Mail className="h-4 w-4 mr-2" />
-                              <span className="text-sm">{org.contactEmail}</span>
-                            </div>
-                          )}
-                          {org.website && (
+                          <div className="flex items-center text-gray-600">
+                            <Mail className="h-4 w-4 mr-2" />
+                            <span className="text-sm">Pastor: {app.pastorName}</span>
+                          </div>
+                          <div className="flex items-center text-gray-600">
+                            <Mail className="h-4 w-4 mr-2" />
+                            <span className="text-sm">{app.pastorEmail}</span>
+                          </div>
+                          {app.churchWebsite && (
                             <div className="flex items-center text-gray-600">
                               <Globe className="h-4 w-4 mr-2" />
-                              <span className="text-sm">{org.website}</span>
+                              <span className="text-sm">{app.churchWebsite}</span>
                             </div>
                           )}
                           <div className="flex items-center text-gray-600">
                             <Calendar className="h-4 w-4 mr-2" />
-                            <span className="text-sm">Applied {new Date(org.createdAt).toLocaleDateString()}</span>
+                            <span className="text-sm">Applied {new Date(app.createdAt).toLocaleDateString()}</span>
                           </div>
-                          {org.subdomain && (
-                            <div className="flex items-center text-gray-600">
-                              <Globe className="h-4 w-4 mr-2" />
-                              <span className="text-sm">{org.subdomain}.kingdomops.org</span>
-                            </div>
-                          )}
                         </div>
 
-                        {org.description && (
-                          <p className="text-gray-700 mb-4">{org.description}</p>
-                        )}
-
-                        {org.address && (
-                          <p className="text-sm text-gray-600 mb-4">{org.address}</p>
-                        )}
+                        <p className="text-sm text-gray-600 mb-2">Church Size: {app.churchSize}</p>
+                        <p className="text-sm text-gray-600 mb-4">{app.churchAddress}</p>
                       </div>
 
                       <div className="flex space-x-3 ml-6">
                         <Button
-                          variant="outline"
-                          onClick={() => setLocation(`/admin/organizations/${org.id}`)}
-                          className="border-blue-300 text-blue-600 hover:bg-blue-50"
-                          data-testid={`button-view-${org.id}`}
+                          onClick={() => setLocation(`/admin/applications/${app.id}`)}
+                          className="bg-spiritual-blue hover:bg-spiritual-blue/90 text-white"
+                          data-testid={`button-review-${app.id}`}
                         >
                           <Globe className="h-4 w-4 mr-2" />
-                          View Application
-                        </Button>
-                        <Button
-                          onClick={() => handleApprove(org)}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                          data-testid={`button-approve-${org.id}`}
-                        >
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Approve
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => handleReject(org)}
-                          className="border-red-300 text-red-600 hover:bg-red-50"
-                          data-testid={`button-deny-${org.id}`}
-                        >
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Deny
+                          Review Application
                         </Button>
                       </div>
                     </div>
@@ -227,26 +179,6 @@ export default function AdminApplications() {
           </div>
         </div>
 
-        {/* Enhanced Modal Components */}
-        <ApproveOrganizationModal
-          organization={selectedOrg ? {
-            id: selectedOrg.id,
-            name: selectedOrg.name,
-            contactEmail: selectedOrg.contactEmail
-          } : null}
-          open={isApproveModalOpen}
-          onClose={closeApproveModal}
-        />
-        
-        <RejectOrganizationModal
-          organization={selectedOrg ? {
-            id: selectedOrg.id,
-            name: selectedOrg.name,
-            contactEmail: selectedOrg.contactEmail
-          } : null}
-          open={isRejectModalOpen}
-          onClose={closeRejectModal}
-        />
       </div>
     </MainLayout>
   );

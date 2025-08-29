@@ -90,6 +90,8 @@ export const LEGACY_ROLES = {
 
 export const organizationStatusEnum = pgEnum("organization_status", ["PENDING", "APPROVED", "DENIED", "ACTIVE", "INACTIVE", "TRIAL"]);
 
+export const applicationStatusEnum = pgEnum("application_status", ["PENDING", "APPROVED", "REJECTED"]);
+
 export const placementStatusEnum = pgEnum("placement_status", ["OPEN", "FILLED", "CLOSED"]);
 
 export const candidateStatusEnum = pgEnum("candidate_status", ["PENDING", "INVITED", "PLACED", "DECLINED"]);
@@ -217,6 +219,37 @@ export const organizations = pgTable("organizations", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Church Applications table - separate from organizations for proper review workflow
+export const applications = pgTable("applications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  status: applicationStatusEnum("status").default("PENDING"),
+  
+  // Church Information
+  churchName: varchar("church_name").notNull(),
+  primaryContact: varchar("primary_contact").notNull(),
+  email: varchar("email").notNull(),
+  phone: varchar("phone"),
+  subdomain: varchar("subdomain"), // Requested subdomain
+  
+  // Application Data
+  answers: jsonb("answers").default({}), // All application form answers
+  attachments: jsonb("attachments").default({}), // File uploads and documents
+  
+  // Review Information
+  reviewedById: varchar("reviewed_by_id").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  decisionNotes: text("decision_notes"),
+  
+  // Link to created organization (only set upon approval)
+  organizationId: varchar("organization_id").unique().references(() => organizations.id),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_applications_status").on(table.status),
+  index("idx_applications_email").on(table.email),
+]);
 
 // Waitlist for rejected churches who want to be notified when platform launches
 export const waitlistChurches = pgTable("waitlist_churches", {
@@ -419,6 +452,14 @@ export const insertOrganizationSchema = createInsertSchema(organizations).omit({
   updatedAt: true,
 });
 
+export const insertApplicationSchema = createInsertSchema(applications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  reviewedAt: true,
+  organizationId: true,
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -518,6 +559,9 @@ export const CONNECT_PERMISSIONS = {
 // Types
 export type Organization = typeof organizations.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
+
+export type Application = typeof applications.$inferSelect;
+export type InsertApplication = z.infer<typeof insertApplicationSchema>;
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;

@@ -4,6 +4,8 @@ import {
   type UpsertUser,
   type Organization,
   type InsertOrganization,
+  type Application,
+  type InsertApplication,
   type WaitlistChurch,
   type InsertWaitlistChurch,
   type AssessmentVersion,
@@ -38,6 +40,7 @@ import {
   type FeedFilters,
   users,
   organizations,
+  applications,
   waitlistChurches,
   assessmentVersions,
   questions,
@@ -67,6 +70,12 @@ export interface IStorage {
   updateOrganization(id: string, updates: Partial<InsertOrganization>): Promise<Organization>;
   updateOrganizationStatus(organizationId: string, status: 'ACTIVE' | 'INACTIVE'): Promise<Organization>;
   deleteOrganization(organizationId: string): Promise<void>;
+
+  // Application operations
+  getApplication(id: string): Promise<Application | undefined>;
+  getApplications(status?: string): Promise<Application[]>;
+  createApplication(application: InsertApplication): Promise<Application>;
+  updateApplication(id: string, updates: Partial<Application>): Promise<Application>;
 
   // User operations
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
@@ -1071,6 +1080,7 @@ export class DatabaseStorage implements IStorage {
 
 class MemStorage implements IStorage {
   private organizations = new Map<string, Organization>();
+  private applications = new Map<string, Application>();
   private users = new Map<string, User>();
   private assessmentVersions = new Map<string, AssessmentVersion>();
   private questions = new Map<string, Question>();
@@ -1151,6 +1161,45 @@ class MemStorage implements IStorage {
 
   async deleteOrganization(organizationId: string): Promise<void> {
     this.organizations.delete(organizationId);
+  }
+
+  // Application operations
+  async getApplication(id: string): Promise<Application | undefined> {
+    return this.applications.get(id);
+  }
+
+  async getApplications(status?: string): Promise<Application[]> {
+    const allApplications = Array.from(this.applications.values());
+    if (status) {
+      return allApplications.filter(app => app.status === status);
+    }
+    return allApplications;
+  }
+
+  async createApplication(application: InsertApplication): Promise<Application> {
+    const app: Application = {
+      ...application,
+      id: nanoid(),
+      status: application.status || 'PENDING',
+      answers: application.answers || {},
+      attachments: application.attachments || {},
+      reviewedById: application.reviewedById || null,
+      reviewedAt: application.reviewedAt || null,
+      decisionNotes: application.decisionNotes || null,
+      organizationId: application.organizationId || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.applications.set(app.id, app);
+    return app;
+  }
+
+  async updateApplication(id: string, updates: Partial<Application>): Promise<Application> {
+    const app = this.applications.get(id);
+    if (!app) throw new Error('Application not found');
+    const updated = { ...app, ...updates, updatedAt: new Date() };
+    this.applications.set(id, updated);
+    return updated;
   }
 
   // User operations
