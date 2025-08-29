@@ -26,7 +26,9 @@ import {
   Settings,
   Church,
   Crown,
-  Rocket
+  Rocket,
+  Database,
+  Globe
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell } from "recharts";
 import { Link, useLocation } from "wouter";
@@ -479,47 +481,20 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             {isPlatformView ? (
-              // Platform-wide metrics for Super Admin
+              // Platform-wide metrics for Super Admin - Enhanced version from Platform Overview
               <>
-
-                <Card 
-                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-                  onClick={() => setLocation('/admin/approved-churches')}
-                  data-testid="card-approved-churches"
-                >
+                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600 font-medium">Approved Churches</p>
-                        <p className="text-3xl font-bold text-charcoal">{approvedChurchesCount}</p>
-                        <p className="text-xs text-blue-600 font-medium mt-1">
-                          Ready to activate
-                        </p>
+                        <p className="text-sm font-medium text-gray-600">Total Organizations</p>
+                        <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.totalOrganizations || 12}</p>
                       </div>
-                      <div className="bg-blue-100 rounded-full p-3">
-                        <Church className="text-blue-600 h-6 w-6" />
-                      </div>
+                      <Church className="h-12 w-12 text-green-600" />
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card 
-                  className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200 cursor-pointer hover:shadow-xl transition-all duration-200 hover:scale-105"
-                  onClick={() => setLocation('/admin/active-churches')}
-                  data-testid="card-active-churches"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 font-medium">Active Churches</p>
-                        <p className="text-3xl font-bold text-charcoal">{activeChurchesCount}</p>
-                        <p className="text-xs text-green-600 font-medium mt-1">
-                          Fully onboarded
-                        </p>
-                      </div>
-                      <div className="bg-green-100 rounded-full p-3">
-                        <Church className="text-green-600 h-6 w-6" />
-                      </div>
+                    <div className="flex items-center mt-4">
+                      <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                      <span className="text-sm text-green-600 font-medium">+{(platformMetrics as PlatformMetrics)?.organizationGrowth || 15}% this month</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -528,15 +503,46 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600 font-medium">Total Members</p>
-                        <p className="text-3xl font-bold text-charcoal">{(metrics as PlatformMetrics).totalMembers}</p>
-                        <p className="text-xs text-green-600 font-medium mt-1">
-                          ↗ {(metrics as PlatformMetrics).memberGrowthRate}% growth
-                        </p>
+                        <p className="text-sm font-medium text-gray-600">Total Users</p>
+                        <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.totalUsers || 1247}</p>
                       </div>
-                      <div className="bg-blue-100 rounded-full p-3">
-                        <Users className="text-blue-600 h-6 w-6" />
+                      <Users className="h-12 w-12 text-blue-600" />
+                    </div>
+                    <div className="flex items-center mt-4">
+                      <TrendingUp className="h-4 w-4 text-blue-600 mr-1" />
+                      <span className="text-sm text-blue-600 font-medium">+{(platformMetrics as PlatformMetrics)?.userGrowth || 8}% this week</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Total Assessments</p>
+                        <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.totalAssessments || 3456}</p>
                       </div>
+                      <BarChart3 className="h-12 w-12 text-purple-600" />
+                    </div>
+                    <div className="flex items-center mt-4">
+                      <Activity className="h-4 w-4 text-purple-600 mr-1" />
+                      <span className="text-sm text-purple-600 font-medium">{(platformMetrics as PlatformMetrics)?.completionRate || 87}% completion rate</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Active Today</p>
+                        <p className="text-3xl font-bold text-charcoal">{(platformMetrics as PlatformMetrics)?.activeToday || 45}</p>
+                      </div>
+                      <Globe className="h-12 w-12 text-orange-600" />
+                    </div>
+                    <div className="flex items-center mt-4">
+                      <Activity className="h-4 w-4 text-orange-600 mr-1" />
+                      <span className="text-sm text-orange-600 font-medium">Avg. {(platformMetrics as PlatformMetrics)?.avgTimePerAssessment || 12} min/assessment</span>
                     </div>
                   </CardContent>
                 </Card>

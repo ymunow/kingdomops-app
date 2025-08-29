@@ -18,7 +18,6 @@ import AnonymousAssessment from "@/pages/anonymous-assessment";
 import Results from "@/pages/results";
 import MyResults from "@/pages/my-results";
 import Admin from "@/pages/admin";
-import AdminPlatform from "@/pages/admin-platform";
 import AdminOrganizations from "@/pages/admin-organizations";
 import AdminOrganizationDetail from "@/pages/admin-organization-detail";
 import AdminOrganizationSettings from "@/pages/admin-organization-settings";
@@ -196,10 +195,9 @@ function Router() {
                 </Route>
                 <Route path="/admin/assessment" component={Admin} />
                 <Route path="/admin/admin">
-                  {() => (user as any)?.role === 'SUPER_ADMIN' ? <AdminPlatform /> : <NotFound />}
+                  {() => (user as any)?.role === 'SUPER_ADMIN' ? <ChurchOverview /> : <NotFound />}
                 </Route>
                 
-                <Route path="/admin/platform" component={AdminPlatform} />
                 <Route path="/admin/organizations" component={AdminOrganizations} />
                 <Route path="/admin/organizations/:id/settings" component={AdminOrganizationSettings} />
                 <Route path="/admin/organizations/:id/overview">
@@ -228,10 +226,10 @@ function Router() {
         <Route path="/admin/questions" component={AdminQuestions} />
                 
                 {/* Super Admin specific routes */}
-                <Route path="/super-admin" component={AdminPlatform} />
+                <Route path="/super-admin" component={ChurchOverview} />
                 <Route path="/organizations" component={AdminOrganizations} />
                 <Route path="/super-admin/users" component={AdminSystem} />
-                <Route path="/super-admin/analytics" component={AdminPlatform} />
+                <Route path="/super-admin/analytics" component={ChurchOverview} />
               </>
             )}
             
