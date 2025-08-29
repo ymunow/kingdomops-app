@@ -209,83 +209,22 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     queryKey: ['/api/platform-overview'],
     enabled: isPlatformView && !!user,
     refetchInterval: 30000,
-    retry: false,
-    // Use mock data if API fails to ensure dashboard loads
-    placeholderData: isPlatformView ? {
-      totalOrganizations: 12,
-      totalUsers: 1247,
-      totalAssessments: 3456,
-      activeToday: 45,
-      organizationGrowth: 15,
-      userGrowth: 8,
-      completionRate: 87,
-      avgTimePerAssessment: 12,
-      totalChurches: 12,
-      churchGrowthRate: 15,
-      activeUsersLast30Days: 892,
-      globalAssessments: 3456,
-      globalCompletions: 3008,
-      globalCompletionRate: 87,
-      pendingAssessments: 448,
-      churchGrowthData: organizationGrowthData,
-      ageDistribution: [
-        { group: "18-25", count: 145, percentage: 12 },
-        { group: "26-35", count: 298, percentage: 24 },
-        { group: "36-45", count: 356, percentage: 29 },
-        { group: "46-55", count: 267, percentage: 21 },
-        { group: "56+", count: 181, percentage: 14 }
-      ],
-      giftDistribution: [
-        { gift: "Leadership & Organization", count: 89, percentage: 7 },
-        { gift: "Teaching", count: 134, percentage: 11 },
-        { gift: "Serving & Helping", count: 156, percentage: 13 },
-        { gift: "Faith", count: 98, percentage: 8 },
-        { gift: "Mercy", count: 112, percentage: 9 }
-      ],
-      systemAlerts: [],
-      pendingApprovals: { newChurches: 2, featureRequests: 5, supportTickets: 8 },
-      recentActivity: [
-        {
-          type: "Assessment Completed",
-          description: "Sarah Johnson completed assessment at First Community Church", 
-          timestamp: "2 hours ago",
-          userName: "Sarah Johnson",
-          organizationName: "First Community Church"
-        },
-        {
-          type: "New Church Registered",
-          description: "Grace Baptist Church submitted application",
-          timestamp: "4 hours ago",
-          organizationName: "Grace Baptist Church"
-        }
-      ],
-      topChurches: [
-        { name: "First Community Church", subdomain: "fcc", memberCount: 156, completionRate: 94 },
-        { name: "Grace Baptist Church", subdomain: "grace", memberCount: 89, completionRate: 88 }
-      ]
-    } : undefined,
   });
 
   // Get data for church pipeline (keeping approved and active for other cards)
   const { data: pendingApplications } = useQuery<any[]>({
-    queryKey: ['/api/admin/applications?status=pending'], 
+    queryKey: ['/api/admin/orgs?status=pending'], 
     enabled: isPlatformView && !!user,
-    retry: false,
-    placeholderData: [],
   });
 
   const { data: approvedOrgs } = useQuery<any[]>({
-    queryKey: ['/api/admin/applications?status=approved'], 
+    queryKey: ['/api/admin/orgs?status=approved'], 
     enabled: isPlatformView && !!user,
-    retry: false,
-    placeholderData: [],
   });
 
   const { data: activeOrgs } = useQuery<any[]>({
-    queryKey: ['/api/admin/applications?status=active'],
+    queryKey: ['/api/admin/orgs?status=active'],
     enabled: isPlatformView && !!user,
-    retry: false,
-    placeholderData: [],
   });
 
   const pendingApplicationsCount = pendingApplications?.length || 0;
@@ -303,47 +242,6 @@ export default function ChurchOverview({ organizationId }: ChurchOverviewProps) 
     queryKey: ['/api/church-overview', targetOrgId],
     enabled: !isPlatformView && !!targetOrgId && !!user,
     refetchInterval: 30000,
-    retry: false,
-    // Use mock data if API fails to ensure dashboard loads
-    placeholderData: !isPlatformView ? {
-      totalMembers: 124,
-      activeMembers: 98,
-      totalAssessments: 87,
-      completionsLast30Days: 23,
-      completionRate: 85,
-      pendingAssessments: 15,
-      averageTimeMinutes: 14,
-      placementMatches: 12,
-      availableVolunteers: 45,
-      ministryOpportunities: 8,
-      topGifts: [
-        { gift: "SERVING_HELPING", count: 18 },
-        { gift: "LEADERSHIP_ORG", count: 15 },
-        { gift: "TEACHING", count: 12 },
-        { gift: "MERCY", count: 10 }
-      ],
-      ageDistribution: [
-        { group: "18-25", count: 15 },
-        { group: "26-35", count: 32 },
-        { group: "36-45", count: 42 },
-        { group: "46-55", count: 28 },
-        { group: "56+", count: 7 }
-      ],
-      recentActivity: [
-        {
-          type: "Assessment Completed",
-          description: "John Smith completed his spiritual gifts assessment",
-          timestamp: "1 hour ago",
-          userName: "John Smith"
-        },
-        {
-          type: "Ministry Match",
-          description: "Sarah Williams was matched to Children's Ministry",
-          timestamp: "3 hours ago",
-          userName: "Sarah Williams"
-        }
-      ]
-    } : undefined,
   });
   
   const isLoading = isPlatformView ? isPlatformLoading : isChurchLoading;
