@@ -1137,6 +1137,69 @@ class MemStorage implements IStorage {
       updatedAt: new Date(),
     };
     this.organizations.set(defaultOrg.id, defaultOrg);
+
+    // Create sample pending applications for testing
+    const sampleApplications: Application[] = [
+      {
+        id: 'app-001',
+        churchName: 'Trinity Fellowship',
+        subdomain: 'trinity-fellowship',
+        contactPersonName: 'Pastor David Johnson',
+        contactEmail: 'david@trinityfellowship.org',
+        phoneNumber: '(555) 123-4567',
+        churchSize: '301-500 members',
+        websiteUrl: 'https://trinityfellowship.org',
+        churchAddress: '123 Church St, Anytown, ST 12345',
+        churchDescription: 'A vibrant community church focused on worship, discipleship, and community outreach. We have been serving our community for over 20 years.',
+        currentSoftware: 'Planning Center',
+        specificNeeds: 'We need better gift assessment tools and ministry placement tracking to help our members find their calling.',
+        status: 'PENDING',
+        applicationAnswers: {},
+        createdAt: new Date('2024-08-15'),
+        updatedAt: new Date('2024-08-15')
+      },
+      {
+        id: 'app-002',
+        churchName: 'Grace Harbor Church',
+        subdomain: 'grace-harbor',
+        contactPersonName: 'Pastor Sarah Williams',
+        contactEmail: 'sarah@graceharbor.com',
+        phoneNumber: '(555) 987-6543',
+        churchSize: '501-1000 members',
+        websiteUrl: 'https://graceharbor.com',
+        churchAddress: '456 Harbor Dr, Coastal City, CA 90210',
+        churchDescription: 'A growing church by the harbor committed to grace-based ministry and community transformation.',
+        currentSoftware: 'ChurchTrac',
+        specificNeeds: 'Looking for comprehensive ministry matching and spiritual gifts assessment platform.',
+        status: 'PENDING',
+        applicationAnswers: {},
+        createdAt: new Date('2024-08-18'),
+        updatedAt: new Date('2024-08-18')
+      },
+      {
+        id: 'app-003',
+        churchName: 'New Life Community',
+        subdomain: 'newlife-community',
+        contactPersonName: 'Pastor Michael Chen',
+        contactEmail: 'michael@newlifecommunity.org',
+        phoneNumber: '(555) 456-7890',
+        churchSize: '101-300 members',
+        websiteUrl: 'https://newlifecommunity.org',
+        churchAddress: '789 New Life Ave, Growing Town, TX 75001',
+        churchDescription: 'A diverse, multicultural church passionate about helping people discover their spiritual gifts and serve effectively.',
+        currentSoftware: 'Rock RMS',
+        specificNeeds: 'Need tools for better volunteer coordination and spiritual gifts discovery for our diverse congregation.',
+        status: 'PENDING',
+        applicationAnswers: {},
+        createdAt: new Date('2024-08-20'),
+        updatedAt: new Date('2024-08-20')
+      }
+    ];
+
+    // Add sample applications to storage
+    sampleApplications.forEach(app => {
+      this.applications.set(app.id, app);
+    });
   }
 
   // Organization operations
