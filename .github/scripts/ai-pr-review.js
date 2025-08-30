@@ -1,78 +1,72 @@
-// ESM version — works with "type": "module" in package.json
+// Minimal AI PR review bot (ESM).
+// – Collects changed files + patches for this PR
+// – Sends a compact prompt to OpenAI
+// – Posts a single review comment back to the PR
 
-import * as core from "@actions/core";
+import core from "@actions/core";
 import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import OpenAI from "openai";
 
 async function run() {
-  const token = process.env.GITHUB_TOKEN;
-  const openaiKey = process.env.OPENAI_API_KEY;
-  if (!token) throw new Error("Missing GITHUB_TOKEN");
-  if (!openaiKey) throw new Error("Missing OPENAI_API_KEY");
+  try {
+    const token = process.env.GITHUB_TOKEN;
+    const openaiKey = process.env.OPENAI_API_KEY;
 
-  const octokit = new Octokit({ auth: token });
-  const client = new OpenAI({ apiKey: openaiKey });
+    if (!token) throw new Error("Missing GITHUB_TOKEN");
+    if (!openaiKey) throw new Error("Missing OPENAI_API_KEY");
 
-  const { owner, repo } = github.context.repo;
-  const prNumber = github.context.payload.pull_request.number;
+    const octokit = new Octokit({ auth: token });
+    const client = new OpenAI({ apiKey: openaiKey });
 
-  // Get changed files (limit to ~100 for safety)
-  const files = await octokit.paginate(octokit.rest.pulls.listFiles, {
-    owner, repo, pull_number: prNumber, per_page: 100,
-  });
+    const { owner, repo } = github.context.repo;
+    const prNumber = github.context.payload.pull_request?.number;
+    if (!prNumber) throw new Error("No PR number in context.");
 
-  // Build a compact diff payload (skip huge/binary files if you like)
-  const diffs = files
-    .filter(f =>
-      f.status !== "removed" &&
-      f.changes <= 5000 &&
-      !/\.lock$|\.min\.(?:js|css)$|\.png$|\.jpe?g$|\.gif$|\.svg$|\.pdf$|\.mp4$|\.zip$/.test(f.filename)
-    )
-    .map(f => `# ${f.filename}\n${f.patch || "(no patch)"}\n`)
-    .join("\n");
+    // Get changed files
+    const files = await octokit.paginate(octokit.rest.pulls.listFiles, {
+      owner,
+      repo,
+      pull_number: prNumber,
+      per_page: 100,
+    });
 
-  const system = `
-You are a senior full-stack engineer reviewing a pull request for a TypeScript/Node + React app (church management platform).
-Be precise and practical. Focus on:
-- correctness, security, performance, accessibility
-- API/DB contract mismatches
-- error handling & edge cases
-- maintainability (naming, duplication, tests)
-- clear, actionable suggestions with exact code snippets when useful.
-If everything looks good, say so and suggest small polish items.
-Output in GitHub Markdown. Use short sections with bullet points.
-`;
+    // Build diffs (limit size to avoid token overload)
+    const diffs = files
+      .map(
+        (f) =>
+          `# ${f.filename}\n${f.patch || "(no patch)"}\n`
+      )
+      .join("\n")
+      .slice(0, 180000); // ~180k chars max
 
-  const userPrompt = `
-PR: https://github.com/${owner}/${repo}/pull/${prNumber}
-Changed files and patches:
-${diffs.slice(0, 180000)}
-`;
+    // Ask OpenAI for review
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.2,
+      messages: [
+        { role: "system", content: "You are a senior engineer reviewing code." },
+        { role: "user", content: diffs },
+      ],
+    });
 
-  const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.2,
-    messages: [
-      { role: "system", content: system },
-      { role: "user", content: userPrompt },
-    ],
-  });
+    const reviewBody =
+      response.choices?.[0]?.message?.content?.trim() ||
+      "AI review failed to generate output.";
 
-  const reviewBody =
-    response.choices?.[0]?.message?.content?.trim() ||
-    "AI review failed to generate.";
+    // Post as a PR comment
+    await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: prNumber,
+      body: `### 🤖 AI Code Review\n\n${reviewBody}`,
+    });
 
-  await octokit.rest.issues.createComment({
-    owner, repo, issue_number: prNumber,
-    body: `### 🤖 AI Code Review\n\n${reviewBody}`,
-  });
-
-  console.log("AI review posted.");
+    console.log("AI review posted.");
+  } catch (err) {
+    core.setFailed(err.message);
+    console.error(err);
+  }
 }
 
-run().catch(err => {
-  core.setFailed(err.message);
-  console.error(err);
-});
-
+run();
