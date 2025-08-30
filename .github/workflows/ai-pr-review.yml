@@ -21,8 +21,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install deps
-        run: npm i @actions/core @actions/github openai@4.56.0
+      -  - name: Install deps
+  run: npm i @actions/core @actions/github @octokit/rest openai@4.56.0
 
       - name: Run AI review
         env:
