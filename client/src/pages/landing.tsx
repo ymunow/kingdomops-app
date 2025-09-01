@@ -631,7 +631,7 @@ export default function Landing() {
             className="bg-spiritual-blue text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold hover:bg-purple-800 transition-colors w-full sm:w-auto"
             data-testid="button-explore-consulting"
           >
-            🔵 Explore Consulting Services
+            🟣 Explore Consulting Services
           </Button>
         </div>
       </section>
