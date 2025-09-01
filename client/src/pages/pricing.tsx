@@ -180,22 +180,22 @@ export default function Pricing() {
           </div>
 
           {/* Inner Circle Bonus */}
-          <div className="bg-gradient-to-br from-warm-gold/5 to-yellow-50/30 rounded-xl shadow-lg border-2 border-warm-gold/20 p-8 max-w-4xl mx-auto mb-12">
+          <div className="bg-gradient-to-br from-orange-50 to-yellow-100 rounded-xl shadow-lg border-2 border-orange-300 p-8 max-w-4xl mx-auto mb-12">
             <div className="flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-warm-gold/10 rounded-full flex items-center justify-center">
-                <Star className="h-8 w-8 text-warm-gold" />
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                <Star className="h-8 w-8 text-orange-600" />
               </div>
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Inner Circle Bonus</h3>
-            <p className="text-gray-600 text-center text-lg leading-relaxed mb-4">
-              🎁 Bonus: Founding Inner Circle members also receive a complimentary 1-year subscription to <span className="font-semibold text-warm-gold">The KingdomOps Brief</span> — our premium quarterly newsletter on AI, technology, and church innovation (a $97 value).
+            <p className="text-gray-700 text-center text-lg leading-relaxed mb-4">
+              🎁 Bonus: Founding Inner Circle members also receive a complimentary 1-year subscription to <span className="font-bold text-orange-600 bg-orange-100 px-2 py-1 rounded">The KingdomOps Brief</span> — our premium quarterly newsletter on AI, technology, and church innovation (a $97 value).
             </p>
             <p className="text-center mb-4">
-              <span className="bg-warm-gold/10 text-warm-gold px-4 py-2 rounded-full text-sm font-medium">
+              <span className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-6 py-3 rounded-full text-sm font-bold shadow-lg">
                 Normally $97/year. Included free when you join the Inner Circle.
               </span>
             </p>
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-center text-sm text-gray-600 font-medium">
               Founding Inner Circle benefits are available to all churches who join during the Beta enrollment period.
             </p>
           </div>
