@@ -257,31 +257,26 @@ export default function Pricing() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-blue-300 hover:border-blue-400 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-blue-200 transition-shadow duration-300">
-                  <Shield className="h-8 w-8 text-blue-600" />
+          </div>
+          
+          {/* Inner Circle Bonus - Full Width */}
+          <div className="mt-8">
+            <Card className="border-2 border-orange-300 hover:border-orange-400 transition-all duration-300 transform hover:scale-102 hover:shadow-xl group bg-gradient-to-br from-orange-50 to-yellow-100">
+              <CardHeader className="text-center pb-4">
+                <div className="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-orange-200 transition-shadow duration-300">
+                  <Star className="h-10 w-10 text-orange-600" />
                 </div>
-                <CardTitle className="text-xl text-gray-900">Inner Circle Guarantee</CardTitle>
+                <CardTitle className="text-2xl text-gray-900">Inner Circle Bonus</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-center">
-                  Lock in your church's tier pricing for life. Even if prices rise in the future, your church will always pay the rate you joined at. If your membership grows into a new size category, you'll simply move into that tier at its locked rate.
+              <CardContent className="text-center">
+                <p className="text-gray-700 text-lg leading-relaxed mb-4 max-w-4xl mx-auto">
+                  🎁 Bonus: Founding Inner Circle members receive a complimentary 1-year subscription to <span className="font-bold text-orange-600 bg-orange-100 px-3 py-1 rounded">The KingdomOps Brief</span> — our premium quarterly newsletter on AI, technology, and church innovation (a $97 value).
                 </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-orange-300 hover:border-orange-400 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-orange-200 transition-shadow duration-300">
-                  <Star className="h-8 w-8 text-orange-600" />
+                <div className="inline-block">
+                  <span className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg">
+                    Normally $97/year. Included free when you join the Inner Circle.
+                  </span>
                 </div>
-                <CardTitle className="text-xl text-gray-900">Inner Circle Bonus</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-center">
-                  🎁 Founding Inner Circle members receive a complimentary 1-year subscription to <span className="font-bold text-orange-600">The KingdomOps Brief</span> — our premium quarterly newsletter on AI, technology, and church innovation (a $97 value).
-                </p>
               </CardContent>
             </Card>
           </div>
