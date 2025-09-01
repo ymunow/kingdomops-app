@@ -617,6 +617,25 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* AI + Technology Consulting Section */}
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            AI + Technology Consulting for Churches
+          </h2>
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 leading-relaxed max-w-4xl mx-auto">
+            KingdomOps isn't just a platform — it's a partner. Our consulting services help pastors, staff, and volunteers integrate AI and technology into every area of ministry, from sermon prep and communications to discipleship and administration. Less than 1% of AI consultants serve churches — we exist to change that.
+          </p>
+          <Button
+            onClick={() => setLocation("/consulting")}
+            className="bg-spiritual-blue text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold hover:bg-purple-800 transition-colors w-full sm:w-auto"
+            data-testid="button-explore-consulting"
+          >
+            🔵 Explore Consulting Services
+          </Button>
+        </div>
+      </section>
+
       {/* Why KingdomOps Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
