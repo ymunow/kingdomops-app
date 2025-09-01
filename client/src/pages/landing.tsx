@@ -623,9 +623,12 @@ export default function Landing() {
       {/* AI + Technology Consulting Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             AI + Technology Consulting for Churches
           </h2>
+          <h3 className="text-lg sm:text-xl text-gray-600 mb-6 font-medium">
+            Hands-On Partnership: Training, Integration, and Ongoing Support.
+          </h3>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 leading-relaxed max-w-4xl mx-auto">
             KingdomOps isn't just a platform — it's a partner. Our consulting services help pastors, staff, and volunteers integrate AI and technology into every area of ministry, from sermon prep and communications to discipleship and administration. Less than 1% of AI consultants serve churches, and we exist to change that.
           </p>
@@ -642,9 +645,12 @@ export default function Landing() {
       {/* Why KingdomOps Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-spiritual-blue to-purple-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
             Why KingdomOps?
           </h2>
+          <h3 className="text-lg sm:text-xl text-purple-200 mb-6 font-medium">
+            KingdomOps is the trusted partner for faith-driven technology adoption.
+          </h3>
           <p className="text-base sm:text-lg text-purple-100 mb-8 max-w-3xl mx-auto">
             Equip your church with AI and technology to better communicate, organize, and disciple your members — while multiplying Kingdom impact.
           </p>
@@ -677,9 +683,15 @@ export default function Landing() {
           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/60 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Crown className="h-8 w-8 sm:h-10 sm:w-10 text-spiritual-blue" />
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-gray-900">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-gray-900">
             The KingdomOps Inner Circle
           </h2>
+          <h3 className="text-lg sm:text-xl text-spiritual-blue mb-2 font-semibold">
+            Kingdom Stewardship in the Age of AI.
+          </h3>
+          <h4 className="text-base sm:text-lg text-gray-600 mb-6 font-medium">
+            The world is racing ahead with AI. Churches can't afford to be left behind.
+          </h4>
           <p className="text-base sm:text-lg text-gray-700 mb-8 max-w-4xl mx-auto leading-relaxed">
             KingdomOps is currently being piloted by churches across the United States. Inner Circle members are pioneers investing early to shape the future of AI and technology tools that will disciple, equip, and connect churches worldwide. As a founding member, your church will also receive early access to consulting resources, training, and lifetime pricing as KingdomOps continues to grow.
           </p>
@@ -696,9 +708,12 @@ export default function Landing() {
       {/* Vision & Impact Section */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Our Vision & Impact
           </h2>
+          <h3 className="text-lg sm:text-xl text-spiritual-blue mb-6 font-medium">
+            Equipping the Church for the Digital Age.
+          </h3>
           <p className="text-lg text-gray-600 mb-12">
             Our vision is to see churches connected, leaders empowered by AI and technology, and members discipled with tools designed for Kingdom impact.
           </p>
