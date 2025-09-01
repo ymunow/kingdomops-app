@@ -188,12 +188,15 @@ export default function Pricing() {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Inner Circle Bonus</h3>
             <p className="text-gray-600 text-center text-lg leading-relaxed mb-4">
-              As a founding Inner Circle church, you'll also receive a complimentary 1-year subscription to <span className="font-semibold text-warm-gold">The KingdomOps Brief</span> — our premium quarterly newsletter on ministry innovation, AI, and church technology.
+              🎁 Bonus: Founding Inner Circle members also receive a complimentary 1-year subscription to <span className="font-semibold text-warm-gold">The KingdomOps Brief</span> — our premium quarterly newsletter on AI, technology, and church innovation (a $97 value).
             </p>
-            <p className="text-center">
+            <p className="text-center mb-4">
               <span className="bg-warm-gold/10 text-warm-gold px-4 py-2 rounded-full text-sm font-medium">
                 Normally $97/year. Included free when you join the Inner Circle.
               </span>
+            </p>
+            <p className="text-center text-sm text-gray-500">
+              Founding Inner Circle benefits are available to all churches who join during the Beta enrollment period.
             </p>
           </div>
 
@@ -264,11 +267,11 @@ export default function Pricing() {
                 <div className="w-16 h-16 bg-warm-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-warm-gold/20 transition-shadow duration-300">
                   <Shield className="h-8 w-8 text-warm-gold" />
                 </div>
-                <CardTitle className="text-xl text-gray-900">Lifetime Pricing</CardTitle>
+                <CardTitle className="text-xl text-gray-900">Inner Circle Guarantee</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 text-center">
-                  Lock in exclusive lifetime pricing that includes all future updates, features, and add-ons.
+                  Lock in your church's tier pricing for life. Even if prices rise in the future, your church will always pay the rate you joined at. If your membership grows into a new size category, you'll simply move into that tier at its locked rate.
                 </p>
               </CardContent>
             </Card>
@@ -556,8 +559,8 @@ export default function Pricing() {
                 <div className="w-16 h-16 bg-spiritual-blue rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-spiritual-blue/30 transition-shadow duration-300">
                   <Rocket className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="font-bold text-xl text-spiritual-blue mb-2">Inner Circle Launch</h3>
-                <p className="text-sm text-gray-500 mb-4">Now – Q1 2026</p>
+                <h3 className="font-bold text-xl text-spiritual-blue mb-2">📅 Beta Timeline</h3>
+                <p className="text-sm text-gray-500 mb-4">Applications Open: Now</p>
                 <ul className="text-gray-600 text-sm space-y-2">
                   <li>• Core features released</li>
                   <li>• Church onboarding & assessments</li>
@@ -592,8 +595,8 @@ export default function Pricing() {
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-green-500/30 transition-shadow duration-300">
                   <Star className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="font-bold text-xl text-green-600 mb-2">Public Launch</h3>
-                <p className="text-sm text-gray-500 mb-4">Q3 2026</p>
+                <h3 className="font-bold text-xl text-green-600 mb-2">Public Expansion</h3>
+                <p className="text-sm text-gray-500 mb-4">2026</p>
                 <ul className="text-gray-600 text-sm space-y-2">
                   <li>• Locked lifetime pricing for Inner Circle</li>
                   <li>• Email integration & automation</li>
