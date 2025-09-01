@@ -639,7 +639,7 @@ export default function Landing() {
             Built by Ministry Leaders
           </h2>
           <p className="text-lg text-gray-600 leading-relaxed mb-8">
-            KingdomOps was built by ministry leaders who understand the challenges of communication, discipleship, and administration. Our mission is to equip churches with the tools they need to thrive.
+            KingdomOps was built by ministry leaders who understand the challenges of communication, discipleship, and administration. Our mission is to equip churches with AI, technology, and tools that free leaders from admin and empower them to focus on people, discipleship, and Kingdom growth.
           </p>
           <div className="border-t border-gray-300 w-16 mx-auto mb-6"></div>
           <blockquote className="text-lg text-spiritual-blue italic mb-2">
