@@ -247,7 +247,7 @@ export default function Pricing() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-16">
             <Card className="border-2 border-spiritual-blue/20 hover:border-spiritual-blue/40 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
               <CardHeader className="text-center">
                 <div className="w-16 h-16 bg-spiritual-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-spiritual-blue/20 transition-shadow duration-300">
@@ -286,6 +286,34 @@ export default function Pricing() {
               <CardContent>
                 <p className="text-gray-600 text-center">
                   Work directly with our team to customize KingdomOps for your church's unique needs.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-blue-300 hover:border-blue-400 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-blue-200 transition-shadow duration-300">
+                  <Shield className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl text-gray-900">Inner Circle Guarantee</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center">
+                  Lock in your church's tier pricing for life. Even if prices rise in the future, your church will always pay the rate you joined at. If your membership grows into a new size category, you'll simply move into that tier at its locked rate.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-orange-300 hover:border-orange-400 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-orange-200 transition-shadow duration-300">
+                  <Star className="h-8 w-8 text-orange-600" />
+                </div>
+                <CardTitle className="text-xl text-gray-900">Inner Circle Bonus</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 text-center">
+                  🎁 Founding Inner Circle members receive a complimentary 1-year subscription to <span className="font-bold text-orange-600">The KingdomOps Brief</span> — our premium quarterly newsletter on AI, technology, and church innovation (a $97 value).
                 </p>
               </CardContent>
             </Card>
