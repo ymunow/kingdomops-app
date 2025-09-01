@@ -154,7 +154,7 @@ export default function Pricing() {
           </div>
 
           {/* Onboarding Fee Notice */}
-          <div className="bg-white rounded-xl shadow-lg border-2 border-warm-gold/20 p-6 max-w-2xl mx-auto">
+          <div className="bg-white rounded-xl shadow-lg border-2 border-warm-gold/20 p-6 max-w-2xl mx-auto mb-12">
             <div className="flex items-center justify-center mb-4">
               <div className="w-12 h-12 bg-warm-gold/10 rounded-full flex items-center justify-center">
                 <Settings className="h-6 w-6 text-warm-gold" />
@@ -164,6 +164,70 @@ export default function Pricing() {
             <p className="text-gray-600 text-center">
               A <span className="font-semibold text-warm-gold">$500 onboarding fee</span> applies to all tiers. This covers setup, training, and a smooth launch for your church.
             </p>
+          </div>
+
+          {/* Inner Circle Guarantee */}
+          <div className="bg-gradient-to-br from-spiritual-blue/5 to-purple-50/30 rounded-xl shadow-lg border-2 border-spiritual-blue/20 p-8 max-w-4xl mx-auto mb-12">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-spiritual-blue/10 rounded-full flex items-center justify-center">
+                <Shield className="h-8 w-8 text-spiritual-blue" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Inner Circle Guarantee</h3>
+            <p className="text-gray-600 text-center text-lg leading-relaxed">
+              Inner Circle churches lock in their tier pricing for life. Even if tier prices increase in the future, your church will always pay the tier pricing you joined at. If your membership grows into a new size category, you'll simply move into that tier at its locked rate.
+            </p>
+          </div>
+
+          {/* Inner Circle Bonus */}
+          <div className="bg-gradient-to-br from-warm-gold/5 to-yellow-50/30 rounded-xl shadow-lg border-2 border-warm-gold/20 p-8 max-w-4xl mx-auto mb-12">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-warm-gold/10 rounded-full flex items-center justify-center">
+                <Star className="h-8 w-8 text-warm-gold" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Inner Circle Bonus</h3>
+            <p className="text-gray-600 text-center text-lg leading-relaxed mb-4">
+              As a founding Inner Circle church, you'll also receive a complimentary 1-year subscription to <span className="font-semibold text-warm-gold">The KingdomOps Brief</span> — our premium quarterly newsletter on ministry innovation, AI, and church technology.
+            </p>
+            <p className="text-center">
+              <span className="bg-warm-gold/10 text-warm-gold px-4 py-2 rounded-full text-sm font-medium">
+                Normally $97/year. Included free when you join the Inner Circle.
+              </span>
+            </p>
+          </div>
+
+          {/* Beta Timeline */}
+          <div className="bg-white rounded-xl shadow-lg border-2 border-green-200 p-8 max-w-4xl mx-auto">
+            <div className="flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <Clock className="h-8 w-8 text-green-600" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Beta Timeline</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mb-3">
+                  <CheckCircle className="h-6 w-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">Applications Open</h4>
+                <p className="text-green-600 font-medium">Now</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mb-3">
+                  <Rocket className="h-6 w-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">Beta Launch</h4>
+                <p className="text-blue-600 font-medium">October/November 2025</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mb-3">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">Public Expansion</h4>
+                <p className="text-purple-600 font-medium">2026</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
