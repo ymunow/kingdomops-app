@@ -500,10 +500,13 @@ export default function Landing() {
               <div className="flex items-center justify-center lg:justify-start mb-4">
                 <span className="bg-spiritual-blue text-white px-3 py-1 rounded-full text-sm font-medium">BETA</span>
               </div>
-              <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-900 mb-6 leading-tight">
+              <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-gray-900 mb-4 leading-tight">
                 Equipping Churches with AI, Technology, and Tools to{" "}
                 <span className="text-spiritual-blue">Multiply Kingdom Impact</span>
               </h1>
+              <h2 className="font-display text-xl sm:text-2xl md:text-3xl text-gray-700 mb-6 font-medium">
+                Equipping the Church for the Digital Age.
+              </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                 More than software, KingdomOps is your partner in communication, organization, and discipleship.
               </p>
