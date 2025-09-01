@@ -624,7 +624,7 @@ export default function Landing() {
             AI + Technology Consulting for Churches
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 leading-relaxed max-w-4xl mx-auto">
-            KingdomOps isn't just a platform — it's a partner. Our consulting services help pastors, staff, and volunteers integrate AI and technology into every area of ministry, from sermon prep and communications to discipleship and administration. Less than 1% of AI consultants serve churches — we exist to change that.
+            KingdomOps isn't just a platform — it's a partner. Our consulting services help pastors, staff, and volunteers integrate AI and technology into every area of ministry, from sermon prep and communications to discipleship and administration. Less than 1% of AI consultants serve churches, and we exist to change that.
           </p>
           <Button
             onClick={() => setLocation("/consulting")}
