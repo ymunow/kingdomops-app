@@ -578,7 +578,7 @@ export default function Pricing() {
                   <TrendingUp className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="font-bold text-xl text-warm-gold mb-2">Growth & Expansion</h3>
-                <p className="text-sm text-gray-500 mb-4">Q2 2026</p>
+                <p className="text-sm text-gray-500 mb-4">2026 (advanced tools, courses, analytics)</p>
                 <ul className="text-gray-600 text-sm space-y-2">
                   <li>• Advanced communication tools</li>
                   <li>• Online Community (groups, discussions)</li>
@@ -598,7 +598,7 @@ export default function Pricing() {
                 <h3 className="font-bold text-xl text-green-600 mb-2">Public Expansion</h3>
                 <p className="text-sm text-gray-500 mb-4">2026</p>
                 <ul className="text-gray-600 text-sm space-y-2">
-                  <li>• Locked lifetime pricing for Inner Circle</li>
+                  <li>• Inner Circle tier pricing locked in for life</li>
                   <li>• Email integration & automation</li>
                   <li>• Advanced analytics & reporting</li>
                   <li>• Priority support & feature requests</li>
@@ -623,14 +623,14 @@ export default function Pricing() {
           {/* Limited Spots Badge */}
           <div className="inline-flex items-center bg-warm-gold/20 border border-warm-gold/30 rounded-full px-4 py-2 mb-6">
             <AlertCircle className="h-4 w-4 text-warm-gold mr-2" />
-            <span className="text-warm-gold font-medium text-sm">Limited to first 50 churches</span>
+            <span className="text-warm-gold font-medium text-sm">Founding Inner Circle benefits available during Beta enrollment</span>
           </div>
           
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6">
             Ready to Join the Inner Circle?
           </h2>
           <p className="text-lg sm:text-xl text-purple-100 mb-8 max-w-2xl mx-auto px-4">
-            Apply today to secure your church's place in the future of church management — with lifetime pricing locked in when we launch.
+            Apply today to secure your church's place in the future of church management — with Inner Circle tier pricing locked in for life.
           </p>
           <Button
             onClick={() => setLocation("/church-signup")}
