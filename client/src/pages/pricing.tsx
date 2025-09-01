@@ -56,31 +56,114 @@ export default function Pricing() {
 
       {/* Pricing Section */}
       <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Inner Circle Pricing
-          </h2>
-          <div className="bg-gradient-to-br from-white to-purple-50/30 rounded-2xl shadow-xl border-2 border-spiritual-blue/20 p-8 max-w-md mx-auto relative overflow-hidden">
-            {/* Elegant corner accent */}
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-spiritual-blue/10 to-purple-200/20 rounded-bl-full"></div>
-            
-            <div className="text-center mb-6 relative z-10">
-              <div className="flex items-baseline justify-center mb-2">
-                <span className="text-6xl font-bold text-spiritual-blue">$99</span>
-                <span className="text-gray-600 text-lg ml-2">/month</span>
-              </div>
-              
-              {/* Elegant lifetime guarantee badge */}
-              <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-spiritual-blue/5 to-purple-100/50 border border-spiritual-blue/20 px-4 py-2 rounded-full mt-4">
-                <Crown className="h-4 w-4 text-spiritual-blue" />
-                <span className="text-spiritual-blue font-medium text-sm">Lifetime Pricing Guarantee</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Pricing Tiers
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Choose the plan that fits your church size and ministry needs
+            </p>
+          </div>
+
+          {/* Pricing Tiers Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {/* Small Churches */}
+            <Card className="border-2 border-spiritual-blue/20 hover:border-spiritual-blue/40 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-spiritual-blue/10 to-purple-200/20 rounded-bl-full"></div>
+              <CardHeader className="text-center relative z-10">
+                <CardTitle className="text-xl text-gray-900 mb-2">Small Churches</CardTitle>
+                <p className="text-sm text-gray-600 mb-4">(&lt;100 members)</p>
+                <div className="flex items-baseline justify-center mb-2">
+                  <span className="text-4xl font-bold text-spiritual-blue">$197</span>
+                  <span className="text-gray-600 text-lg ml-2">/month</span>
+                </div>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-gray-600 text-sm mb-4">Perfect for church plants and smaller congregations</p>
+                <ul className="text-left text-sm text-gray-600 space-y-2 mb-6">
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-2" />Full access to KingdomOps features</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-2" />Includes onboarding + training</li>
+                  <li className="flex items-center"><Crown className="h-4 w-4 text-spiritual-blue mr-2" />Inner Circle Guarantee: Your rate is locked for life</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Medium Churches */}
+            <Card className="border-2 border-warm-gold/30 hover:border-warm-gold/50 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-warm-gold/10 to-yellow-200/20 rounded-bl-full"></div>
+              <CardHeader className="text-center relative z-10">
+                <CardTitle className="text-xl text-gray-900 mb-2">Medium Churches</CardTitle>
+                <p className="text-sm text-gray-600 mb-4">(100–250 members)</p>
+                <div className="flex items-baseline justify-center mb-2">
+                  <span className="text-4xl font-bold text-warm-gold">$297</span>
+                  <span className="text-gray-600 text-lg ml-2">/month</span>
+                </div>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-gray-600 text-sm mb-4">Designed for growing congregations</p>
+                <ul className="text-left text-sm text-gray-600 space-y-2 mb-6">
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-2" />Includes expanded features + analytics</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-2" />Full staff and volunteer onboarding support</li>
+                  <li className="flex items-center"><Crown className="h-4 w-4 text-spiritual-blue mr-2" />Inner Circle Guarantee: Your rate is locked for life</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Large Churches */}
+            <Card className="border-2 border-purple-300 hover:border-purple-400 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-purple-200/20 to-purple-300/30 rounded-bl-full"></div>
+              <CardHeader className="text-center relative z-10">
+                <CardTitle className="text-xl text-gray-900 mb-2">Large Churches</CardTitle>
+                <p className="text-sm text-gray-600 mb-4">(251–500 members)</p>
+                <div className="flex items-baseline justify-center mb-2">
+                  <span className="text-4xl font-bold text-purple-600">$497</span>
+                  <span className="text-gray-600 text-lg ml-2">/month</span>
+                </div>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-gray-600 text-sm mb-4">Built for established and multi-ministry congregations</p>
+                <ul className="text-left text-sm text-gray-600 space-y-2 mb-6">
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-2" />Includes advanced support and deeper insights</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-2" />Volunteer and multi-team coordination tools</li>
+                  <li className="flex items-center"><Crown className="h-4 w-4 text-spiritual-blue mr-2" />Inner Circle Guarantee: Your rate is locked for life</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Enterprise Churches */}
+            <Card className="border-2 border-gray-300 hover:border-gray-400 transition-all duration-300 transform hover:scale-105 hover:shadow-xl group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-gray-200/20 to-gray-300/30 rounded-bl-full"></div>
+              <CardHeader className="text-center relative z-10">
+                <CardTitle className="text-xl text-gray-900 mb-2">Enterprise Churches</CardTitle>
+                <p className="text-sm text-gray-600 mb-4">(500+ members)</p>
+                <div className="flex items-baseline justify-center mb-2">
+                  <span className="text-2xl font-bold text-gray-700">Custom Pricing</span>
+                </div>
+                <p className="text-sm text-gray-600">(starting at $997/month)</p>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-gray-600 text-sm mb-4">Tailored for large and multi-site ministries</p>
+                <ul className="text-left text-sm text-gray-600 space-y-2 mb-6">
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-2" />Advanced integrations and premium support</li>
+                  <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-2" />Dedicated account management</li>
+                  <li className="flex items-center"><Crown className="h-4 w-4 text-spiritual-blue mr-2" />Inner Circle Guarantee: Locked tier pricing when you join</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Onboarding Fee Notice */}
+          <div className="bg-white rounded-xl shadow-lg border-2 border-warm-gold/20 p-6 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-warm-gold/10 rounded-full flex items-center justify-center">
+                <Settings className="h-6 w-6 text-warm-gold" />
               </div>
             </div>
-            
-            <div className="text-center text-gray-600 mb-6 relative z-10">
-              <p className="font-medium mb-1">Inner Circle Exclusive</p>
-              <p className="text-sm">Lock in this rate for life when we launch publicly in Q3 2026</p>
-            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">One-Time Onboarding Fee</h3>
+            <p className="text-gray-600 text-center">
+              A <span className="font-semibold text-warm-gold">$500 onboarding fee</span> applies to all tiers. This covers setup, training, and a smooth launch for your church.
+            </p>
           </div>
         </div>
       </section>
