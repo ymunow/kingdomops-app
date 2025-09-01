@@ -232,7 +232,7 @@ export default function Pricing() {
             {/* Highlighted Inner Circle Guarantee */}
             <Card className="border-3 border-warm-gold hover:border-warm-gold/80 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl group bg-gradient-to-br from-warm-gold/5 to-yellow-50/30 relative">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <div className="bg-warm-gold text-white px-3 py-1 rounded-full text-xs font-bold">
+                <div className="bg-gradient-to-r from-warm-gold to-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                   MOST IMPORTANT
                 </div>
               </div>
@@ -265,26 +265,44 @@ export default function Pricing() {
 
           </div>
           
-          {/* Inner Circle Bonus - Aligned with top boxes */}
-          <div className="max-w-4xl mx-auto">
-            <Card className="border-2 border-orange-300 hover:border-orange-400 transition-all duration-300 transform hover:scale-102 hover:shadow-xl group bg-gradient-to-br from-orange-50 to-yellow-100">
+          {/* Inner Circle Bonus - Narrower centered box */}
+          <div className="max-w-md mx-auto mb-8">
+            <Card className="border-2 border-warm-gold hover:border-warm-gold/80 transition-all duration-300 transform hover:scale-102 hover:shadow-xl group bg-gradient-to-br from-warm-gold/5 to-yellow-100/30">
               <CardHeader className="text-center pb-4">
-                <div className="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-orange-200 transition-shadow duration-300">
-                  <Star className="h-10 w-10 text-orange-600" />
+                <div className="w-16 h-16 bg-warm-gold/15 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-warm-gold/20 transition-shadow duration-300">
+                  <Star className="h-8 w-8 text-warm-gold" />
                 </div>
-                <CardTitle className="text-2xl text-gray-900">Inner Circle Bonus</CardTitle>
+                <CardTitle className="text-xl text-gray-900 font-semibold">Inner Circle Bonus</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="text-gray-700 text-lg leading-relaxed mb-4 max-w-3xl mx-auto">
-                  🎁 Bonus: Founding Inner Circle members receive a complimentary 1-year subscription to <span className="font-bold text-orange-600 bg-orange-100 px-3 py-1 rounded">The KingdomOps Brief</span> — our premium quarterly newsletter on AI, technology, and church innovation (a $97 value).
+                <p className="text-gray-700 text-lg leading-relaxed mb-3">
+                  🎁 Bonus: 1-Year Subscription to <span className="font-bold text-warm-gold bg-warm-gold/10 px-2 py-1 rounded">The KingdomOps Brief</span>
+                </p>
+                <p className="text-gray-600 text-sm mb-4">
+                  Your quarterly update on ministry innovation, AI, and church technology.
                 </p>
                 <div className="inline-block">
-                  <span className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg">
-                    Normally $97/year. Included free when you join the Inner Circle.
+                  <span className="bg-gradient-to-r from-warm-gold to-yellow-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                    Normally $97/year — included free when you join the Inner Circle.
                   </span>
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* CTA Button */}
+          <div className="text-center">
+            <Button 
+              onClick={() => setLocation("/church-signup")}
+              className="bg-gradient-to-r from-spiritual-blue to-purple-700 text-white hover:from-purple-800 hover:to-spiritual-blue px-8 py-4 text-lg font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
+              data-testid="button-join-inner-circle"
+            >
+              <Crown className="mr-3 h-6 w-6" />
+              Apply for Inner Circle Beta
+            </Button>
+            <p className="text-gray-600 text-sm mt-3">
+              Join the founding members shaping the future of church technology
+            </p>
           </div>
         </div>
       </section>
