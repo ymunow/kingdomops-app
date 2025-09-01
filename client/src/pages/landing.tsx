@@ -624,7 +624,7 @@ export default function Landing() {
             Why KingdomOps?
           </h2>
           <p className="text-base sm:text-lg text-purple-100 mb-8 max-w-3xl mx-auto">
-            Equip your church with the resources it needs to better communicate, organize and disciple its members - all from a single platform.
+            Equip your church with AI and technology to better communicate, organize, and disciple your members — while multiplying Kingdom impact.
           </p>
         </div>
       </section>
@@ -782,7 +782,7 @@ export default function Landing() {
               <h3 className="text-2xl font-bold">KingdomOps</h3>
             </div>
             <p className="text-gray-400 mb-6">
-              Equip your church with the resources it needs to better communicate, organize and disciple its members for Kingdom impact.
+              Equip your church with AI and technology to better communicate, organize, and disciple your members — while multiplying Kingdom impact.
             </p>
             <p className="text-gray-500 text-sm">
               Powered by{" "}
