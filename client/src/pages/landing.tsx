@@ -763,6 +763,22 @@ export default function Landing() {
               {
                 question: "What happens after beta?",
                 answer: "Your church transitions seamlessly into a full subscription plan while keeping the same locked-in lifetime price secured during beta."
+              },
+              {
+                question: "Is KingdomOps just software, or do you provide consulting too?",
+                answer: "KingdomOps is more than software. Along with our platform, we provide hands-on consulting, training, and ongoing support to help churches leverage AI and technology for Kingdom impact."
+              },
+              {
+                question: "How will KingdomOps help my staff and volunteers?",
+                answer: "We simplify communication, event planning, discipleship, and admin work so your leaders spend less time on logistics and more time on people."
+              },
+              {
+                question: "Is KingdomOps safe and private?",
+                answer: "Yes. KingdomOps is built by ministry leaders with a commitment to data security and privacy. Your church data is protected and never sold."
+              },
+              {
+                question: "What makes KingdomOps different from other church management software?",
+                answer: "Unlike generic tools, KingdomOps is built for the Church with AI-powered insights, discipleship features, and consulting support designed to multiply your ministry's impact."
               }
             ].map((faq, index) => (
               <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
