@@ -678,7 +678,7 @@ export default function Landing() {
             Our Vision & Impact
           </h2>
           <p className="text-lg text-gray-600 mb-12">
-            Our vision is to see churches more connected, leaders better equipped, and members discipled with tools designed for Kingdom impact.
+            Our vision is to see churches connected, leaders empowered by AI and technology, and members discipled with tools designed for Kingdom impact.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             <div className="flex flex-col items-center">
