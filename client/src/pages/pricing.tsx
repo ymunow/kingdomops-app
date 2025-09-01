@@ -166,39 +166,6 @@ export default function Pricing() {
             </p>
           </div>
 
-          {/* Inner Circle Guarantee */}
-          <div className="bg-gradient-to-br from-spiritual-blue/5 to-purple-50/30 rounded-xl shadow-lg border-2 border-spiritual-blue/20 p-8 max-w-4xl mx-auto mb-12">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-spiritual-blue/10 rounded-full flex items-center justify-center">
-                <Shield className="h-8 w-8 text-spiritual-blue" />
-              </div>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Inner Circle Guarantee</h3>
-            <p className="text-gray-600 text-center text-lg leading-relaxed">
-              Inner Circle churches lock in their tier pricing for life. Even if tier prices increase in the future, your church will always pay the tier pricing you joined at. If your membership grows into a new size category, you'll simply move into that tier at its locked rate.
-            </p>
-          </div>
-
-          {/* Inner Circle Bonus */}
-          <div className="bg-gradient-to-br from-orange-50 to-yellow-100 rounded-xl shadow-lg border-2 border-orange-300 p-8 max-w-4xl mx-auto mb-12">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
-                <Star className="h-8 w-8 text-orange-600" />
-              </div>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">Inner Circle Bonus</h3>
-            <p className="text-gray-700 text-center text-lg leading-relaxed mb-4">
-              🎁 Bonus: Founding Inner Circle members also receive a complimentary 1-year subscription to <span className="font-bold text-orange-600 bg-orange-100 px-2 py-1 rounded">The KingdomOps Brief</span> — our premium quarterly newsletter on AI, technology, and church innovation (a $97 value).
-            </p>
-            <p className="text-center mb-4">
-              <span className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-6 py-3 rounded-full text-sm font-bold shadow-lg">
-                Normally $97/year. Included free when you join the Inner Circle.
-              </span>
-            </p>
-            <p className="text-center text-sm text-gray-600 font-medium">
-              Founding Inner Circle benefits are available to all churches who join during the Beta enrollment period.
-            </p>
-          </div>
 
           {/* Beta Timeline */}
           <div className="bg-white rounded-xl shadow-lg border-2 border-green-200 p-8 max-w-4xl mx-auto">
